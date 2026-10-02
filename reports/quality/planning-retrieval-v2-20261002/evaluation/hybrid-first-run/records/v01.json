@@ -1,0 +1,679 @@
+{
+  "case_id": "v01",
+  "query": "例行体检：Python 发布确认进程在连续窗口 CPU 0.9%，RSS 160MiB 且零增长，没有投诉，请只说明已检查的资源是否正常。",
+  "trace": {
+    "relevance_policy": "knowledge-domain-admission-v1",
+    "relevance_query": "例行体检：Python 发布确认进程在连续窗口 CPU 0.9%，RSS 160MiB 且零增长，没有投诉，请只说明已检查的资源是否正常。",
+    "query_profile": {
+      "concepts": [
+        "cpu",
+        "memory"
+      ],
+      "runtime_scopes": [
+        "PYTHON"
+      ],
+      "database_scopes": []
+    },
+    "accepted": [
+      {
+        "knowledge_id": "linux.memory.process_growth",
+        "chunk_id": "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+        "document": "knowledge/linux_memory.md",
+        "content_hash": "724bf0737d2816a955b81e5976c616f51c72340a336321b08f48625ca3792394",
+        "score": 0.970988,
+        "accepted": true,
+        "reason": "DOMAIN_ANCHOR_MATCH",
+        "shared_concepts": [
+          "memory"
+        ],
+        "matched_anchors": [
+          "rss"
+        ],
+        "source_profile": {
+          "concepts": [
+            "memory",
+            "sampling"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "container.memory.pressure",
+        "chunk_id": "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+        "document": "knowledge/memory_pressure.md",
+        "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+        "score": 0.903064,
+        "accepted": true,
+        "reason": "DOMAIN_ANCHOR_MATCH",
+        "shared_concepts": [
+          "memory"
+        ],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "memory",
+            "memory_pressure"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "container.cpu.throttling",
+        "chunk_id": "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "score": 0.819572,
+        "accepted": true,
+        "reason": "DOMAIN_ANCHOR_MATCH",
+        "shared_concepts": [
+          "cpu"
+        ],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "cpu_quota"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      }
+    ],
+    "rejected": [
+      {
+        "knowledge_id": "python.sampling.attribution",
+        "chunk_id": "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "score": 0.048916,
+        "recall_channels": [
+          "BM25",
+          "ENTITY",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "PYTHON"
+          ],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "python.sampling.attribution",
+        "chunk_id": "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "score": 0.047379,
+        "recall_channels": [
+          "BM25",
+          "ENTITY",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "PYTHON"
+          ],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "python.sampling.attribution",
+        "chunk_id": "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "score": 0.046176,
+        "recall_channels": [
+          "BM25",
+          "ENTITY",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "PYTHON"
+          ],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "go.profile.selection",
+        "chunk_id": "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "score": 0.029418,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "sre.latency.measurement",
+        "chunk_id": "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+        "document": "knowledge/latency_measurement.md",
+        "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+        "score": 0.02879,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "latency_measurement"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "agent.tool.governance",
+        "chunk_id": "a57b5863c7b29ff55c4030537c0e0dbac718f44d665f84210ff8c475bc24c1ab",
+        "document": "knowledge/agent_tool_governance.md",
+        "content_hash": "2286645c9244176eb49d5274789f02fa65bc442010c941dfdc4ebc257cdf57aa",
+        "score": 0.027984,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "tool_governance"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "go.profile.selection",
+        "chunk_id": "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "score": 0.026743,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "sre.recovery.acceptance",
+        "chunk_id": "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+        "document": "knowledge/sre_recovery.md",
+        "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+        "score": 0.026671,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "recovery"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "sre.recovery.acceptance",
+        "chunk_id": "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7",
+        "document": "knowledge/sre_recovery.md",
+        "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+        "score": 0.025992,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "recovery"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "jvm.gc.pressure",
+        "chunk_id": "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+        "document": "knowledge/jvm_gc.md",
+        "content_hash": "54d23c97c73b4d8c8e0d5bded2d3152c531404cb8901ce54d95e53a4a4aa4667",
+        "score": 0.014925,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "gc",
+            "latency_measurement"
+          ],
+          "runtime_scopes": [
+            "JVM"
+          ],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "sre.recovery.acceptance",
+        "chunk_id": "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+        "document": "knowledge/sre_recovery.md",
+        "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+        "score": 0.013514,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "recovery"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "postgres.waits",
+        "chunk_id": "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d",
+        "document": "knowledge/postgres_waits.md",
+        "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+        "score": 0.013158,
+        "recall_channels": [
+          "BM25"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "lock_wait"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": [
+            "POSTGRES"
+          ]
+        }
+      },
+      {
+        "knowledge_id": "agent.tool.governance",
+        "chunk_id": "186730054b445e32473ac1274866b799c7db6cea1ebf0b04a400cfc59bf2bbaf",
+        "document": "knowledge/agent_tool_governance.md",
+        "content_hash": "2286645c9244176eb49d5274789f02fa65bc442010c941dfdc4ebc257cdf57aa",
+        "score": 0.012987,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "tool_governance"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "go.profile.selection",
+        "chunk_id": "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "score": 0.012821,
+        "recall_channels": [
+          "BM25"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "sre.latency.measurement",
+        "chunk_id": "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+        "document": "knowledge/latency_measurement.md",
+        "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+        "score": 0.012821,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "latency_measurement"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        }
+      },
+      {
+        "knowledge_id": "postgres.waits",
+        "chunk_id": "63c16b6ab2e2c0f6b8fab32b352d32ddc9acecac5e72c9e3981e61e421ca55bc",
+        "document": "knowledge/postgres_waits.md",
+        "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+        "score": 0.0125,
+        "recall_channels": [
+          "BM25"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "source_profile": {
+          "concepts": [
+            "lock_wait"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": [
+            "POSTGRES"
+          ]
+        }
+      }
+    ],
+    "outcome": "MATCHED",
+    "health": "HEALTHY",
+    "health_scope": "RETRIEVAL_ONLY",
+    "no_match_is_normal": false,
+    "actual_backend": "BM25_ENTITY_CHROMA_RRF_RERANK",
+    "requested_backend": "HYBRID",
+    "recall_channels": {
+      "BM25": {
+        "available": true,
+        "candidate_count": 20,
+        "chunk_ids": [
+          "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+          "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+          "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+          "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+          "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+          "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+          "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+          "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+          "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+          "a57b5863c7b29ff55c4030537c0e0dbac718f44d665f84210ff8c475bc24c1ab",
+          "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+          "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+          "2272298e3d20d5dfd199987cd01900c9faf16f5de64b9ebc82f4e41d0c2c1208",
+          "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+          "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7",
+          "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d",
+          "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+          "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+          "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+          "63c16b6ab2e2c0f6b8fab32b352d32ddc9acecac5e72c9e3981e61e421ca55bc"
+        ]
+      },
+      "ENTITY": {
+        "available": true,
+        "candidate_count": 6,
+        "chunk_ids": [
+          "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+          "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+          "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+          "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+          "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+          "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c"
+        ]
+      },
+      "DENSE": {
+        "available": true,
+        "candidate_count": 20,
+        "chunk_ids": [
+          "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+          "c24fd21c4f187c93cbdf15d41efbeb3be1b8971565b49f46cda08e1d27b59e21",
+          "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+          "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+          "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+          "89c864019194c9bd97a8f9b2d2194cb28d3ef6eb5430563af74ddbdd10e19714",
+          "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+          "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+          "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+          "84ead3eab346bcc658bf383d8d291a0ae31fe741bfbbc5b15127213d404a9f38",
+          "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+          "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+          "a57b5863c7b29ff55c4030537c0e0dbac718f44d665f84210ff8c475bc24c1ab",
+          "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+          "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+          "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+          "186730054b445e32473ac1274866b799c7db6cea1ebf0b04a400cfc59bf2bbaf",
+          "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+          "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7",
+          "2272298e3d20d5dfd199987cd01900c9faf16f5de64b9ebc82f4e41d0c2c1208"
+        ]
+      }
+    },
+    "degraded_reasons": [],
+    "index_version": "md-knowledge-71ac29e6e40c93255b0f152b830e977c",
+    "embedding_model": "Qwen/Qwen3-Embedding-4B",
+    "dimensions": 1024,
+    "query": "例行体检：Python 发布确认进程在连续窗口 CPU 0.9%，RSS 160MiB 且零增长，没有投诉，请只说明已检查的资源是否正常。",
+    "query_hash": "4989ca0eaadc57885ad766cba78ecb94bd6f55f9d834a9e2b2f6c9ee3e5a956c",
+    "relevance_query_hash": "4989ca0eaadc57885ad766cba78ecb94bd6f55f9d834a9e2b2f6c9ee3e5a956c",
+    "retriever": "knowledge-hybrid-v4-domain-admission",
+    "catalog": "knowledge/catalog.json",
+    "top_k": 3,
+    "matched_count": 3,
+    "matches": [
+      {
+        "chunk_id": "5f7022ab7c1d46254e32c3bf1bd23c84b50c141037101e83a012dc8099296aab",
+        "knowledge_id": "linux.memory.process_growth",
+        "title": "进程内存增长与压力",
+        "document": "knowledge/linux_memory.md",
+        "content_hash": "724bf0737d2816a955b81e5976c616f51c72340a336321b08f48625ca3792394",
+        "excerpt": "# Linux 进程内存诊断\n\n高 RSS 与内存泄漏不是同义词。判断泄漏至少需要时间序列、稳定负载或基线、内存限制，以及堆或分配热点。缓存、预热和批处理也会造成阶段性增长。",
+        "required_evidence": [
+          "RSS 时间序列",
+          "内存限制",
+          "分配热点或 GC 指标"
+        ],
+        "caveats": [
+          "缓存增长和泄漏表现可能相似"
+        ],
+        "query": "例行体检：Python 发布确认进程在连续窗口 CPU 0.9%，RSS 160MiB 且零增长，没有投诉，请只说明已检查的资源是否正常。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "memory"
+          ],
+          "matched_anchors": [
+            "rss"
+          ],
+          "source_profile": {
+            "concepts": [
+              "memory",
+              "sampling"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "score": 0.970988,
+        "score_kind": "RERANK_RELEVANCE",
+        "matched_terms": [],
+        "recall_channels": [
+          "BM25",
+          "ENTITY",
+          "DENSE"
+        ]
+      },
+      {
+        "chunk_id": "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+        "knowledge_id": "container.memory.pressure",
+        "title": "容器内存回收与 OOM",
+        "document": "knowledge/memory_pressure.md",
+        "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+        "excerpt": "# 容器内存压力、回收与 OOM\n\nRSS 高不等于泄漏。区分匿名页、文件缓存、共享页和容器限制；进程视角与 cgroup 视角的统计范围不同。",
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "query": "例行体检：Python 发布确认进程在连续窗口 CPU 0.9%，RSS 160MiB 且零增长，没有投诉，请只说明已检查的资源是否正常。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "memory"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "memory",
+              "memory_pressure"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "score": 0.903064,
+        "score_kind": "RERANK_RELEVANCE",
+        "matched_terms": [],
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ]
+      },
+      {
+        "chunk_id": "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+        "knowledge_id": "container.cpu.throttling",
+        "title": "容器 CPU 配额节流",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "excerpt": "## CPU throttling 的观测窗口\n\n读取 cpu.max 和 cpu.stat，在等长窗口比较 nr_periods、nr_throttled、throttled_usec 的增量，同时记录请求量及进程 CPU。累计节流时间非零不证明当前故障；祖先 cgroup 的限制也可能影响目标。",
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "query": "例行体检：Python 发布确认进程在连续窗口 CPU 0.9%，RSS 160MiB 且零增长，没有投诉，请只说明已检查的资源是否正常。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "cpu_quota"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "score": 0.819572,
+        "score_kind": "RERANK_RELEVANCE",
+        "matched_terms": [],
+        "recall_channels": [
+          "BM25"
+        ]
+      }
+    ],
+    "evidence_contract": {
+      "is_evidence": false,
+      "status": "KNOWLEDGE_PRIOR_ONLY",
+      "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+    }
+  },
+  "matched_ids": [
+    "linux.memory.process_growth",
+    "container.memory.pressure",
+    "container.cpu.throttling"
+  ]
+}

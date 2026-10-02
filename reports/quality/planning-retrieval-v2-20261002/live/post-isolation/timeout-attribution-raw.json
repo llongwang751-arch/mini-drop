@@ -1,0 +1,782 @@
+{
+  "attempts": [
+    {
+      "attempt": "r3",
+      "diagnosis_id": "insight_cb62cff3cfa2456d8dbaa0c05e9e0ec9",
+      "versioned": false,
+      "physical_key": "insight_cb62cff3cfa2456d8dbaa0c05e9e0ec9",
+      "mode": "ASSISTED",
+      "budget": {
+        "investigation_strategy": "LATS",
+        "max_duration_seconds": 120,
+        "max_tool_calls": 1,
+        "min_diagnosis_rounds": 1,
+        "max_diagnosis_rounds": 1,
+        "max_concurrent_tasks": 1,
+        "max_hosts": 1,
+        "max_artifact_bytes": 524288000,
+        "max_risk_level": "R0",
+        "lats_top_k": 3,
+        "max_lats_iterations": null,
+        "lats_exploration_constant": 1.4142135623730951,
+        "lats_selection_policy": "UCT",
+        "lats_value_lambda": 0.5
+      },
+      "created_at": "2026-10-02T09:18:23.044430+00:00",
+      "planning_seconds_now": 60.0,
+      "final_messages": [
+        {
+          "type": "ai",
+          "name": "mini_drop_diagnosis_agent",
+          "message_id": "lc_run--01a0fbe8-68e6-7a53-812d-4f1de06b5603-0",
+          "tool_names": [
+            "search_knowledge"
+          ],
+          "tool_call_ids": [
+            "01a0fbe880ec2ffd451862881b8c6c79"
+          ],
+          "planning_dispositions": [],
+          "usage": {
+            "input_tokens": 11345,
+            "output_tokens": 111,
+            "total_tokens": 11456,
+            "input_token_details": {
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          }
+        },
+        {
+          "type": "tool",
+          "name": "search_knowledge",
+          "message_id": "77f8f2d6-44d4-44f7-857f-6a594000697a",
+          "tool_call_id": "01a0fbe880ec2ffd451862881b8c6c79"
+        },
+        {
+          "type": "ai",
+          "name": "mini_drop_diagnosis_agent",
+          "message_id": "lc_run--01a0fbe8-8244-7752-914a-3c8e8bf9d8f0-0",
+          "tool_names": [
+            "search_incident_memory"
+          ],
+          "tool_call_ids": [
+            "01a0fbe7fe8eed318929f9526c883b05"
+          ],
+          "planning_dispositions": [],
+          "usage": {
+            "input_tokens": 18967,
+            "output_tokens": 67,
+            "total_tokens": 19034,
+            "input_token_details": {
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          }
+        },
+        {
+          "type": "tool",
+          "name": "search_incident_memory",
+          "message_id": "7337d49d-d145-4e6a-95c0-2777a0737384",
+          "tool_call_id": "01a0fbe7fe8eed318929f9526c883b05"
+        }
+      ],
+      "checkpoints": [
+        {
+          "checkpoint_ts": "2026-10-02T09:18:27.549024+00:00",
+          "step": -1,
+          "source": "input",
+          "channel_names": [
+            "__start__"
+          ],
+          "message_count": 0,
+          "ai_count": 0,
+          "tool_count": 0,
+          "last_message": null,
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T09:18:27.550291+00:00",
+          "step": 0,
+          "source": "loop",
+          "channel_names": [
+            "branch:to:ModelCallLimitMiddleware.before_model",
+            "messages"
+          ],
+          "message_count": 1,
+          "ai_count": 0,
+          "tool_count": 0,
+          "last_message": {
+            "type": "human",
+            "name": null,
+            "message_id": "c1aef9a8-2200-4048-afba-db7f91f8f442"
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T09:18:27.550998+00:00",
+          "step": 1,
+          "source": "loop",
+          "channel_names": [
+            "branch:to:DeadlineSummarizationMiddleware.before_model",
+            "messages"
+          ],
+          "message_count": 1,
+          "ai_count": 0,
+          "tool_count": 0,
+          "last_message": {
+            "type": "human",
+            "name": null,
+            "message_id": "c1aef9a8-2200-4048-afba-db7f91f8f442"
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T09:18:27.551765+00:00",
+          "step": 2,
+          "source": "loop",
+          "channel_names": [
+            "branch:to:model",
+            "messages"
+          ],
+          "message_count": 1,
+          "ai_count": 0,
+          "tool_count": 0,
+          "last_message": {
+            "type": "human",
+            "name": null,
+            "message_id": "c1aef9a8-2200-4048-afba-db7f91f8f442"
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T09:18:33.744119+00:00",
+          "step": 3,
+          "source": "loop",
+          "channel_names": [
+            "branch:to:ModelCallLimitMiddleware.after_model",
+            "messages"
+          ],
+          "message_count": 2,
+          "ai_count": 1,
+          "tool_count": 0,
+          "last_message": {
+            "type": "ai",
+            "name": "mini_drop_diagnosis_agent",
+            "message_id": "lc_run--01a0fbe8-68e6-7a53-812d-4f1de06b5603-0",
+            "tool_names": [
+              "search_knowledge"
+            ],
+            "tool_call_ids": [
+              "01a0fbe880ec2ffd451862881b8c6c79"
+            ],
+            "planning_dispositions": [],
+            "usage": {
+              "input_tokens": 11345,
+              "output_tokens": 111,
+              "total_tokens": 11456,
+              "input_token_details": {
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T09:18:33.744681+00:00",
+          "step": 4,
+          "source": "loop",
+          "channel_names": [
+            "thread_model_call_count",
+            "messages",
+            "__pregel_tasks"
+          ],
+          "message_count": 2,
+          "ai_count": 1,
+          "tool_count": 0,
+          "last_message": {
+            "type": "ai",
+            "name": "mini_drop_diagnosis_agent",
+            "message_id": "lc_run--01a0fbe8-68e6-7a53-812d-4f1de06b5603-0",
+            "tool_names": [
+              "search_knowledge"
+            ],
+            "tool_call_ids": [
+              "01a0fbe880ec2ffd451862881b8c6c79"
+            ],
+            "planning_dispositions": [],
+            "usage": {
+              "input_tokens": 11345,
+              "output_tokens": 111,
+              "total_tokens": 11456,
+              "input_token_details": {
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T09:18:34.050368+00:00",
+          "step": 5,
+          "source": "loop",
+          "channel_names": [
+            "thread_model_call_count",
+            "branch:to:ModelCallLimitMiddleware.before_model",
+            "messages",
+            "__pregel_tasks"
+          ],
+          "message_count": 3,
+          "ai_count": 1,
+          "tool_count": 1,
+          "last_message": {
+            "type": "tool",
+            "name": "search_knowledge",
+            "message_id": "77f8f2d6-44d4-44f7-857f-6a594000697a",
+            "tool_call_id": "01a0fbe880ec2ffd451862881b8c6c79"
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T09:18:34.050787+00:00",
+          "step": 6,
+          "source": "loop",
+          "channel_names": [
+            "thread_model_call_count",
+            "branch:to:DeadlineSummarizationMiddleware.before_model",
+            "messages",
+            "__pregel_tasks"
+          ],
+          "message_count": 3,
+          "ai_count": 1,
+          "tool_count": 1,
+          "last_message": {
+            "type": "tool",
+            "name": "search_knowledge",
+            "message_id": "77f8f2d6-44d4-44f7-857f-6a594000697a",
+            "tool_call_id": "01a0fbe880ec2ffd451862881b8c6c79"
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T09:18:34.051118+00:00",
+          "step": 7,
+          "source": "loop",
+          "channel_names": [
+            "branch:to:model",
+            "thread_model_call_count",
+            "messages",
+            "__pregel_tasks"
+          ],
+          "message_count": 3,
+          "ai_count": 1,
+          "tool_count": 1,
+          "last_message": {
+            "type": "tool",
+            "name": "search_knowledge",
+            "message_id": "77f8f2d6-44d4-44f7-857f-6a594000697a",
+            "tool_call_id": "01a0fbe880ec2ffd451862881b8c6c79"
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T09:19:04.598704+00:00",
+          "step": 8,
+          "source": "loop",
+          "channel_names": [
+            "thread_model_call_count",
+            "branch:to:ModelCallLimitMiddleware.after_model",
+            "__pregel_tasks",
+            "messages"
+          ],
+          "message_count": 4,
+          "ai_count": 2,
+          "tool_count": 1,
+          "last_message": {
+            "type": "ai",
+            "name": "mini_drop_diagnosis_agent",
+            "message_id": "lc_run--01a0fbe8-8244-7752-914a-3c8e8bf9d8f0-0",
+            "tool_names": [
+              "search_incident_memory"
+            ],
+            "tool_call_ids": [
+              "01a0fbe7fe8eed318929f9526c883b05"
+            ],
+            "planning_dispositions": [],
+            "usage": {
+              "input_tokens": 18967,
+              "output_tokens": 67,
+              "total_tokens": 19034,
+              "input_token_details": {
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T09:19:04.599148+00:00",
+          "step": 9,
+          "source": "loop",
+          "channel_names": [
+            "thread_model_call_count",
+            "messages",
+            "__pregel_tasks"
+          ],
+          "message_count": 4,
+          "ai_count": 2,
+          "tool_count": 1,
+          "last_message": {
+            "type": "ai",
+            "name": "mini_drop_diagnosis_agent",
+            "message_id": "lc_run--01a0fbe8-8244-7752-914a-3c8e8bf9d8f0-0",
+            "tool_names": [
+              "search_incident_memory"
+            ],
+            "tool_call_ids": [
+              "01a0fbe7fe8eed318929f9526c883b05"
+            ],
+            "planning_dispositions": [],
+            "usage": {
+              "input_tokens": 18967,
+              "output_tokens": 67,
+              "total_tokens": 19034,
+              "input_token_details": {
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T09:19:04.605997+00:00",
+          "step": 10,
+          "source": "loop",
+          "channel_names": [
+            "thread_model_call_count",
+            "branch:to:ModelCallLimitMiddleware.before_model",
+            "messages",
+            "__pregel_tasks"
+          ],
+          "message_count": 5,
+          "ai_count": 2,
+          "tool_count": 2,
+          "last_message": {
+            "type": "tool",
+            "name": "search_incident_memory",
+            "message_id": "7337d49d-d145-4e6a-95c0-2777a0737384",
+            "tool_call_id": "01a0fbe7fe8eed318929f9526c883b05"
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T09:19:04.606335+00:00",
+          "step": 11,
+          "source": "loop",
+          "channel_names": [
+            "thread_model_call_count",
+            "branch:to:DeadlineSummarizationMiddleware.before_model",
+            "messages",
+            "__pregel_tasks"
+          ],
+          "message_count": 5,
+          "ai_count": 2,
+          "tool_count": 2,
+          "last_message": {
+            "type": "tool",
+            "name": "search_incident_memory",
+            "message_id": "7337d49d-d145-4e6a-95c0-2777a0737384",
+            "tool_call_id": "01a0fbe7fe8eed318929f9526c883b05"
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T09:19:04.606822+00:00",
+          "step": 12,
+          "source": "loop",
+          "channel_names": [
+            "branch:to:model",
+            "thread_model_call_count",
+            "messages",
+            "__pregel_tasks"
+          ],
+          "message_count": 5,
+          "ai_count": 2,
+          "tool_count": 2,
+          "last_message": {
+            "type": "tool",
+            "name": "search_incident_memory",
+            "message_id": "7337d49d-d145-4e6a-95c0-2777a0737384",
+            "tool_call_id": "01a0fbe7fe8eed318929f9526c883b05"
+          },
+          "pending_error_types": [
+            "str"
+          ]
+        }
+      ]
+    },
+    {
+      "attempt": "r4",
+      "diagnosis_id": "insight_deaf21c19bcc470581dfabd0cd5f3b1f",
+      "versioned": true,
+      "physical_key": "diagnosis-agent-v6-planning-output:insight_deaf21c19bcc470581dfabd0cd5f3b1f",
+      "mode": "ASSISTED",
+      "budget": {
+        "investigation_strategy": "LATS",
+        "max_duration_seconds": 120,
+        "max_tool_calls": 1,
+        "min_diagnosis_rounds": 1,
+        "max_diagnosis_rounds": 1,
+        "max_concurrent_tasks": 1,
+        "max_hosts": 1,
+        "max_artifact_bytes": 524288000,
+        "max_risk_level": "R0",
+        "lats_top_k": 3,
+        "max_lats_iterations": null,
+        "lats_exploration_constant": 1.4142135623730951,
+        "lats_selection_policy": "UCT",
+        "lats_value_lambda": 0.5
+      },
+      "created_at": "2026-10-02T10:08:35.152527+00:00",
+      "planning_seconds_now": 60.0,
+      "final_messages": [
+        {
+          "type": "ai",
+          "name": "mini_drop_diagnosis_agent",
+          "message_id": "lc_run--01a0fc16-5e88-7c13-891d-d1975c51a928-0",
+          "tool_names": [
+            "finish_diagnosis_plan"
+          ],
+          "tool_call_ids": [
+            "01a0fc16ae4b9c85cb6f3c91aacd7a45"
+          ],
+          "planning_dispositions": [
+            "INVESTIGATE"
+          ],
+          "usage": {
+            "input_tokens": 17023,
+            "output_tokens": 394,
+            "total_tokens": 17417,
+            "input_token_details": {
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          }
+        },
+        {
+          "type": "tool",
+          "name": "finish_diagnosis_plan",
+          "message_id": "2fab1646-9d43-4fed-bc4f-5f18acdd5261",
+          "tool_call_id": "01a0fc16ae4b9c85cb6f3c91aacd7a45",
+          "accepted": false,
+          "code": "INVALID_PLANNING_OUTPUT"
+        }
+      ],
+      "checkpoints": [
+        {
+          "checkpoint_ts": "2026-10-02T10:08:39.550638+00:00",
+          "step": -1,
+          "source": "input",
+          "channel_names": [
+            "__start__"
+          ],
+          "message_count": 0,
+          "ai_count": 0,
+          "tool_count": 0,
+          "last_message": null,
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T10:08:39.552054+00:00",
+          "step": 0,
+          "source": "loop",
+          "channel_names": [
+            "branch:to:ModelCallLimitMiddleware.before_model",
+            "messages"
+          ],
+          "message_count": 1,
+          "ai_count": 0,
+          "tool_count": 0,
+          "last_message": {
+            "type": "human",
+            "name": null,
+            "message_id": "5cb1729c-f768-4e80-8b65-f1d736fa4076"
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T10:08:39.552825+00:00",
+          "step": 1,
+          "source": "loop",
+          "channel_names": [
+            "branch:to:DeadlineSummarizationMiddleware.before_model",
+            "messages"
+          ],
+          "message_count": 1,
+          "ai_count": 0,
+          "tool_count": 0,
+          "last_message": {
+            "type": "human",
+            "name": null,
+            "message_id": "5cb1729c-f768-4e80-8b65-f1d736fa4076"
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T10:08:39.553499+00:00",
+          "step": 2,
+          "source": "loop",
+          "channel_names": [
+            "branch:to:model",
+            "messages"
+          ],
+          "message_count": 1,
+          "ai_count": 0,
+          "tool_count": 0,
+          "last_message": {
+            "type": "human",
+            "name": null,
+            "message_id": "5cb1729c-f768-4e80-8b65-f1d736fa4076"
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T10:09:00.020450+00:00",
+          "step": 3,
+          "source": "loop",
+          "channel_names": [
+            "branch:to:ModelCallLimitMiddleware.after_model",
+            "messages"
+          ],
+          "message_count": 2,
+          "ai_count": 1,
+          "tool_count": 0,
+          "last_message": {
+            "type": "ai",
+            "name": "mini_drop_diagnosis_agent",
+            "message_id": "lc_run--01a0fc16-5e88-7c13-891d-d1975c51a928-0",
+            "tool_names": [
+              "finish_diagnosis_plan"
+            ],
+            "tool_call_ids": [
+              "01a0fc16ae4b9c85cb6f3c91aacd7a45"
+            ],
+            "planning_dispositions": [
+              "INVESTIGATE"
+            ],
+            "usage": {
+              "input_tokens": 17023,
+              "output_tokens": 394,
+              "total_tokens": 17417,
+              "input_token_details": {
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T10:09:00.020971+00:00",
+          "step": 4,
+          "source": "loop",
+          "channel_names": [
+            "thread_model_call_count",
+            "messages",
+            "__pregel_tasks"
+          ],
+          "message_count": 2,
+          "ai_count": 1,
+          "tool_count": 0,
+          "last_message": {
+            "type": "ai",
+            "name": "mini_drop_diagnosis_agent",
+            "message_id": "lc_run--01a0fc16-5e88-7c13-891d-d1975c51a928-0",
+            "tool_names": [
+              "finish_diagnosis_plan"
+            ],
+            "tool_call_ids": [
+              "01a0fc16ae4b9c85cb6f3c91aacd7a45"
+            ],
+            "planning_dispositions": [
+              "INVESTIGATE"
+            ],
+            "usage": {
+              "input_tokens": 17023,
+              "output_tokens": 394,
+              "total_tokens": 17417,
+              "input_token_details": {
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T10:09:00.024719+00:00",
+          "step": 5,
+          "source": "loop",
+          "channel_names": [
+            "thread_model_call_count",
+            "messages",
+            "__pregel_tasks"
+          ],
+          "message_count": 3,
+          "ai_count": 1,
+          "tool_count": 1,
+          "last_message": {
+            "type": "tool",
+            "name": "finish_diagnosis_plan",
+            "message_id": "2fab1646-9d43-4fed-bc4f-5f18acdd5261",
+            "tool_call_id": "01a0fc16ae4b9c85cb6f3c91aacd7a45",
+            "accepted": false,
+            "code": "INVALID_PLANNING_OUTPUT"
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T10:09:00.037161+00:00",
+          "step": 6,
+          "source": "input",
+          "channel_names": [
+            "thread_model_call_count",
+            "messages",
+            "__pregel_tasks",
+            "__start__"
+          ],
+          "message_count": 3,
+          "ai_count": 1,
+          "tool_count": 1,
+          "last_message": {
+            "type": "tool",
+            "name": "finish_diagnosis_plan",
+            "message_id": "2fab1646-9d43-4fed-bc4f-5f18acdd5261",
+            "tool_call_id": "01a0fc16ae4b9c85cb6f3c91aacd7a45",
+            "accepted": false,
+            "code": "INVALID_PLANNING_OUTPUT"
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T10:09:00.037935+00:00",
+          "step": 7,
+          "source": "loop",
+          "channel_names": [
+            "thread_model_call_count",
+            "branch:to:ModelCallLimitMiddleware.before_model",
+            "__pregel_tasks",
+            "messages"
+          ],
+          "message_count": 4,
+          "ai_count": 1,
+          "tool_count": 1,
+          "last_message": {
+            "type": "human",
+            "name": null,
+            "message_id": "0c81807a-b7c5-4cdf-bb9d-3e9a66f1e538"
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T10:09:00.038443+00:00",
+          "step": 8,
+          "source": "loop",
+          "channel_names": [
+            "thread_model_call_count",
+            "branch:to:DeadlineSummarizationMiddleware.before_model",
+            "__pregel_tasks",
+            "messages"
+          ],
+          "message_count": 4,
+          "ai_count": 1,
+          "tool_count": 1,
+          "last_message": {
+            "type": "human",
+            "name": null,
+            "message_id": "0c81807a-b7c5-4cdf-bb9d-3e9a66f1e538"
+          },
+          "pending_error_types": []
+        },
+        {
+          "checkpoint_ts": "2026-10-02T10:09:00.039146+00:00",
+          "step": 9,
+          "source": "loop",
+          "channel_names": [
+            "branch:to:model",
+            "thread_model_call_count",
+            "__pregel_tasks",
+            "messages"
+          ],
+          "message_count": 4,
+          "ai_count": 1,
+          "tool_count": 1,
+          "last_message": {
+            "type": "human",
+            "name": null,
+            "message_id": "0c81807a-b7c5-4cdf-bb9d-3e9a66f1e538"
+          },
+          "pending_error_types": [
+            "str"
+          ]
+        }
+      ]
+    }
+  ],
+  "current_client": {
+    "provider": "siliconflow",
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "request_timeout": 90.0,
+    "max_retries": 0,
+    "max_tokens": 1000,
+    "memory": {
+      "checkpoint_backend": "postgres",
+      "max_messages": 24,
+      "max_tokens": 12000,
+      "keep_tokens": 6000
+    },
+    "bounded_model_timeout_cap_seconds": 45,
+    "planning_stage_seconds": 60,
+    "summary_model_timeout_cap_seconds": 10
+  },
+  "model_invocations": 0,
+  "current_worker_logs": [
+    {
+      "ts": "2026-10-02T10:09:37Z",
+      "event": "diagnosis_agent_plan_failed",
+      "diagnosis_id": "insight_deaf21c19bcc470581dfabd0cd5f3b1f",
+      "framework": "langgraph",
+      "error": "OpenAITimeoutError",
+      "reason": null,
+      "maximum_corrections": null,
+      "status_code": null
+    }
+  ],
+  "scope": "No model calls, no hidden reasoning/messages/credentials exported. Checkpoint/log timestamps are graph milestones, not measured HTTP per-call latency. Old worker logs were not retained here; r3 error type was captured by initial immutable audit.",
+  "attribution": {
+    "r3": "Two completed model responses executed two different reference lookups; no finish/probe output accepted; later client OpenAITimeoutError. Exact failing main vs summarization request is not logged.",
+    "r4": "One completed model response proposed INVESTIGATE in finish_diagnosis_plan; real validator rejected INVALID_PLANNING_OUTPUT (collection failure as refutation). A semantic correction was attempted, then client OpenAITimeoutError; no accepted planning result.",
+    "budget": "Both sessions are ASSISTED with requested 120 seconds. Interactive planning_seconds returns stage cap 60, not the autonomous 120-45 remainder. Main calls use min(45, remaining stage seconds), summary calls min(10, remaining); SDK max_retries=0. OpenAITimeoutError differs from explicit PlanningDeadlineExceeded; whether network, provider generation or remaining timeout caused the stall cannot be separated from these logs."
+  }
+}

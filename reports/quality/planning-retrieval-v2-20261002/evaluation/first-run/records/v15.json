@@ -1,0 +1,145 @@
+{
+  "type": "result",
+  "case_id": "v15",
+  "status": "TIMEOUT",
+  "response": {},
+  "http_status": null,
+  "error_type": "ReadTimeout",
+  "seconds": 40.133953,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "container.cpu.throttling",
+      "linux.cpu.process_pressure",
+      "linux.cpu.kernel_overhead"
+    ],
+    "matches": [
+      {
+        "query": "容器节点空闲但 cpu.max 配额 0.5 核，nr_throttled 本窗口增 44，不能凭宿主空闲排除 quota throttling，该补什么系统采集？",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu",
+            "cpu_quota"
+          ],
+          "matched_anchors": [
+            "cpu.max",
+            "throttling"
+          ],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "cpu_quota"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "container.cpu.throttling",
+        "title": "容器 CPU 配额节流",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "chunk_id": "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+        "score": 29.107885,
+        "matched_terms": [
+          "throttling",
+          "throttled",
+          "cpu.max",
+          "nr",
+          "容器",
+          "窗口",
+          "配额"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## CPU throttling 的观测窗口\n\n读取 cpu.max 和 cpu.stat，在等长窗口比较 nr_periods、nr_throttled、throttled_usec 的增量，同时记录请求量及进程 CPU。累计节流时间非零不证明当前故障；祖先 cgroup 的限制也可能影响目标。"
+      },
+      {
+        "query": "容器节点空闲但 cpu.max 配额 0.5 核，nr_throttled 本窗口增 44，不能凭宿主空闲排除 quota throttling，该补什么系统采集？",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "gc",
+              "host_contention",
+              "sampling"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.cpu.process_pressure",
+        "title": "Linux 进程用户态 CPU 热点",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+        "chunk_id": "85e0e4cf5696c3626de2a02fee11730f4fca25b216490b0fcb4bd4961f80c9eb",
+        "score": 3.030156,
+        "matched_terms": [
+          "宿主"
+        ],
+        "required_evidence": [
+          "CPU user/system 比例",
+          "Profile TopN",
+          "同宿主资源对比"
+        ],
+        "caveats": [
+          "单次 CPU 高不能证明代码回归",
+          "缺少符号时应返回证据不足"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      },
+      {
+        "query": "容器节点空闲但 cpu.max 配额 0.5 核，nr_throttled 本窗口增 44，不能凭宿主空闲排除 quota throttling，该补什么系统采集？",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "kernel",
+              "network"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.cpu.kernel_overhead",
+        "title": "Linux 系统态 CPU 偏高",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+        "chunk_id": "510186cf4cd1e8d74b01bdefd7bbd496cc3868146c4cb32f96645bc915c56263",
+        "score": 0.4,
+        "matched_terms": [],
+        "required_evidence": [
+          "CPU system 比例",
+          "内核栈或系统调用分布"
+        ],
+        "caveats": [
+          "不能仅凭 system% 判断具体内核模块"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

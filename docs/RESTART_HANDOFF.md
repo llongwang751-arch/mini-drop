@@ -1,14 +1,26 @@
 # Mini-Drop 重启交接点
 
-## 2026-10-02 规划输出／无答案检索优化进行中
+## 2026-10-02 规划输出／无答案检索优化已发布
 
-用户已授权优化并更新线上；本轮需完成精确 Git 源码 CI、Diagnosis Worker/Analyzer/Web 三服务发布、冻结 24 题真实模型首轮与只读检索、真实持久事件和浏览器复验。候选实现及隔离历史重算见 [PLANNING_RETRIEVAL_V2](PLANNING_RETRIEVAL_V2.md)。部署前线上仍是 20261002T045234Z/de094fff，不能提前写成新版本。保留旧一小时、21 类工程成绩、原因果历史和所有失败；不重新注入故障，不重跑一小时。
+当前已部署 `20261002T103825Z`，应用源码 `73b4b18ad83553a5012a0025dfb78bb21ff8dc7f`。本次仅更换 Diagnosis Worker 和 Analyzer；Web 保留 a6a36260/20261002T095001Z 的运行镜像，完整 Web Git tree 与最终源码相等，58 个公网资源 SHA 一致；Worker/Analyzer 各 219 个源码文件逐一核对，13 服务健康，其余 11 个容器及紧邻部署前 Office/API/Native/CPP、环境和挂载保持。故障广场 21 场景均 inactive，展示工程判断 21/21、路径 6/21、反证 8 条；没有重跑故障或一小时实验。
+
+精确源码 [主 CI 36996499159](https://github.com/llongwang751-arch/mini-drop/actions/runs/36996499159) 实际 14/14，Python 2019 通过/16 登记跳过，Web 330、真实 PostgreSQL 14 零跳过、Chromium 固定数据 8；Chroma 独立作业通过。[干净核心 CI 36996499257](https://github.com/llongwang751-arch/mini-drop/actions/runs/36996499257) 87 项门禁零跳过、10 阶段通过。原失败和原断言保持，专项数量不重复加到主套件。
+
+新冻结 24 题首轮仍为 df0d3ef0 上的 21 响应/3 超时，结构、判断和下一工具均 21/24，零重试；首轮 BM25 Recall@3 0.96875、无答案误召回 5/8；HYBRID Recall@3 0.90625、误召回 1/8。a6a36260 的同题已曝光检索回归中，两路无答案误召回均 0/8，两路 Recall@3 均 0.875，BM25 MRR@3 0.90625、HYBRID MRR@3 0.875；主体准入减少误召回也损失相关内容覆盖。这不是新的盲测。最终 73b4b18a 的知识语料与三个检索实现文件与 a6a36260 Git tree 相同，由发布 manifest 证明来源等价，没有重复消耗 chat 或检索实评预算。
+
+v7 提示部署后的同一 NORMAL 问题新会话补验 1 次，结果未通过；原始状态 `FAILED`，预期 NORMAL，实际 `INSUFFICIENT_EVIDENCE`，实际持久采集任务 0。本次返回合法 INSUFFICIENT_EVIDENCE 并直接 finish：只有进程身份、没有性能基线或时间窗口，且用户要求不采集。没有供应商超时、检索循环、非法计划或语义重试；合法停止合同已实证，但该问题的 NORMAL 标签未通过。当前浏览器实际呈现 2/3 张规划结果卡、3 个无答案通知，24 次四视口布局检查通过，TLS 证书校验开启，无 console/network 错误，本次没有证据下载。缺测与拒绝卡的产生源码是 df0d3ef0；新 NORMAL 会话的产生源码是 73b4b18a，逐例来源分开保存，不宣称三个状态都在最终版本重新实跑。
+
+规划输出已统一为 INVESTIGATE / NORMAL / INSUFFICIENT_EVIDENCE / REFUSED。合法非调查结果空假设、空工具，持久化 planner.output_recorded，不新建采集任务；NORMAL 只是输入或规划范围内未提出异常，真实体检仍必须使用采集后的健康判据。NO_RELEVANT_KNOWLEDGE 表示未找到相关知识，不表示业务正常。提示先选四态，只有仍有可验证异常与可执行动作的 INVESTIGATE 才必须扩展假设和数值证伪；目标、权限、预算、数值、采集失败与证据门禁不降低。检查点使用 diagnosis-agent-v7-four-state-prompts:<diagnosis_id>，scope-agent-v1:<diagnosis_id>；旧 v6 和原 ID 检查点保留，SQL 业务 ID 不改变。
+
+后续最有价值的是补公共知识能力与同义表达的覆盖，以新的未曝光问题重新冻结评估；供应商超时单列为可用性问题，不能把超时强制变成 NORMAL 或刷重试成功率。求职准备继续阅读真实源码、讲清测试判据和失败取舍，并完成本人五分钟彩排。
+
+完整记录见 [本轮交付](../reports/architecture/planning-retrieval-v2-20261002.md)、[评估合同](PLANNING_RETRIEVAL_V2.md) 和 [CURRENT_DELIVERY](CURRENT_DELIVERY.md)。后续文档/证据提交不能冒称部署应用来源。
 
 单机与控制面 Compose 的默认 MinIO 改为 `deploy/dockerfiles/minio-source.Dockerfile` 从原 `RELEASE.2025-04-08T15-41-24Z` 的官方源码构建：commit `d0cada583fce88f60cb276ddfb06f5cb16820069`，tar SHA `989506993f138bc8092368adaa9e0d8e980aef0da3178e8649ff2d34d3a4a665`。官方预制仓库匿名拉取失败已保留，不能靠线上缓存镜像证明可复刻；不改变 MinIO 版本或已有卷，健康检查改用真实 readiness HTTP，上传/下载另由实际 S3 链路验证。干净 CI 36975451670 已验证该同版本源码镜像与真实 S3 链路；原拉取失败与三次独立失败记录保留。线上既有容器、镜像和数据不因此替换。
 
 单机 Compose 的 migrate 与 Analyzer 不提供 gRPC 服务，显式关闭自身 TLS 入口变量，避免共享安全 env 让它们读取未挂载证书；Diagnosis Worker、Control、API 与 Agent 的 mTLS 保持开启。这项按服务角色修复的启动合同也由干净环境实跑验证。
 
-## 2026-10-02 面试交付收尾（已验证）
+## 历史快照：2026-10-02 首次面试交付收尾（已验证）
 
 本轮已完成当前文档与既有求职材料统一、干净 Linux 核心平台复刻、预冻 24 题真实模型规划与只读检索评估，以及正式源码交付与五分钟演示步骤。当前事实由 [CURRENT_DELIVERY](CURRENT_DELIVERY.md) 从合同与固定 SHA 的报告生成，漂移检查继续由 CI 阻断。
 

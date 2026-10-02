@@ -1,0 +1,54 @@
+{
+  "runtime": "go",
+  "status": "CONTROL_VERIFIED",
+  "windows": {
+    "baseline": {
+      "pid": 3843,
+      "create_time": 1790937506.17,
+      "duration_seconds": 4.0001914829999805,
+      "cpu_start_seconds": 0.0,
+      "cpu_end_seconds": 0.04,
+      "cpu_percent": 0.9999521315415039,
+      "observer": "OS process CPU times / monotonic wall time; one-core percent"
+    },
+    "fault": {
+      "pid": 3843,
+      "create_time": 1790937506.17,
+      "duration_seconds": 8.000232532000041,
+      "cpu_start_seconds": 0.04,
+      "cpu_end_seconds": 8.590000000000002,
+      "cpu_percent": 106.87189360810392,
+      "observer": "OS process CPU times / monotonic wall time; one-core percent"
+    },
+    "recovery": {
+      "pid": 3843,
+      "create_time": 1790937506.17,
+      "duration_seconds": 4.000320589000012,
+      "cpu_start_seconds": 14.38,
+      "cpu_end_seconds": 14.42,
+      "cpu_percent": 0.9999198591730426,
+      "observer": "OS process CPU times / monotonic wall time; one-core percent"
+    }
+  },
+  "profile": {
+    "function": "main.goCPUHotFunction",
+    "cumulative_percent": 91.47,
+    "sample_cpu_seconds": 5.39
+  },
+  "scope": "ISOLATED_LINUX_DEMO; INJECTION_WITHDRAWAL_CONTROL; NOT_SAME_LOAD_CODE_FIX",
+  "profile_observer": "Go CPU pprof",
+  "cleanup_verified": true,
+  "injection_active_through_fault_window": true,
+  "reasons": [],
+  "ai_root_cause_verified": false,
+  "fix_verified": false,
+  "artifact_sha256": {
+    "cleanup-snapshot.json": "bfd70fb4dbbbc3ccb132143911713b7aa1a0d1975c513bd033e8b3f54986a655",
+    "fault-snapshots.json": "6bdfd2ccd4b894a695b939e5ebc28102ee92d5be5383b1c0d172b90e2545e416",
+    "target.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pprof-top.txt": "335625f2a99331cfcb0948f8667c38aa62bc07ea655c9919815683d104beb7f6",
+    "go-hotspot": "04ad36eb35d472d7160b97e00eb0697f660699df3bb2b527c8dabf65d32cc799",
+    "recovery-snapshot.json": "344d88f57e094d7e3fa622336ca26224ddb4a223d8ac4d93886515ff7fb80472",
+    "cpu.pprof": "1f1d9d5bfda82fb38c6351d854f0182a4f5211340a8cd3800b2797a2d05c27fe"
+  }
+}

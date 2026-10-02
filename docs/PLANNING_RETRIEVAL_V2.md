@@ -49,15 +49,11 @@ Recall@3 与 MRR@3 分母为 16 个有答案题；无答案误召回分母为 8 
 # 只核验冻结，不调用模型
 python -B scripts/evaluate_planning_retrieval_v2.py --check-freeze
 
-# 新目录才可执行；first-run 存在后不可重复请求
-python -B scripts/evaluate_planning_retrieval_v2.py --provider ssh-current --output output/acceptance/planning-retrieval-v2-20261002/first-run
-python -B scripts/evaluate_planning_retrieval_v2.py --verify-report output/acceptance/planning-retrieval-v2-20261002/first-run/report.json
-
-# 可在 clean checkout 用 --remote-provider-helper 显式指向既有可信 SSH helper
-python -B scripts/evaluate_planning_retrieval_v2.py --retrieval-only --backend HYBRID --output output/acceptance/planning-retrieval-v2-20261002/hybrid-first-run
+# 已完成首轮必须从归档的原始源码复核；不重新请求供应商
+python -B reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/evaluate_planning_retrieval_v2.py --verify-report reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/report.json
 ```
 
-当前出题与代码门禁完成；真实执行状态必须以新目录原始报告为准，不能从单元测试虚构供应商成绩。正式发布报告与项目上下文登记实际结果。
+首轮实评已经完成，原始目录不可覆盖。新的模型实评必须建立新的题目、冻结合同和调用批次；下面的结果不由单元测试推断。
 
 ## 首轮真实结果与后续回归边界
 
@@ -71,6 +67,24 @@ python -B scripts/evaluate_planning_retrieval_v2.py --retrieval-only --backend H
 HYBRID 实际 21 次经过 BM25/entity/Chroma/RRF/Rerank，3 次无候选止于 RRF；全部无降级原因。原始 24 请求/响应、24 条 HYBRID trace、原始语料/chunk SHA、254 个精确 Git 文件和独立复算已归档于 `reports/quality/planning-retrieval-v2-20261002/evaluation/`。首轮结果不会随修复改写；后续使用同题只能称 `REGRESSION_ON_EXPOSED_V2_QUESTIONS_NOT_NEW_BLIND`，只运行检索、不增加本次 24 次模型预算。旧源码已归档，首轮复核从该版本执行，不能假称与更新后的生产源码相同。
 
 实际 LangGraph 只读规划烟测首批 2/3：缺测、拒绝输出合法，无新工具、采集任务或 Evidence；NORMAL 请求遭供应商 OpenAITimeoutError，没有伪造 NORMAL。真实浏览器已检查两张输出卡和无答案提示、四种宽度，无 console/network 错误；没有本轮证据下载。后续正常分支补验必须保留这个首批结果并单列新批次。检查点隔离另外由真实 LangGraph 测试证实，应使用带版本的 thread_id，顶层 checkpoint_ns 可以为空。
+
+## 已曝光问题回归与最终部署
+
+新冻结 24 题首轮仍为 df0d3ef0 上的 21 响应/3 超时，结构、判断和下一工具均 21/24，零重试；首轮 BM25 Recall@3 0.96875、无答案误召回 5/8；HYBRID Recall@3 0.90625、误召回 1/8。a6a36260 的同题已曝光检索回归中，两路无答案误召回均 0/8，两路 Recall@3 均 0.875，BM25 MRR@3 0.90625、HYBRID MRR@3 0.875；主体准入减少误召回也损失相关内容覆盖。这不是新的盲测。最终 73b4b18a 的知识语料与三个检索实现文件与 a6a36260 Git tree 相同，由发布 manifest 证明来源等价，没有重复消耗 chat 或检索实评预算。
+
+当前已部署 `20261002T103825Z`，应用源码 `73b4b18ad83553a5012a0025dfb78bb21ff8dc7f`。本次仅更换 Diagnosis Worker 和 Analyzer；Web 保留 a6a36260/20261002T095001Z 的运行镜像，完整 Web Git tree 与最终源码相等，58 个公网资源 SHA 一致；Worker/Analyzer 各 219 个源码文件逐一核对，13 服务健康，其余 11 个容器及紧邻部署前 Office/API/Native/CPP、环境和挂载保持。故障广场 21 场景均 inactive，展示工程判断 21/21、路径 6/21、反证 8 条；没有重跑故障或一小时实验。
+
+精确源码 [主 CI 36996499159](https://github.com/llongwang751-arch/mini-drop/actions/runs/36996499159) 实际 14/14，Python 2019 通过/16 登记跳过，Web 330、真实 PostgreSQL 14 零跳过、Chromium 固定数据 8；Chroma 独立作业通过。[干净核心 CI 36996499257](https://github.com/llongwang751-arch/mini-drop/actions/runs/36996499257) 87 项门禁零跳过、10 阶段通过。原失败和原断言保持，专项数量不重复加到主套件。
+
+Java 正常 CPU 缺少明确进程语境、同主机块设备竞争同义表达，以及缺少主能力 I/O 锚点的低延迟同步写反证，仍存在覆盖缺口。没有按私有真值添加 case ID 或品牌特例；后续新增公共能力后要用另一批未曝光问题验证。
+
+实际 NORMAL 首批超时、第二批非法 INVESTIGATE 后纠正超时均保留。旧提示存在无条件取证的冲突已修复；这不能证明任一次供应商超时的具体原因。
+
+v7 提示部署后的同一 NORMAL 问题新会话补验 1 次，结果未通过；原始状态 `FAILED`，预期 NORMAL，实际 `INSUFFICIENT_EVIDENCE`，实际持久采集任务 0。本次返回合法 INSUFFICIENT_EVIDENCE 并直接 finish：只有进程身份、没有性能基线或时间窗口，且用户要求不采集。没有供应商超时、检索循环、非法计划或语义重试；合法停止合同已实证，但该问题的 NORMAL 标签未通过。当前浏览器实际呈现 2/3 张规划结果卡、3 个无答案通知，24 次四视口布局检查通过，TLS 证书校验开启，无 console/network 错误，本次没有证据下载。缺测与拒绝卡的产生源码是 df0d3ef0；新 NORMAL 会话的产生源码是 73b4b18a，逐例来源分开保存，不宣称三个状态都在最终版本重新实跑。
+
+补验使用 ASSISTED R0、最多一轮，规划预算 60 秒，单次模型调用上限 min(45 秒, 剩余预算)、SDK 零重试；会话总预算 120 秒不代表规划预算。一个 planner invocation 可能有多个模型节点，底层 HTTP 调用数未取得时保持 null。
+
+[检索独立复算](../reports/quality/planning-retrieval-v2-20261002/retrieval-regression/independent-audit.json)，[真实规划与浏览器](../reports/quality/planning-retrieval-v2-20261002/live/post-prompt/manifest.json)。
 
 ## 旧报告的历史复算
 

@@ -1,0 +1,1091 @@
+{
+  "schema": "mini-drop.planning-retrieval-evaluation.v2",
+  "suite_id": "planning-retrieval-v2-20261002",
+  "scope": "AUTHOR_FROZEN_SYNTHETIC_OFFLINE_PLANNING",
+  "evaluation_adapter": "JSON_PROJECTION_OF_CURRENT_PUBLIC_PRODUCTION_SCHEMA_NO_AGENT_EXECUTION",
+  "third_party_independent_author": false,
+  "truth_frozen_before_evaluator_and_provider_calls": true,
+  "question_or_truth_tuned_after_run": false,
+  "run_at_utc": "2026-10-02T09:18:23.754372+00:00",
+  "manifest_sha256": "ae57be9a369db8df7c10131810f4deaa68bf2ea91104911233a6ad67c8f58d4e",
+  "actual_retrieval_backend": "BM25",
+  "retrieval_is_evidence": false,
+  "metric_arithmetic": "FSUM_FLOAT_MEANS_EXACT_INTEGER_COUNTERS",
+  "provider": {
+    "provider": "siliconflow",
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "key_present": true,
+    "https_verified_by_default_requests_client": true,
+    "provider_source_sha256": "2168786cbe68924eb0b9199b4899f03804739d1a7e5da4e9047a281e127feca7",
+    "production_prompt_sha256": "43497fea90b54f01c7c259a19a1e9bc42d7fb9ebca98dadefbedddaec972fb19",
+    "published_source_head": null,
+    "runtime_source_sha256": {
+      "server/app/ai_provider.py": "2168786cbe68924eb0b9199b4899f03804739d1a7e5da4e9047a281e127feca7",
+      "server/app/drop_insight/adaptive_planner.py": "56ab8a547a18fb0e131f5b2062b6a46f58587da47398c9b3381c780bdc6ff76e",
+      "server/app/drop_insight/cpu_criteria.py": "200bd12155d0a964b92f98f27fdf5809ec23d23ba37ecf0b04790d5274e4e961",
+      "server/app/drop_insight/performance_criteria.py": "7290c91ea9a32e21b739e304687a1ebf05f22e4ded812c0c7c0233cc5c115e24",
+      "server/app/agent_runtime/retrieval.py": "e208203b336b1a9267ef0141ae8fc1fb4c159f60b953d61d46d7dddce3a104fe",
+      "server/app/agent_runtime/semantic_retrieval.py": "85c71ce0406a08a22af49d40375c9e5593ad4e002c3b3e5a3920ec27ae890f6e",
+      "server/app/drop_insight/tools.py": "4c6b245c6c54d4bb3096421641082bf69eec5ea21026d0f16bfbb7c98b822d7d"
+    },
+    "transport_options": {
+      "enable_thinking": false
+    },
+    "ssh_helper_sha256": "a812348c6e87852c97c1567fa7508a92b588e3ec8c5407bc61405b74e17f837f",
+    "deployed_public_schema_sha256_by_runtime": {
+      "PYTHON": "acf8304cae6df81caf9a8f124f48fdbdf9800e04af2249274504bf84612026e6",
+      "CPP": "70c30f6cf2b88b81e54e10bef62c454d2a1e39cac25070da0b0c665694e06691",
+      "JAVA": "09652cf60c2d19e5a26011d671181515865440d48047179a3d3666ec6265dc21",
+      "GO": "d21a49ccbebe8458fecc0a7efc4665c8d80d9f73c3f004489b76426c0e71acec",
+      "UNKNOWN": "4afee681872bdd1dabc89e4c4c89b39bde7c935efd250a379ee26e5a8727b98a"
+    },
+    "model_contract_source": "CANDIDATE_PUBLIC_PRODUCTION_SCHEMA",
+    "runtime_prompt_equivalence_claimed": true,
+    "candidate_full_runtime_source_equivalence_claimed": false,
+    "candidate_prompt_sha256": "43497fea90b54f01c7c259a19a1e9bc42d7fb9ebca98dadefbedddaec972fb19"
+  },
+  "chat_calls_attempted": 24,
+  "max_parallel_chat_calls": 2,
+  "retries": 0,
+  "actual_tasks_dispatched": 0,
+  "actual_faults_injected": 0,
+  "cost_usd": null,
+  "metrics": {
+    "case_count": 24,
+    "retrieval_positive_cases": 16,
+    "retrieval_no_answer_cases": 8,
+    "recall_at_3": 0.96875,
+    "mrr_at_3": 0.875,
+    "no_answer_false_positive_count": 5,
+    "no_answer_false_positive_rate": 0.625,
+    "timeouts": 3,
+    "http_successes": 21,
+    "api_errors": 0,
+    "usage_case_count": 21,
+    "all_cases_token_usage_known": false,
+    "tokens_from_available_usage": {
+      "prompt_tokens": 84120,
+      "completion_tokens": 6463,
+      "total_tokens": 90583
+    },
+    "cost_usd": null,
+    "cost_reason": "NO_PINNED_PROVIDER_PRICE_EVIDENCE",
+    "structure_valid_count": 21,
+    "structure_valid_rate": 0.875,
+    "disposition_correct_count": 21,
+    "disposition_correct_rate": 0.875,
+    "tool_choice_expected_count": 21,
+    "tool_choice_expected_rate": 0.875
+  },
+  "cases": [
+    {
+      "case_id": "v01",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "NORMAL",
+        "reasoning_summary": "用户要求仅说明已检查的资源是否正常。提供的合成观测数据显示，在12秒窗口内，Python进程CPU占用率为0.9%（单核），RSS内存为160MiB且零增长。这些数值均在正常范围内，未提出待验证的性能异常。",
+        "tool_name": null,
+        "hypotheses": [],
+        "missing_evidence": [],
+        "limitations": [
+          "本次规划仅基于提供的合成观测数据，未对进程进行实时状态检查。",
+          "结论仅针对已观测的CPU和RSS内存指标，未涵盖其他潜在资源（如磁盘I/O、网络、锁竞争、GC活动等）。",
+          "未验证是否存在代码级热点、内存泄漏模式或容器资源限制（如CPU节流）。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [
+        "linux.cpu.process_pressure",
+        "linux.memory.process_growth",
+        "container.cpu.throttling"
+      ],
+      "relevant_ids": [
+        "linux.cpu.process_pressure",
+        "linux.memory.process_growth"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "usage": {
+        "prompt_tokens": 4356,
+        "completion_tokens": 212,
+        "total_tokens": 4568
+      }
+    },
+    {
+      "case_id": "v02",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "NORMAL",
+        "reasoning_summary": "根据提供的15秒窗口观测，目标Java进程CPU占用率2%，驻留内存无增长，GC暂停次数为0。这些指标均在低水平稳定范围内，未显示出明确的性能异常信号。当前描述未提出待验证的异常，因此规划为正常状态。",
+        "tool_name": null,
+        "hypotheses": [],
+        "missing_evidence": [],
+        "limitations": [
+          "本次规划仅基于提供的15秒窗口观测，未覆盖更长时间段或不同负载下的行为。",
+          "观测未包含线程状态、I/O延迟、下游依赖或内部队列深度等潜在瓶颈域。",
+          "这是规划判断，尚未执行当前状态检查，不能声明平台或业务全部正常。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [
+        "linux.memory.process_growth",
+        "jvm.gc.pressure",
+        "linux.cpu.process_pressure"
+      ],
+      "relevant_ids": [
+        "jvm.gc.pressure",
+        "linux.cpu.process_pressure"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 0.5,
+      "no_answer_false_positive": null,
+      "usage": {
+        "prompt_tokens": 4263,
+        "completion_tokens": 196,
+        "total_tokens": 4459
+      }
+    },
+    {
+      "case_id": "v03",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "NORMAL",
+        "reasoning_summary": "用户要求仅评价容器 CPU 限额节流（throttled）和内存 OOM 杀死（oom_kill）这两项在最近一分钟的观测。提供的合成观测显示，在 60 秒窗口内，`cpu_throttled_delta` 和 `oom_kill_delta` 均为 0，且测量已完成。这表明在指定时间窗口和观测项下，未检测到 CPU 配额节流计数增长和 OOM 杀死事件。此评价仅限于给定的两项指标，不涉及业务整体健康状态。",
+        "tool_name": null,
+        "hypotheses": [],
+        "missing_evidence": [],
+        "limitations": [
+          "本次规划仅基于用户提供的两项合成观测（cpu_throttled_delta, oom_kill_delta）进行有界评价。未评估 CPU 使用率、内存压力、进程性能、网络、I/O 或其他可能影响业务的指标。不能声明平台或业务整体健康。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [
+        "container.memory.pressure",
+        "container.cpu.throttling",
+        "linux.cpu.process_pressure"
+      ],
+      "relevant_ids": [
+        "container.cpu.throttling",
+        "container.memory.pressure"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "usage": {
+        "prompt_tokens": 4371,
+        "completion_tokens": 250,
+        "total_tokens": 4621
+      }
+    },
+    {
+      "case_id": "v04",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "NORMAL",
+        "reasoning_summary": "用户报告了 Go 服务在 20 秒 TCP 测量窗口内的网络状况：无重传、无丢包、RTT 低于 2ms。这是一个有界观测的描述，没有提出需要验证的性能异常。当前任务仅限于报告测量到的网络范围，没有要求进一步诊断。",
+        "tool_name": null,
+        "hypotheses": [],
+        "missing_evidence": [],
+        "limitations": [
+          "本次规划仅基于用户提供的网络观测描述，未提出待验证的异常。规划范围仅限于评估描述性输入，不涉及对平台健康或业务全部正常性的声明。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [
+        "linux.network.retransmit",
+        "linux.cpu.kernel_overhead"
+      ],
+      "relevant_ids": [
+        "linux.network.retransmit"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "usage": {
+        "prompt_tokens": 3936,
+        "completion_tokens": 174,
+        "total_tokens": 4110
+      }
+    },
+    {
+      "case_id": "v05",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "INSUFFICIENT_EVIDENCE",
+        "reasoning_summary": "用户报告 NVIDIA GPU 上 CUDA 图执行变慢，但未提供任何指标、时间窗口或调用轨迹。当前允许的工具集（系统指标、Python Profile、内存 Profile、eBPF IO Profile）均无法直接观测 GPU 或 CUDA 活动。因此无法提出可执行的取证计划来验证性能异常。",
+        "tool_name": null,
+        "hypotheses": [],
+        "missing_evidence": [
+          "目标进程的 GPU 利用率、显存带宽或 CUDA 内核执行时间的观测",
+          "问题发生的时间窗口或可复现的负载条件",
+          "CUDA 图执行前后的性能基线或调用轨迹"
+        ],
+        "limitations": [
+          "规划范围仅限于允许的工具白名单，无法直接采集 GPU/CUDA 性能指标。",
+          "知识检索结果涉及 CPU 诊断，与用户明确指出的 GPU 问题领域不匹配，不能作为本次证据。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [
+        "linux.cpu.kernel_overhead",
+        "linux.cpu.process_pressure",
+        "container.cpu.throttling"
+      ],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": true,
+      "usage": {
+        "prompt_tokens": 4319,
+        "completion_tokens": 253,
+        "total_tokens": 4572
+      }
+    },
+    {
+      "case_id": "v06",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "INSUFFICIENT_EVIDENCE",
+        "reasoning_summary": "用户报告Kafka消费者偏移量延迟可能增加，但未提供任何测量数据、时间窗口或相关遥测。当前缺乏建立因果关系所需的基本观测，如实际的延迟值、生产者/消费者速率、系统资源使用情况或JVM内部状态。在缺失这些关键证据的情况下，无法提出可执行的取证计划来验证具体假设。",
+        "tool_name": null,
+        "hypotheses": [],
+        "missing_evidence": [
+          "Kafka消费者组当前的偏移量延迟（lag）具体数值",
+          "问题发生的时间窗口或时间段",
+          "消费者进程的资源使用指标（如CPU、内存、I/O）",
+          "JVM内部的GC活动或线程状态信息",
+          "相关的生产者速率或消费者处理速率"
+        ],
+        "limitations": [
+          "本次规划仅基于用户描述，未进行任何实际状态检查。",
+          "无法确认偏移量延迟是否真实存在、其严重程度或时间范围。",
+          "诊断范围仅限于性能原因分析，不包含修复或配置更改。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": false,
+      "usage": {
+        "prompt_tokens": 3156,
+        "completion_tokens": 272,
+        "total_tokens": 3428
+      }
+    },
+    {
+      "case_id": "v07",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "INSUFFICIENT_EVIDENCE",
+        "reasoning_summary": "用户描述了关于Elasticsearch搜索分片合并可能阻塞的猜想，但明确指出索引任务与延迟记录均未获取。当前缺乏目标进程身份、时间窗口以及任何与问题对应的原始观测（如合并队列深度、IO延迟、线程状态等）。知识检索结果与Elasticsearch领域不匹配，无法提供有效指导。由于缺失必要的观测证据，无法提出可执行的取证计划来验证或推翻任何假设。",
+        "tool_name": null,
+        "hypotheses": [],
+        "missing_evidence": [
+          "目标Elasticsearch进程的身份标识与问题时间窗口",
+          "与分片合并操作相关的原始观测，如合并队列状态、线程堆栈、IO活动或延迟指标",
+          "索引任务的执行状态或延迟记录"
+        ],
+        "limitations": [
+          "规划范围仅限于基于现有证据提出可验证假设。当前证据严重不足，无法规划具体调查步骤。",
+          "知识检索命中了PostgreSQL、Go和RAG相关内容，与Elasticsearch问题领域不匹配，不能作为本次诊断的证据或行动依据。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [
+        "postgres.waits",
+        "go.profile.selection",
+        "rag.quality.lifecycle"
+      ],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": true,
+      "usage": {
+        "prompt_tokens": 4286,
+        "completion_tokens": 282,
+        "total_tokens": 4568
+      }
+    },
+    {
+      "case_id": "v08",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "INSUFFICIENT_EVIDENCE",
+        "reasoning_summary": "用户报告 Oracle RAC 环境中存在 global-cache wait 感知延迟，但未提供任何 ASH、等待事件或系统指标等原始观测证据。当前允许的工具仅能收集系统指标，无法直接获取数据库内部等待事件或会话活动历史（ASH），而这些是验证 RAC 缓存等待问题的必要证据。知识检索结果与问题领域不匹配（MySQL、Go），不能作为本次诊断的证据。因此，无法提出可验证的性能异常假设，证据存在关键缺口。",
+        "tool_name": null,
+        "hypotheses": [],
+        "missing_evidence": [
+          "Oracle ASH (Active Session History) 数据，包含等待事件 'gc buffer busy'、'gc cr block busy' 等",
+          "目标数据库会话在问题时间窗口内的等待事件统计",
+          "与 global-cache 相关的系统级指标（如网络延迟、节点间消息速率）"
+        ],
+        "limitations": [
+          "规划范围仅限于性能诊断假设提出，不执行修复或越权操作。",
+          "允许的工具白名单（collect_sys_metrics）无法直接采集 Oracle 数据库内部诊断数据。",
+          "检索到的知识（MySQL 锁等待、Go 性能剖析）与当前 Oracle RAC 问题领域不符，不能作为有效证据或指导具体取证动作。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [
+        "mysql.lock_wait",
+        "go.profile.selection"
+      ],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": true,
+      "usage": {
+        "prompt_tokens": 3801,
+        "completion_tokens": 333,
+        "total_tokens": 4134
+      }
+    },
+    {
+      "case_id": "v09",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "REFUSED",
+        "reasoning_summary": "用户请求涉及旅行规划和社交话题，与性能诊断无关。当前平台仅支持计算机系统性能问题调查，无法处理此类通用咨询请求。",
+        "tool_name": null,
+        "hypotheses": [],
+        "missing_evidence": [],
+        "limitations": [
+          "平台能力仅限于计算机系统性能诊断，不提供旅行代理推荐、路线规划或社交圈讨论服务。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [
+        "linux.network.retransmit",
+        "linux.cpu.kernel_overhead"
+      ],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": true,
+      "usage": {
+        "prompt_tokens": 3808,
+        "completion_tokens": 128,
+        "total_tokens": 3936
+      }
+    },
+    {
+      "case_id": "v10",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "REFUSED",
+        "reasoning_summary": "用户询问棋盘游戏中CPU控制代理在社交聚会场景下的行为规则，这是一个游戏设计问题，而非系统性能诊断。当前平台的能力仅限于对运行中软件系统的性能问题进行观测和假设验证，无法提供游戏规则解释或设计建议。",
+        "tool_name": null,
+        "hypotheses": [],
+        "missing_evidence": [],
+        "limitations": [
+          "平台能力仅限于软件系统性能诊断，不包含游戏规则解释或设计咨询。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [
+        "linux.cpu.process_pressure",
+        "linux.cpu.kernel_overhead",
+        "container.cpu.throttling"
+      ],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": true,
+      "usage": {
+        "prompt_tokens": 4206,
+        "completion_tokens": 143,
+        "total_tokens": 4349
+      }
+    },
+    {
+      "case_id": "v11",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "REFUSED",
+        "reasoning_summary": "用户请求包含两个不相关的任务：预测商品价格和共享家庭收纳技巧。这些任务均不属于性能诊断范畴，且预测功能超出平台能力。平台仅支持基于观测数据的性能问题分析与假设规划。",
+        "tool_name": null,
+        "hypotheses": [],
+        "missing_evidence": [],
+        "limitations": [
+          "平台能力仅限于性能诊断与观测分析，不支持商品价格预测或生活技巧分享。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": false,
+      "usage": {
+        "prompt_tokens": 3094,
+        "completion_tokens": 138,
+        "total_tokens": 3232
+      }
+    },
+    {
+      "case_id": "v12",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "REFUSED",
+        "reasoning_summary": "用户请求提供密钥并执行破坏性命令，这超出了性能诊断的授权范围。规划器仅支持在允许的工具范围内进行安全取证，不能执行或协助越权操作。",
+        "tool_name": null,
+        "hypotheses": [],
+        "missing_evidence": [],
+        "limitations": [
+          "请求涉及提供秘密密钥和执行破坏性数据库命令，这超出了平台的权限和能力范围。规划器仅被授权进行性能相关的安全取证。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": false,
+      "usage": {
+        "prompt_tokens": 3097,
+        "completion_tokens": 143,
+        "total_tokens": 3240
+      }
+    },
+    {
+      "case_id": "v13",
+      "status": "TIMEOUT",
+      "output": null,
+      "structure_valid": false,
+      "disposition_correct": false,
+      "tool_choice_expected": false,
+      "matched_ids": [
+        "linux.cpu.process_pressure",
+        "linux.cpu.kernel_overhead",
+        "python.sampling.attribution"
+      ],
+      "relevant_ids": [
+        "linux.cpu.process_pressure"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "usage": null
+    },
+    {
+      "case_id": "v14",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "INVESTIGATE",
+        "reasoning_summary": "用户报告一个C++图像编码器进程消耗91%用户态CPU，且负载未变，但当前没有可用的栈采样数据。这是一个明确的待验证性能异常。根据知识指导，用户态CPU高需要Profile来定位热点函数。当前允许的工具列表中包含`start_perf_profile`，可用于对C++进程进行原生热点采样，以验证CPU消耗是否集中在特定的业务函数上。因此规划一次取证动作。",
+        "tool_name": "start_perf_profile",
+        "hypotheses": [
+          {
+            "statement": "本次诊断中，C++ 进程在系统指标采集窗口的 CPU 占用率至少 50%（单核口径），另一次独立采样观察到可归属的执行路径",
+            "expected_observations": [
+              "C++ perf 中一个具备实际源码位置的业务函数累计占比至少 20%"
+            ],
+            "falsification_criteria": [
+              "目标进程 CPU 占用率低于 50%"
+            ],
+            "rationale": "用户报告了91%的用户态CPU使用率，这远高于单核的50%阈值。假设高CPU消耗是由进程内一个或多个特定的业务函数（如图像编码算法）主导的。通过独立的perf采样，预期能找到一个可映射到源码的业务函数，其采样占比显著。",
+            "prior_probability": 0.8,
+            "estimated_value": 0.9
+          }
+        ],
+        "missing_evidence": [],
+        "limitations": [
+          "本次规划仅针对C++进程的用户态CPU热点进行采样验证。采样结果可能受符号表完整性、采样时长和系统负载波动影响。规划未涵盖系统态CPU开销、内存泄漏、I/O等待或其他潜在的共因分析。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [
+        "linux.cpu.process_pressure",
+        "linux.cpu.kernel_overhead",
+        "container.cpu.throttling"
+      ],
+      "relevant_ids": [
+        "linux.cpu.process_pressure"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "usage": {
+        "prompt_tokens": 4313,
+        "completion_tokens": 409,
+        "total_tokens": 4722
+      }
+    },
+    {
+      "case_id": "v15",
+      "status": "TIMEOUT",
+      "output": null,
+      "structure_valid": false,
+      "disposition_correct": false,
+      "tool_choice_expected": false,
+      "matched_ids": [
+        "container.cpu.throttling",
+        "linux.cpu.process_pressure",
+        "linux.cpu.kernel_overhead"
+      ],
+      "relevant_ids": [
+        "container.cpu.throttling"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "usage": null
+    },
+    {
+      "case_id": "v16",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "INVESTIGATE",
+        "reasoning_summary": "用户报告 Python 进程在稳态负载下 RSS 从 120 MiB 增长到 460 MiB，需要区分是缓存保留还是内存泄漏。已有观测显示负载未变且无堆内存剖析数据。为验证内存增长的性质，计划采集内存剖析数据，以识别是否存在长期持有的对象或分配热点。",
+        "tool_name": "collect_memory_profile",
+        "hypotheses": [
+          {
+            "statement": "本次诊断中，Python 进程 RSS 的显著增长主要由长期持有的业务对象（潜在泄漏）导致，而非临时缓存。",
+            "expected_observations": [
+              "memory_retention.retained_memory_mb >= 300"
+            ],
+            "falsification_criteria": [
+              "memory_retention.retained_memory_mb < 300"
+            ],
+            "rationale": "RSS 增长了 340 MiB。如果增长主要源于长期持有的对象（如缓存未过期或泄漏），内存剖析应能识别出大量被保留的内存。",
+            "prior_probability": 0.5,
+            "estimated_value": 0.8
+          },
+          {
+            "statement": "本次诊断中，Python 进程 RSS 的显著增长主要由文件系统缓存或其他非堆内存区域贡献，业务对象保留内存有限。",
+            "expected_observations": [
+              "memory_growth.rss_delta_mb >= 300",
+              "memory_retention.retained_memory_mb < 100"
+            ],
+            "falsification_criteria": [
+              "memory_retention.retained_memory_mb >= 100"
+            ],
+            "rationale": "RSS 增长可能源于操作系统文件缓存（如 mmap 文件）或共享库，这些不会在进程堆剖析中显示为大量保留内存。",
+            "prior_probability": 0.4,
+            "estimated_value": 0.7
+          },
+          {
+            "statement": "本次诊断中，Python 进程存在内存分配热点，但 RSS 增长是多种因素（如堆碎片、临时大对象）的混合结果，不构成典型泄漏。",
+            "expected_observations": [
+              "memory_growth.rss_delta_mb >= 300",
+              "memory_growth.retained_memory_delta_mb >= 50"
+            ],
+            "falsification_criteria": [
+              "memory_growth.retained_memory_delta_mb < 50"
+            ],
+            "rationale": "增长可能由频繁分配/释放导致的堆扩张、碎片化或短期大对象引起，这些在剖析中可能显示为适度的保留内存增量。",
+            "prior_probability": 0.1,
+            "estimated_value": 0.3
+          }
+        ],
+        "missing_evidence": [],
+        "limitations": [
+          "本次规划基于合成离线场景，不执行实际工具。假设验证依赖于 collect_memory_profile 工具的成功执行和数据返回。无法直接观测文件缓存或共享内存的具体贡献。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [
+        "container.memory.pressure",
+        "linux.memory.process_growth"
+      ],
+      "relevant_ids": [
+        "linux.memory.process_growth"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 0.5,
+      "no_answer_false_positive": null,
+      "usage": {
+        "prompt_tokens": 3838,
+        "completion_tokens": 667,
+        "total_tokens": 4505
+      }
+    },
+    {
+      "case_id": "v17",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "INVESTIGATE",
+        "reasoning_summary": "用户报告了 380ms 的 Java stop-the-world 暂停和分配量增长，提示可能存在 GC 压力。当前仅有单次暂停和分配趋势的合成观察，缺乏 GC 时间占比、分代占用等关键量化证据来验证或反驳 GC 是性能瓶颈的假设。规划使用 start_jvm_profile 工具采集 JVM 性能数据，以获取必要的证据。",
+        "tool_name": "start_jvm_profile",
+        "hypotheses": [
+          {
+            "statement": "本次诊断中，JVM 进程因高分配率导致频繁或长时间的 GC 活动，表现为显著的 GC 时间占比和堆内存占用变化。",
+            "expected_observations": [
+              "jvm_gc.gc_time_ms_delta >= 100",
+              "jvm_gc.allocated_bytes_delta >= 104857600"
+            ],
+            "falsification_criteria": [
+              "jvm_gc.gc_time_ms_delta < 100"
+            ],
+            "rationale": "已知存在 380ms 的 STW 暂停和分配增长，这通常与 GC 压力相关。假设通过量化 GC 耗时和分配量来验证。",
+            "prior_probability": 0.6,
+            "estimated_value": 0.7
+          },
+          {
+            "statement": "本次诊断中，JVM 进程的 CPU 使用率较高，且 GC 活动是主要的 CPU 消耗者之一。",
+            "expected_observations": [
+              "cpu_hotspot.process_cpu_core_usage >= 50",
+              "jvm_gc.gc_time_ms_delta >= 50"
+            ],
+            "falsification_criteria": [
+              "目标进程 CPU 占用率低于 50%"
+            ],
+            "rationale": "GC 压力常伴随 CPU 使用率升高。需要独立的系统 CPU 指标和 GC 时间证据共同支持。",
+            "prior_probability": 0.5,
+            "estimated_value": 0.6
+          }
+        ],
+        "missing_evidence": [],
+        "limitations": [
+          "本次规划基于合成观察，未执行实际数据采集。规划范围仅限于使用白名单工具获取 JVM 性能指标，以评估 GC 压力假设，不涉及代码修复或配置变更。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [
+        "jvm.gc.pressure",
+        "linux.cpu.process_pressure"
+      ],
+      "relevant_ids": [
+        "jvm.gc.pressure"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "usage": {
+        "prompt_tokens": 3933,
+        "completion_tokens": 522,
+        "total_tokens": 4455
+      }
+    },
+    {
+      "case_id": "v18",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "INVESTIGATE",
+        "reasoning_summary": "用户报告Go worker吞吐量下降且存在大量阻塞的goroutine，但CPU利用率仅为1%。现有证据表明存在阻塞异常，但缺乏阻塞原因的具体定位。根据知识指导，应优先使用Go阻塞/互斥锁分析来调查锁竞争或同步等待问题，而非假设CPU饱和。",
+        "tool_name": "collect_go_profile",
+        "hypotheses": [
+          {
+            "statement": "本次诊断中，Go worker吞吐量下降是由于锁竞争导致大量goroutine阻塞。",
+            "expected_observations": [
+              "Go blocking/mutex profile中，一个具备源码位置的锁等待操作累计占比至少20%"
+            ],
+            "falsification_criteria": [
+              "Go blocking/mutex profile中，所有具备源码位置的锁等待操作累计占比低于20%"
+            ],
+            "rationale": "观察到85个阻塞的goroutine和吞吐量下降，但CPU利用率极低（1%），这与CPU饱和假设不符。知识指导指出，阻塞和锁竞争调查应使用block/mutex profile。",
+            "prior_probability": 0.6,
+            "estimated_value": 0.8
+          },
+          {
+            "statement": "本次诊断中，Go worker吞吐量下降是由于通道（channel）操作或I/O等待导致大量goroutine阻塞。",
+            "expected_observations": [
+              "Go blocking profile中，一个具备源码位置的通道接收/发送或网络I/O等待操作累计占比至少20%"
+            ],
+            "falsification_criteria": [
+              "Go blocking profile中，所有具备源码位置的通道或I/O等待操作累计占比低于20%"
+            ],
+            "rationale": "大量goroutine阻塞的常见原因包括通道通信阻塞或系统调用（如网络、磁盘I/O）等待。block profile可以捕获这些同步阻塞事件。",
+            "prior_probability": 0.3,
+            "estimated_value": 0.7
+          },
+          {
+            "statement": "本次诊断中，Go worker的吞吐量下降与goroutine阻塞无关，可能由其他未知原因（如外部依赖故障、配置变更）导致。",
+            "expected_observations": [
+              "Go blocking/mutex profile未显示显著的锁或同步等待（相关操作累计占比低于20%）"
+            ],
+            "falsification_criteria": [
+              "Go blocking/mutex profile中，任何具备源码位置的锁或同步等待操作累计占比达到或超过20%"
+            ],
+            "rationale": "这是一个兜底假设。如果阻塞分析未发现明确的锁或同步等待热点，则需要考虑阻塞是结果而非原因，并转向其他证据域（如网络延迟、下游服务）进行调查。",
+            "prior_probability": 0.1,
+            "estimated_value": 0.2
+          }
+        ],
+        "missing_evidence": [],
+        "limitations": [
+          "本次规划仅基于用户提供的合成观测，未执行实际工具采集。规划范围限于使用允许的工具调查goroutine阻塞原因，不涉及修复或容量调整。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [
+        "go.profile.selection",
+        "linux.cpu.process_pressure",
+        "sre.recovery.acceptance"
+      ],
+      "relevant_ids": [
+        "go.profile.selection"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "usage": {
+        "prompt_tokens": 4322,
+        "completion_tokens": 668,
+        "total_tokens": 4990
+      }
+    },
+    {
+      "case_id": "v19",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "INVESTIGATE",
+        "reasoning_summary": "用户报告目标与邻居实例的磁盘等待百分比（iowait）同时升高，且共享设备队列深度为12，表明存在I/O积压。但当前缺少块设备延迟直方图，无法区分是共享设备争抢还是共同流量上涨导致的延迟。需要启动eBPF I/O延迟分析来获取设备级的延迟分布，以验证争抢假设。",
+        "tool_name": "start_ebpf_io_profile",
+        "hypotheses": [
+          {
+            "statement": "目标与邻居实例的iowait同时升高是由于共享块设备上的I/O争抢导致，表现为设备队列积压和延迟增加。",
+            "expected_observations": [
+              "io_latency.latency_p95_us >= 1000",
+              "io_latency.operation_count_delta >= 10"
+            ],
+            "falsification_criteria": [
+              "io_latency.latency_p95_us < 1000"
+            ],
+            "rationale": "已知目标与邻居iowait均高（32%和29%），且设备队列深度为12，表明I/O请求积压。若共享设备争抢是主要原因，应能观测到显著的I/O延迟（如P95延迟≥1ms）和足够的操作数。",
+            "prior_probability": 0.6,
+            "estimated_value": 0.7
+          },
+          {
+            "statement": "目标进程的I/O活动主导了其iowait升高，表现为同步写操作耗时显著。",
+            "expected_observations": [
+              "io_latency.average_latency_ms >= 10",
+              "io_latency.operation_count_delta >= 5"
+            ],
+            "falsification_criteria": [
+              "io_latency.average_latency_ms < 10"
+            ],
+            "rationale": "高iowait可能由目标进程自身的I/O操作（如fsync）引起。如果该假设成立，通过eBPF I/O分析应能捕捉到目标进程发起的、平均延迟较高的I/O操作。",
+            "prior_probability": 0.3,
+            "estimated_value": 0.5
+          },
+          {
+            "statement": "观测到的iowait升高和队列积压主要由邻居实例的I/O活动驱动，目标进程受到间接影响。",
+            "expected_observations": [
+              "io_activity.disk_write_kbps >= 50000",
+              "io_activity.io_operations_delta >= 100"
+            ],
+            "falsification_criteria": [
+              "io_activity.disk_write_kbps < 50000"
+            ],
+            "rationale": "邻居实例也可能产生高I/O负载，从而在共享设备上造成争抢，影响目标进程。如果邻居是主要驱动者，eBPF分析可能显示来自邻居（或整体设备）的高吞吐量或高IOPS。",
+            "prior_probability": 0.1,
+            "estimated_value": 0.3
+          }
+        ],
+        "missing_evidence": [],
+        "limitations": [
+          "本次规划基于合成观测，未执行实际工具采集。eBPF I/O分析需要内核支持且可能受权限限制。虚拟化环境中，观测到的设备可能不是底层物理设备，争抢源头可能位于宿主机层。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [
+        "linux.iowait.shared_block_device",
+        "sre.recovery.acceptance"
+      ],
+      "relevant_ids": [
+        "linux.iowait.shared_block_device",
+        "distributed.same_host_noisy_neighbor"
+      ],
+      "recall_at_3": 0.5,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "usage": {
+        "prompt_tokens": 4011,
+        "completion_tokens": 738,
+        "total_tokens": 4749
+      }
+    },
+    {
+      "case_id": "v20",
+      "status": "TIMEOUT",
+      "output": null,
+      "structure_valid": false,
+      "disposition_correct": false,
+      "tool_choice_expected": false,
+      "matched_ids": [
+        "linux.cpu.kernel_overhead",
+        "linux.cpu.process_pressure",
+        "container.cpu.throttling"
+      ],
+      "relevant_ids": [
+        "linux.cpu.kernel_overhead"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "usage": null
+    },
+    {
+      "case_id": "v21",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "NORMAL",
+        "reasoning_summary": "用户提供了匹配时间窗口内的观测：Python进程的py-spy采样显示一个循环函数占92%的样本，但同一窗口内进程CPU使用率仅为0.4%（单核）。根据性能诊断原则，采样图占比高仅表明在采集到的样本中该函数是主要活动，但样本总数（12个）少且进程整体CPU使用率极低，这共同表明进程并未处于CPU饱和状态。当前证据不支持存在待验证的CPU性能异常。",
+        "tool_name": null,
+        "hypotheses": [],
+        "missing_evidence": [],
+        "limitations": [
+          "本次规划仅基于提供的合成观测数据（profile占比92%，进程CPU 0.4%，样本数12）进行评价，未对系统进行新的状态检查。",
+          "规划范围仅限于解释已有观测，未提出新的待验证异常或执行取证动作。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [
+        "python.sampling.attribution",
+        "linux.cpu.process_pressure",
+        "container.cpu.throttling"
+      ],
+      "relevant_ids": [
+        "python.sampling.attribution",
+        "linux.cpu.process_pressure"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "usage": {
+        "prompt_tokens": 4476,
+        "completion_tokens": 231,
+        "total_tokens": 4707
+      }
+    },
+    {
+      "case_id": "v22",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "NORMAL",
+        "reasoning_summary": "用户描述了一个被证据反驳的疑似网络重传故障。在匹配的时间窗口内，观测到 TCP 重传增量为 0 且 RTT 稳定在 1ms，这直接否定了网络重传或显著延迟是当前问题的原因。因此，当前描述中不存在待验证的性能异常。",
+        "tool_name": null,
+        "hypotheses": [],
+        "missing_evidence": [],
+        "limitations": [
+          "本次规划仅基于提供的合成观测数据（TCP重传、RTT）进行判断，未对目标 Java 进程的 CPU、内存、I/O 或 JVM 内部状态进行检查。不能声明平台或业务整体健康。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [
+        "distributed.downstream_pressure",
+        "linux.network.retransmit",
+        "linux.cpu.kernel_overhead"
+      ],
+      "relevant_ids": [
+        "linux.network.retransmit"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 0.5,
+      "no_answer_false_positive": null,
+      "usage": {
+        "prompt_tokens": 4269,
+        "completion_tokens": 190,
+        "total_tokens": 4459
+      }
+    },
+    {
+      "case_id": "v23",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "NORMAL",
+        "reasoning_summary": "用户提供的观测显示，在15秒窗口内，目标C++进程的900次同步write调用平均耗时0.07ms，且无失败。这反驳了存在慢写操作的假设，表明所测量的I/O调用性能正常。当前没有提出待验证的性能异常，因此规划状态为正常。",
+        "tool_name": null,
+        "hypotheses": [],
+        "missing_evidence": [],
+        "limitations": [
+          "本次规划仅基于用户提供的有限I/O操作观测。未覆盖其他潜在性能域，如CPU、内存、网络或锁争用。",
+          "观测仅针对特定时间窗口内的同步write调用，无法推断其他I/O操作（如fsync、read）或磁盘的整体健康状况。",
+          "规划判断为正常，仅表示基于给定观测未发现待验证异常，不声明整个平台或业务完全健康。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [
+        "sre.recovery.acceptance",
+        "linux.iowait.shared_block_device"
+      ],
+      "relevant_ids": [
+        "linux.iowait.shared_block_device"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 0.5,
+      "no_answer_false_positive": null,
+      "usage": {
+        "prompt_tokens": 3992,
+        "completion_tokens": 233,
+        "total_tokens": 4225
+      }
+    },
+    {
+      "case_id": "v24",
+      "status": "OK",
+      "output": {
+        "schema_version": "mini-drop.planning-output.v2",
+        "disposition": "NORMAL",
+        "reasoning_summary": "用户报告在18秒观测窗口内，JVM GC暂停总时长为0ms，RSS无增长，且指出‘停顿全来自GC’的假设缺乏支持。根据提供的合成观测数据，在已检查的GC暂停和RSS增长范围内未发现异常。知识检索结果也仅提供背景信息，并非本次诊断的新证据。因此，当前规划判断为在已描述的范围内正常，但需明确此判断仅限于已观测的指标，不涉及未检查的其他性能维度。",
+        "tool_name": null,
+        "hypotheses": [],
+        "missing_evidence": [],
+        "limitations": [
+          "本次规划仅基于用户提供的18秒窗口内GC暂停总时长和RSS增长数据。",
+          "未检查CPU使用率、线程状态、I/O延迟、网络延迟、锁竞争、下游调用等其他潜在性能问题域。",
+          "‘停顿全来自GC’假设被用户主动否定，但未提供关于‘停顿’具体表现（如延迟升高、请求积压）的观测数据，因此无法规划针对‘停顿’原因的进一步调查。"
+        ],
+        "causal_root_cause_verified": false
+      },
+      "structure_valid": true,
+      "disposition_correct": true,
+      "tool_choice_expected": true,
+      "matched_ids": [
+        "jvm.gc.pressure",
+        "linux.memory.process_growth",
+        "container.memory.pressure"
+      ],
+      "relevant_ids": [
+        "jvm.gc.pressure",
+        "linux.memory.process_growth"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null,
+      "usage": {
+        "prompt_tokens": 4273,
+        "completion_tokens": 281,
+        "total_tokens": 4554
+      }
+    }
+  ],
+  "evidence_sha256": {
+    "evaluator-source.py": "b95e6e2b3bc0dd5846b470ca7e52e7b6491060a0a792d83ddc8001087ab97f8d",
+    "freeze.json": "24aaa16a87dd32822a7c677320e06892ffef67f703a5995fe4525afc1002028a",
+    "implementation-source.json": "c298cadc9e10d7e957b841692359efebf57ab0228a6314ac937d06c98cc409b7",
+    "provider.json": "47acf613fab9bdebc8d4bf2ac346db4915d72d7fa2992577a92f94f03a249a2f",
+    "records/v01.json": "e52ae32d4006b8cfe88ea0cf0eb0518d3eaef8c3896a20f3183c86556c8075fd",
+    "records/v02.json": "cbbfb40f47ef378045b100373144e7959a360bd31d243c360b51e4579844ce5c",
+    "records/v03.json": "0ea6fe3d9473b9bbd12340458f0a1591f7c7ace064c3fe3570cc0e2049c002b7",
+    "records/v04.json": "579ebe9fc34b60ce898bc5450c34897f79d19580f1a8cabedaa74adbc6adee02",
+    "records/v05.json": "6735561e1279415eea9ccfdea8a108434f1dee6e42ace464306de793561fd448",
+    "records/v06.json": "989856042646af26086b204ea7b15987a99fd7f0728beb5fd54932dc2ed871dc",
+    "records/v07.json": "af10f45ff72cb48ebf08ce41b38b44e58b6a3157eecc81f0ea0855181849220d",
+    "records/v08.json": "58c594d05b6d484fdfdff789b83014ab81abb777f327fca8b6094e74bdcd98f9",
+    "records/v09.json": "63e596ff819a15ff8e19f9525c82e2a13fa2f397826148aa17d4d0d3595e3950",
+    "records/v10.json": "60c9b91cae344af07cfe02183afd2a4ddc32e4d05584dea726af5ccb9b3c13e6",
+    "records/v11.json": "2404025fd3bb2bda6382ba6954c595ad8da89b21288e2bd9b91de9d7088f3393",
+    "records/v12.json": "e71ac391b6496f0efdbaed57c2b268aaa64ea4a3b4def11e8f1c84048ed3e1b1",
+    "records/v13.json": "d4b8329dcbaec13184a097a24bc17211630a27cfa4b779bdac19efa8eb35463f",
+    "records/v14.json": "22dc8aa6246bf1e7615f6c42bea4fbc072f78d8dd5b5ae025b1d32ae257baad4",
+    "records/v15.json": "d0e703007195bffd1f6d881429018c38899782755ea94fe160e1b28e8619eb88",
+    "records/v16.json": "9eee5ee988e26d88def1b72d573cbec59b933a5072bdb25171f52a981ba8628c",
+    "records/v17.json": "96b1e444096caeb330a77afd8762d2322d61ed7dd4051d4acbfd21294ef7242e",
+    "records/v18.json": "2cf5e14ea53299f92616c6d41c4535bf152039d49e7dc247fb191f00463cd235",
+    "records/v19.json": "fd572e589c367ae1f8342d98fb45aae559ab58fd6529b2dfcd1ddb4c1dcd9ed8",
+    "records/v20.json": "4ab558b4fdf3487623d5e8a460c38bdae7663cd2342232935aece2891ebe6057",
+    "records/v21.json": "ec16b7087be6a1cf3536f137eff5535c72b382291931a84c9f7433cae534b564",
+    "records/v22.json": "29a0149fafa13b77e0699a676d32d52708834f6edd909e44b73310c8b343d74c",
+    "records/v23.json": "e9714c1c3123e0de545fc8446663c17f590c8b0fcbf3f089f9c98774ba469c12",
+    "records/v24.json": "8b8340a14335fd54c5596db9adbf002320618441e668153caefff9be9f9b48e0",
+    "requests/v01.json": "acfe23b9c94aac58bdb95857e52193b270df5645a6312cb6fbdd9d92caee99d8",
+    "requests/v02.json": "845c96c01aa73a99e907fb039d4a2a1f97207d1956c7651498c91eb7d7e955b2",
+    "requests/v03.json": "b1a512370f4d72936b78aaf105d52c5c43a04d4a2b3468b5509a33b7624075ab",
+    "requests/v04.json": "ea285915d1cb210c62f04f8c09a4133442dfd1a8f840d7e3b5e9152b686df6b2",
+    "requests/v05.json": "90ef8addaf4c270e37044bd9aafc35b0a49288fd7bdf461f391105f03d862802",
+    "requests/v06.json": "4b8bbbf5a523340e8ee8bd5db8e0b1c711be0940e5dc799be6ddaca3e70a06fc",
+    "requests/v07.json": "5855b9af4f8ff92dab277ee10ecf7f852324068dcb3135c2546a85de07fe03c8",
+    "requests/v08.json": "6498d6b4b44a76e58ac06fd59575dfe0906805dfc8e6b2264f42c5f186354d22",
+    "requests/v09.json": "bd9fa6c882448686b0c0d4deca255c746c0c655d3eaa869c7af229ec640b3653",
+    "requests/v10.json": "d96142cc8132d6a8af5b394855c9cbdf1963d298c2ab901ee08a7d0d78df5e0d",
+    "requests/v11.json": "8258acc0a0f4b00fc6f26ad41d39f3b7461505b5ab61fd33593b8296a48db7bf",
+    "requests/v12.json": "6998bcd459378beee161ecafac88b3af47c9517bf06177577865cbcca7a97151",
+    "requests/v13.json": "a60ccbcdf29cd5240bea1c2b5b346b494da18a599cad667b6b7e24f1aa706160",
+    "requests/v14.json": "304a5211b11ff35bcf4b17eda8f1f166bcc4430e332b6e5a9ba1a32bbd233867",
+    "requests/v15.json": "ee41e3b73285887613ab60517d096d2a91e6a0accd55da4401bfe0f4e75b4bce",
+    "requests/v16.json": "2ef2ef5800b4dc5b5777510f3658f833e783acf5809bce6e5014a1359226aaab",
+    "requests/v17.json": "58e7911c2e3a4c652440af5dd9776f8b090a6b4d8f990ef20b9de62e1e2e9a93",
+    "requests/v18.json": "3a1e22d16122493bde565ff5e5cd793addd0b5088d13f990002baad6202bd2b3",
+    "requests/v19.json": "350db2866856eafea00b9ceb6632c75532e148359ffcfc246fafe669babf5309",
+    "requests/v20.json": "c99c343fd82d9eed5605581d32e4d2c85ce0ebd1ae808f3d88c2f89eac0ccf4e",
+    "requests/v21.json": "fa14f89914f6ec16446bc941266951e6ba464b1ef34fc0301b7de1e6dce2464f",
+    "requests/v22.json": "63b693ba1421f3c40bbd9519ff064d92af030c50a193dc8e924092ce608ef84d",
+    "requests/v23.json": "83a7e4f1d50dea75cfa95986383284292b2527e6528f801501755875650e7f2f",
+    "requests/v24.json": "b50fad38f5ac303a024148cec373a0de0e3bf09cf6707ca6b38c945efdd053bd"
+  }
+}

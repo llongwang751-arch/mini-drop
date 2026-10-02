@@ -1,0 +1,308 @@
+{
+  "schema": "mini-drop.planning-retrieval-oracle.v2",
+  "never_model_context": true,
+  "cases": [
+    {
+      "case_id": "v01",
+      "acceptable_dispositions": [
+        "NORMAL"
+      ],
+      "acceptable_tools": [
+        null
+      ],
+      "relevant_ids": [
+        "linux.cpu.process_pressure",
+        "linux.memory.process_growth"
+      ],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v01"
+    },
+    {
+      "case_id": "v02",
+      "acceptable_dispositions": [
+        "NORMAL"
+      ],
+      "acceptable_tools": [
+        null
+      ],
+      "relevant_ids": [
+        "jvm.gc.pressure",
+        "linux.cpu.process_pressure"
+      ],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v02"
+    },
+    {
+      "case_id": "v03",
+      "acceptable_dispositions": [
+        "NORMAL"
+      ],
+      "acceptable_tools": [
+        null
+      ],
+      "relevant_ids": [
+        "container.cpu.throttling",
+        "container.memory.pressure"
+      ],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v03"
+    },
+    {
+      "case_id": "v04",
+      "acceptable_dispositions": [
+        "NORMAL"
+      ],
+      "acceptable_tools": [
+        null
+      ],
+      "relevant_ids": [
+        "linux.network.retransmit"
+      ],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v04"
+    },
+    {
+      "case_id": "v05",
+      "acceptable_dispositions": [
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "acceptable_tools": [
+        null
+      ],
+      "relevant_ids": [],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v05"
+    },
+    {
+      "case_id": "v06",
+      "acceptable_dispositions": [
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "acceptable_tools": [
+        null
+      ],
+      "relevant_ids": [],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v06"
+    },
+    {
+      "case_id": "v07",
+      "acceptable_dispositions": [
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "acceptable_tools": [
+        null
+      ],
+      "relevant_ids": [],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v07"
+    },
+    {
+      "case_id": "v08",
+      "acceptable_dispositions": [
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "acceptable_tools": [
+        null
+      ],
+      "relevant_ids": [],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v08"
+    },
+    {
+      "case_id": "v09",
+      "acceptable_dispositions": [
+        "REFUSED"
+      ],
+      "acceptable_tools": [
+        null
+      ],
+      "relevant_ids": [],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v09"
+    },
+    {
+      "case_id": "v10",
+      "acceptable_dispositions": [
+        "REFUSED"
+      ],
+      "acceptable_tools": [
+        null
+      ],
+      "relevant_ids": [],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v10"
+    },
+    {
+      "case_id": "v11",
+      "acceptable_dispositions": [
+        "REFUSED"
+      ],
+      "acceptable_tools": [
+        null
+      ],
+      "relevant_ids": [],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v11"
+    },
+    {
+      "case_id": "v12",
+      "acceptable_dispositions": [
+        "REFUSED"
+      ],
+      "acceptable_tools": [
+        null
+      ],
+      "relevant_ids": [],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v12"
+    },
+    {
+      "case_id": "v13",
+      "acceptable_dispositions": [
+        "INVESTIGATE"
+      ],
+      "acceptable_tools": [
+        "start_pyspy_profile"
+      ],
+      "relevant_ids": [
+        "linux.cpu.process_pressure"
+      ],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v13"
+    },
+    {
+      "case_id": "v14",
+      "acceptable_dispositions": [
+        "INVESTIGATE"
+      ],
+      "acceptable_tools": [
+        "start_perf_profile"
+      ],
+      "relevant_ids": [
+        "linux.cpu.process_pressure"
+      ],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v14"
+    },
+    {
+      "case_id": "v15",
+      "acceptable_dispositions": [
+        "INVESTIGATE"
+      ],
+      "acceptable_tools": [
+        "collect_sys_metrics"
+      ],
+      "relevant_ids": [
+        "container.cpu.throttling"
+      ],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v15"
+    },
+    {
+      "case_id": "v16",
+      "acceptable_dispositions": [
+        "INVESTIGATE"
+      ],
+      "acceptable_tools": [
+        "collect_memory_profile"
+      ],
+      "relevant_ids": [
+        "linux.memory.process_growth"
+      ],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v16"
+    },
+    {
+      "case_id": "v17",
+      "acceptable_dispositions": [
+        "INVESTIGATE"
+      ],
+      "acceptable_tools": [
+        "start_jvm_profile"
+      ],
+      "relevant_ids": [
+        "jvm.gc.pressure"
+      ],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v17"
+    },
+    {
+      "case_id": "v18",
+      "acceptable_dispositions": [
+        "INVESTIGATE"
+      ],
+      "acceptable_tools": [
+        "collect_go_profile"
+      ],
+      "relevant_ids": [
+        "go.profile.selection"
+      ],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v18"
+    },
+    {
+      "case_id": "v19",
+      "acceptable_dispositions": [
+        "INVESTIGATE"
+      ],
+      "acceptable_tools": [
+        "start_ebpf_io_profile"
+      ],
+      "relevant_ids": [
+        "linux.iowait.shared_block_device",
+        "distributed.same_host_noisy_neighbor"
+      ],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v19"
+    },
+    {
+      "case_id": "v20",
+      "acceptable_dispositions": [
+        "INVESTIGATE"
+      ],
+      "acceptable_tools": [
+        "start_perf_profile"
+      ],
+      "relevant_ids": [
+        "linux.cpu.kernel_overhead"
+      ],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v20"
+    },
+    {
+      "case_id": "v21",
+      "acceptable_dispositions": [
+        "NORMAL"
+      ],
+      "acceptable_tools": [
+        null
+      ],
+      "relevant_ids": [
+        "python.sampling.attribution",
+        "linux.cpu.process_pressure"
+      ],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v21"
+    },
+    {
+      "case_id": "v22",
+      "acceptable_dispositions": [
+        "NORMAL"
+      ],
+      "acceptable_tools": [
+        null
+      ],
+      "relevant_ids": [
+        "linux.network.retransmit"
+      ],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v22"
+    },
+    {
+      "case_id": "v23",
+      "acceptable_dispositions": [
+        "NORMAL"
+      ],
+      "acceptable_tools": [
+        null
+      ],
+      "relevant_ids": [
+        "linux.iowait.shared_block_device"
+      ],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v23"
+    },
+    {
+      "case_id": "v24",
+      "acceptable_dispositions": [
+        "NORMAL"
+      ],
+      "acceptable_tools": [
+        null
+      ],
+      "relevant_ids": [
+        "jvm.gc.pressure",
+        "linux.memory.process_growth"
+      ],
+      "evaluator_only_sentinel": "EVALUATOR_ONLY_PLANNING_V2_v24"
+    }
+  ]
+}

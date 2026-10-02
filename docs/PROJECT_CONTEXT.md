@@ -1,12 +1,20 @@
 # Mini-Drop 当前项目上下文
 
-## 2026-10-02 规划输出与无答案检索 v2（待部署验收）
+## 2026-10-02 规划输出与无答案检索 v2（已部署）
+
+当前已部署 `20261002T103825Z`，应用源码 `73b4b18ad83553a5012a0025dfb78bb21ff8dc7f`。本次仅更换 Diagnosis Worker 和 Analyzer；Web 保留 a6a36260/20261002T095001Z 的运行镜像，完整 Web Git tree 与最终源码相等，58 个公网资源 SHA 一致；Worker/Analyzer 各 219 个源码文件逐一核对，13 服务健康，其余 11 个容器及紧邻部署前 Office/API/Native/CPP、环境和挂载保持。故障广场 21 场景均 inactive，展示工程判断 21/21、路径 6/21、反证 8 条；没有重跑故障或一小时实验。
+
+精确源码 [主 CI 36996499159](https://github.com/llongwang751-arch/mini-drop/actions/runs/36996499159) 实际 14/14，Python 2019 通过/16 登记跳过，Web 330、真实 PostgreSQL 14 零跳过、Chromium 固定数据 8；Chroma 独立作业通过。[干净核心 CI 36996499257](https://github.com/llongwang751-arch/mini-drop/actions/runs/36996499257) 87 项门禁零跳过、10 阶段通过。原失败和原断言保持，专项数量不重复加到主套件。
+
+新冻结 24 题首轮仍为 df0d3ef0 上的 21 响应/3 超时，结构、判断和下一工具均 21/24，零重试；首轮 BM25 Recall@3 0.96875、无答案误召回 5/8；HYBRID Recall@3 0.90625、误召回 1/8。a6a36260 的同题已曝光检索回归中，两路无答案误召回均 0/8，两路 Recall@3 均 0.875，BM25 MRR@3 0.90625、HYBRID MRR@3 0.875；主体准入减少误召回也损失相关内容覆盖。这不是新的盲测。最终 73b4b18a 的知识语料与三个检索实现文件与 a6a36260 Git tree 相同，由发布 manifest 证明来源等价，没有重复消耗 chat 或检索实评预算。
+
+v7 提示部署后的同一 NORMAL 问题新会话补验 1 次，结果未通过；原始状态 `FAILED`，预期 NORMAL，实际 `INSUFFICIENT_EVIDENCE`，实际持久采集任务 0。本次返回合法 INSUFFICIENT_EVIDENCE 并直接 finish：只有进程身份、没有性能基线或时间窗口，且用户要求不采集。没有供应商超时、检索循环、非法计划或语义重试；合法停止合同已实证，但该问题的 NORMAL 标签未通过。当前浏览器实际呈现 2/3 张规划结果卡、3 个无答案通知，24 次四视口布局检查通过，TLS 证书校验开启，无 console/network 错误，本次没有证据下载。缺测与拒绝卡的产生源码是 df0d3ef0；新 NORMAL 会话的产生源码是 73b4b18a，逐例来源分开保存，不宣称三个状态都在最终版本重新实跑。
 
 本轮优化复用现有 LangGraph/legacy 规划入口。`mini-drop.planning-output.v2` 区分 INVESTIGATE、NORMAL、INSUFFICIENT_EVIDENCE、REFUSED；合法非调查结果允许空假设与空工具，记录 `planner.output_recorded` 后不新建采集任务。NORMAL 仅指描述或规划范围未提出异常，不能替代真实当前状态检查。异常调查继续经过原目标、预算、数值、证据和取消门禁；因果验证标志保持 false。
 
 词法与混合检索共用 `knowledge-subject-admission-v2` 相关性门禁：按真实问题的主体、当前候选条目的公开主能力及运行时范围判定；其他 catalog 条目覆盖同名主体不能替当前候选授权，title/keywords/applies_to 提供能力边界，summary 只用于排序；显式排除的替代或比较对象不提供准入锚点。新知识主体由公共元数据扩展，独立 Linux 进程观测可匹配通用指南，分类器猜测不参与相关性准入。空召回输出 NO_RELEVANT_KNOWLEDGE；健康字段只描述检索后端，不等同于业务正常。新主题为 `evidence-first-diagnosis-v4-output-contract`，当前物理检查点 thread_id 使用 `diagnosis-agent-v7-four-state-prompts:<diagnosis_id>`，scope agent 使用 `scope-agent-v1:<diagnosis_id>`。真实 LangGraph 顶层会把 checkpoint_ns 清空，不能依靠传入 namespace 隔离版本。业务 SQL ID、事件、证据与旧检查点保留，新版本从 SQL 状态重新投影，无数据库迁移。
 
-新评测输入/真值/规则在评测实现与模型调用前冻结；规划 DTO 此前已开始实现，因此不宣称冻结早于全部生产实现。旧 24 题原始请求、结果和评分合同不改；历史沙箱显式固定浮点求和口径以兼容 Python 3.11 与原 3.14 的一个末位差异，24 个逐题判断和报告严格比较保持；历史重算使用隔离旧源码/语料，明确 current_production_equivalence=false。范围与命令见 [规划与检索 v2](PLANNING_RETRIEVAL_V2.md)。首版源码 `df0d3ef0` 的主 CI 36986787573 已实际 14/14，Python 1975 通过/16 登记跳过、Web 330；干净核心 CI 36986787602 的 87 项门禁零跳过、10 阶段通过。三服务已发布 `20261002T085733Z`，Worker/Analyzer 各 219 源码及 Web 58 资源 SHA 核对。新 24 题一次性模型实评为 21 响应/3 超时，结构、判断、下一工具均 21/24；BM25 无答案误召回 5/8、真实 HYBRID 1/8。原始失败完整归档，正在按公共主体/能力范围修复检索，并补真实检查点版本隔离；后续同题检索只称已曝光问题回归，不称新的盲测。
+新评测输入/真值/规则在评测实现与模型调用前冻结；规划 DTO 此前已开始实现，因此不宣称冻结早于全部生产实现。旧 24 题原始请求、结果和评分合同不改；历史沙箱显式固定浮点求和口径以兼容 Python 3.11 与原 3.14 的一个末位差异，24 个逐题判断和报告严格比较保持；历史重算使用隔离旧源码/语料，明确 current_production_equivalence=false。范围与命令见 [规划与检索 v2](PLANNING_RETRIEVAL_V2.md)。首版源码 `df0d3ef0` 的主 CI 36986787573 已实际 14/14，Python 1975 通过/16 登记跳过、Web 330；干净核心 CI 36986787602 的 87 项门禁零跳过、10 阶段通过。三服务已发布 `20261002T085733Z`，Worker/Analyzer 各 219 源码及 Web 58 资源 SHA 核对。新 24 题一次性模型实评为 21 响应/3 超时，结构、判断、下一工具均 21/24；BM25 无答案误召回 5/8、真实 HYBRID 1/8。原始失败完整归档；后续主体准入修复、真实检查点隔离及同题检索回归已完成，结果以本节最新事实为准。
 
 单机与控制面 Compose 的默认 MinIO 改为 `deploy/dockerfiles/minio-source.Dockerfile` 从原 `RELEASE.2025-04-08T15-41-24Z` 的官方源码构建：commit `d0cada583fce88f60cb276ddfb06f5cb16820069`，tar SHA `989506993f138bc8092368adaa9e0d8e980aef0da3178e8649ff2d34d3a4a665`。官方预制仓库匿名拉取失败已保留，不能靠线上缓存镜像证明可复刻；不改变 MinIO 版本或已有卷，健康检查改用真实 readiness HTTP，上传/下载另由实际 S3 链路验证。干净 CI 36975451670 已验证该同版本源码镜像与真实 S3 链路；原拉取失败与三次独立失败记录保留。线上既有容器、镜像和数据不因此替换。
 
@@ -14,9 +22,9 @@
 
 本轮真实 LangGraph 正常分支先后未通过：首批供应商超时；补验先提交错误 INVESTIGATE/采集失败证伪，被原门禁拒绝，纠正调用随后超时。只读审查发现旧中文语言要求和 theme 仍无条件强制扩展假设/重新取证，与四态允许收束冲突；这能证明提示冲突，不能把单次供应商超时的因果归于该句。当前提示统一先选择四态，仅 INVESTIGATE 且仍有待验证异常与可执行动作时要求假设、数值证伪和切换领域；非法计划不是新的异常证据。合法非调查可直接 finish，不能把用户宣称正常当成已完成健康检查。Agent 版本升到 v7 隔离旧提示的物理 thread；v6、旧原 ID 检查点均保留。
 
-部署范围收敛为 Diagnosis Worker 与 Analyzer：Web 保留已验证 `20261002T095001Z` 的运行镜像，以完整 Web Git tree 相等和 58 个公网资源 SHA 证明源码等价；13 个服务中的其余 11 个容器、业务卷、Office 与 Native/API/CPP 保留。无答案策略、语料、评分和模型首轮 24 次预算不变，后续正常分支在新的独立批次补验。
+部署范围收敛为 Diagnosis Worker 与 Analyzer：Web 保留已验证 `20261002T095001Z` 的运行镜像，以完整 Web Git tree 相等和 58 个公网资源 SHA 证明源码等价；13 个服务中的其余 11 个容器、业务卷、Office 与 Native/API/CPP 保留。无答案策略、语料、评分和模型首轮 24 次预算不变，正常分支的新批次补验结果见本节顶部与原始归档。
 
-## 2026-10-02 面试交付收尾（已验证）
+## 历史快照：2026-10-02 首次面试交付收尾（已验证）
 
 本轮已完成当前文档与既有求职材料统一、干净 Linux 核心平台复刻、预冻 24 题真实模型规划与只读检索评估，以及正式源码交付与五分钟演示步骤。当前事实由 [CURRENT_DELIVERY](CURRENT_DELIVERY.md) 从合同与固定 SHA 的报告生成，漂移检查继续由 CI 阻断。
 

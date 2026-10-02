@@ -1,0 +1,172 @@
+{
+  "type": "result",
+  "case_id": "v02",
+  "status": "OK",
+  "response": {
+    "id": "01a0fbe46c7011d1a021d09687efa874",
+    "object": "chat.completion",
+    "created": 1790932446,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n    \"schema_version\": \"mini-drop.planning-output.v2\",\n    \"disposition\": \"NORMAL\",\n    \"reasoning_summary\": \"根据提供的15秒窗口观测，目标Java进程CPU占用率2%，驻留内存无增长，GC暂停次数为0。这些指标均在低水平稳定范围内，未显示出明确的性能异常信号。当前描述未提出待验证的异常，因此规划为正常状态。\",\n    \"tool_name\": null,\n    \"hypotheses\": [],\n    \"missing_evidence\": [],\n    \"limitations\": [\"本次规划仅基于提供的15秒窗口观测，未覆盖更长时间段或不同负载下的行为。\", \"观测未包含线程状态、I/O延迟、下游依赖或内部队列深度等潜在瓶颈域。\", \"这是规划判断，尚未执行当前状态检查，不能声明平台或业务全部正常。\"],\n    \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4263,
+      "completion_tokens": 196,
+      "total_tokens": 4459,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 4263
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fbe46c7011d1a021d09687efa874\",\"object\":\"chat.completion\",\"created\":1790932446,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n    \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n    \\\"disposition\\\": \\\"NORMAL\\\",\\n    \\\"reasoning_summary\\\": \\\"根据提供的15秒窗口观测，目标Java进程CPU占用率2%，驻留内存无增长，GC暂停次数为0。这些指标均在低水平稳定范围内，未显示出明确的性能异常信号。当前描述未提出待验证的异常，因此规划为正常状态。\\\",\\n    \\\"tool_name\\\": null,\\n    \\\"hypotheses\\\": [],\\n    \\\"missing_evidence\\\": [],\\n    \\\"limitations\\\": [\\\"本次规划仅基于提供的15秒窗口观测，未覆盖更长时间段或不同负载下的行为。\\\", \\\"观测未包含线程状态、I/O延迟、下游依赖或内部队列深度等潜在瓶颈域。\\\", \\\"这是规划判断，尚未执行当前状态检查，不能声明平台或业务全部正常。\\\"],\\n    \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":4263,\"completion_tokens\":196,\"total_tokens\":4459,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":0},\"prompt_cache_hit_tokens\":0,\"prompt_cache_miss_tokens\":4263},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "ca6f071c21140ed1e0a0bf3f25b86ae40baae7b2a010542b4c24cea19ad034a2",
+  "seconds": 9.934411,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.memory.process_growth",
+      "jvm.gc.pressure",
+      "linux.cpu.process_pressure"
+    ],
+    "matches": [
+      {
+        "query": "A Java worker health sample has CPU 2%, unchanged resident memory and no GC pauses during this 15-second window. Is this checked scope healthy?",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "memory"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "memory",
+              "sampling"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.memory.process_growth",
+        "title": "进程内存增长与压力",
+        "document": "knowledge/linux_memory.md",
+        "content_hash": "953e613685c18b7f6f0160d68019b8fad44958b3252a16a688a828663f412170",
+        "chunk_id": "12e302e5b76c79b026b3b59b89ef5b3adc4064b966beb58ccc10c66d52fa3512",
+        "score": 8.116728,
+        "matched_terms": [
+          "memory",
+          "gc"
+        ],
+        "required_evidence": [
+          "RSS 时间序列",
+          "内存限制",
+          "分配热点或 GC 指标"
+        ],
+        "caveats": [
+          "缓存增长和泄漏表现可能相似"
+        ],
+        "excerpt": "# Linux 进程内存诊断\n\n高 RSS 与内存泄漏不是同义词。判断泄漏至少需要时间序列、稳定负载或基线、内存限制，以及堆或分配热点。缓存、预热和批处理也会造成阶段性增长。"
+      },
+      {
+        "query": "A Java worker health sample has CPU 2%, unchanged resident memory and no GC pauses during this 15-second window. Is this checked scope healthy?",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "gc"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "gc",
+              "latency_measurement"
+            ],
+            "runtime_scopes": [
+              "JVM"
+            ],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "jvm.gc.pressure",
+        "title": "JVM GC 暂停与分配压力",
+        "document": "knowledge/jvm_gc.md",
+        "content_hash": "79c8eaf0d4cc667f924d5c6d1fc307c6d99703bab0efd99e53cf8015decefdc8",
+        "chunk_id": "b2516407710a87f953650ab1d3022be9ae1cf14b08129490311bb7bcc305234c",
+        "score": 8.070692,
+        "matched_terms": [
+          "cpu",
+          "gc"
+        ],
+        "required_evidence": [
+          "GC pause P95",
+          "GC 时间占比",
+          "堆分代占用"
+        ],
+        "caveats": [
+          "CPU 高可能是 GC 的原因，也可能是结果"
+        ],
+        "excerpt": "# JVM GC 压力\n\n使用暂停 P95/P99、GC 时间占比、分代占用、分配速率和 GC cause 联合判断。单次长暂停或 CPU 高都不足以直接认定 GC 是根因。"
+      },
+      {
+        "query": "A Java worker health sample has CPU 2%, unchanged resident memory and no GC pauses during this 15-second window. Is this checked scope healthy?",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu",
+            "gc"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "gc",
+              "host_contention",
+              "sampling"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.cpu.process_pressure",
+        "title": "Linux 进程用户态 CPU 热点",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+        "chunk_id": "85e0e4cf5696c3626de2a02fee11730f4fca25b216490b0fcb4bd4961f80c9eb",
+        "score": 3.849835,
+        "matched_terms": [
+          "cpu"
+        ],
+        "required_evidence": [
+          "CPU user/system 比例",
+          "Profile TopN",
+          "同宿主资源对比"
+        ],
+        "caveats": [
+          "单次 CPU 高不能证明代码回归",
+          "缺少符号时应返回证据不足"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

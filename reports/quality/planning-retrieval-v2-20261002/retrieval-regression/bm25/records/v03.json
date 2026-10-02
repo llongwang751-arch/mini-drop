@@ -1,0 +1,255 @@
+{
+  "case_id": "v03",
+  "query": "容器 CPU 限额这一分钟没有 throttled 计数增长，memory.events oom_kill 也没变；只评价这两项，不要承诺整个业务健康。",
+  "requested_backend": "BM25",
+  "actual_backend": "BM25",
+  "degraded_reasons": [],
+  "matched_ids": [
+    "container.memory.pressure",
+    "container.cpu.throttling",
+    "linux.cpu.process_pressure"
+  ],
+  "matches": [
+    {
+      "query": "容器 CPU 限额这一分钟没有 throttled 计数增长，memory.events oom_kill 也没变；只评价这两项，不要承诺整个业务健康。",
+      "relevance": {
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "memory_pressure"
+        ],
+        "matched_anchors": [
+          "OOM",
+          "memory.events"
+        ],
+        "unsupported_subjects": [],
+        "clause": "memory.events oom_kill 也没变",
+        "source_profile": {
+          "concepts": [
+            "memory_pressure"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "容器 CPU 限额这一分钟没有 throttled 计数增长"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "memory_pressure"
+            ],
+            "matched_anchors": [
+              "OOM",
+              "memory.events"
+            ],
+            "unsupported_subjects": [],
+            "clause": "memory.events oom_kill 也没变"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "只评价这两项"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "不要承诺整个业务健康"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      "knowledge_id": "container.memory.pressure",
+      "title": "容器内存回收与 OOM",
+      "document": "knowledge/memory_pressure.md",
+      "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+      "chunk_id": "2272298e3d20d5dfd199987cd01900c9faf16f5de64b9ebc82f4e41d0c2c1208",
+      "score": 12.430515,
+      "matched_terms": [
+        "memory.events",
+        "oom",
+        "容器"
+      ],
+      "required_evidence": [
+        "当前目标身份与时间窗",
+        "与问题对应的原始观测",
+        "独立对照或反证"
+      ],
+      "caveats": [
+        "知识只能指导调查，不是当前事故证据",
+        "缺少所需连接器时明确报告观测缺口"
+      ],
+      "excerpt": "## memory.events 与压力观察\n\n记录 memory.current、memory.max、memory.high、memory.events 的同窗增量，并观察 memory.pressure。回收压力、OOM 和进程退出应对齐时间；不可用最终一次 RSS 代替退出前观测。不同内核版本字段能力需现场核对。"
+    },
+    {
+      "query": "容器 CPU 限额这一分钟没有 throttled 计数增长，memory.events oom_kill 也没变；只评价这两项，不要承诺整个业务健康。",
+      "relevance": {
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "cpu_quota"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "容器 CPU 限额这一分钟没有 throttled 计数增长",
+        "source_profile": {
+          "concepts": [
+            "cpu_quota"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "cpu_quota"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "容器 CPU 限额这一分钟没有 throttled 计数增长"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "memory.events oom_kill 也没变"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "只评价这两项"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "不要承诺整个业务健康"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      "knowledge_id": "container.cpu.throttling",
+      "title": "容器 CPU 配额节流",
+      "document": "knowledge/cgroup_cpu.md",
+      "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+      "chunk_id": "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+      "score": 10.700444,
+      "matched_terms": [
+        "throttled",
+        "cpu",
+        "容器"
+      ],
+      "required_evidence": [
+        "当前目标身份与时间窗",
+        "与问题对应的原始观测",
+        "独立对照或反证"
+      ],
+      "caveats": [
+        "知识只能指导调查，不是当前事故证据",
+        "缺少所需连接器时明确报告观测缺口"
+      ],
+      "excerpt": "## CPU throttling 的观测窗口\n\n读取 cpu.max 和 cpu.stat，在等长窗口比较 nr_periods、nr_throttled、throttled_usec 的增量，同时记录请求量及进程 CPU。累计节流时间非零不证明当前故障；祖先 cgroup 的限制也可能影响目标。"
+    },
+    {
+      "query": "容器 CPU 限额这一分钟没有 throttled 计数增长，memory.events oom_kill 也没变；只评价这两项，不要承诺整个业务健康。",
+      "relevance": {
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "cpu"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "容器 CPU 限额这一分钟没有 throttled 计数增长",
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "sampling"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "cpu"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "容器 CPU 限额这一分钟没有 throttled 计数增长"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "memory.events oom_kill 也没变"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "只评价这两项"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "不要承诺整个业务健康"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      "knowledge_id": "linux.cpu.process_pressure",
+      "title": "Linux 进程用户态 CPU 热点",
+      "document": "knowledge/linux_cpu.md",
+      "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+      "chunk_id": "85e0e4cf5696c3626de2a02fee11730f4fca25b216490b0fcb4bd4961f80c9eb",
+      "score": 5.715884,
+      "matched_terms": [
+        "cpu",
+        "增长"
+      ],
+      "required_evidence": [
+        "CPU user/system 比例",
+        "Profile TopN",
+        "同宿主资源对比"
+      ],
+      "caveats": [
+        "单次 CPU 高不能证明代码回归",
+        "缺少符号时应返回证据不足"
+      ],
+      "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+    }
+  ],
+  "knowledge_is_evidence": false
+}

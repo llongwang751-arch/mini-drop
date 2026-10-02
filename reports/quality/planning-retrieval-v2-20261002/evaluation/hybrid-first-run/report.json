@@ -1,0 +1,336 @@
+{
+  "schema": "mini-drop.readonly-retrieval-evaluation.v2",
+  "scope": "FROZEN_PUBLIC_KNOWLEDGE_RETRIEVAL_ONLY",
+  "manifest_sha256": "ae57be9a369db8df7c10131810f4deaa68bf2ea91104911233a6ad67c8f58d4e",
+  "requested_backend": "HYBRID",
+  "metric_arithmetic": "FSUM_FLOAT_MEANS_EXACT_INTEGER_COUNTERS",
+  "actual_backend_counts": {
+    "BM25_ENTITY_CHROMA_RRF": 3,
+    "BM25_ENTITY_CHROMA_RRF_RERANK": 21
+  },
+  "chat_calls_attempted": 0,
+  "actual_tasks_dispatched": 0,
+  "actual_faults_injected": 0,
+  "index_creation_attempted": false,
+  "knowledge_is_evidence": false,
+  "cost_usd": null,
+  "retrieval_provider_token_usage": null,
+  "metrics": {
+    "case_count": 24,
+    "positive_cases": 16,
+    "no_answer_cases": 8,
+    "recall_at_3": 0.90625,
+    "mrr_at_3": 0.9375,
+    "no_answer_false_positive_count": 1,
+    "no_answer_false_positive_rate": 0.125
+  },
+  "cases": [
+    {
+      "case_id": "v01",
+      "matched_ids": [
+        "linux.memory.process_growth",
+        "container.memory.pressure",
+        "container.cpu.throttling"
+      ],
+      "relevant_ids": [
+        "linux.cpu.process_pressure",
+        "linux.memory.process_growth"
+      ],
+      "recall_at_3": 0.5,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v02",
+      "matched_ids": [
+        "jvm.gc.pressure"
+      ],
+      "relevant_ids": [
+        "jvm.gc.pressure",
+        "linux.cpu.process_pressure"
+      ],
+      "recall_at_3": 0.5,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v03",
+      "matched_ids": [
+        "container.memory.pressure",
+        "container.cpu.throttling"
+      ],
+      "relevant_ids": [
+        "container.cpu.throttling",
+        "container.memory.pressure"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v04",
+      "matched_ids": [
+        "linux.network.retransmit"
+      ],
+      "relevant_ids": [
+        "linux.network.retransmit"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v05",
+      "matched_ids": [],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": false
+    },
+    {
+      "case_id": "v06",
+      "matched_ids": [],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": false
+    },
+    {
+      "case_id": "v07",
+      "matched_ids": [],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": false
+    },
+    {
+      "case_id": "v08",
+      "matched_ids": [
+        "mysql.lock_wait"
+      ],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": true
+    },
+    {
+      "case_id": "v09",
+      "matched_ids": [],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": false
+    },
+    {
+      "case_id": "v10",
+      "matched_ids": [],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": false
+    },
+    {
+      "case_id": "v11",
+      "matched_ids": [],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": false
+    },
+    {
+      "case_id": "v12",
+      "matched_ids": [],
+      "relevant_ids": [],
+      "recall_at_3": null,
+      "reciprocal_rank_at_3": 0,
+      "no_answer_false_positive": false
+    },
+    {
+      "case_id": "v13",
+      "matched_ids": [
+        "python.sampling.attribution",
+        "linux.cpu.process_pressure",
+        "linux.cpu.kernel_overhead"
+      ],
+      "relevant_ids": [
+        "linux.cpu.process_pressure"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 0.5,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v14",
+      "matched_ids": [
+        "linux.cpu.process_pressure",
+        "linux.cpu.kernel_overhead"
+      ],
+      "relevant_ids": [
+        "linux.cpu.process_pressure"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v15",
+      "matched_ids": [
+        "container.cpu.throttling"
+      ],
+      "relevant_ids": [
+        "container.cpu.throttling"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v16",
+      "matched_ids": [
+        "linux.memory.process_growth",
+        "container.memory.pressure"
+      ],
+      "relevant_ids": [
+        "linux.memory.process_growth"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v17",
+      "matched_ids": [
+        "jvm.gc.pressure"
+      ],
+      "relevant_ids": [
+        "jvm.gc.pressure"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v18",
+      "matched_ids": [
+        "go.profile.selection",
+        "linux.cpu.process_pressure",
+        "linux.cpu.kernel_overhead"
+      ],
+      "relevant_ids": [
+        "go.profile.selection"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v19",
+      "matched_ids": [
+        "linux.iowait.shared_block_device"
+      ],
+      "relevant_ids": [
+        "distributed.same_host_noisy_neighbor",
+        "linux.iowait.shared_block_device"
+      ],
+      "recall_at_3": 0.5,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v20",
+      "matched_ids": [
+        "linux.cpu.process_pressure",
+        "linux.cpu.kernel_overhead"
+      ],
+      "relevant_ids": [
+        "linux.cpu.kernel_overhead"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 0.5,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v21",
+      "matched_ids": [
+        "python.sampling.attribution",
+        "linux.cpu.process_pressure",
+        "linux.cpu.kernel_overhead"
+      ],
+      "relevant_ids": [
+        "linux.cpu.process_pressure",
+        "python.sampling.attribution"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v22",
+      "matched_ids": [
+        "linux.network.retransmit",
+        "distributed.downstream_pressure"
+      ],
+      "relevant_ids": [
+        "linux.network.retransmit"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v23",
+      "matched_ids": [
+        "linux.iowait.shared_block_device"
+      ],
+      "relevant_ids": [
+        "linux.iowait.shared_block_device"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    },
+    {
+      "case_id": "v24",
+      "matched_ids": [
+        "jvm.gc.pressure",
+        "linux.memory.process_growth",
+        "container.memory.pressure"
+      ],
+      "relevant_ids": [
+        "jvm.gc.pressure",
+        "linux.memory.process_growth"
+      ],
+      "recall_at_3": 1.0,
+      "reciprocal_rank_at_3": 1.0,
+      "no_answer_false_positive": null
+    }
+  ],
+  "evidence_sha256": {
+    "implementation-source.json": "c298cadc9e10d7e957b841692359efebf57ab0228a6314ac937d06c98cc409b7",
+    "provenance.json": "920ad99344b3ccdc13909b0d358ccccef21b0e1509dd6e9a10402d31dcdd021c",
+    "records/v01.json": "0befc44b2e17a30bfe2a6ecdfdf9a727ed59f3ba9e17e3045db5ebf5a85120b0",
+    "records/v02.json": "d80c486beb14de5286da31ace1fe0385ec8f8babf65fb09e981831159d169b30",
+    "records/v03.json": "f03feabecbc7c89f19b476f5ec983e60901d08abf69cd1f6c5032973c85bf3d7",
+    "records/v04.json": "e3993efa1901cbee499e077a5335d57cac51027eb3d0c68712da3c09c640eb89",
+    "records/v05.json": "517fe61826ffc8d9ab8db5790c36c926ea5c8818d122a231998b2d7c655bfb3a",
+    "records/v06.json": "6557b7aba12b58ed7d52cee33a3c85fb7f529faed30df3f3dd2b60d6bf663a8c",
+    "records/v07.json": "71210d3f0ba0d1c3a516a15877db7a17b88b2174ba0f16042656a9764a87cfdd",
+    "records/v08.json": "d2d19604ab333747c6655b217828207a7c0336634bb7fbdcc800695013e27c99",
+    "records/v09.json": "2a74e644c6ebe289f62687066a75f117ffb555c8b06727f680a16aefafec19d5",
+    "records/v10.json": "d6061c1cde085ebc3e7a769fb1966d3dc84cad77c2e4f3ff59dd8c4d7644a389",
+    "records/v11.json": "bf51ec9765e5cc982dc01f723724ca4d7943da907032710e062bf9676f93cb69",
+    "records/v12.json": "0c1a19f3a56fb90593cbf84d4f6265b3665e7e7989a0bd0bfde3755aaf987caa",
+    "records/v13.json": "73f50c2c70af28406241820501a417db7e32f5257f4b366cd7acbbd5baadb49c",
+    "records/v14.json": "820fb71aa941fee787069c262fe0594f31176aa48d35037fe29e9fadcdb3472e",
+    "records/v15.json": "b7644e31c56fab59daf3eef5c1c99ca095514d5ff19d1428dc709afedc4fb701",
+    "records/v16.json": "80cd5fae493a9f7dbb04ada0df1494f3f2cca57fd9617a819427510690a819af",
+    "records/v17.json": "d416c3c069d0e461861df2a4c99b8da76ddb3966131e6b908270bea5d8fb4fc7",
+    "records/v18.json": "1814a943b47a8fe0a607e5b14949e7d8aecc6ce41139e2339acc797d971e9b73",
+    "records/v19.json": "c227b6553d4f2cd24f0f2a299bd09bb09fd49902b38fea93c17b0f498f502ab2",
+    "records/v20.json": "0718b2b8ba7f90b0df491eb289ecaa83fab524896c436a6bbaa149411c3d32b8",
+    "records/v21.json": "6a15e49f9b58369f9ff65479bf165ca3dcaec013c8fa1b5c10061da5b7c6db6a",
+    "records/v22.json": "959d255ffc9725963625fe6101d3a41cfc9dd5a9bb684b1e6f7508de561dfdf1",
+    "records/v23.json": "489d79fb330fbd2b51df80afbe790155dcd29711cb9eaadc23907656b0fffbd8",
+    "records/v24.json": "b8c4cd6f09a6d8e83b9a0c5a847a071b6bcc8298a36dec103831a33016d906a4"
+  }
+}

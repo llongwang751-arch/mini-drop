@@ -1,0 +1,133 @@
+{
+  "type": "result",
+  "case_id": "v08",
+  "status": "OK",
+  "response": {
+    "id": "01a0fbe55a8ee72ecdd4e3eca988774a",
+    "object": "chat.completion",
+    "created": 1790932507,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"INSUFFICIENT_EVIDENCE\",\n  \"reasoning_summary\": \"用户报告 Oracle RAC 环境中存在 global-cache wait 感知延迟，但未提供任何 ASH、等待事件或系统指标等原始观测证据。当前允许的工具仅能收集系统指标，无法直接获取数据库内部等待事件或会话活动历史（ASH），而这些是验证 RAC 缓存等待问题的必要证据。知识检索结果与问题领域不匹配（MySQL、Go），不能作为本次诊断的证据。因此，无法提出可验证的性能异常假设，证据存在关键缺口。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [\n    \"Oracle ASH (Active Session History) 数据，包含等待事件 'gc buffer busy'、'gc cr block busy' 等\",\n    \"目标数据库会话在问题时间窗口内的等待事件统计\",\n    \"与 global-cache 相关的系统级指标（如网络延迟、节点间消息速率）\"\n  ],\n  \"limitations\": [\n    \"规划范围仅限于性能诊断假设提出，不执行修复或越权操作。\",\n    \"允许的工具白名单（collect_sys_metrics）无法直接采集 Oracle 数据库内部诊断数据。\",\n    \"检索到的知识（MySQL 锁等待、Go 性能剖析）与当前 Oracle RAC 问题领域不符，不能作为有效证据或指导具体取证动作。\"\n  ],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3801,
+      "completion_tokens": 333,
+      "total_tokens": 4134,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2688
+      },
+      "prompt_cache_hit_tokens": 2688,
+      "prompt_cache_miss_tokens": 1113
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fbe55a8ee72ecdd4e3eca988774a\",\"object\":\"chat.completion\",\"created\":1790932507,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"INSUFFICIENT_EVIDENCE\\\",\\n  \\\"reasoning_summary\\\": \\\"用户报告 Oracle RAC 环境中存在 global-cache wait 感知延迟，但未提供任何 ASH、等待事件或系统指标等原始观测证据。当前允许的工具仅能收集系统指标，无法直接获取数据库内部等待事件或会话活动历史（ASH），而这些是验证 RAC 缓存等待问题的必要证据。知识检索结果与问题领域不匹配（MySQL、Go），不能作为本次诊断的证据。因此，无法提出可验证的性能异常假设，证据存在关键缺口。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [\\n    \\\"Oracle ASH (Active Session History) 数据，包含等待事件 'gc buffer busy'、'gc cr block busy' 等\\\",\\n    \\\"目标数据库会话在问题时间窗口内的等待事件统计\\\",\\n    \\\"与 global-cache 相关的系统级指标（如网络延迟、节点间消息速率）\\\"\\n  ],\\n  \\\"limitations\\\": [\\n    \\\"规划范围仅限于性能诊断假设提出，不执行修复或越权操作。\\\",\\n    \\\"允许的工具白名单（collect_sys_metrics）无法直接采集 Oracle 数据库内部诊断数据。\\\",\\n    \\\"检索到的知识（MySQL 锁等待、Go 性能剖析）与当前 Oracle RAC 问题领域不符，不能作为有效证据或指导具体取证动作。\\\"\\n  ],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3801,\"completion_tokens\":333,\"total_tokens\":4134,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2688},\"prompt_cache_hit_tokens\":2688,\"prompt_cache_miss_tokens\":1113},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "2cd99d0ed2519bc43db879a459f7e769c43f271ffdcc9918b7109d4ba61c23bd",
+  "seconds": 15.873408,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "mysql.lock_wait",
+      "go.profile.selection"
+    ],
+    "matches": [
+      {
+        "query": "Oracle RAC global-cache wait: only a caller says it felt slow; no ASH or wait events have been collected. Do not substitute MySQL lock evidence.",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "lock_wait"
+          ],
+          "matched_anchors": [
+            "lock",
+            "mysql"
+          ],
+          "source_profile": {
+            "concepts": [
+              "lock_wait"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": [
+              "MYSQL"
+            ]
+          }
+        },
+        "knowledge_id": "mysql.lock_wait",
+        "title": "MySQL 锁等待诊断",
+        "document": "knowledge/mysql_lock_wait.md",
+        "content_hash": "b1fafaf760892951df2a34767920ae404a4627d440b9948923691bb5262308da",
+        "chunk_id": "facf811658c648a508d52c7a26421b411400b16039fb164e98c1b0ad6fa7f2f0",
+        "score": 15.159313,
+        "matched_terms": [
+          "mysql",
+          "lock",
+          "wait"
+        ],
+        "required_evidence": [
+          "锁等待数与时长",
+          "阻塞会话",
+          "事务持续时间"
+        ],
+        "caveats": [
+          "慢查询不一定由锁等待造成"
+        ],
+        "excerpt": "# MySQL 锁等待\n\n锁等待分析需要建立阻塞事务到被阻塞事务的关系，并检查事务持续时间、访问顺序、隔离级别和慢 SQL。仅观察查询延迟不能断言锁等待。"
+      },
+      {
+        "query": "Oracle RAC global-cache wait: only a caller says it felt slow; no ASH or wait events have been collected. Do not substitute MySQL lock evidence.",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "lock_wait"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "lock_wait",
+              "sampling"
+            ],
+            "runtime_scopes": [
+              "GO"
+            ],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "go.profile.selection",
+        "title": "Go 堆和阻塞采样",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "chunk_id": "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+        "score": 0.4,
+        "matched_terms": [],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "# Go CPU、堆与阻塞采样选型\n\n按问题选择 profile：CPU 描述执行消耗，heap 描述堆分配视角，block 与 mutex 用于阻塞及锁竞争调查。不要用 CPU 火焰图直接证明等待时间。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

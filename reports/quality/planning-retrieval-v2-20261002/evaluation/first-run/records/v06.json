@@ -1,0 +1,48 @@
+{
+  "type": "result",
+  "case_id": "v06",
+  "status": "OK",
+  "response": {
+    "id": "01a0fbe423f639528a155414d63da8a5",
+    "object": "chat.completion",
+    "created": 1790932428,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"INSUFFICIENT_EVIDENCE\",\n  \"reasoning_summary\": \"用户报告Kafka消费者偏移量延迟可能增加，但未提供任何测量数据、时间窗口或相关遥测。当前缺乏建立因果关系所需的基本观测，如实际的延迟值、生产者/消费者速率、系统资源使用情况或JVM内部状态。在缺失这些关键证据的情况下，无法提出可执行的取证计划来验证具体假设。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [\n    \"Kafka消费者组当前的偏移量延迟（lag）具体数值\",\n    \"问题发生的时间窗口或时间段\",\n    \"消费者进程的资源使用指标（如CPU、内存、I/O）\",\n    \"JVM内部的GC活动或线程状态信息\",\n    \"相关的生产者速率或消费者处理速率\"\n  ],\n  \"limitations\": [\n    \"本次规划仅基于用户描述，未进行任何实际状态检查。\",\n    \"无法确认偏移量延迟是否真实存在、其严重程度或时间范围。\",\n    \"诊断范围仅限于性能原因分析，不包含修复或配置更改。\"\n  ],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3156,
+      "completion_tokens": 272,
+      "total_tokens": 3428,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2688
+      },
+      "prompt_cache_hit_tokens": 2688,
+      "prompt_cache_miss_tokens": 468
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fbe423f639528a155414d63da8a5\",\"object\":\"chat.completion\",\"created\":1790932428,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"INSUFFICIENT_EVIDENCE\\\",\\n  \\\"reasoning_summary\\\": \\\"用户报告Kafka消费者偏移量延迟可能增加，但未提供任何测量数据、时间窗口或相关遥测。当前缺乏建立因果关系所需的基本观测，如实际的延迟值、生产者/消费者速率、系统资源使用情况或JVM内部状态。在缺失这些关键证据的情况下，无法提出可执行的取证计划来验证具体假设。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [\\n    \\\"Kafka消费者组当前的偏移量延迟（lag）具体数值\\\",\\n    \\\"问题发生的时间窗口或时间段\\\",\\n    \\\"消费者进程的资源使用指标（如CPU、内存、I/O）\\\",\\n    \\\"JVM内部的GC活动或线程状态信息\\\",\\n    \\\"相关的生产者速率或消费者处理速率\\\"\\n  ],\\n  \\\"limitations\\\": [\\n    \\\"本次规划仅基于用户描述，未进行任何实际状态检查。\\\",\\n    \\\"无法确认偏移量延迟是否真实存在、其严重程度或时间范围。\\\",\\n    \\\"诊断范围仅限于性能原因分析，不包含修复或配置更改。\\\"\\n  ],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3156,\"completion_tokens\":272,\"total_tokens\":3428,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2688},\"prompt_cache_hit_tokens\":2688,\"prompt_cache_miss_tokens\":468},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "1231a5acf13ffb5fd6a794269f8d96d15bf2556ab566c93f153b177d2e4347b3",
+  "seconds": 17.441348,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [],
+    "matches": [],
+    "knowledge_is_evidence": false
+  }
+}

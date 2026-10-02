@@ -1,0 +1,235 @@
+{
+  "case_id": "v18",
+  "query": "A Go worker has many blocked goroutines after throughput dropped, but CPU utilization is only 1%; choose Go blocking/mutex profiling rather than assume CPU saturation.",
+  "requested_backend": "BM25",
+  "actual_backend": "BM25",
+  "degraded_reasons": [],
+  "matched_ids": [
+    "go.profile.selection",
+    "linux.cpu.process_pressure",
+    "sre.recovery.acceptance"
+  ],
+  "matches": [
+    {
+      "query": "A Go worker has many blocked goroutines after throughput dropped, but CPU utilization is only 1%; choose Go blocking/mutex profiling rather than assume CPU saturation.",
+      "relevance": {
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "lock_wait",
+          "sampling"
+        ],
+        "matched_anchors": [
+          "mutex"
+        ],
+        "unsupported_subjects": [],
+        "clause": "choose Go blocking/mutex profiling rather than assume CPU saturation",
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "A Go worker has many blocked goroutines after throughput dropped"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "CPU utilization is only 1%"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "lock_wait",
+              "sampling"
+            ],
+            "matched_anchors": [
+              "mutex"
+            ],
+            "unsupported_subjects": [],
+            "clause": "choose Go blocking/mutex profiling rather than assume CPU saturation"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      "knowledge_id": "go.profile.selection",
+      "title": "Go 堆和阻塞采样",
+      "document": "knowledge/go_profiles.md",
+      "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+      "chunk_id": "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+      "score": 11.853368,
+      "matched_terms": [
+        "mutex",
+        "cpu",
+        "go"
+      ],
+      "required_evidence": [
+        "当前目标身份与时间窗",
+        "与问题对应的原始观测",
+        "独立对照或反证"
+      ],
+      "caveats": [
+        "知识只能指导调查，不是当前事故证据",
+        "缺少所需连接器时明确报告观测缺口"
+      ],
+      "excerpt": "# Go CPU、堆与阻塞采样选型\n\n按问题选择 profile：CPU 描述执行消耗，heap 描述堆分配视角，block 与 mutex 用于阻塞及锁竞争调查。不要用 CPU 火焰图直接证明等待时间。"
+    },
+    {
+      "query": "A Go worker has many blocked goroutines after throughput dropped, but CPU utilization is only 1%; choose Go blocking/mutex profiling rather than assume CPU saturation.",
+      "relevance": {
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "cpu"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "CPU utilization is only 1%",
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "sampling"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "A Go worker has many blocked goroutines after throughput dropped"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "cpu"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "CPU utilization is only 1%"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "cpu",
+              "sampling"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "choose Go blocking/mutex profiling rather than assume CPU saturation"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      "knowledge_id": "linux.cpu.process_pressure",
+      "title": "Linux 进程用户态 CPU 热点",
+      "document": "knowledge/linux_cpu.md",
+      "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+      "chunk_id": "85e0e4cf5696c3626de2a02fee11730f4fca25b216490b0fcb4bd4961f80c9eb",
+      "score": 3.849835,
+      "matched_terms": [
+        "cpu"
+      ],
+      "required_evidence": [
+        "CPU user/system 比例",
+        "Profile TopN",
+        "同宿主资源对比"
+      ],
+      "caveats": [
+        "单次 CPU 高不能证明代码回归",
+        "缺少符号时应返回证据不足"
+      ],
+      "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+    },
+    {
+      "query": "A Go worker has many blocked goroutines after throughput dropped, but CPU utilization is only 1%; choose Go blocking/mutex profiling rather than assume CPU saturation.",
+      "relevance": {
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "recovery"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "A Go worker has many blocked goroutines after throughput dropped",
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "recovery"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "recovery"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "A Go worker has many blocked goroutines after throughput dropped"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "CPU utilization is only 1%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "choose Go blocking/mutex profiling rather than assume CPU saturation"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      "knowledge_id": "sre.recovery.acceptance",
+      "title": "Agent 恢复与容量验收",
+      "document": "knowledge/sre_recovery.md",
+      "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+      "chunk_id": "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7",
+      "score": 3.701518,
+      "matched_terms": [
+        "worker"
+      ],
+      "required_evidence": [
+        "当前目标身份与时间窗",
+        "与问题对应的原始观测",
+        "独立对照或反证"
+      ],
+      "caveats": [
+        "知识只能指导调查，不是当前事故证据",
+        "缺少所需连接器时明确报告观测缺口"
+      ],
+      "excerpt": "## 中断、租约与幂等\n\n在隔离环境于工具执行前后中断 Worker，记录任务租约、恢复耗时及重复副作用。模拟模型超时、检索失败、Agent 离线，要求有界终止与明确降级。重试前验证旧任务是否已产生有效结果。"
+    }
+  ],
+  "knowledge_is_evidence": false
+}

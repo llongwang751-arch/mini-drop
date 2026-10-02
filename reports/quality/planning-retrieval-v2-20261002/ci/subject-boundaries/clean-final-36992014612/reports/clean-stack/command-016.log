@@ -1,0 +1,499 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 724B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from minio-source.Dockerfile
+#2 transferring dockerfile: 2.16kB done
+#2 DONE 0.0s
+
+#3 [auth] library/debian:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#4 [auth] library/golang:pull token for registry-1.docker.io
+#4 DONE 0.0s
+
+#5 [internal] load metadata for docker.io/library/golang:1.23.6-bookworm
+#5 ...
+
+#6 [internal] load metadata for docker.io/library/debian:bookworm-slim
+#6 DONE 0.3s
+
+#5 [internal] load metadata for docker.io/library/golang:1.23.6-bookworm
+#5 DONE 0.3s
+
+#7 [internal] load .dockerignore
+#7 transferring context: 653B done
+#7 DONE 0.0s
+
+#8 [stage-1 1/7] FROM docker.io/library/debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251
+#8 resolve docker.io/library/debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251 done
+#8 sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251 5.65kB / 5.65kB done
+#8 sha256:f3034a6ec3c1205360777c4aae76234998866ad18806ae62b63a3f84ccad782b 1.02kB / 1.02kB done
+#8 sha256:db9f02c6bde9fa90cc8074c92754b2b046947392f1a857726e77f041febb7b82 453B / 453B done
+#8 sha256:774043ccc8ccd0d0833a9ee0792142ab7ad93df971e59dd248fbf82db16d0150 17.83MB / 28.24MB 0.1s
+#8 sha256:774043ccc8ccd0d0833a9ee0792142ab7ad93df971e59dd248fbf82db16d0150 28.24MB / 28.24MB 0.2s done
+#8 extracting sha256:774043ccc8ccd0d0833a9ee0792142ab7ad93df971e59dd248fbf82db16d0150
+#8 extracting sha256:774043ccc8ccd0d0833a9ee0792142ab7ad93df971e59dd248fbf82db16d0150 1.6s done
+#8 DONE 1.9s
+
+#9 [stage-1 2/7] RUN apt-get update && apt-get install --yes --no-install-recommends curl ca-certificates     && rm -rf /var/lib/apt/lists/*
+#9 0.198 Get:1 http://deb.debian.org/debian bookworm InRelease [151 kB]
+#9 0.211 Get:2 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
+#9 0.211 Get:3 http://deb.debian.org/debian-security bookworm-security InRelease [34.8 kB]
+#9 0.286 Get:4 http://deb.debian.org/debian bookworm/main amd64 Packages [8790 kB]
+#9 0.359 Get:5 http://deb.debian.org/debian bookworm-updates/main amd64 Packages [6924 B]
+#9 0.436 Get:6 http://deb.debian.org/debian-security bookworm-security/main amd64 Packages [344 kB]
+#9 1.273 Fetched 9382 kB in 1s (8642 kB/s)
+#9 1.273 Reading package lists...
+#9 1.749 Reading package lists...
+#9 2.211 Building dependency tree...
+#9 2.316 Reading state information...
+#9 2.414 The following additional packages will be installed:
+#9 2.414   libbrotli1 libcurl4 libgssapi-krb5-2 libk5crypto3 libkeyutils1 libkrb5-3
+#9 2.414   libkrb5support0 libldap-2.5-0 libnghttp2-14 libpsl5 librtmp1 libsasl2-2
+#9 2.415   libsasl2-modules-db libssh2-1 libssl3 openssl
+#9 2.416 Suggested packages:
+#9 2.416   krb5-doc krb5-user
+#9 2.416 Recommended packages:
+#9 2.416   krb5-locales libldap-common publicsuffix libsasl2-modules
+#9 2.509 The following NEW packages will be installed:
+#9 2.509   ca-certificates curl libbrotli1 libcurl4 libgssapi-krb5-2 libk5crypto3
+#9 2.509   libkeyutils1 libkrb5-3 libkrb5support0 libldap-2.5-0 libnghttp2-14 libpsl5
+#9 2.509   librtmp1 libsasl2-2 libsasl2-modules-db libssh2-1 libssl3 openssl
+#9 2.531 0 upgraded, 18 newly installed, 0 to remove and 1 not upgraded.
+#9 2.531 Need to get 5847 kB of archives.
+#9 2.531 After this operation, 14.8 MB of additional disk space will be used.
+#9 2.531 Get:1 http://deb.debian.org/debian-security bookworm-security/main amd64 libssl3 amd64 3.0.22-1~deb12u1 [2039 kB]
+#9 2.560 Get:2 http://deb.debian.org/debian-security bookworm-security/main amd64 openssl amd64 3.0.22-1~deb12u1 [1442 kB]
+#9 2.562 Get:3 http://deb.debian.org/debian-security bookworm-security/main amd64 ca-certificates all 20250419~deb12u1 [162 kB]
+#9 2.562 Get:4 http://deb.debian.org/debian bookworm/main amd64 libbrotli1 amd64 1.0.9-2+b6 [275 kB]
+#9 2.564 Get:5 http://deb.debian.org/debian bookworm/main amd64 libkrb5support0 amd64 1.20.1-2+deb12u5 [33.2 kB]
+#9 2.565 Get:6 http://deb.debian.org/debian bookworm/main amd64 libk5crypto3 amd64 1.20.1-2+deb12u5 [79.7 kB]
+#9 2.565 Get:7 http://deb.debian.org/debian bookworm/main amd64 libkeyutils1 amd64 1.6.3-2 [8808 B]
+#9 2.566 Get:8 http://deb.debian.org/debian bookworm/main amd64 libkrb5-3 amd64 1.20.1-2+deb12u5 [332 kB]
+#9 2.568 Get:9 http://deb.debian.org/debian bookworm/main amd64 libgssapi-krb5-2 amd64 1.20.1-2+deb12u5 [135 kB]
+#9 2.569 Get:10 http://deb.debian.org/debian bookworm/main amd64 libsasl2-modules-db amd64 2.1.28+dfsg-10 [20.3 kB]
+#9 2.569 Get:11 http://deb.debian.org/debian bookworm/main amd64 libsasl2-2 amd64 2.1.28+dfsg-10 [59.7 kB]
+#9 2.571 Get:12 http://deb.debian.org/debian bookworm/main amd64 libldap-2.5-0 amd64 2.5.13+dfsg-5 [183 kB]
+#9 2.571 Get:13 http://deb.debian.org/debian bookworm/main amd64 libnghttp2-14 amd64 1.52.0-1+deb12u3 [72.4 kB]
+#9 2.572 Get:14 http://deb.debian.org/debian bookworm/main amd64 libpsl5 amd64 0.21.2-1 [58.7 kB]
+#9 2.573 Get:15 http://deb.debian.org/debian bookworm/main amd64 librtmp1 amd64 2.4+20151223.gitfa8646d.1-2+b2 [60.8 kB]
+#9 2.573 Get:16 http://deb.debian.org/debian-security bookworm-security/main amd64 libssh2-1 amd64 1.10.0-3+deb12u1 [176 kB]
+#9 2.574 Get:17 http://deb.debian.org/debian bookworm/main amd64 libcurl4 amd64 7.88.1-10+deb12u15 [392 kB]
+#9 2.602 Get:18 http://deb.debian.org/debian bookworm/main amd64 curl amd64 7.88.1-10+deb12u15 [316 kB]
+#9 2.774 debconf: delaying package configuration, since apt-utils is not installed
+#9 2.829 Fetched 5847 kB in 0s (67.2 MB/s)
+#9 2.846 Selecting previously unselected package libssl3:amd64.
+#9 2.846 (Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 6096 files and directories currently installed.)
+#9 2.855 Preparing to unpack .../00-libssl3_3.0.22-1~deb12u1_amd64.deb ...
+#9 2.858 Unpacking libssl3:amd64 (3.0.22-1~deb12u1) ...
+#9 3.021 Selecting previously unselected package openssl.
+#9 3.022 Preparing to unpack .../01-openssl_3.0.22-1~deb12u1_amd64.deb ...
+#9 3.023 Unpacking openssl (3.0.22-1~deb12u1) ...
+#9 3.137 Selecting previously unselected package ca-certificates.
+#9 3.139 Preparing to unpack .../02-ca-certificates_20250419~deb12u1_all.deb ...
+#9 3.140 Unpacking ca-certificates (20250419~deb12u1) ...
+#9 3.195 Selecting previously unselected package libbrotli1:amd64.
+#9 3.197 Preparing to unpack .../03-libbrotli1_1.0.9-2+b6_amd64.deb ...
+#9 3.199 Unpacking libbrotli1:amd64 (1.0.9-2+b6) ...
+#9 3.241 Selecting previously unselected package libkrb5support0:amd64.
+#9 3.242 Preparing to unpack .../04-libkrb5support0_1.20.1-2+deb12u5_amd64.deb ...
+#9 3.243 Unpacking libkrb5support0:amd64 (1.20.1-2+deb12u5) ...
+#9 3.265 Selecting previously unselected package libk5crypto3:amd64.
+#9 3.266 Preparing to unpack .../05-libk5crypto3_1.20.1-2+deb12u5_amd64.deb ...
+#9 3.268 Unpacking libk5crypto3:amd64 (1.20.1-2+deb12u5) ...
+#9 3.294 Selecting previously unselected package libkeyutils1:amd64.
+#9 3.296 Preparing to unpack .../06-libkeyutils1_1.6.3-2_amd64.deb ...
+#9 3.297 Unpacking libkeyutils1:amd64 (1.6.3-2) ...
+#9 3.319 Selecting previously unselected package libkrb5-3:amd64.
+#9 3.320 Preparing to unpack .../07-libkrb5-3_1.20.1-2+deb12u5_amd64.deb ...
+#9 3.321 Unpacking libkrb5-3:amd64 (1.20.1-2+deb12u5) ...
+#9 3.368 Selecting previously unselected package libgssapi-krb5-2:amd64.
+#9 3.369 Preparing to unpack .../08-libgssapi-krb5-2_1.20.1-2+deb12u5_amd64.deb ...
+#9 3.371 Unpacking libgssapi-krb5-2:amd64 (1.20.1-2+deb12u5) ...
+#9 3.397 Selecting previously unselected package libsasl2-modules-db:amd64.
+#9 3.399 Preparing to unpack .../09-libsasl2-modules-db_2.1.28+dfsg-10_amd64.deb ...
+#9 3.400 Unpacking libsasl2-modules-db:amd64 (2.1.28+dfsg-10) ...
+#9 3.419 Selecting previously unselected package libsasl2-2:amd64.
+#9 3.420 Preparing to unpack .../10-libsasl2-2_2.1.28+dfsg-10_amd64.deb ...
+#9 3.421 Unpacking libsasl2-2:amd64 (2.1.28+dfsg-10) ...
+#9 3.446 Selecting previously unselected package libldap-2.5-0:amd64.
+#9 3.446 Preparing to unpack .../11-libldap-2.5-0_2.5.13+dfsg-5_amd64.deb ...
+#9 3.447 Unpacking libldap-2.5-0:amd64 (2.5.13+dfsg-5) ...
+#9 3.480 Selecting previously unselected package libnghttp2-14:amd64.
+#9 3.482 Preparing to unpack .../12-libnghttp2-14_1.52.0-1+deb12u3_amd64.deb ...
+#9 3.483 Unpacking libnghttp2-14:amd64 (1.52.0-1+deb12u3) ...
+#9 3.506 Selecting previously unselected package libpsl5:amd64.
+#9 3.508 Preparing to unpack .../13-libpsl5_0.21.2-1_amd64.deb ...
+#9 3.511 Unpacking libpsl5:amd64 (0.21.2-1) ...
+#9 3.531 Selecting previously unselected package librtmp1:amd64.
+#9 3.533 Preparing to unpack .../14-librtmp1_2.4+20151223.gitfa8646d.1-2+b2_amd64.deb ...
+#9 3.534 Unpacking librtmp1:amd64 (2.4+20151223.gitfa8646d.1-2+b2) ...
+#9 3.556 Selecting previously unselected package libssh2-1:amd64.
+#9 3.557 Preparing to unpack .../15-libssh2-1_1.10.0-3+deb12u1_amd64.deb ...
+#9 3.558 Unpacking libssh2-1:amd64 (1.10.0-3+deb12u1) ...
+#9 3.588 Selecting previously unselected package libcurl4:amd64.
+#9 3.590 Preparing to unpack .../16-libcurl4_7.88.1-10+deb12u15_amd64.deb ...
+#9 3.591 Unpacking libcurl4:amd64 (7.88.1-10+deb12u15) ...
+#9 3.631 Selecting previously unselected package curl.
+#9 3.633 Preparing to unpack .../17-curl_7.88.1-10+deb12u15_amd64.deb ...
+#9 3.634 Unpacking curl (7.88.1-10+deb12u15) ...
+#9 3.680 Setting up libkeyutils1:amd64 (1.6.3-2) ...
+#9 3.682 Setting up libpsl5:amd64 (0.21.2-1) ...
+#9 3.685 Setting up libbrotli1:amd64 (1.0.9-2+b6) ...
+#9 3.687 Setting up libssl3:amd64 (3.0.22-1~deb12u1) ...
+#9 3.690 Setting up libnghttp2-14:amd64 (1.52.0-1+deb12u3) ...
+#9 3.692 Setting up libkrb5support0:amd64 (1.20.1-2+deb12u5) ...
+#9 3.694 Setting up libsasl2-modules-db:amd64 (2.1.28+dfsg-10) ...
+#9 3.696 Setting up librtmp1:amd64 (2.4+20151223.gitfa8646d.1-2+b2) ...
+#9 3.699 Setting up libk5crypto3:amd64 (1.20.1-2+deb12u5) ...
+#9 3.701 Setting up libsasl2-2:amd64 (2.1.28+dfsg-10) ...
+#9 3.704 Setting up libssh2-1:amd64 (1.10.0-3+deb12u1) ...
+#9 3.707 Setting up libkrb5-3:amd64 (1.20.1-2+deb12u5) ...
+#9 3.709 Setting up openssl (3.0.22-1~deb12u1) ...
+#9 3.714 Setting up libldap-2.5-0:amd64 (2.5.13+dfsg-5) ...
+#9 3.716 Setting up ca-certificates (20250419~deb12u1) ...
+#9 3.807 debconf: unable to initialize frontend: Dialog
+#9 3.807 debconf: (TERM is not set, so the dialog frontend is not usable.)
+#9 3.807 debconf: falling back to frontend: Readline
+#9 3.807 debconf: unable to initialize frontend: Readline
+#9 3.807 debconf: (Can't locate Term/ReadLine.pm in @INC (you may need to install the Term::ReadLine module) (@INC contains: /etc/perl /usr/local/lib/x86_64-linux-gnu/perl/5.36.0 /usr/local/share/perl/5.36.0 /usr/lib/x86_64-linux-gnu/perl5/5.36 /usr/share/perl5 /usr/lib/x86_64-linux-gnu/perl-base /usr/lib/x86_64-linux-gnu/perl/5.36 /usr/share/perl/5.36 /usr/local/lib/site_perl) at /usr/share/perl5/Debconf/FrontEnd/Readline.pm line 7.)
+#9 3.807 debconf: falling back to frontend: Teletype
+#9 4.389 Updating certificates in /etc/ssl/certs...
+#9 5.264 150 added, 0 removed; done.
+#9 5.284 Setting up libgssapi-krb5-2:amd64 (1.20.1-2+deb12u5) ...
+#9 5.288 Setting up libcurl4:amd64 (7.88.1-10+deb12u15) ...
+#9 5.290 Setting up curl (7.88.1-10+deb12u15) ...
+#9 5.293 Processing triggers for libc-bin (2.36-9+deb12u14) ...
+#9 5.303 Processing triggers for ca-certificates (20250419~deb12u1) ...
+#9 5.308 Updating certificates in /etc/ssl/certs...
+#9 5.912 0 added, 0 removed; done.
+#9 5.913 Running hooks in /etc/ca-certificates/update.d...
+#9 5.914 done.
+#9 DONE 6.0s
+
+#10 [build 1/4] FROM docker.io/library/golang:1.23.6-bookworm@sha256:462f68e1109cc0415f58ba591f11e650b38e193fddc4a683a3b77d29be8bfb2c
+#10 resolve docker.io/library/golang:1.23.6-bookworm@sha256:462f68e1109cc0415f58ba591f11e650b38e193fddc4a683a3b77d29be8bfb2c done
+#10 sha256:155ad54a8b2812a0ec559ff82c0c6f0f0dddb337a226b11879f09e15f67b69fc 48.48MB / 48.48MB 0.2s done
+#10 sha256:e08f2cc9a86e718e4196bda904a287ab34de7b6125dcdf6daa6512e3c9ae7d2f 2.80kB / 2.80kB done
+#10 sha256:4508eba03d2171b41ebda2a76ea66e69e3b6cec5f57e61703b56b3c0dff63af8 2.32kB / 2.32kB done
+#10 sha256:8031108f3cda87bb32f090262d0109c8a0db99168050967becefad502e9a681b 24.06MB / 24.06MB 0.2s done
+#10 sha256:462f68e1109cc0415f58ba591f11e650b38e193fddc4a683a3b77d29be8bfb2c 9.10kB / 9.10kB done
+#10 sha256:1d281e50d3e435595c266df06531a7e8c2ebb0c185622c8ab2eed8d760e6576b 64.39MB / 64.39MB 0.5s done
+#10 sha256:d06a85033fd9e17bc6b76d5941dc4c9d9dd68133450835bbeead2f8270cadddd 92.33MB / 92.33MB 0.7s done
+#10 sha256:dd968b00abc2f44f5d74b014d2b833a05dd020b5f534f19dca853c409df33466 74.05MB / 74.05MB 0.6s done
+#10 extracting sha256:155ad54a8b2812a0ec559ff82c0c6f0f0dddb337a226b11879f09e15f67b69fc 2.2s done
+#10 sha256:9ab6d738e883a57a47b3430f2fe4b0288309b1542ca9f3e00bbdb2e3751cac9b 126B / 126B 0.5s done
+#10 sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1 32B / 32B 0.5s done
+#10 extracting sha256:8031108f3cda87bb32f090262d0109c8a0db99168050967becefad502e9a681b 0.5s done
+#10 extracting sha256:1d281e50d3e435595c266df06531a7e8c2ebb0c185622c8ab2eed8d760e6576b 2.6s done
+#10 extracting sha256:d06a85033fd9e17bc6b76d5941dc4c9d9dd68133450835bbeead2f8270cadddd 0.4s
+#10 extracting sha256:d06a85033fd9e17bc6b76d5941dc4c9d9dd68133450835bbeead2f8270cadddd 2.0s done
+#10 extracting sha256:dd968b00abc2f44f5d74b014d2b833a05dd020b5f534f19dca853c409df33466
+#10 extracting sha256:dd968b00abc2f44f5d74b014d2b833a05dd020b5f534f19dca853c409df33466 4.1s done
+#10 extracting sha256:9ab6d738e883a57a47b3430f2fe4b0288309b1542ca9f3e00bbdb2e3751cac9b
+#10 extracting sha256:9ab6d738e883a57a47b3430f2fe4b0288309b1542ca9f3e00bbdb2e3751cac9b done
+#10 extracting sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1 done
+#10 DONE 14.9s
+
+#11 [build 2/4] WORKDIR /src
+#11 DONE 0.0s
+
+#12 [build 3/4] RUN curl --fail --show-error --location       "https://codeload.github.com/minio/minio/tar.gz/d0cada583fce88f60cb276ddfb06f5cb16820069"       --output /tmp/minio-source.tar.gz     && echo "989506993f138bc8092368adaa9e0d8e980aef0da3178e8649ff2d34d3a4a665  /tmp/minio-source.tar.gz" | sha256sum --check     && tar --extract --gzip --file /tmp/minio-source.tar.gz --strip-components=1     && rm /tmp/minio-source.tar.gz
+#12 0.130   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+#12 0.130                                  Dload  Upload   Total   Spent    Left  Speed
+#12 0.131 
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100 7045k    0 7045k    0     0  12.5M      0 --:--:-- --:--:-- --:--:-- 12.5M
+100 22.8M    0 22.8M    0     0  15.7M      0 --:--:--  0:00:01 --:--:-- 15.7M
+#12 1.674 /tmp/minio-source.tar.gz: OK
+#12 DONE 2.0s
+
+#13 [build 4/4] RUN go build -mod=readonly -trimpath -p 1       -ldflags "-s -w -X github.com/minio/minio/cmd.Version=2025-04-08T15:41:24Z -X github.com/minio/minio/cmd.ReleaseTag=RELEASE.2025-04-08T15-41-24Z -X github.com/minio/minio/cmd.CopyrightYear=2025 -X github.com/minio/minio/cmd.CommitID=d0cada583fce88f60cb276ddfb06f5cb16820069 -X github.com/minio/minio/cmd.ShortCommitID=d0cada583fce"       -o /out/minio .
+#13 0.214 go: downloading cloud.google.com/go/storage v1.46.0
+#13 0.242 go: downloading github.com/Azure/azure-sdk-for-go/sdk/azcore v1.17.0
+#13 0.293 go: downloading github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.8.2
+#13 0.423 go: downloading github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.6.0
+#13 0.439 go: downloading cloud.google.com/go v0.118.0
+#13 0.485 go: downloading github.com/cespare/xxhash/v2 v2.3.0
+#13 0.497 go: downloading github.com/cheggaaa/pb v1.0.29
+#13 0.511 go: downloading github.com/coreos/go-oidc/v3 v3.12.0
+#13 0.567 go: downloading github.com/coreos/go-systemd/v22 v22.5.0
+#13 0.601 go: downloading github.com/cosnicolaou/pbzip2 v1.0.5
+#13 0.602 go: downloading github.com/dchest/siphash v1.2.3
+#13 0.615 go: downloading github.com/dustin/go-humanize v1.0.1
+#13 0.629 go: downloading github.com/fatih/color v1.18.0
+#13 0.640 go: downloading github.com/felixge/fgprof v0.9.5
+#13 0.651 go: downloading github.com/go-openapi/loads v0.22.0
+#13 0.664 go: downloading github.com/golang-jwt/jwt/v4 v4.5.2
+#13 0.710 go: downloading github.com/google/uuid v1.6.0
+#13 0.725 go: downloading github.com/inconshreveable/mousetrap v1.1.0
+#13 0.728 go: downloading github.com/json-iterator/go v1.1.12
+#13 0.733 go: downloading github.com/klauspost/compress v1.18.0
+#13 1.532 go: downloading github.com/klauspost/filepathx v1.1.1
+#13 1.532 go: downloading github.com/klauspost/pgzip v1.2.6
+#13 1.541 go: downloading github.com/klauspost/readahead v1.4.0
+#13 1.546 go: downloading github.com/klauspost/reedsolomon v1.12.4
+#13 1.550 go: downloading github.com/lithammer/shortuuid/v4 v4.2.0
+#13 1.560 go: downloading github.com/miekg/dns v1.1.63
+#13 1.603 go: downloading github.com/minio/cli v1.24.2
+#13 1.604 go: downloading github.com/minio/console v1.7.6
+#13 2.553 go: downloading github.com/minio/dnscache v0.1.1
+#13 2.553 go: downloading github.com/minio/dperf v0.6.3
+#13 2.568 go: downloading github.com/minio/highwayhash v1.0.3
+#13 2.575 go: downloading github.com/minio/kms-go/kes v0.3.1
+#13 2.580 go: downloading github.com/minio/madmin-go/v3 v3.0.102
+#13 2.716 go: downloading github.com/minio/minio-go/v7 v7.0.89
+#13 2.876 go: downloading github.com/minio/mux v1.9.2
+#13 2.876 go: downloading github.com/minio/pkg/v3 v3.1.0
+#13 2.931 go: downloading github.com/minio/selfupdate v0.6.0
+#13 2.931 go: downloading github.com/minio/sio v0.4.1
+#13 2.953 go: downloading github.com/minio/xxml v0.0.3
+#13 2.956 go: downloading github.com/minio/zipindex v0.4.0
+#13 2.968 go: downloading github.com/mitchellh/go-homedir v1.1.0
+#13 2.976 go: downloading github.com/philhofer/fwd v1.1.3-0.20240916144458-20a13a1f6b7c
+#13 2.986 go: downloading github.com/pierrec/lz4/v4 v4.1.22
+#13 3.035 go: downloading github.com/pkg/errors v0.9.1
+#13 3.045 go: downloading github.com/pkg/sftp v1.13.8
+#13 3.152 go: downloading github.com/pkg/xattr v0.4.10
+#13 3.164 go: downloading github.com/prometheus/client_golang v1.21.1
+#13 3.225 go: downloading github.com/prometheus/client_model v0.6.1
+#13 3.237 go: downloading github.com/prometheus/common v0.62.0
+#13 3.279 go: downloading github.com/prometheus/procfs v0.15.1
+#13 3.346 go: downloading github.com/puzpuzpuz/xsync/v3 v3.5.1
+#13 3.362 go: downloading github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475
+#13 3.381 go: downloading github.com/rs/cors v1.11.1
+#13 3.391 go: downloading github.com/secure-io/sio-go v0.3.1
+#13 3.403 go: downloading github.com/shirou/gopsutil/v3 v3.24.5
+#13 3.474 go: downloading github.com/tinylib/msgp v1.2.5
+#13 3.506 go: downloading github.com/valyala/bytebufferpool v1.0.0
+#13 3.516 go: downloading github.com/zeebo/xxh3 v1.0.2
+#13 3.544 go: downloading go.etcd.io/etcd/api/v3 v3.5.19
+#13 3.567 go: downloading go.etcd.io/etcd/client/v3 v3.5.19
+#13 3.601 go: downloading go.uber.org/atomic v1.11.0
+#13 3.625 go: downloading goftp.io/server/v2 v2.0.1
+#13 3.641 go: downloading golang.org/x/crypto v0.36.0
+#13 3.767 go: downloading golang.org/x/oauth2 v0.28.0
+#13 3.804 go: downloading golang.org/x/sync v0.12.0
+#13 3.817 go: downloading golang.org/x/sys v0.31.0
+#13 4.018 go: downloading golang.org/x/term v0.30.0
+#13 4.029 go: downloading google.golang.org/api v0.224.0
+#13 6.617 go: downloading gopkg.in/yaml.v2 v2.4.0
+#13 6.618 go: downloading gopkg.in/yaml.v3 v3.0.1
+#13 6.675 go: downloading github.com/Azure/azure-sdk-for-go/sdk/internal v1.10.0
+#13 6.702 go: downloading github.com/AzureAD/microsoft-authentication-library-for-go v1.4.1
+#13 6.820 go: downloading github.com/mattn/go-runewidth v0.0.16
+#13 6.820 go: downloading cloud.google.com/go/compute/metadata v0.6.0
+#13 6.832 go: downloading cloud.google.com/go/iam v1.3.1
+#13 6.860 go: downloading github.com/googleapis/gax-go/v2 v2.14.1
+#13 6.860 go: downloading github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.51.0
+#13 6.883 go: downloading go.opentelemetry.io/contrib/detectors/gcp v1.35.0
+#13 6.883 go: downloading go.opentelemetry.io/otel v1.35.0
+#13 6.895 go: downloading go.opentelemetry.io/otel/sdk/metric v1.35.0
+#13 6.918 go: downloading go.opentelemetry.io/otel/sdk v1.35.0
+#13 7.035 go: downloading google.golang.org/genproto v0.0.0-20250106144421-5f5ef82da422
+#13 7.738 go: downloading google.golang.org/grpc v1.71.0
+#13 8.049 go: downloading google.golang.org/protobuf v1.36.5
+#13 8.296 go: downloading github.com/go-jose/go-jose/v4 v4.0.5
+#13 8.296 go: downloading github.com/mattn/go-colorable v0.1.14
+#13 8.310 go: downloading github.com/mattn/go-isatty v0.0.20
+#13 8.320 go: downloading github.com/google/pprof v0.0.0-20250302191652-9094ed2288e7
+#13 8.332 go: downloading github.com/go-openapi/analysis v0.23.0
+#13 8.387 go: downloading github.com/go-openapi/spec v0.21.0
+#13 8.447 go: downloading github.com/go-openapi/swag v0.23.1
+#13 8.463 go: downloading github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
+#13 8.472 go: downloading github.com/modern-go/reflect2 v1.0.2
+#13 8.486 go: downloading golang.org/x/net v0.37.0
+#13 8.816 go: downloading github.com/klauspost/cpuid/v2 v2.2.10
+#13 8.825 go: downloading github.com/go-openapi/errors v0.22.0
+#13 8.831 go: downloading github.com/go-openapi/runtime v0.28.0
+#13 8.872 go: downloading github.com/jessevdk/go-flags v1.6.1
+#13 8.873 go: downloading github.com/minio/mc v0.0.0-20250312172924-c1d5d4cbb4ca
+#13 9.104 go: downloading github.com/minio/websocket v1.6.0
+#13 9.105 go: downloading github.com/unrolled/secure v1.17.0
+#13 9.117 go: downloading github.com/go-openapi/strfmt v0.23.0
+#13 9.126 go: downloading github.com/ncw/directio v1.0.5
+#13 9.135 go: downloading aead.dev/mem v0.2.0
+#13 9.136 go: downloading github.com/prometheus/prom2json v1.4.1
+#13 9.147 go: downloading github.com/safchain/ethtool v0.5.10
+#13 9.162 go: downloading github.com/goccy/go-json v0.10.5
+#13 9.194 go: downloading github.com/minio/crc64nvme v1.0.1
+#13 9.203 go: downloading github.com/minio/md5-simd v1.1.2
+#13 9.209 go: downloading github.com/rs/xid v1.6.0
+#13 9.222 go: downloading github.com/go-ini/ini v1.67.0
+#13 9.223 go: downloading golang.org/x/time v0.11.0
+#13 9.235 go: downloading github.com/beevik/ntp v1.4.3
+#13 9.239 go: downloading go.uber.org/zap v1.27.0
+#13 9.246 go: downloading github.com/go-ldap/ldap/v3 v3.4.10
+#13 9.285 go: downloading github.com/IBM/sarama v1.45.1
+#13 9.364 go: downloading github.com/eclipse/paho.mqtt.golang v1.5.0
+#13 9.365 go: downloading github.com/elastic/go-elasticsearch/v7 v7.17.10
+#13 9.399 go: downloading github.com/go-sql-driver/mysql v1.9.0
+#13 9.474 go: downloading github.com/gomodule/redigo v1.9.2
+#13 9.493 go: downloading github.com/lib/pq v1.10.9
+#13 9.507 go: downloading github.com/nats-io/nats.go v1.39.1
+#13 9.517 go: downloading github.com/nats-io/stan.go v0.10.4
+#13 9.532 go: downloading github.com/nsqio/go-nsq v1.1.0
+#13 9.549 go: downloading github.com/rabbitmq/amqp091-go v1.10.0
+#13 9.577 go: downloading github.com/xdg/scram v1.0.5
+#13 9.593 go: downloading github.com/gobwas/ws v1.4.0
+#13 9.621 go: downloading github.com/buger/jsonparser v1.1.1
+#13 9.636 go: downloading github.com/minio/kms-go/kms v0.4.0
+#13 9.681 go: downloading github.com/minio/simdjson-go v0.4.5
+#13 9.719 go: downloading github.com/rjeczalik/notify v0.9.3
+#13 9.748 go: downloading github.com/lestrrat-go/jwx/v2 v2.1.4
+#13 9.814 go: downloading github.com/fatih/structs v1.1.0
+#13 9.815 go: downloading aead.dev/minisign v0.3.0
+#13 9.825 go: downloading github.com/kr/fs v0.1.0
+#13 9.829 go: downloading github.com/beorn7/perks v1.0.1
+#13 9.833 go: downloading github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822
+#13 9.840 go: downloading github.com/tklauser/go-sysconf v0.3.15
+#13 9.842 go: downloading github.com/gogo/protobuf v1.3.2
+#13 9.867 go: downloading github.com/golang/protobuf v1.5.4
+#13 9.901 go: downloading go.etcd.io/etcd/client/pkg/v3 v3.5.19
+#13 9.935 go: downloading cloud.google.com/go/auth v0.15.0
+#13 10.01 go: downloading github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
+#13 10.02 go: downloading github.com/kylelemons/godebug v1.1.0
+#13 10.03 go: downloading github.com/rivo/uniseg v0.4.7
+#13 10.07 go: downloading google.golang.org/genproto/googleapis/api v0.0.0-20250311190419-81fb87f6b8bf
+#13 10.16 go: downloading go.opentelemetry.io/otel/trace v1.35.0
+#13 10.18 go: downloading cloud.google.com/go/monitoring v1.23.0
+#13 10.23 go: downloading github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.51.0
+#13 10.23 go: downloading github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.27.0
+#13 10.24 go: downloading go.opentelemetry.io/otel/metric v1.35.0
+#13 10.25 go: downloading cloud.google.com/go/auth/oauth2adapt v0.2.7
+#13 10.25 go: downloading go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.60.0
+#13 10.27 go: downloading google.golang.org/genproto/googleapis/rpc v0.0.0-20250311190419-81fb87f6b8bf
+#13 10.28 go: downloading github.com/go-openapi/jsonpointer v0.21.1
+#13 10.30 go: downloading github.com/go-openapi/jsonreference v0.21.0
+#13 10.31 go: downloading github.com/mailru/easyjson v0.9.0
+#13 10.33 go: downloading github.com/go-openapi/validate v0.24.0
+#13 10.34 go: downloading github.com/docker/go-units v0.5.0
+#13 10.35 go: downloading github.com/charmbracelet/bubbles v0.20.0
+#13 10.38 go: downloading github.com/charmbracelet/bubbletea v1.3.4
+#13 10.40 go: downloading github.com/charmbracelet/lipgloss v1.0.0
+#13 10.43 go: downloading github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
+#13 10.44 go: downloading github.com/jedib0t/go-pretty/v6 v6.6.7
+#13 10.51 go: downloading github.com/mattn/go-ieproxy v0.0.12
+#13 10.51 go: downloading github.com/minio/colorjson v1.0.8
+#13 10.52 go: downloading github.com/minio/filepath v1.0.0
+#13 10.52 go: downloading github.com/muesli/reflow v0.3.0
+#13 10.54 go: downloading github.com/muesli/termenv v0.16.0
+#13 10.54 go: downloading github.com/olekukonko/tablewriter v0.0.5
+#13 10.55 go: downloading github.com/posener/complete v1.2.3
+#13 10.57 go: downloading github.com/tidwall/gjson v1.18.0
+#13 10.57 go: downloading github.com/vbauerster/mpb/v8 v8.9.3
+#13 10.60 go: downloading golang.org/x/text v0.23.0
+#13 10.60 go: downloading github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
+#13 10.63 go: downloading github.com/mitchellh/mapstructure v1.5.0
+#13 10.65 go: downloading github.com/oklog/ulid v1.3.1
+#13 10.66 go: downloading go.mongodb.org/mongo-driver v1.17.3
+#13 11.32 go: downloading github.com/matttproud/golang_protobuf_extensions v1.0.4
+#13 11.32 go: downloading go.uber.org/multierr v1.11.0
+#13 11.34 go: downloading github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358
+#13 11.34 go: downloading github.com/go-asn1-ber/asn1-ber v1.5.7
+#13 11.35 go: downloading github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
+#13 11.35 go: downloading github.com/eapache/go-resiliency v1.7.0
+#13 11.36 go: downloading github.com/eapache/go-xerial-snappy v0.0.0-20230731223053-c322873962e3
+#13 11.37 go: downloading github.com/eapache/queue v1.1.0
+#13 11.38 go: downloading github.com/hashicorp/go-multierror v1.1.1
+#13 11.38 go: downloading github.com/jcmturner/gofork v1.7.6
+#13 11.39 go: downloading github.com/jcmturner/gokrb5/v8 v8.4.4
+#13 11.43 go: downloading github.com/gorilla/websocket v1.5.3
+#13 11.43 go: downloading filippo.io/edwards25519 v1.1.0
+#13 11.46 go: downloading github.com/nats-io/nuid v1.0.1
+#13 11.46 go: downloading github.com/golang/snappy v1.0.0
+#13 11.46 go: downloading github.com/xdg/stringprep v1.0.3
+#13 11.47 go: downloading github.com/gobwas/httphead v0.1.0
+#13 11.48 go: downloading github.com/gobwas/pool v0.2.1
+#13 11.49 go: downloading github.com/nats-io/nkeys v0.4.10
+#13 11.49 go: downloading github.com/minio/csvparser v1.0.0
+#13 11.50 go: downloading github.com/fraugster/parquet-go v0.12.0
+#13 11.55 go: downloading github.com/alecthomas/participle v0.7.1
+#13 11.56 go: downloading github.com/lestrrat-go/option v1.0.1
+#13 11.57 go: downloading github.com/lestrrat-go/iter v1.0.2
+#13 11.58 go: downloading github.com/lestrrat-go/blackmagic v1.0.2
+#13 11.58 go: downloading github.com/lestrrat-go/httprc v1.0.6
+#13 11.59 go: downloading github.com/tklauser/numcpus v0.10.0
+#13 11.59 go: downloading github.com/coreos/go-semver v0.3.1
+#13 11.60 go: downloading github.com/google/s2a-go v0.1.9
+#13 11.66 go: downloading github.com/golang-jwt/jwt/v5 v5.2.2
+#13 11.66 go: downloading github.com/go-logr/logr v1.4.2
+#13 11.68 go: downloading go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.59.0
+#13 11.68 go: downloading github.com/go-logr/stdr v1.2.2
+#13 11.69 go: downloading go.opentelemetry.io/auto/sdk v1.1.0
+#13 11.69 go: downloading github.com/googleapis/enterprise-certificate-proxy v0.3.5
+#13 11.70 go: downloading github.com/felixge/httpsnoop v1.0.4
+#13 11.72 go: downloading github.com/envoyproxy/go-control-plane/envoy v1.32.4
+#13 12.32 go: downloading github.com/josharian/intern v1.0.0
+#13 12.32 go: downloading github.com/charmbracelet/x/ansi v0.8.0
+#13 12.33 go: downloading github.com/charmbracelet/x/term v0.2.1
+#13 12.34 go: downloading github.com/muesli/ansi v0.0.0-20230316100256-276c6243b2f6
+#13 12.35 go: downloading github.com/muesli/cancelreader v0.2.2
+#13 12.35 go: downloading github.com/juju/ratelimit v1.0.2
+#13 12.36 go: downloading github.com/aymanbagabas/go-osc52/v2 v2.0.1
+#13 12.36 go: downloading github.com/lucasb-eyer/go-colorful v1.2.0
+#13 12.37 go: downloading github.com/tidwall/match v1.1.1
+#13 12.38 go: downloading github.com/tidwall/pretty v1.2.1
+#13 12.39 go: downloading github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
+#13 12.40 go: downloading github.com/VividCortex/ewma v1.2.0
+#13 12.41 go: downloading github.com/prometheus/prometheus v0.302.1
+#13 12.42 go: downloading github.com/hashicorp/errwrap v1.1.0
+#13 12.42 go: downloading github.com/jcmturner/dnsutils/v2 v2.0.0
+#13 12.43 go: downloading github.com/hashicorp/go-uuid v1.0.3
+#13 12.44 go: downloading github.com/apache/thrift v0.21.0
+#13 13.03 go: downloading github.com/lestrrat-go/httpcc v1.0.1
+#13 13.04 go: downloading github.com/cncf/xds/go v0.0.0-20250121191232-2f005788dc42
+#13 13.12 go: downloading github.com/envoyproxy/protoc-gen-validate v1.2.1
+#13 13.13 go: downloading github.com/jcmturner/rpc/v2 v2.0.3
+#13 13.16 go: downloading cel.dev/expr v0.22.0
+#13 13.19 go: downloading github.com/jcmturner/aescts/v2 v2.0.0
+#13 DONE 181.2s
+
+#14 [stage-1 3/7] COPY --from=build /out/minio /usr/local/bin/minio
+#14 DONE 0.2s
+
+#15 [stage-1 4/7] COPY --from=build /src/dockerscripts/docker-entrypoint.sh /usr/local/bin/minio-entrypoint
+#15 DONE 0.0s
+
+#16 [stage-1 5/7] COPY --from=build /src/LICENSE /licenses/LICENSE
+#16 DONE 0.0s
+
+#17 [stage-1 6/7] COPY --from=build /src/CREDITS /licenses/CREDITS
+#17 DONE 0.0s
+
+#18 [stage-1 7/7] RUN chmod 0755 /usr/local/bin/minio-entrypoint && mkdir /data
+#18 DONE 0.1s
+
+#19 exporting to image
+#19 exporting layers
+#19 exporting layers 0.6s done
+#19 writing image sha256:3f46a6cafcb5736fe2979722889a7957298caaa06e958aafc05fe1327902a693 done
+#19 naming to docker.io/mini-drop-clean-e13d759899cf4851/minio:exact-git done
+#19 DONE 0.6s
+
+#20 resolving provenance for metadata file
+#20 DONE 0.0s
+
+ minio  Built

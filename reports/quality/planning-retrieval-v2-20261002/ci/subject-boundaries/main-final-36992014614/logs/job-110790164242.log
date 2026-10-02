@@ -1,0 +1,660 @@
+﻿2026-10-02T09:49:43.7641960Z Current runner version: '2.337.0'
+2026-10-02T09:49:43.7670577Z ##[group]Runner Image Provisioner
+2026-10-02T09:49:43.7671499Z Hosted Compute Agent
+2026-10-02T09:49:43.7672138Z Version: 20260901.588
+2026-10-02T09:49:43.7673183Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-02T09:49:43.7673959Z Build Date: 2026-09-01T19:56:44Z
+2026-10-02T09:49:43.7674730Z Worker ID: {57356cd3-021d-4013-b33d-250d11b09046}
+2026-10-02T09:49:43.7675491Z Azure Region: eastus
+2026-10-02T09:49:43.7676109Z ##[endgroup]
+2026-10-02T09:49:43.7677913Z ##[group]Operating System
+2026-10-02T09:49:43.7678619Z Ubuntu
+2026-10-02T09:49:43.7679153Z 22.04.5
+2026-10-02T09:49:43.7679810Z LTS
+2026-10-02T09:49:43.7680375Z ##[endgroup]
+2026-10-02T09:49:43.7681130Z ##[group]Runner Image
+2026-10-02T09:49:43.7681798Z Image: ubuntu-22.04
+2026-10-02T09:49:43.7682664Z Version: 20260927.309.1
+2026-10-02T09:49:43.7684294Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20260927.309/images/ubuntu/Ubuntu2204-Readme.md
+2026-10-02T09:49:43.7685970Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20260927.309
+2026-10-02T09:49:43.7686995Z ##[endgroup]
+2026-10-02T09:49:43.7688271Z ##[group]GITHUB_TOKEN Permissions
+2026-10-02T09:49:43.7690566Z Contents: read
+2026-10-02T09:49:43.7691323Z Metadata: read
+2026-10-02T09:49:43.7691972Z Packages: read
+2026-10-02T09:49:43.7692982Z ##[endgroup]
+2026-10-02T09:49:43.7695311Z Secret source: Actions
+2026-10-02T09:49:43.7696378Z Cache mode: write
+2026-10-02T09:49:43.7698134Z Prepare workflow directory
+2026-10-02T09:49:43.8053217Z Prepare all required actions
+2026-10-02T09:49:43.8103402Z Getting action download info
+2026-10-02T09:49:44.0451684Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-02T09:49:44.1615539Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-02T09:49:44.3867628Z Complete job name: Native (C++ control, build only)
+2026-10-02T09:49:44.4711869Z ##[group]Run actions/checkout@v4
+2026-10-02T09:49:44.4713057Z with:
+2026-10-02T09:49:44.4713546Z   repository: llongwang751-arch/mini-drop
+2026-10-02T09:49:44.4717357Z   token: ***
+2026-10-02T09:49:44.4717791Z   ssh-strict: true
+2026-10-02T09:49:44.4718228Z   ssh-user: git
+2026-10-02T09:49:44.4718805Z   persist-credentials: true
+2026-10-02T09:49:44.4719298Z   clean: true
+2026-10-02T09:49:44.4719746Z   sparse-checkout-cone-mode: true
+2026-10-02T09:49:44.4720265Z   fetch-depth: 1
+2026-10-02T09:49:44.4720713Z   fetch-tags: false
+2026-10-02T09:49:44.4721156Z   show-progress: true
+2026-10-02T09:49:44.4721601Z   lfs: false
+2026-10-02T09:49:44.4722018Z   submodules: false
+2026-10-02T09:49:44.4722646Z   set-safe-directory: true
+2026-10-02T09:49:44.4723164Z   allow-unsafe-pr-checkout: false
+2026-10-02T09:49:44.4723988Z ##[endgroup]
+2026-10-02T09:49:44.5832651Z Syncing repository: llongwang751-arch/mini-drop
+2026-10-02T09:49:44.5835064Z ##[group]Getting Git version info
+2026-10-02T09:49:44.5836531Z Working directory is '/home/runner/work/mini-drop/mini-drop'
+2026-10-02T09:49:44.5837891Z [command]/usr/bin/git version
+2026-10-02T09:49:44.5916405Z git version 2.55.0
+2026-10-02T09:49:44.5942535Z ##[endgroup]
+2026-10-02T09:49:44.5958838Z Temporarily overriding HOME='/home/runner/work/_temp/5bb763f5-02bd-4495-901a-07a2c247b65a' before making global git config changes
+2026-10-02T09:49:44.5960516Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-02T09:49:44.5966814Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mini-drop/mini-drop
+2026-10-02T09:49:44.6012055Z Deleting the contents of '/home/runner/work/mini-drop/mini-drop'
+2026-10-02T09:49:44.6018235Z ##[group]Initializing the repository
+2026-10-02T09:49:44.6023128Z [command]/usr/bin/git init /home/runner/work/mini-drop/mini-drop
+2026-10-02T09:49:44.6137731Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-02T09:49:44.6140155Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-02T09:49:44.6143504Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-02T09:49:44.6144507Z hint: call:
+2026-10-02T09:49:44.6145069Z hint:
+2026-10-02T09:49:44.6145764Z hint: 	git config --global init.defaultBranch <name>
+2026-10-02T09:49:44.6146546Z hint:
+2026-10-02T09:49:44.6147282Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-02T09:49:44.6148531Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-02T09:49:44.6149600Z hint:
+2026-10-02T09:49:44.6150189Z hint: 	git branch -m <name>
+2026-10-02T09:49:44.6150956Z hint:
+2026-10-02T09:49:44.6152613Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-02T09:49:44.6154076Z Initialized empty Git repository in /home/runner/work/mini-drop/mini-drop/.git/
+2026-10-02T09:49:44.6155900Z [command]/usr/bin/git remote add origin https://github.com/llongwang751-arch/mini-drop
+2026-10-02T09:49:44.6198578Z ##[endgroup]
+2026-10-02T09:49:44.6199402Z ##[group]Disabling automatic garbage collection
+2026-10-02T09:49:44.6204555Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-02T09:49:44.6247372Z ##[endgroup]
+2026-10-02T09:49:44.6248713Z ##[group]Setting up auth
+2026-10-02T09:49:44.6256435Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-02T09:49:44.6296576Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-02T09:49:44.6722079Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-02T09:49:44.6770232Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-02T09:49:44.7084098Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-02T09:49:44.7128523Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-02T09:49:44.7414829Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-02T09:49:44.7466322Z ##[endgroup]
+2026-10-02T09:49:44.7467747Z ##[group]Fetching the repository
+2026-10-02T09:49:44.7480961Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf:refs/remotes/pull/1/merge
+2026-10-02T09:49:51.7158009Z From https://github.com/llongwang751-arch/mini-drop
+2026-10-02T09:49:51.7160010Z  * [new ref]         d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf -> pull/1/merge
+2026-10-02T09:49:51.7163529Z ##[endgroup]
+2026-10-02T09:49:51.7164886Z ##[group]Determining the checkout info
+2026-10-02T09:49:51.7166348Z ##[endgroup]
+2026-10-02T09:49:51.7173225Z [command]/usr/bin/git sparse-checkout disable
+2026-10-02T09:49:51.7233259Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-02T09:49:51.7314610Z ##[group]Checking out the ref
+2026-10-02T09:49:51.7318705Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/1/merge
+2026-10-02T09:49:52.7633110Z Updating files:  63% (2782/4370)
+2026-10-02T09:49:52.7677551Z Updating files:  64% (2797/4370)
+2026-10-02T09:49:52.7729353Z Updating files:  65% (2841/4370)
+2026-10-02T09:49:52.7762172Z Updating files:  66% (2885/4370)
+2026-10-02T09:49:52.7817372Z Updating files:  67% (2928/4370)
+2026-10-02T09:49:52.7856551Z Updating files:  68% (2972/4370)
+2026-10-02T09:49:52.8074546Z Updating files:  69% (3016/4370)
+2026-10-02T09:49:52.8388114Z Updating files:  70% (3059/4370)
+2026-10-02T09:49:52.8582955Z Updating files:  71% (3103/4370)
+2026-10-02T09:49:52.8638130Z Updating files:  72% (3147/4370)
+2026-10-02T09:49:52.8706444Z Updating files:  73% (3191/4370)
+2026-10-02T09:49:52.8778112Z Updating files:  74% (3234/4370)
+2026-10-02T09:49:52.8869901Z Updating files:  75% (3278/4370)
+2026-10-02T09:49:52.8923889Z Updating files:  76% (3322/4370)
+2026-10-02T09:49:52.8969469Z Updating files:  77% (3365/4370)
+2026-10-02T09:49:52.8991256Z Updating files:  78% (3409/4370)
+2026-10-02T09:49:52.9041900Z Updating files:  79% (3453/4370)
+2026-10-02T09:49:52.9084353Z Updating files:  80% (3496/4370)
+2026-10-02T09:49:52.9125219Z Updating files:  81% (3540/4370)
+2026-10-02T09:49:52.9193441Z Updating files:  82% (3584/4370)
+2026-10-02T09:49:52.9234847Z Updating files:  83% (3628/4370)
+2026-10-02T09:49:52.9289141Z Updating files:  84% (3671/4370)
+2026-10-02T09:49:52.9388896Z Updating files:  85% (3715/4370)
+2026-10-02T09:49:52.9447704Z Updating files:  86% (3759/4370)
+2026-10-02T09:49:52.9508014Z Updating files:  87% (3802/4370)
+2026-10-02T09:49:52.9539392Z Updating files:  88% (3846/4370)
+2026-10-02T09:49:52.9575517Z Updating files:  89% (3890/4370)
+2026-10-02T09:49:52.9607836Z Updating files:  90% (3933/4370)
+2026-10-02T09:49:52.9659616Z Updating files:  91% (3977/4370)
+2026-10-02T09:49:52.9687628Z Updating files:  92% (4021/4370)
+2026-10-02T09:49:52.9717585Z Updating files:  93% (4065/4370)
+2026-10-02T09:49:52.9745683Z Updating files:  94% (4108/4370)
+2026-10-02T09:49:52.9780403Z Updating files:  95% (4152/4370)
+2026-10-02T09:49:52.9918624Z Updating files:  96% (4196/4370)
+2026-10-02T09:49:52.9944945Z Updating files:  97% (4239/4370)
+2026-10-02T09:49:52.9973610Z Updating files:  98% (4283/4370)
+2026-10-02T09:49:52.9999176Z Updating files:  99% (4327/4370)
+2026-10-02T09:49:52.9999794Z Updating files: 100% (4370/4370)
+2026-10-02T09:49:53.0000346Z Updating files: 100% (4370/4370), done.
+2026-10-02T09:49:53.0064259Z Note: switching to 'refs/remotes/pull/1/merge'.
+2026-10-02T09:49:53.0064788Z 
+2026-10-02T09:49:53.0065227Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-02T09:49:53.0066613Z changes and commit them, and you can discard any commits you make in this
+2026-10-02T09:49:53.0067654Z state without impacting any branches by switching back to a branch.
+2026-10-02T09:49:53.0068178Z 
+2026-10-02T09:49:53.0068533Z If you want to create a new branch to retain commits you create, you may
+2026-10-02T09:49:53.0069380Z do so (now or later) by using -c with the switch command. Example:
+2026-10-02T09:49:53.0069869Z 
+2026-10-02T09:49:53.0070095Z   git switch -c <new-branch-name>
+2026-10-02T09:49:53.0070429Z 
+2026-10-02T09:49:53.0070653Z Or undo this operation with:
+2026-10-02T09:49:53.0070969Z 
+2026-10-02T09:49:53.0071156Z   git switch -
+2026-10-02T09:49:53.0071392Z 
+2026-10-02T09:49:53.0071815Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-02T09:49:53.0072655Z 
+2026-10-02T09:49:53.0073328Z HEAD is now at d2b5cac Merge a6a3626094b8edbb5b9a48bef317153035ccca16 into 609ea8a73f845b496b59b5cae181f515c5919850
+2026-10-02T09:49:53.0183448Z ##[endgroup]
+2026-10-02T09:49:53.0236092Z [command]/usr/bin/git log -1 --format=%H
+2026-10-02T09:49:53.0270772Z d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf
+2026-10-02T09:49:53.0523024Z ##[group]Run sudo apt-get update
+2026-10-02T09:49:53.0523545Z [36;1msudo apt-get update[0m
+2026-10-02T09:49:53.0523946Z [36;1msudo apt-get install -y --no-install-recommends \[0m
+2026-10-02T09:49:53.0524486Z [36;1m  build-essential cmake libgrpc++-dev libprotobuf-dev libpqxx-dev \[0m
+2026-10-02T09:49:53.0525100Z [36;1m  nlohmann-json3-dev pkg-config protobuf-compiler protobuf-compiler-grpc[0m
+2026-10-02T09:49:53.0924699Z shell: /usr/bin/bash -e {0}
+2026-10-02T09:49:53.0925188Z ##[endgroup]
+2026-10-02T09:49:53.2194789Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-02T09:49:53.2435768Z Get:6 https://packages.microsoft.com/ubuntu/22.04/prod jammy InRelease [3632 B]
+2026-10-02T09:49:53.2577822Z Hit:2 http://azure.archive.ubuntu.com/ubuntu jammy InRelease
+2026-10-02T09:49:53.2609863Z Get:3 http://azure.archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+2026-10-02T09:49:53.2646802Z Get:4 http://azure.archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+2026-10-02T09:49:53.2686034Z Get:5 http://azure.archive.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+2026-10-02T09:49:53.3351318Z Get:7 https://packages.microsoft.com/ubuntu/22.04/prod jammy/main amd64 Packages [792 kB]
+2026-10-02T09:49:53.3565231Z Get:8 https://packages.microsoft.com/ubuntu/22.04/prod jammy/main arm64 Packages [550 kB]
+2026-10-02T09:49:53.5524684Z Get:9 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3899 kB]
+2026-10-02T09:49:53.5733864Z Get:10 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main Translation-en [575 kB]
+2026-10-02T09:49:53.5777408Z Get:11 http://azure.archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [6701 kB]
+2026-10-02T09:49:53.6204299Z Get:12 http://azure.archive.ubuntu.com/ubuntu jammy-updates/restricted Translation-en [1287 kB]
+2026-10-02T09:49:53.6296471Z Get:13 http://azure.archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1285 kB]
+2026-10-02T09:49:53.6408134Z Get:14 http://azure.archive.ubuntu.com/ubuntu jammy-updates/universe Translation-en [325 kB]
+2026-10-02T09:49:53.8131377Z Get:15 http://azure.archive.ubuntu.com/ubuntu jammy-security/main amd64 Packages [3598 kB]
+2026-10-02T09:49:53.8325909Z Get:16 http://azure.archive.ubuntu.com/ubuntu jammy-security/main Translation-en [504 kB]
+2026-10-02T09:49:53.8362689Z Get:17 http://azure.archive.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [6410 kB]
+2026-10-02T09:49:53.8693204Z Get:18 http://azure.archive.ubuntu.com/ubuntu jammy-security/restricted Translation-en [1232 kB]
+2026-10-02T09:49:53.9191625Z Get:19 http://azure.archive.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1052 kB]
+2026-10-02T09:49:53.9254834Z Get:20 http://azure.archive.ubuntu.com/ubuntu jammy-security/universe Translation-en [236 kB]
+2026-10-02T09:50:00.4202535Z Fetched 28.8 MB in 3s (8698 kB/s)
+2026-10-02T09:50:01.9242790Z Reading package lists...
+2026-10-02T09:50:02.0020803Z Reading package lists...
+2026-10-02T09:50:02.3264377Z Building dependency tree...
+2026-10-02T09:50:02.3276609Z Reading state information...
+2026-10-02T09:50:02.6283970Z build-essential is already the newest version (12.9ubuntu3).
+2026-10-02T09:50:02.6285032Z build-essential set to manually installed.
+2026-10-02T09:50:02.6285739Z The following additional packages will be installed:
+2026-10-02T09:50:02.6286862Z   cmake-data dh-elpa-helper libabsl20210324 libgrpc++1 libgrpc-dev libgrpc10
+2026-10-02T09:50:02.6306240Z   libjsoncpp25 libpqxx-6.4 libprotobuf23 libprotoc23 librhash0
+2026-10-02T09:50:02.6306685Z Suggested packages:
+2026-10-02T09:50:02.6307030Z   cmake-doc ninja-build cmake-format libpqxx-doc protobuf-mode-el
+2026-10-02T09:50:02.6624030Z The following packages will be REMOVED:
+2026-10-02T09:50:02.6628064Z   pkgconf r-base-dev
+2026-10-02T09:50:02.6628628Z The following NEW packages will be installed:
+2026-10-02T09:50:02.6640919Z   cmake cmake-data dh-elpa-helper libabsl20210324 libgrpc++-dev libgrpc++1
+2026-10-02T09:50:02.6642985Z   libgrpc-dev libgrpc10 libjsoncpp25 libpqxx-6.4 libpqxx-dev libprotobuf-dev
+2026-10-02T09:50:02.6644151Z   libprotobuf23 libprotoc23 librhash0 nlohmann-json3-dev pkg-config
+2026-10-02T09:50:02.6656137Z   protobuf-compiler protobuf-compiler-grpc
+2026-10-02T09:50:02.6850856Z 0 upgraded, 19 newly installed, 2 to remove and 20 not upgraded.
+2026-10-02T09:50:02.6851557Z Need to get 14.7 MB of archives.
+2026-10-02T09:50:02.6852160Z After this operation, 81.5 MB of additional disk space will be used.
+2026-10-02T09:50:02.6853086Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-02T09:50:02.7210006Z Get:2 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 pkg-config amd64 0.29.2-1ubuntu3 [48.2 kB]
+2026-10-02T09:50:02.7383168Z Get:3 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 libjsoncpp25 amd64 1.9.5-3 [80.0 kB]
+2026-10-02T09:50:02.7541548Z Get:4 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 librhash0 amd64 1.4.2-1ubuntu1 [125 kB]
+2026-10-02T09:50:02.7696405Z Get:5 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 dh-elpa-helper all 2.0.9ubuntu1 [7610 B]
+2026-10-02T09:50:02.7844735Z Get:6 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 cmake-data all 3.22.1-1ubuntu1.22.04.2 [1913 kB]
+2026-10-02T09:50:02.8183324Z Get:7 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 cmake amd64 3.22.1-1ubuntu1.22.04.2 [5010 kB]
+2026-10-02T09:50:02.8899061Z Get:8 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libabsl20210324 amd64 0~20210324.2-2ubuntu0.3 [386 kB]
+2026-10-02T09:50:02.9115489Z Get:9 http://azure.archive.ubuntu.com/ubuntu jammy/universe amd64 libgrpc10 amd64 1.30.2-3build6 [1470 kB]
+2026-10-02T09:50:02.9390587Z Get:10 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libprotobuf23 amd64 3.12.4-1ubuntu7.22.04.6 [877 kB]
+2026-10-02T09:50:02.9659233Z Get:11 http://azure.archive.ubuntu.com/ubuntu jammy/universe amd64 libgrpc++1 amd64 1.30.2-3build6 [402 kB]
+2026-10-02T09:50:02.9883786Z Get:12 http://azure.archive.ubuntu.com/ubuntu jammy/universe amd64 libgrpc-dev amd64 1.30.2-3build6 [1066 kB]
+2026-10-02T09:50:03.0196002Z Get:13 http://azure.archive.ubuntu.com/ubuntu jammy/universe amd64 libgrpc++-dev amd64 1.30.2-3build6 [564 kB]
+2026-10-02T09:50:03.0386122Z Get:14 http://azure.archive.ubuntu.com/ubuntu jammy/universe amd64 libpqxx-6.4 amd64 6.4.5-2build1 [155 kB]
+2026-10-02T09:50:03.0548663Z Get:15 http://azure.archive.ubuntu.com/ubuntu jammy/universe amd64 libpqxx-dev amd64 6.4.5-2build1 [243 kB]
+2026-10-02T09:50:03.0715753Z Get:16 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libprotoc23 amd64 3.12.4-1ubuntu7.22.04.6 [662 kB]
+2026-10-02T09:50:03.0914283Z Get:17 http://azure.archive.ubuntu.com/ubuntu jammy/universe amd64 nlohmann-json3-dev all 3.10.5-2 [167 kB]
+2026-10-02T09:50:03.1075490Z Get:18 http://azure.archive.ubuntu.com/ubuntu jammy-updates/universe amd64 protobuf-compiler amd64 3.12.4-1ubuntu7.22.04.6 [29.2 kB]
+2026-10-02T09:50:03.1228609Z Get:19 http://azure.archive.ubuntu.com/ubuntu jammy/universe amd64 protobuf-compiler-grpc amd64 1.30.2-3build6 [185 kB]
+2026-10-02T09:50:03.1838437Z Get:20 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libprotobuf-dev amd64 3.12.4-1ubuntu7.22.04.6 [1347 kB]
+2026-10-02T09:50:03.5956178Z Fetched 14.7 MB in 1s (28.2 MB/s)
+2026-10-02T09:50:03.6487001Z (Reading database ... 
+2026-10-02T09:50:03.6487323Z (Reading database ... 5%
+2026-10-02T09:50:03.6487575Z (Reading database ... 10%
+2026-10-02T09:50:03.6487823Z (Reading database ... 15%
+2026-10-02T09:50:03.6488061Z (Reading database ... 20%
+2026-10-02T09:50:03.6488428Z (Reading database ... 25%
+2026-10-02T09:50:03.6488815Z (Reading database ... 30%
+2026-10-02T09:50:03.6489204Z (Reading database ... 35%
+2026-10-02T09:50:03.6490095Z (Reading database ... 40%
+2026-10-02T09:50:03.6490486Z (Reading database ... 45%
+2026-10-02T09:50:03.6490859Z (Reading database ... 50%
+2026-10-02T09:50:03.7638469Z (Reading database ... 55%
+2026-10-02T09:50:03.9517601Z (Reading database ... 60%
+2026-10-02T09:50:04.1556932Z (Reading database ... 65%
+2026-10-02T09:50:04.3909865Z (Reading database ... 70%
+2026-10-02T09:50:04.5646035Z (Reading database ... 75%
+2026-10-02T09:50:04.7607825Z (Reading database ... 80%
+2026-10-02T09:50:04.9855139Z (Reading database ... 85%
+2026-10-02T09:50:05.2169673Z (Reading database ... 90%
+2026-10-02T09:50:05.4287933Z (Reading database ... 95%
+2026-10-02T09:50:05.4288615Z (Reading database ... 100%
+2026-10-02T09:50:05.4289478Z (Reading database ... 260410 files and directories currently installed.)
+2026-10-02T09:50:05.4347602Z Removing r-base-dev (4.6.1-6.2204.0) ...
+2026-10-02T09:50:05.5006692Z dpkg: pkgconf: dependency problems, but removing anyway as you requested:
+2026-10-02T09:50:05.5007309Z  php8.1-dev depends on pkg-config; however:
+2026-10-02T09:50:05.5007706Z   Package pkg-config is not installed.
+2026-10-02T09:50:05.5008147Z   Package pkgconf which provides pkg-config is to be removed.
+2026-10-02T09:50:05.5008627Z  mono-devel depends on pkg-config; however:
+2026-10-02T09:50:05.5009018Z   Package pkg-config is not installed.
+2026-10-02T09:50:05.5009838Z   Package pkgconf which provides pkg-config is to be removed.
+2026-10-02T09:50:05.5010389Z  libmagickwand-6.q16-dev:amd64 depends on pkg-config; however:
+2026-10-02T09:50:05.5010860Z   Package pkg-config is not installed.
+2026-10-02T09:50:05.5011291Z   Package pkgconf which provides pkg-config is to be removed.
+2026-10-02T09:50:05.5011813Z  libmagickcore-6.q16-dev:amd64 depends on pkg-config; however:
+2026-10-02T09:50:05.5012710Z   Package pkg-config is not installed.
+2026-10-02T09:50:05.5013163Z   Package pkgconf which provides pkg-config is to be removed.
+2026-10-02T09:50:05.5013647Z  libglib2.0-dev:amd64 depends on pkg-config; however:
+2026-10-02T09:50:05.5014051Z   Package pkg-config is not installed.
+2026-10-02T09:50:05.5014457Z   Package pkgconf which provides pkg-config is to be removed.
+2026-10-02T09:50:05.5014947Z  libfontconfig-dev:amd64 depends on pkg-config; however:
+2026-10-02T09:50:05.5015377Z   Package pkg-config is not installed.
+2026-10-02T09:50:05.5015909Z   Package pkgconf which provides pkg-config is to be removed.
+2026-10-02T09:50:05.5016237Z 
+2026-10-02T09:50:05.5077846Z Removing pkgconf (1.8.0-1) ...
+2026-10-02T09:50:05.6183045Z Removing 'diversion of /usr/bin/pkg-config to /usr/bin/pkg-config.real by pkgconf'
+2026-10-02T09:50:05.6329670Z Removing 'diversion of /usr/share/aclocal/pkg.m4 to /usr/share/aclocal/pkg.real.m4 by pkgconf'
+2026-10-02T09:50:05.6479896Z Removing 'diversion of /usr/share/man/man1/pkg-config.1.gz to /usr/share/man/man1/pkg-config.real.1.gz by pkgconf'
+2026-10-02T09:50:05.6635106Z Removing 'diversion of /usr/share/pkg-config-crosswrapper to /usr/share/pkg-config-crosswrapper.real by pkgconf'
+2026-10-02T09:50:05.7219471Z Selecting previously unselected package pkg-config.
+2026-10-02T09:50:05.7305259Z (Reading database ... 
+2026-10-02T09:50:05.7305771Z (Reading database ... 5%
+2026-10-02T09:50:05.7306144Z (Reading database ... 10%
+2026-10-02T09:50:05.7306521Z (Reading database ... 15%
+2026-10-02T09:50:05.7306835Z (Reading database ... 20%
+2026-10-02T09:50:05.7307178Z (Reading database ... 25%
+2026-10-02T09:50:05.7307470Z (Reading database ... 30%
+2026-10-02T09:50:05.7307762Z (Reading database ... 35%
+2026-10-02T09:50:05.7308050Z (Reading database ... 40%
+2026-10-02T09:50:05.7308340Z (Reading database ... 45%
+2026-10-02T09:50:05.7308650Z (Reading database ... 50%
+2026-10-02T09:50:05.7346486Z (Reading database ... 55%
+2026-10-02T09:50:05.7380200Z (Reading database ... 60%
+2026-10-02T09:50:05.7409487Z (Reading database ... 65%
+2026-10-02T09:50:05.7547537Z (Reading database ... 70%
+2026-10-02T09:50:05.7615696Z (Reading database ... 75%
+2026-10-02T09:50:05.7706642Z (Reading database ... 80%
+2026-10-02T09:50:05.8121039Z (Reading database ... 85%
+2026-10-02T09:50:05.8142004Z (Reading database ... 90%
+2026-10-02T09:50:05.8519273Z (Reading database ... 95%
+2026-10-02T09:50:05.8519802Z (Reading database ... 100%
+2026-10-02T09:50:05.8520427Z (Reading database ... 260388 files and directories currently installed.)
+2026-10-02T09:50:05.8584320Z Preparing to unpack .../00-pkg-config_0.29.2-1ubuntu3_amd64.deb ...
+2026-10-02T09:50:05.8594685Z Unpacking pkg-config (0.29.2-1ubuntu3) ...
+2026-10-02T09:50:05.8886564Z Selecting previously unselected package libjsoncpp25:amd64.
+2026-10-02T09:50:05.9106636Z Preparing to unpack .../01-libjsoncpp25_1.9.5-3_amd64.deb ...
+2026-10-02T09:50:05.9125919Z Unpacking libjsoncpp25:amd64 (1.9.5-3) ...
+2026-10-02T09:50:05.9389819Z Selecting previously unselected package librhash0:amd64.
+2026-10-02T09:50:05.9605194Z Preparing to unpack .../02-librhash0_1.4.2-1ubuntu1_amd64.deb ...
+2026-10-02T09:50:05.9614858Z Unpacking librhash0:amd64 (1.4.2-1ubuntu1) ...
+2026-10-02T09:50:05.9868128Z Selecting previously unselected package dh-elpa-helper.
+2026-10-02T09:50:06.0085773Z Preparing to unpack .../03-dh-elpa-helper_2.0.9ubuntu1_all.deb ...
+2026-10-02T09:50:06.0096786Z Unpacking dh-elpa-helper (2.0.9ubuntu1) ...
+2026-10-02T09:50:06.0361326Z Selecting previously unselected package cmake-data.
+2026-10-02T09:50:06.0575224Z Preparing to unpack .../04-cmake-data_3.22.1-1ubuntu1.22.04.2_all.deb ...
+2026-10-02T09:50:06.0703625Z Unpacking cmake-data (3.22.1-1ubuntu1.22.04.2) ...
+2026-10-02T09:50:06.6356856Z Selecting previously unselected package cmake.
+2026-10-02T09:50:06.6589793Z Preparing to unpack .../05-cmake_3.22.1-1ubuntu1.22.04.2_amd64.deb ...
+2026-10-02T09:50:06.6599403Z Unpacking cmake (3.22.1-1ubuntu1.22.04.2) ...
+2026-10-02T09:50:06.7756670Z Selecting previously unselected package libabsl20210324:amd64.
+2026-10-02T09:50:06.7977361Z Preparing to unpack .../06-libabsl20210324_0~20210324.2-2ubuntu0.3_amd64.deb ...
+2026-10-02T09:50:06.7987012Z Unpacking libabsl20210324:amd64 (0~20210324.2-2ubuntu0.3) ...
+2026-10-02T09:50:06.8444043Z Selecting previously unselected package libgrpc10:amd64.
+2026-10-02T09:50:06.8660935Z Preparing to unpack .../07-libgrpc10_1.30.2-3build6_amd64.deb ...
+2026-10-02T09:50:06.8670715Z Unpacking libgrpc10:amd64 (1.30.2-3build6) ...
+2026-10-02T09:50:06.9219349Z Selecting previously unselected package libprotobuf23:amd64.
+2026-10-02T09:50:06.9439540Z Preparing to unpack .../08-libprotobuf23_3.12.4-1ubuntu7.22.04.6_amd64.deb ...
+2026-10-02T09:50:06.9447633Z Unpacking libprotobuf23:amd64 (3.12.4-1ubuntu7.22.04.6) ...
+2026-10-02T09:50:06.9821508Z Selecting previously unselected package libgrpc++1:amd64.
+2026-10-02T09:50:07.0041234Z Preparing to unpack .../09-libgrpc++1_1.30.2-3build6_amd64.deb ...
+2026-10-02T09:50:07.0048305Z Unpacking libgrpc++1:amd64 (1.30.2-3build6) ...
+2026-10-02T09:50:07.0378566Z Selecting previously unselected package libgrpc-dev:amd64.
+2026-10-02T09:50:07.0597479Z Preparing to unpack .../10-libgrpc-dev_1.30.2-3build6_amd64.deb ...
+2026-10-02T09:50:07.0605039Z Unpacking libgrpc-dev:amd64 (1.30.2-3build6) ...
+2026-10-02T09:50:07.1355826Z Selecting previously unselected package libgrpc++-dev:amd64.
+2026-10-02T09:50:07.1579133Z Preparing to unpack .../11-libgrpc++-dev_1.30.2-3build6_amd64.deb ...
+2026-10-02T09:50:07.1587030Z Unpacking libgrpc++-dev:amd64 (1.30.2-3build6) ...
+2026-10-02T09:50:07.2453313Z Selecting previously unselected package libpqxx-6.4.
+2026-10-02T09:50:07.2676446Z Preparing to unpack .../12-libpqxx-6.4_6.4.5-2build1_amd64.deb ...
+2026-10-02T09:50:07.2684036Z Unpacking libpqxx-6.4 (6.4.5-2build1) ...
+2026-10-02T09:50:07.3035577Z Selecting previously unselected package libpqxx-dev.
+2026-10-02T09:50:07.3259451Z Preparing to unpack .../13-libpqxx-dev_6.4.5-2build1_amd64.deb ...
+2026-10-02T09:50:07.3267625Z Unpacking libpqxx-dev (6.4.5-2build1) ...
+2026-10-02T09:50:07.3883577Z Selecting previously unselected package libprotoc23:amd64.
+2026-10-02T09:50:07.4106093Z Preparing to unpack .../14-libprotoc23_3.12.4-1ubuntu7.22.04.6_amd64.deb ...
+2026-10-02T09:50:07.4115071Z Unpacking libprotoc23:amd64 (3.12.4-1ubuntu7.22.04.6) ...
+2026-10-02T09:50:07.4439186Z Selecting previously unselected package nlohmann-json3-dev.
+2026-10-02T09:50:07.4660243Z Preparing to unpack .../15-nlohmann-json3-dev_3.10.5-2_all.deb ...
+2026-10-02T09:50:07.4667389Z Unpacking nlohmann-json3-dev (3.10.5-2) ...
+2026-10-02T09:50:07.5541816Z Selecting previously unselected package protobuf-compiler.
+2026-10-02T09:50:07.5762966Z Preparing to unpack .../16-protobuf-compiler_3.12.4-1ubuntu7.22.04.6_amd64.deb ...
+2026-10-02T09:50:07.5769460Z Unpacking protobuf-compiler (3.12.4-1ubuntu7.22.04.6) ...
+2026-10-02T09:50:07.6052124Z Selecting previously unselected package protobuf-compiler-grpc.
+2026-10-02T09:50:07.6274304Z Preparing to unpack .../17-protobuf-compiler-grpc_1.30.2-3build6_amd64.deb ...
+2026-10-02T09:50:07.6298399Z Unpacking protobuf-compiler-grpc (1.30.2-3build6) ...
+2026-10-02T09:50:07.6566338Z Selecting previously unselected package libprotobuf-dev:amd64.
+2026-10-02T09:50:07.6784194Z Preparing to unpack .../18-libprotobuf-dev_3.12.4-1ubuntu7.22.04.6_amd64.deb ...
+2026-10-02T09:50:07.6791223Z Unpacking libprotobuf-dev:amd64 (3.12.4-1ubuntu7.22.04.6) ...
+2026-10-02T09:50:07.7823577Z Setting up libprotobuf23:amd64 (3.12.4-1ubuntu7.22.04.6) ...
+2026-10-02T09:50:07.7863909Z Setting up libprotobuf-dev:amd64 (3.12.4-1ubuntu7.22.04.6) ...
+2026-10-02T09:50:07.7894017Z Setting up dh-elpa-helper (2.0.9ubuntu1) ...
+2026-10-02T09:50:07.7911395Z Setting up libprotoc23:amd64 (3.12.4-1ubuntu7.22.04.6) ...
+2026-10-02T09:50:07.7932879Z Setting up libjsoncpp25:amd64 (1.9.5-3) ...
+2026-10-02T09:50:07.7952612Z Setting up pkg-config (0.29.2-1ubuntu3) ...
+2026-10-02T09:50:07.8318785Z Setting up libabsl20210324:amd64 (0~20210324.2-2ubuntu0.3) ...
+2026-10-02T09:50:07.8338153Z Setting up libpqxx-6.4 (6.4.5-2build1) ...
+2026-10-02T09:50:07.8356186Z Setting up librhash0:amd64 (1.4.2-1ubuntu1) ...
+2026-10-02T09:50:07.8374794Z Setting up cmake-data (3.22.1-1ubuntu1.22.04.2) ...
+2026-10-02T09:50:07.8998129Z Setting up nlohmann-json3-dev (3.10.5-2) ...
+2026-10-02T09:50:07.9016600Z Setting up libpqxx-dev (6.4.5-2build1) ...
+2026-10-02T09:50:07.9033889Z Setting up protobuf-compiler (3.12.4-1ubuntu7.22.04.6) ...
+2026-10-02T09:50:07.9051231Z Setting up protobuf-compiler-grpc (1.30.2-3build6) ...
+2026-10-02T09:50:07.9068045Z Setting up libgrpc10:amd64 (1.30.2-3build6) ...
+2026-10-02T09:50:07.9086479Z Setting up cmake (3.22.1-1ubuntu1.22.04.2) ...
+2026-10-02T09:50:07.9102864Z Setting up libgrpc++1:amd64 (1.30.2-3build6) ...
+2026-10-02T09:50:07.9128712Z Setting up libgrpc-dev:amd64 (1.30.2-3build6) ...
+2026-10-02T09:50:07.9146282Z Setting up libgrpc++-dev:amd64 (1.30.2-3build6) ...
+2026-10-02T09:50:07.9172428Z Processing triggers for man-db (2.10.2-1) ...
+2026-10-02T09:50:07.9197093Z Not building database; man-db/auto-update is not 'true'.
+2026-10-02T09:50:07.9211249Z Processing triggers for libc-bin (2.35-0ubuntu3.15) ...
+2026-10-02T09:50:08.6229577Z 
+2026-10-02T09:50:08.6230166Z Running kernel seems to be up-to-date.
+2026-10-02T09:50:08.6230716Z 
+2026-10-02T09:50:08.6230960Z No services need to be restarted.
+2026-10-02T09:50:08.6231295Z 
+2026-10-02T09:50:08.6231440Z No containers need to be restarted.
+2026-10-02T09:50:08.6231704Z 
+2026-10-02T09:50:08.6231879Z No user sessions are running outdated binaries.
+2026-10-02T09:50:08.6232549Z 
+2026-10-02T09:50:08.6232915Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-10-02T09:50:10.7669514Z ##[group]Run cmake -S native/control -B /tmp/build-control -DCMAKE_BUILD_TYPE=Release
+2026-10-02T09:50:10.7670219Z [36;1mcmake -S native/control -B /tmp/build-control -DCMAKE_BUILD_TYPE=Release[0m
+2026-10-02T09:50:10.7746124Z shell: /usr/bin/bash -e {0}
+2026-10-02T09:50:10.7746411Z ##[endgroup]
+2026-10-02T09:50:11.7823704Z -- The CXX compiler identification is GNU 11.4.0
+2026-10-02T09:50:11.8803720Z -- Detecting CXX compiler ABI info
+2026-10-02T09:50:12.0511747Z -- Detecting CXX compiler ABI info - done
+2026-10-02T09:50:12.0693352Z -- Check for working CXX compiler: /usr/bin/c++ - skipped
+2026-10-02T09:50:12.0740707Z -- Detecting CXX compile features
+2026-10-02T09:50:12.0749641Z -- Detecting CXX compile features - done
+2026-10-02T09:50:12.1029189Z -- Found PkgConfig: /usr/bin/pkg-config (found version "0.29.2")
+2026-10-02T09:50:12.1038133Z -- Checking for module 'grpc++'
+2026-10-02T09:50:12.1142846Z --   Found grpc++, version 1.30.2
+2026-10-02T09:50:12.1469673Z -- Checking for module 'protobuf'
+2026-10-02T09:50:12.1571086Z --   Found protobuf, version 3.12.4
+2026-10-02T09:50:12.1807107Z -- Checking for module 'libpqxx'
+2026-10-02T09:50:12.1905371Z --   Found libpqxx, version 6.4.5
+2026-10-02T09:50:12.2730067Z -- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.2")
+2026-10-02T09:50:12.2739151Z -- Configuring done (1.2s)
+2026-10-02T09:50:12.2839116Z -- Generating done (0.0s)
+2026-10-02T09:50:12.2844230Z -- Build files have been written to: /tmp/build-control
+2026-10-02T09:50:12.2919038Z ##[group]Run cmake --build /tmp/build-control --parallel
+2026-10-02T09:50:12.2919497Z [36;1mcmake --build /tmp/build-control --parallel[0m
+2026-10-02T09:50:12.2992787Z shell: /usr/bin/bash -e {0}
+2026-10-02T09:50:12.2993076Z ##[endgroup]
+2026-10-02T09:50:12.3235554Z [  5%] Generating generated/common.pb.cc, generated/common.grpc.pb.cc, generated/errorcode.pb.cc, generated/errorcode.grpc.pb.cc, generated/taskkind.pb.cc, generated/taskkind.grpc.pb.cc, generated/hotmethod.pb.cc, generated/hotmethod.grpc.pb.cc, generated/healthcheck.pb.cc, generated/healthcheck.grpc.pb.cc, generated/init.pb.cc, generated/init.grpc.pb.cc, generated/control.pb.cc, generated/control.grpc.pb.cc
+2026-10-02T09:50:12.3767313Z [ 11%] Building CXX object CMakeFiles/mini-drop-native-control.dir/src/main.cpp.o
+2026-10-02T09:50:12.3768644Z [ 17%] Building CXX object CMakeFiles/mini-drop-native-control.dir/generated/common.pb.cc.o
+2026-10-02T09:50:12.3770279Z [ 23%] Building CXX object CMakeFiles/mini-drop-native-control.dir/generated/common.grpc.pb.cc.o
+2026-10-02T09:50:12.3789841Z [ 29%] Building CXX object CMakeFiles/mini-drop-native-control.dir/generated/errorcode.pb.cc.o
+2026-10-02T09:50:12.3793074Z [ 35%] Building CXX object CMakeFiles/mini-drop-native-control.dir/generated/errorcode.grpc.pb.cc.o
+2026-10-02T09:50:12.3913914Z [ 41%] Building CXX object CMakeFiles/mini-drop-native-control.dir/generated/taskkind.pb.cc.o
+2026-10-02T09:50:12.3953477Z [ 47%] Building CXX object CMakeFiles/mini-drop-native-control.dir/generated/taskkind.grpc.pb.cc.o
+2026-10-02T09:50:12.3986162Z [ 52%] Building CXX object CMakeFiles/mini-drop-native-control.dir/generated/hotmethod.pb.cc.o
+2026-10-02T09:50:12.3990756Z [ 58%] Building CXX object CMakeFiles/mini-drop-native-control.dir/generated/hotmethod.grpc.pb.cc.o
+2026-10-02T09:50:12.4125584Z [ 64%] Building CXX object CMakeFiles/mini-drop-native-control.dir/generated/healthcheck.grpc.pb.cc.o
+2026-10-02T09:50:12.4157348Z [ 70%] Building CXX object CMakeFiles/mini-drop-native-control.dir/generated/init.pb.cc.o
+2026-10-02T09:50:12.4177191Z [ 76%] Building CXX object CMakeFiles/mini-drop-native-control.dir/generated/healthcheck.pb.cc.o
+2026-10-02T09:50:12.4178774Z [ 82%] Building CXX object CMakeFiles/mini-drop-native-control.dir/generated/control.pb.cc.o
+2026-10-02T09:50:12.4180193Z [ 88%] Building CXX object CMakeFiles/mini-drop-native-control.dir/generated/init.grpc.pb.cc.o
+2026-10-02T09:50:12.4227914Z [ 94%] Building CXX object CMakeFiles/mini-drop-native-control.dir/generated/control.grpc.pb.cc.o
+2026-10-02T09:50:16.8843826Z In file included from /tmp/build-control/generated/control.pb.h:36,
+2026-10-02T09:50:16.8883212Z                  from /tmp/build-control/generated/control.pb.cc:4:
+2026-10-02T09:50:16.8951842Z /tmp/build-control/generated/hotmethod.pb.h: In member function ‘mini_drop::RecordArgv* mini_drop::TaskDesc::release_sample_argv()’:
+2026-10-02T09:50:16.9025010Z /tmp/build-control/generated/hotmethod.pb.h:3159:47: warning: ‘mini_drop::RecordArgv* mini_drop::TaskDesc::unsafe_arena_release_sample_argv()’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:16.9083636Z  3159 |   auto temp = unsafe_arena_release_sample_argv();
+2026-10-02T09:50:16.9143233Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:16.9223422Z /tmp/build-control/generated/hotmethod.pb.h:449:48: note: declared here
+2026-10-02T09:50:16.9283424Z   449 |   PROTOBUF_DEPRECATED ::mini_drop::RecordArgv* unsafe_arena_release_sample_argv();
+2026-10-02T09:50:16.9353202Z       |                                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-02T09:50:16.9414669Z /tmp/build-control/generated/hotmethod.pb.h: In member function ‘mini_drop::CosConfig* mini_drop::TaskDesc::release_cos_config()’:
+2026-10-02T09:50:16.9464693Z /tmp/build-control/generated/hotmethod.pb.h:3355:46: warning: ‘mini_drop::CosConfig* mini_drop::TaskDesc::unsafe_arena_release_cos_config()’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:16.9564072Z  3355 |   auto temp = unsafe_arena_release_cos_config();
+2026-10-02T09:50:16.9613293Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:16.9673361Z /tmp/build-control/generated/hotmethod.pb.h:467:47: note: declared here
+2026-10-02T09:50:16.9744026Z   467 |   PROTOBUF_DEPRECATED ::mini_drop::CosConfig* unsafe_arena_release_cos_config();
+2026-10-02T09:50:16.9783120Z       |                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-02T09:50:16.9863635Z In file included from /tmp/build-control/generated/healthcheck.pb.h:37,
+2026-10-02T09:50:16.9923472Z                  from /tmp/build-control/generated/healthcheck.grpc.pb.cc:5:
+2026-10-02T09:50:16.9984387Z /tmp/build-control/generated/hotmethod.pb.h: In member function ‘mini_drop::RecordArgv* mini_drop::TaskDesc::release_sample_argv()’:
+2026-10-02T09:50:17.0044769Z /tmp/build-control/generated/hotmethod.pb.h:3159:47: warning: ‘mini_drop::RecordArgv* mini_drop::TaskDesc::unsafe_arena_release_sample_argv()’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:17.0123297Z  3159 |   auto temp = unsafe_arena_release_sample_argv();
+2026-10-02T09:50:17.0193505Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:17.0253512Z /tmp/build-control/generated/hotmethod.pb.h:449:48: note: declared here
+2026-10-02T09:50:17.0313618Z   449 |   PROTOBUF_DEPRECATED ::mini_drop::RecordArgv* unsafe_arena_release_sample_argv();
+2026-10-02T09:50:17.0373496Z       |                                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-02T09:50:17.0454399Z /tmp/build-control/generated/hotmethod.pb.h: In member function ‘mini_drop::CosConfig* mini_drop::TaskDesc::release_cos_config()’:
+2026-10-02T09:50:17.0514636Z /tmp/build-control/generated/hotmethod.pb.h:3355:46: warning: ‘mini_drop::CosConfig* mini_drop::TaskDesc::unsafe_arena_release_cos_config()’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:17.0583225Z  3355 |   auto temp = unsafe_arena_release_cos_config();
+2026-10-02T09:50:17.0643287Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:17.0843721Z /tmp/build-control/generated/hotmethod.pb.h:467:47: note: declared here
+2026-10-02T09:50:17.0903746Z   467 |   PROTOBUF_DEPRECATED ::mini_drop::CosConfig* unsafe_arena_release_cos_config();
+2026-10-02T09:50:17.0963207Z       |                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-02T09:50:17.2803847Z In file included from /tmp/build-control/generated/hotmethod.pb.cc:4:
+2026-10-02T09:50:17.2834259Z /tmp/build-control/generated/hotmethod.pb.h: In member function ‘mini_drop::RecordArgv* mini_drop::TaskDesc::release_sample_argv()’:
+2026-10-02T09:50:17.2924998Z /tmp/build-control/generated/hotmethod.pb.h:3159:47: warning: ‘mini_drop::RecordArgv* mini_drop::TaskDesc::unsafe_arena_release_sample_argv()’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:17.3003397Z  3159 |   auto temp = unsafe_arena_release_sample_argv();
+2026-10-02T09:50:17.3073386Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:17.3153677Z /tmp/build-control/generated/hotmethod.pb.h:449:48: note: declared here
+2026-10-02T09:50:17.3243389Z   449 |   PROTOBUF_DEPRECATED ::mini_drop::RecordArgv* unsafe_arena_release_sample_argv();
+2026-10-02T09:50:17.3283122Z       |                                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-02T09:50:17.3344404Z /tmp/build-control/generated/hotmethod.pb.h: In member function ‘mini_drop::CosConfig* mini_drop::TaskDesc::release_cos_config()’:
+2026-10-02T09:50:17.3424779Z /tmp/build-control/generated/hotmethod.pb.h:3355:46: warning: ‘mini_drop::CosConfig* mini_drop::TaskDesc::unsafe_arena_release_cos_config()’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:17.3483235Z  3355 |   auto temp = unsafe_arena_release_cos_config();
+2026-10-02T09:50:17.3543323Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:17.3613284Z /tmp/build-control/generated/hotmethod.pb.h:467:47: note: declared here
+2026-10-02T09:50:17.3674030Z   467 |   PROTOBUF_DEPRECATED ::mini_drop::CosConfig* unsafe_arena_release_cos_config();
+2026-10-02T09:50:17.3753138Z       |                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-02T09:50:17.3813264Z In file included from /tmp/build-control/generated/hotmethod.grpc.pb.cc:5:
+2026-10-02T09:50:17.3874364Z /tmp/build-control/generated/hotmethod.pb.h: In member function ‘mini_drop::RecordArgv* mini_drop::TaskDesc::release_sample_argv()’:
+2026-10-02T09:50:17.3914362Z /tmp/build-control/generated/hotmethod.pb.h:3159:47: warning: ‘mini_drop::RecordArgv* mini_drop::TaskDesc::unsafe_arena_release_sample_argv()’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:17.3993328Z  3159 |   auto temp = unsafe_arena_release_sample_argv();
+2026-10-02T09:50:17.4083198Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:17.4143246Z /tmp/build-control/generated/hotmethod.pb.h:449:48: note: declared here
+2026-10-02T09:50:17.4203520Z   449 |   PROTOBUF_DEPRECATED ::mini_drop::RecordArgv* unsafe_arena_release_sample_argv();
+2026-10-02T09:50:17.4263253Z       |                                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-02T09:50:17.4343279Z In file included from /tmp/build-control/generated/control.pb.h:36,
+2026-10-02T09:50:17.4413258Z                  from /tmp/build-control/generated/control.grpc.pb.cc:5:
+2026-10-02T09:50:17.4444365Z /tmp/build-control/generated/hotmethod.pb.h: In member function ‘mini_drop::RecordArgv* mini_drop::TaskDesc::release_sample_argv()’:
+2026-10-02T09:50:17.4526034Z /tmp/build-control/generated/hotmethod.pb.h:3159:47: warning: ‘mini_drop::RecordArgv* mini_drop::TaskDesc::unsafe_arena_release_sample_argv()’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:17.4543031Z  3159 |   auto temp = unsafe_arena_release_sample_argv();
+2026-10-02T09:50:17.4593232Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:17.4653163Z /tmp/build-control/generated/hotmethod.pb.h:449:48: note: declared here
+2026-10-02T09:50:17.4683446Z   449 |   PROTOBUF_DEPRECATED ::mini_drop::RecordArgv* unsafe_arena_release_sample_argv();
+2026-10-02T09:50:17.4763584Z       |                                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-02T09:50:17.4834539Z /tmp/build-control/generated/hotmethod.pb.h: In member function ‘mini_drop::CosConfig* mini_drop::TaskDesc::release_cos_config()’:
+2026-10-02T09:50:17.4904698Z /tmp/build-control/generated/hotmethod.pb.h:3355:46: warning: ‘mini_drop::CosConfig* mini_drop::TaskDesc::unsafe_arena_release_cos_config()’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:17.4953292Z  3355 |   auto temp = unsafe_arena_release_cos_config();
+2026-10-02T09:50:17.5043115Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:17.5073179Z /tmp/build-control/generated/hotmethod.pb.h:467:47: note: declared here
+2026-10-02T09:50:17.5144844Z   467 |   PROTOBUF_DEPRECATED ::mini_drop::CosConfig* unsafe_arena_release_cos_config();
+2026-10-02T09:50:17.5223216Z       |                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-02T09:50:17.5264176Z /tmp/build-control/generated/hotmethod.pb.h: In member function ‘mini_drop::CosConfig* mini_drop::TaskDesc::release_cos_config()’:
+2026-10-02T09:50:17.5327210Z /tmp/build-control/generated/hotmethod.pb.h:3355:46: warning: ‘mini_drop::CosConfig* mini_drop::TaskDesc::unsafe_arena_release_cos_config()’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:17.5403543Z  3355 |   auto temp = unsafe_arena_release_cos_config();
+2026-10-02T09:50:17.5473164Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:17.5573676Z /tmp/build-control/generated/hotmethod.pb.h:467:47: note: declared here
+2026-10-02T09:50:17.5653888Z   467 |   PROTOBUF_DEPRECATED ::mini_drop::CosConfig* unsafe_arena_release_cos_config();
+2026-10-02T09:50:17.5763367Z       |                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-02T09:50:17.5833733Z In file included from /tmp/build-control/generated/healthcheck.pb.h:37,
+2026-10-02T09:50:17.5933573Z                  from /tmp/build-control/generated/healthcheck.pb.cc:4:
+2026-10-02T09:50:17.6014324Z /tmp/build-control/generated/hotmethod.pb.h: In member function ‘mini_drop::RecordArgv* mini_drop::TaskDesc::release_sample_argv()’:
+2026-10-02T09:50:17.6044378Z /tmp/build-control/generated/hotmethod.pb.h:3159:47: warning: ‘mini_drop::RecordArgv* mini_drop::TaskDesc::unsafe_arena_release_sample_argv()’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:17.6183607Z  3159 |   auto temp = unsafe_arena_release_sample_argv();
+2026-10-02T09:50:17.6253297Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:17.6333606Z /tmp/build-control/generated/hotmethod.pb.h:449:48: note: declared here
+2026-10-02T09:50:17.6424029Z   449 |   PROTOBUF_DEPRECATED ::mini_drop::RecordArgv* unsafe_arena_release_sample_argv();
+2026-10-02T09:50:17.6523299Z       |                                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-02T09:50:17.6584228Z /tmp/build-control/generated/hotmethod.pb.h: In member function ‘mini_drop::CosConfig* mini_drop::TaskDesc::release_cos_config()’:
+2026-10-02T09:50:17.6674694Z /tmp/build-control/generated/hotmethod.pb.h:3355:46: warning: ‘mini_drop::CosConfig* mini_drop::TaskDesc::unsafe_arena_release_cos_config()’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:17.6763337Z  3355 |   auto temp = unsafe_arena_release_cos_config();
+2026-10-02T09:50:17.6853279Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:17.6943538Z /tmp/build-control/generated/hotmethod.pb.h:467:47: note: declared here
+2026-10-02T09:50:17.7023676Z   467 |   PROTOBUF_DEPRECATED ::mini_drop::CosConfig* unsafe_arena_release_cos_config();
+2026-10-02T09:50:17.7123306Z       |                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-02T09:50:17.7184969Z /tmp/build-control/generated/hotmethod.pb.cc: In member function ‘virtual google::protobuf::uint8* mini_drop::TaskDesc::_InternalSerialize(google::protobuf::uint8*, google::protobuf::io::EpsCopyOutputStream*) const’:
+2026-10-02T09:50:17.7294821Z /tmp/build-control/generated/hotmethod.pb.cc:1228:28: warning: ‘bool mini_drop::TaskDesc::has_sample_argv() const’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:17.7363185Z  1228 |   if (this->has_sample_argv()) {
+2026-10-02T09:50:17.7453187Z       |       ~~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:17.7533638Z In file included from /tmp/build-control/generated/hotmethod.pb.cc:4:
+2026-10-02T09:50:17.7573551Z /tmp/build-control/generated/hotmethod.pb.h:3127:13: note: declared here
+2026-10-02T09:50:17.7623404Z  3127 | inline bool TaskDesc::has_sample_argv() const {
+2026-10-02T09:50:17.7703166Z       |             ^~~~~~~~
+2026-10-02T09:50:17.7764694Z /tmp/build-control/generated/hotmethod.pb.cc:1258:27: warning: ‘bool mini_drop::TaskDesc::has_cos_config() const’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:17.7823195Z  1258 |   if (this->has_cos_config()) {
+2026-10-02T09:50:17.7893203Z       |       ~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:17.7953312Z In file included from /tmp/build-control/generated/hotmethod.pb.cc:4:
+2026-10-02T09:50:17.8012955Z /tmp/build-control/generated/hotmethod.pb.h:3329:13: note: declared here
+2026-10-02T09:50:17.8093415Z  3329 | inline bool TaskDesc::has_cos_config() const {
+2026-10-02T09:50:17.8113199Z       |             ^~~~~~~~
+2026-10-02T09:50:17.8215132Z /tmp/build-control/generated/hotmethod.pb.cc: In member function ‘virtual size_t mini_drop::TaskDesc::ByteSizeLong() const’:
+2026-10-02T09:50:17.8289649Z /tmp/build-control/generated/hotmethod.pb.cc:1451:28: warning: ‘bool mini_drop::TaskDesc::has_sample_argv() const’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:17.8373279Z  1451 |   if (this->has_sample_argv()) {
+2026-10-02T09:50:17.8463289Z       |       ~~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:17.8523318Z In file included from /tmp/build-control/generated/hotmethod.pb.cc:4:
+2026-10-02T09:50:17.8584027Z /tmp/build-control/generated/hotmethod.pb.h:3127:13: note: declared here
+2026-10-02T09:50:17.8643124Z  3127 | inline bool TaskDesc::has_sample_argv() const {
+2026-10-02T09:50:17.8713115Z       |             ^~~~~~~~
+2026-10-02T09:50:17.8774500Z /tmp/build-control/generated/hotmethod.pb.cc:1458:27: warning: ‘bool mini_drop::TaskDesc::has_cos_config() const’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:17.8833217Z  1458 |   if (this->has_cos_config()) {
+2026-10-02T09:50:17.8891580Z       |       ~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:17.8973333Z In file included from /tmp/build-control/generated/hotmethod.pb.cc:4:
+2026-10-02T09:50:17.9033390Z /tmp/build-control/generated/hotmethod.pb.h:3329:13: note: declared here
+2026-10-02T09:50:17.9093181Z  3329 | inline bool TaskDesc::has_cos_config() const {
+2026-10-02T09:50:17.9152993Z       |             ^~~~~~~~
+2026-10-02T09:50:17.9214694Z /tmp/build-control/generated/hotmethod.pb.cc: In member function ‘void mini_drop::TaskDesc::MergeFrom(const mini_drop::TaskDesc&)’:
+2026-10-02T09:50:17.9274171Z /tmp/build-control/generated/hotmethod.pb.cc:1609:27: warning: ‘bool mini_drop::TaskDesc::has_sample_argv() const’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:17.9323955Z  1609 |   if (from.has_sample_argv()) {
+2026-10-02T09:50:17.9393295Z       |       ~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:17.9483651Z In file included from /tmp/build-control/generated/hotmethod.pb.cc:4:
+2026-10-02T09:50:17.9533471Z /tmp/build-control/generated/hotmethod.pb.h:3127:13: note: declared here
+2026-10-02T09:50:17.9593245Z  3127 | inline bool TaskDesc::has_sample_argv() const {
+2026-10-02T09:50:17.9663240Z       |             ^~~~~~~~
+2026-10-02T09:50:17.9714398Z /tmp/build-control/generated/hotmethod.pb.cc:1612:26: warning: ‘bool mini_drop::TaskDesc::has_cos_config() const’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:17.9753079Z  1612 |   if (from.has_cos_config()) {
+2026-10-02T09:50:17.9813023Z       |       ~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:17.9843180Z In file included from /tmp/build-control/generated/hotmethod.pb.cc:4:
+2026-10-02T09:50:17.9873336Z /tmp/build-control/generated/hotmethod.pb.h:3329:13: note: declared here
+2026-10-02T09:50:17.9933091Z  3329 | inline bool TaskDesc::has_cos_config() const {
+2026-10-02T09:50:17.9963054Z       |             ^~~~~~~~
+2026-10-02T09:50:18.0004703Z /tmp/build-control/generated/common.pb.cc: In member function ‘virtual google::protobuf::uint8* mini_drop::CosConfig::_InternalSerialize(google::protobuf::uint8*, google::protobuf::io::EpsCopyOutputStream*) const’:
+2026-10-02T09:50:18.0054199Z /tmp/build-control/generated/common.pb.cc:664:23: warning: ‘const string& mini_drop::CosConfig::access_key() const’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:18.0092964Z   664 |   if (this->access_key().size() > 0) {
+2026-10-02T09:50:18.0142985Z       |       ~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:18.0213198Z In file included from /tmp/build-control/generated/common.pb.cc:4:
+2026-10-02T09:50:18.0263334Z /tmp/build-control/generated/common.pb.h:1130:27: note: declared here
+2026-10-02T09:50:18.0303048Z  1130 | inline const std::string& CosConfig::access_key() const {
+2026-10-02T09:50:18.0353156Z       |                           ^~~~~~~~~
+2026-10-02T09:50:18.0384468Z /tmp/build-control/generated/common.pb.cc:674:23: warning: ‘const string& mini_drop::CosConfig::secret_key() const’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:18.0423038Z   674 |   if (this->secret_key().size() > 0) {
+2026-10-02T09:50:18.0442920Z       |       ~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:18.0453177Z In file included from /tmp/build-control/generated/common.pb.cc:4:
+2026-10-02T09:50:18.0483151Z /tmp/build-control/generated/common.pb.h:1211:27: note: declared here
+2026-10-02T09:50:18.0513109Z  1211 | inline const std::string& CosConfig::secret_key() const {
+2026-10-02T09:50:18.0542847Z       |                           ^~~~~~~~~
+2026-10-02T09:50:18.0544988Z /tmp/build-control/generated/common.pb.cc: In member function ‘virtual size_t mini_drop::CosConfig::ByteSizeLong() const’:
+2026-10-02T09:50:18.0574207Z /tmp/build-control/generated/common.pb.cc:727:23: warning: ‘const string& mini_drop::CosConfig::access_key() const’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:18.0602948Z   727 |   if (this->access_key().size() > 0) {
+2026-10-02T09:50:18.0612860Z       |       ~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:18.0633200Z In file included from /tmp/build-control/generated/common.pb.cc:4:
+2026-10-02T09:50:18.0663110Z /tmp/build-control/generated/common.pb.h:1130:27: note: declared here
+2026-10-02T09:50:18.0693059Z  1130 | inline const std::string& CosConfig::access_key() const {
+2026-10-02T09:50:18.0722821Z       |                           ^~~~~~~~~
+2026-10-02T09:50:18.0725100Z /tmp/build-control/generated/common.pb.cc:734:23: warning: ‘const string& mini_drop::CosConfig::secret_key() const’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:18.0813320Z   734 |   if (this->secret_key().size() > 0) {
+2026-10-02T09:50:18.0820432Z       |       ~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:18.0843187Z In file included from /tmp/build-control/generated/common.pb.cc:4:
+2026-10-02T09:50:18.0893075Z /tmp/build-control/generated/common.pb.h:1211:27: note: declared here
+2026-10-02T09:50:18.0933056Z  1211 | inline const std::string& CosConfig::secret_key() const {
+2026-10-02T09:50:18.0962953Z       |                           ^~~~~~~~~
+2026-10-02T09:50:18.1014230Z /tmp/build-control/generated/common.pb.cc: In member function ‘void mini_drop::CosConfig::MergeFrom(const mini_drop::CosConfig&)’:
+2026-10-02T09:50:18.1044068Z /tmp/build-control/generated/common.pb.cc:788:22: warning: ‘const string& mini_drop::CosConfig::access_key() const’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:18.1102999Z   788 |   if (from.access_key().size() > 0) {
+2026-10-02T09:50:18.1143022Z       |       ~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:18.1193172Z In file included from /tmp/build-control/generated/common.pb.cc:4:
+2026-10-02T09:50:18.1223090Z /tmp/build-control/generated/common.pb.h:1130:27: note: declared here
+2026-10-02T09:50:18.1283105Z  1130 | inline const std::string& CosConfig::access_key() const {
+2026-10-02T09:50:18.1302887Z       |                           ^~~~~~~~~
+2026-10-02T09:50:18.1324563Z /tmp/build-control/generated/common.pb.cc:791:22: warning: ‘const string& mini_drop::CosConfig::secret_key() const’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:18.1353076Z   791 |   if (from.secret_key().size() > 0) {
+2026-10-02T09:50:18.1382948Z       |       ~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:18.1413160Z In file included from /tmp/build-control/generated/common.pb.cc:4:
+2026-10-02T09:50:18.1414392Z /tmp/build-control/generated/common.pb.h:1211:27: note: declared here
+2026-10-02T09:50:18.1443142Z  1211 | inline const std::string& CosConfig::secret_key() const {
+2026-10-02T09:50:18.1472911Z       |                           ^~~~~~~~~
+2026-10-02T09:50:19.9263622Z In file included from /tmp/build-control/generated/healthcheck.pb.h:37,
+2026-10-02T09:50:19.9283273Z                  from /tmp/build-control/generated/healthcheck.grpc.pb.h:15,
+2026-10-02T09:50:19.9353399Z                  from /home/runner/work/mini-drop/mini-drop/native/control/src/main.cpp:10:
+2026-10-02T09:50:19.9384241Z /tmp/build-control/generated/hotmethod.pb.h: In member function ‘mini_drop::RecordArgv* mini_drop::TaskDesc::release_sample_argv()’:
+2026-10-02T09:50:19.9404316Z /tmp/build-control/generated/hotmethod.pb.h:3159:47: warning: ‘mini_drop::RecordArgv* mini_drop::TaskDesc::unsafe_arena_release_sample_argv()’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:19.9463250Z  3159 |   auto temp = unsafe_arena_release_sample_argv();
+2026-10-02T09:50:19.9523285Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:19.9563329Z /tmp/build-control/generated/hotmethod.pb.h:449:48: note: declared here
+2026-10-02T09:50:19.9583370Z   449 |   PROTOBUF_DEPRECATED ::mini_drop::RecordArgv* unsafe_arena_release_sample_argv();
+2026-10-02T09:50:19.9654061Z       |                                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-02T09:50:19.9674116Z /tmp/build-control/generated/hotmethod.pb.h: In member function ‘mini_drop::CosConfig* mini_drop::TaskDesc::release_cos_config()’:
+2026-10-02T09:50:19.9744674Z /tmp/build-control/generated/hotmethod.pb.h:3355:46: warning: ‘mini_drop::CosConfig* mini_drop::TaskDesc::unsafe_arena_release_cos_config()’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:19.9773053Z  3355 |   auto temp = unsafe_arena_release_cos_config();
+2026-10-02T09:50:19.9792952Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:19.9853346Z /tmp/build-control/generated/hotmethod.pb.h:467:47: note: declared here
+2026-10-02T09:50:19.9893301Z   467 |   PROTOBUF_DEPRECATED ::mini_drop::CosConfig* unsafe_arena_release_cos_config();
+2026-10-02T09:50:19.9953137Z       |                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-02T09:50:22.8435250Z /home/runner/work/mini-drop/mini-drop/native/control/src/main.cpp: In member function ‘virtual grpc::Status {anonymous}::HealthService::Do(grpc::ServerContext*, const mini_drop::HealthCheckRequest*, mini_drop::HealthCheckResponse*)’:
+2026-10-02T09:50:22.8444693Z /home/runner/work/mini-drop/mini-drop/native/control/src/main.cpp:894:47: warning: ‘mini_drop::RecordArgv* mini_drop::TaskDesc::mutable_sample_argv()’ is deprecated [-Wdeprecated-declarations]
+2026-10-02T09:50:22.8474247Z   894 |       auto* sample = desc->mutable_sample_argv();
+2026-10-02T09:50:22.8543127Z       |                      ~~~~~~~~~~~~~~~~~~~~~~~~~^~
+2026-10-02T09:50:22.8573697Z In file included from /tmp/build-control/generated/healthcheck.pb.h:37,
+2026-10-02T09:50:22.8633114Z                  from /tmp/build-control/generated/healthcheck.grpc.pb.h:15,
+2026-10-02T09:50:22.8663210Z                  from /home/runner/work/mini-drop/mini-drop/native/control/src/main.cpp:10:
+2026-10-02T09:50:22.8718286Z /tmp/build-control/generated/hotmethod.pb.h:3180:33: note: declared here
+2026-10-02T09:50:22.8743198Z  3180 | inline ::mini_drop::RecordArgv* TaskDesc::mutable_sample_argv() {
+2026-10-02T09:50:22.8743934Z       |                                 ^~~~~~~~
+2026-10-02T09:50:31.8092484Z [100%] Linking CXX executable mini-drop-native-control
+2026-10-02T09:50:32.0265343Z [100%] Built target mini-drop-native-control
+2026-10-02T09:50:32.0471234Z Post job cleanup.
+2026-10-02T09:50:32.1446201Z [command]/usr/bin/git version
+2026-10-02T09:50:32.1496416Z git version 2.55.0
+2026-10-02T09:50:32.1537893Z Temporarily overriding HOME='/home/runner/work/_temp/04b3adb7-4c97-4b16-bc78-ffa1a426d8ac' before making global git config changes
+2026-10-02T09:50:32.1539303Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-02T09:50:32.1543974Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mini-drop/mini-drop
+2026-10-02T09:50:32.1592747Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-02T09:50:32.1634986Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-02T09:50:32.1984932Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-02T09:50:32.2028882Z http.https://github.com/.extraheader
+2026-10-02T09:50:32.2035005Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-02T09:50:32.2077015Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-02T09:50:32.2388063Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-02T09:50:32.2437062Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-02T09:50:32.2910297Z Cleaning up orphan processes
+2026-10-02T09:50:32.3247424Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

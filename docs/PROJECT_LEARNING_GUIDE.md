@@ -1969,13 +1969,13 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **4371 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **6149 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
 ### 34.0 每个目录负责什么
 
-共 1193 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
+共 1470 个包含上述文件的目录；更深的目录继承模块职责，并结合后面的逐文件说明阅读。
 
 | 目录 | 职责 |
 |---|---|
@@ -2518,6 +2518,283 @@ python scripts/render_learning_guide.py
 | `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/contracts/` | contracts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-localization-20261001/local/performance-localization-livefix-20261001/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/performance-localization-20261001/regression/` | regression 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/` | planning-retrieval-v2-20261002 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/` | ci 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/` | clean-36984571380 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/` | clean-stack 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/` | clean-36986031216 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/` | clean-stack 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/` | clean-36986787602 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/` | clean-stack 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/` | main-final-36986787573 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/hotspot-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/` | hotspot-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/hotspot-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/go-io-window/` | go-io-window 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/hotspot-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/hotspot-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/hotspot-controls/measurement/` | measurement 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/hotspot-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/hotspot-controls/measurement/go/` | go 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/hotspot-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/hotspot-controls/measurement/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/native-agent-binary-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/` | native-agent-binary-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/observation-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/` | observation-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/observation-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/cpp/` | cpp 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/observation-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/java/` | java 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/observation-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/perf-source-toolchain/` | perf-source-toolchain 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/observation-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/postgres-concurrency-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/` | postgres-concurrency-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/python-quality-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/` | python-quality-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/python-quality-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/web-browser-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/` | web-browser-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/` | main-first-failure-36984571199 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/hotspot-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/` | hotspot-controls-56788a921762abb5a409f608089d6d04ff1e4031-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/hotspot-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/go-io-window/` | go-io-window 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/hotspot-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/hotspot-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/hotspot-controls/measurement/` | measurement 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/hotspot-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/hotspot-controls/measurement/go/` | go 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/hotspot-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/hotspot-controls/measurement/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/native-agent-binary-56788a921762abb5a409f608089d6d04ff1e4031-1/` | native-agent-binary-56788a921762abb5a409f608089d6d04ff1e4031-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/observation-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/` | observation-controls-56788a921762abb5a409f608089d6d04ff1e4031-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/observation-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/cpp/` | cpp 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/observation-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/java/` | java 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/observation-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/perf-source-toolchain/` | perf-source-toolchain 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/observation-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/postgres-concurrency-56788a921762abb5a409f608089d6d04ff1e4031-1/` | postgres-concurrency-56788a921762abb5a409f608089d6d04ff1e4031-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/python-quality-56788a921762abb5a409f608089d6d04ff1e4031-1/` | python-quality-56788a921762abb5a409f608089d6d04ff1e4031-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/python-quality-56788a921762abb5a409f608089d6d04ff1e4031-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/web-browser-56788a921762abb5a409f608089d6d04ff1e4031-1/` | web-browser-56788a921762abb5a409f608089d6d04ff1e4031-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/` | main-second-failure-36986031236 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/hotspot-controls-11143452ae4062491ba619890ddc48e579a3f364-1/` | hotspot-controls-11143452ae4062491ba619890ddc48e579a3f364-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/hotspot-controls-11143452ae4062491ba619890ddc48e579a3f364-1/go-io-window/` | go-io-window 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/hotspot-controls-11143452ae4062491ba619890ddc48e579a3f364-1/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/hotspot-controls-11143452ae4062491ba619890ddc48e579a3f364-1/hotspot-controls/measurement/` | measurement 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/hotspot-controls-11143452ae4062491ba619890ddc48e579a3f364-1/hotspot-controls/measurement/go/` | go 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/hotspot-controls-11143452ae4062491ba619890ddc48e579a3f364-1/hotspot-controls/measurement/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/native-agent-binary-11143452ae4062491ba619890ddc48e579a3f364-1/` | native-agent-binary-11143452ae4062491ba619890ddc48e579a3f364-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/observation-controls-11143452ae4062491ba619890ddc48e579a3f364-1/` | observation-controls-11143452ae4062491ba619890ddc48e579a3f364-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/observation-controls-11143452ae4062491ba619890ddc48e579a3f364-1/cpp/` | cpp 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/observation-controls-11143452ae4062491ba619890ddc48e579a3f364-1/java/` | java 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/observation-controls-11143452ae4062491ba619890ddc48e579a3f364-1/perf-source-toolchain/` | perf-source-toolchain 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/observation-controls-11143452ae4062491ba619890ddc48e579a3f364-1/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/postgres-concurrency-11143452ae4062491ba619890ddc48e579a3f364-1/` | postgres-concurrency-11143452ae4062491ba619890ddc48e579a3f364-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/python-quality-11143452ae4062491ba619890ddc48e579a3f364-1/` | python-quality-11143452ae4062491ba619890ddc48e579a3f364-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/python-quality-11143452ae4062491ba619890ddc48e579a3f364-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/web-browser-11143452ae4062491ba619890ddc48e579a3f364-1/` | web-browser-11143452ae4062491ba619890ddc48e579a3f364-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/` | prompt-boundaries 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/` | clean-final-36996499257 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/` | clean-stack 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/` | clean-first-36995708512 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/` | clean-stack 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/` | main-final-36996499159 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/hotspot-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/` | hotspot-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/hotspot-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/go-io-window/` | go-io-window 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/hotspot-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/hotspot-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/hotspot-controls/measurement/` | measurement 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/hotspot-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/hotspot-controls/measurement/go/` | go 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/hotspot-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/hotspot-controls/measurement/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/native-agent-binary-4321aba043be6c2eb36580cf3b00d56c50bda914-1/` | native-agent-binary-4321aba043be6c2eb36580cf3b00d56c50bda914-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/observation-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/` | observation-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/observation-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/cpp/` | cpp 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/observation-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/java/` | java 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/observation-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/perf-source-toolchain/` | perf-source-toolchain 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/observation-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/postgres-concurrency-4321aba043be6c2eb36580cf3b00d56c50bda914-1/` | postgres-concurrency-4321aba043be6c2eb36580cf3b00d56c50bda914-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/python-quality-4321aba043be6c2eb36580cf3b00d56c50bda914-1/` | python-quality-4321aba043be6c2eb36580cf3b00d56c50bda914-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/python-quality-4321aba043be6c2eb36580cf3b00d56c50bda914-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/web-browser-4321aba043be6c2eb36580cf3b00d56c50bda914-1/` | web-browser-4321aba043be6c2eb36580cf3b00d56c50bda914-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/` | main-first-failure-36995708503 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/hotspot-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/` | hotspot-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/hotspot-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/go-io-window/` | go-io-window 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/hotspot-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/hotspot-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/hotspot-controls/measurement/` | measurement 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/hotspot-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/hotspot-controls/measurement/go/` | go 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/hotspot-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/hotspot-controls/measurement/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/native-agent-binary-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/` | native-agent-binary-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/observation-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/` | observation-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/observation-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/cpp/` | cpp 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/observation-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/java/` | java 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/observation-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/perf-source-toolchain/` | perf-source-toolchain 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/observation-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/postgres-concurrency-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/` | postgres-concurrency-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/python-quality-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/` | python-quality-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/python-quality-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/web-browser-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/` | web-browser-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/` | subject-boundaries 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/` | clean-final-36992014612 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/` | clean-stack 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/` | main-final-36992014614 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/hotspot-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/` | hotspot-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/hotspot-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/go-io-window/` | go-io-window 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/hotspot-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/hotspot-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/hotspot-controls/measurement/` | measurement 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/hotspot-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/hotspot-controls/measurement/go/` | go 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/hotspot-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/hotspot-controls/measurement/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/native-agent-binary-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/` | native-agent-binary-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/observation-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/` | observation-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/observation-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/cpp/` | cpp 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/observation-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/java/` | java 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/observation-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/perf-source-toolchain/` | perf-source-toolchain 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/observation-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/postgres-concurrency-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/` | postgres-concurrency-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/python-quality-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/` | python-quality-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/python-quality-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/web-browser-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/` | web-browser-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/` | prepared-clean-36991509500 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/` | clean-stack 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/` | prepared-main-36991509506 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/logs/` | logs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/` | reports 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/hotspot-controls-73130b62473064f3ed3933b236243ecb314b4830-1/` | hotspot-controls-73130b62473064f3ed3933b236243ecb314b4830-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/hotspot-controls-73130b62473064f3ed3933b236243ecb314b4830-1/go-io-window/` | go-io-window 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/hotspot-controls-73130b62473064f3ed3933b236243ecb314b4830-1/hotspot-controls/` | hotspot-controls 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/hotspot-controls-73130b62473064f3ed3933b236243ecb314b4830-1/hotspot-controls/measurement/` | measurement 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/hotspot-controls-73130b62473064f3ed3933b236243ecb314b4830-1/hotspot-controls/measurement/go/` | go 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/hotspot-controls-73130b62473064f3ed3933b236243ecb314b4830-1/hotspot-controls/measurement/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/native-agent-binary-73130b62473064f3ed3933b236243ecb314b4830-1/` | native-agent-binary-73130b62473064f3ed3933b236243ecb314b4830-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/observation-controls-73130b62473064f3ed3933b236243ecb314b4830-1/` | observation-controls-73130b62473064f3ed3933b236243ecb314b4830-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/observation-controls-73130b62473064f3ed3933b236243ecb314b4830-1/cpp/` | cpp 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/observation-controls-73130b62473064f3ed3933b236243ecb314b4830-1/java/` | java 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/observation-controls-73130b62473064f3ed3933b236243ecb314b4830-1/perf-source-toolchain/` | perf-source-toolchain 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/observation-controls-73130b62473064f3ed3933b236243ecb314b4830-1/python/` | python 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/postgres-concurrency-73130b62473064f3ed3933b236243ecb314b4830-1/` | postgres-concurrency-73130b62473064f3ed3933b236243ecb314b4830-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/python-quality-73130b62473064f3ed3933b236243ecb314b4830-1/` | python-quality-73130b62473064f3ed3933b236243ecb314b4830-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/python-quality-73130b62473064f3ed3933b236243ecb314b4830-1/python-all/` | python-all 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/web-browser-73130b62473064f3ed3933b236243ecb314b4830-1/` | web-browser-73130b62473064f3ed3933b236243ecb314b4830-1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/` | deployment 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/` | final 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final-release-r3/` | final-release-r3 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/final-release-r4/` | final-release-r4 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/final-release-r5/` | final-release-r5 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/` | prompt-final 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/final-release-r7/` | final-release-r7 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/` | evaluation 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/` | first-run 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/` | records 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/` | requests 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/freeze/` | freeze 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/historical-arithmetic-diagnostic/` | historical-arithmetic-diagnostic 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/` | hybrid-first-run 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/` | records 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/` | original-source 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/analyzer/` | analyzer 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/analyzer/mini_drop_analyzer/` | mini_drop_analyzer 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/analyzer/scripts/` | scripts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/` | benchmarks 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/diagnosis-v2/` | diagnosis-v2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/diagnosis-v2/private/` | private 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/diagnosis-v2/public/` | public 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/evaluation-suite/` | evaluation-suite 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/retrieval/` | retrieval 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/root-cause-v1/` | root-cause-v1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/root-cause-v1/private/` | private 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/root-cause-v1/public/` | public 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/contracts/` | contracts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/knowledge/` | knowledge 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/` | scripts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/` | server 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/` | app 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/agent_runtime/` | agent_runtime 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/` | drop_insight 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/generated/` | generated 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/repositories/` | repositories 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/migrations/` | migrations 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/migrations/versions/` | versions 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/` | receipts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/` | live 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/` | initial 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial-task-counts/` | initial-task-counts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/helpers/` | helpers 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r1/` | live-browser-r1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/` | live-browser-r2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/` | live-smoke-r1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/missing/` | missing 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/normal/` | normal 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/refused/` | refused 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r2/` | live-smoke-r2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r2/missing/` | missing 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r2/normal/` | normal 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r2/refused/` | refused 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/` | live-smoke-r3 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/missing/` | missing 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/normal/` | normal 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/refused/` | refused 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/` | post-isolation 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/` | browser 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/helpers/` | helpers 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/normal-smoke/` | normal-smoke 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/normal-smoke/normal/` | normal 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/` | post-prompt 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/` | browser 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/helpers/` | helpers 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/normal-smoke/` | normal-smoke 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/normal-smoke/normal/` | normal 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/local/` | local 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/local/historical-arithmetic-diagnostic/` | historical-arithmetic-diagnostic 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/` | prompt-boundaries 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/clean/` | clean 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/clean/docs/` | docs 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/clean/server/` | server 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/clean/server/app/` | app 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/clean/server/app/agent_runtime/` | agent_runtime 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/clean/server/app/drop_insight/` | drop_insight 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/clean/tests/` | tests 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-literal-compatibility/` | prompt-literal-compatibility 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-literal-compatibility/clean/` | clean 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/` | subject-boundaries 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/publication/` | publication 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/` | retrieval-regression 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/` | bm25 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/` | records 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/` | hybrid 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/` | records 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/receipts/` | receipts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/` | source 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/analyzer/` | analyzer 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/analyzer/mini_drop_analyzer/` | mini_drop_analyzer 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/analyzer/scripts/` | scripts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/` | benchmarks 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/diagnosis-v2/` | diagnosis-v2 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/diagnosis-v2/private/` | private 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/diagnosis-v2/public/` | public 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/evaluation-suite/` | evaluation-suite 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/retrieval/` | retrieval 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/root-cause-v1/` | root-cause-v1 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/root-cause-v1/private/` | private 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/root-cause-v1/public/` | public 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/contracts/` | contracts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/knowledge/` | knowledge 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/` | scripts 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/` | server 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/` | app 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/agent_runtime/` | agent_runtime 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/` | drop_insight 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/generated/` | generated 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/repositories/` | repositories 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/migrations/` | migrations 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/migrations/versions/` | versions 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/rpc-read-stability-20260930/` | rpc-read-stability-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/security-cancel-20260930/` | security-cancel-20260930 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
 | `reports/quality/security-cancel-20260930/browser-cancel/` | browser-cancel 子目录；已执行后产生的历史验收证据；日期与场景边界不可抹除。 |
@@ -4366,6 +4643,7 @@ python scripts/render_learning_guide.py
 | `reports/architecture/performance-localization-20261001.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/performance-sre-agent-implementation-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/performance-sre-agent-research-20260919.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/planning-retrieval-v2-20261002.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/resource-controls-20260927.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/security-cancel-delivery-20260930.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/service-exam-release-20260923.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
@@ -6492,6 +6770,1783 @@ python scripts/render_learning_guide.py
 | `reports/quality/performance-localization-20261001/regression/observation-persistence-after-r3.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-localization-20261001/regression/observation-persistence-after.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/performance-localization-20261001/regression/web-localization.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci-local-readout.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/artifact-11217022546.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/logs/job-110766544195.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/official-checkout-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack-gates.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/agent-heartbeat.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/agent-runtime-permissions.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/built-images.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-001.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-002.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-003.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-005.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-006.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-007.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-008.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-009.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-010.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-011.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-012.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-013.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-015.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-016.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-017.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-018.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-019.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-020.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-021.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-022.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-023.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-024.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-025.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-026.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-027.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-028.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-029.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-040.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-051.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-052.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-053.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-054.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-058.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-062.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-063.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-064.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-065.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-068.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-069.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/command-072.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/compose-sanitized.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/minio-source-version.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/persisted-chain.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/process-snapshot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/service-readiness.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/sys_metrics.raw.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/target-identity-after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/target-identity-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/task-admission.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/task-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/task-events.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/task-final.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/reports/clean-stack/web-http-contract.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36984571380/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/artifact-11217632494.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/logs/job-110771145576.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/official-checkout-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack-gates.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/agent-heartbeat.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/agent-runtime-permissions.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/built-images.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-001.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-002.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-003.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-005.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-006.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-007.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-008.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-009.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-010.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-011.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-012.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-013.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-015.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-016.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-017.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-018.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-019.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-020.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-021.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-022.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-023.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-024.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-025.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-026.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-027.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-028.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-029.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-040.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-051.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-052.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-053.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-054.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-058.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-062.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-063.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-064.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-065.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-068.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-069.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/command-072.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/compose-sanitized.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/minio-source-version.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/persisted-chain.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/process-snapshot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/service-readiness.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/sys_metrics.raw.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/target-identity-after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/target-identity-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/task-admission.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/task-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/task-events.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/task-final.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/reports/clean-stack/web-http-contract.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986031216/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/artifact-11217944325.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/logs/job-110773652174.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/official-checkout-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack-gates.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/agent-heartbeat.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/agent-runtime-permissions.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/built-images.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-001.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-002.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-003.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-005.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-006.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-007.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-008.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-009.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-010.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-011.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-012.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-013.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-015.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-016.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-017.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-018.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-019.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-020.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-021.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-022.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-023.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-024.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-025.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-026.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-027.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-028.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-029.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-040.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-051.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-052.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-053.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-054.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-058.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-062.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-063.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-064.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-065.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-068.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-069.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/command-072.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/compose-sanitized.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/minio-source-version.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/persisted-chain.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/process-snapshot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/service-readiness.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/sys_metrics.raw.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/target-identity-after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/target-identity-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/task-admission.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/task-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/task-events.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/task-final.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/reports/clean-stack/web-http-contract.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/clean-36986787602/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/logs/job-110773531713.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/logs/job-110773531837.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/logs/job-110773531894.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/logs/job-110773531904.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/logs/job-110773531915.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/logs/job-110773531924.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/logs/job-110773531935.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/logs/job-110773531945.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/logs/job-110773531975.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/logs/job-110773531979.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/logs/job-110773532007.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/logs/job-110773532022.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/logs/job-110773532037.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/logs/job-110773532069.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/official-ci-merge-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/hotspot-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/go-io-window/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/hotspot-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/hotspot-controls/measurement/go/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/hotspot-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/hotspot-controls/measurement/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/hotspot-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/hotspot-controls/measurement/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/hotspot-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/native-agent-binary-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/ctest.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/observation-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/cpp/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/observation-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/java/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/observation-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/perf-source-toolchain/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/observation-controls-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/postgres-concurrency-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/gate.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/postgres-concurrency-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/go-version.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/postgres-concurrency-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/postgres-concurrency-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/python-quality-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/python-quality-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/reports/web-browser-f1e5b2106d50c06758d2b23066ab010d6f16d5de-1/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/source-equivalence.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-final-36986787573/summary.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/logs/job-110766543706.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/logs/job-110766543791.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/logs/job-110766543826.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/logs/job-110766543888.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/logs/job-110766543932.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/logs/job-110766543950.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/logs/job-110766543956.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/logs/job-110766543965.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/logs/job-110766543974.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/logs/job-110766543997.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/logs/job-110766544017.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/logs/job-110766544025.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/logs/job-110766544048.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/logs/job-110766544107.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/official-ci-merge-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/hotspot-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/go-io-window/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/hotspot-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/hotspot-controls/measurement/go/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/hotspot-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/hotspot-controls/measurement/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/hotspot-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/hotspot-controls/measurement/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/hotspot-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/native-agent-binary-56788a921762abb5a409f608089d6d04ff1e4031-1/ctest.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/observation-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/cpp/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/observation-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/java/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/observation-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/perf-source-toolchain/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/observation-controls-56788a921762abb5a409f608089d6d04ff1e4031-1/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/postgres-concurrency-56788a921762abb5a409f608089d6d04ff1e4031-1/gate.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/postgres-concurrency-56788a921762abb5a409f608089d6d04ff1e4031-1/go-version.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/postgres-concurrency-56788a921762abb5a409f608089d6d04ff1e4031-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/postgres-concurrency-56788a921762abb5a409f608089d6d04ff1e4031-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/python-quality-56788a921762abb5a409f608089d6d04ff1e4031-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/python-quality-56788a921762abb5a409f608089d6d04ff1e4031-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/reports/web-browser-56788a921762abb5a409f608089d6d04ff1e4031-1/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/source-equivalence.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-first-failure-36984571199/summary.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/logs/job-110771145357.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/logs/job-110771145527.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/logs/job-110771145553.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/logs/job-110771145589.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/logs/job-110771145591.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/logs/job-110771145602.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/logs/job-110771145640.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/logs/job-110771145711.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/logs/job-110771145717.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/logs/job-110771145743.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/logs/job-110771145744.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/logs/job-110771145763.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/logs/job-110771145770.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/logs/job-110771145974.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/official-ci-merge-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/hotspot-controls-11143452ae4062491ba619890ddc48e579a3f364-1/go-io-window/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/hotspot-controls-11143452ae4062491ba619890ddc48e579a3f364-1/hotspot-controls/measurement/go/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/hotspot-controls-11143452ae4062491ba619890ddc48e579a3f364-1/hotspot-controls/measurement/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/hotspot-controls-11143452ae4062491ba619890ddc48e579a3f364-1/hotspot-controls/measurement/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/hotspot-controls-11143452ae4062491ba619890ddc48e579a3f364-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/native-agent-binary-11143452ae4062491ba619890ddc48e579a3f364-1/ctest.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/observation-controls-11143452ae4062491ba619890ddc48e579a3f364-1/cpp/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/observation-controls-11143452ae4062491ba619890ddc48e579a3f364-1/java/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/observation-controls-11143452ae4062491ba619890ddc48e579a3f364-1/perf-source-toolchain/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/observation-controls-11143452ae4062491ba619890ddc48e579a3f364-1/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/postgres-concurrency-11143452ae4062491ba619890ddc48e579a3f364-1/gate.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/postgres-concurrency-11143452ae4062491ba619890ddc48e579a3f364-1/go-version.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/postgres-concurrency-11143452ae4062491ba619890ddc48e579a3f364-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/postgres-concurrency-11143452ae4062491ba619890ddc48e579a3f364-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/python-quality-11143452ae4062491ba619890ddc48e579a3f364-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/python-quality-11143452ae4062491ba619890ddc48e579a3f364-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/reports/web-browser-11143452ae4062491ba619890ddc48e579a3f364-1/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/source-equivalence.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/main-second-failure-36986031236/summary.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/artifact-11222302932.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/logs/job-110804324906.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/official-checkout-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack-gates.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/agent-heartbeat.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/agent-runtime-permissions.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/built-images.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-001.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-002.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-003.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-005.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-006.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-007.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-008.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-009.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-010.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-011.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-012.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-013.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-015.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-016.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-017.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-018.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-019.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-020.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-021.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-022.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-023.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-024.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-025.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-026.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-027.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-028.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-029.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-040.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-051.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-052.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-053.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-054.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-058.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-062.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-063.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-064.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-065.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-068.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-069.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/command-072.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/compose-sanitized.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/minio-source-version.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/persisted-chain.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/process-snapshot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/service-readiness.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/sys_metrics.raw.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/target-identity-after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/target-identity-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/task-admission.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/task-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/task-events.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/task-final.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/reports/clean-stack/web-http-contract.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-final-36996499257/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/artifact-11222365313.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/logs/job-110801822296.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/official-checkout-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack-gates.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/agent-heartbeat.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/agent-runtime-permissions.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/built-images.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-001.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-002.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-003.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-005.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-006.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-007.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-008.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-009.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-010.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-011.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-012.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-013.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-015.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-016.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-017.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-018.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-019.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-020.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-021.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-022.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-023.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-024.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-025.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-026.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-027.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-028.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-029.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-040.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-051.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-052.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-053.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-054.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-058.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-062.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-063.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-064.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-065.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-068.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-069.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/command-072.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/compose-sanitized.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/minio-source-version.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/persisted-chain.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/process-snapshot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/service-readiness.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/sys_metrics.raw.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/target-identity-after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/target-identity-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/task-admission.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/task-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/task-events.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/task-final.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/reports/clean-stack/web-http-contract.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/clean-first-36995708512/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/logs/job-110804324269.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/logs/job-110804324490.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/logs/job-110804324504.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/logs/job-110804324518.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/logs/job-110804324551.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/logs/job-110804324567.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/logs/job-110804324571.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/logs/job-110804324596.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/logs/job-110804324634.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/logs/job-110804324644.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/logs/job-110804324657.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/logs/job-110804324718.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/logs/job-110804324739.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/logs/job-110804324796.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/official-ci-merge-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/hotspot-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/go-io-window/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/hotspot-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/hotspot-controls/measurement/go/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/hotspot-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/hotspot-controls/measurement/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/hotspot-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/hotspot-controls/measurement/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/hotspot-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/native-agent-binary-4321aba043be6c2eb36580cf3b00d56c50bda914-1/ctest.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/observation-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/cpp/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/observation-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/java/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/observation-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/perf-source-toolchain/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/observation-controls-4321aba043be6c2eb36580cf3b00d56c50bda914-1/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/postgres-concurrency-4321aba043be6c2eb36580cf3b00d56c50bda914-1/gate.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/postgres-concurrency-4321aba043be6c2eb36580cf3b00d56c50bda914-1/go-version.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/postgres-concurrency-4321aba043be6c2eb36580cf3b00d56c50bda914-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/postgres-concurrency-4321aba043be6c2eb36580cf3b00d56c50bda914-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/python-quality-4321aba043be6c2eb36580cf3b00d56c50bda914-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/python-quality-4321aba043be6c2eb36580cf3b00d56c50bda914-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/reports/web-browser-4321aba043be6c2eb36580cf3b00d56c50bda914-1/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/source-equivalence.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-final-36996499159/summary.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/logs/job-110801822445.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/logs/job-110801822647.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/logs/job-110801822728.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/logs/job-110801822766.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/logs/job-110801822767.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/logs/job-110801822770.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/logs/job-110801822795.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/logs/job-110801822797.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/logs/job-110801822808.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/logs/job-110801822819.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/logs/job-110801822842.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/logs/job-110801822847.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/logs/job-110801822889.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/logs/job-110801822966.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/official-ci-merge-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/hotspot-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/go-io-window/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/hotspot-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/hotspot-controls/measurement/go/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/hotspot-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/hotspot-controls/measurement/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/hotspot-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/hotspot-controls/measurement/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/hotspot-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/native-agent-binary-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/ctest.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/observation-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/cpp/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/observation-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/java/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/observation-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/perf-source-toolchain/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/observation-controls-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/postgres-concurrency-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/gate.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/postgres-concurrency-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/go-version.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/postgres-concurrency-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/postgres-concurrency-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/python-quality-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/python-quality-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/reports/web-browser-4b09a6ec0f593cd54027f0980993dda3969d5cfc-1/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/source-equivalence.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/main-first-failure-36995708503/summary.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/prompt-boundaries/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/artifact-11220526519.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/logs/job-110791470099.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/official-checkout-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack-gates.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/agent-heartbeat.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/agent-runtime-permissions.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/built-images.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-001.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-002.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-003.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-005.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-006.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-007.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-008.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-009.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-010.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-011.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-012.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-013.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-015.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-016.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-017.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-018.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-019.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-020.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-021.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-022.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-023.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-024.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-025.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-026.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-027.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-028.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-029.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-040.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-051.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-052.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-053.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-054.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-058.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-062.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-063.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-064.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-065.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-068.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-069.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/command-072.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/compose-sanitized.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/minio-source-version.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/persisted-chain.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/process-snapshot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/service-readiness.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/sys_metrics.raw.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/target-identity-after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/target-identity-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/task-admission.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/task-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/task-events.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/task-final.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/reports/clean-stack/web-http-contract.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/clean-final-36992014612/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/logs/job-110790163893.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/logs/job-110790164013.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/logs/job-110790164091.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/logs/job-110790164110.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/logs/job-110790164132.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/logs/job-110790164187.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/logs/job-110790164207.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/logs/job-110790164230.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/logs/job-110790164236.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/logs/job-110790164242.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/logs/job-110790164276.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/logs/job-110790164294.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/logs/job-110790164307.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/logs/job-110790165166.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/official-ci-merge-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/hotspot-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/go-io-window/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/hotspot-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/hotspot-controls/measurement/go/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/hotspot-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/hotspot-controls/measurement/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/hotspot-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/hotspot-controls/measurement/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/hotspot-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/native-agent-binary-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/ctest.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/observation-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/cpp/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/observation-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/java/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/observation-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/perf-source-toolchain/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/observation-controls-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/postgres-concurrency-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/gate.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/postgres-concurrency-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/go-version.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/postgres-concurrency-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/postgres-concurrency-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/python-quality-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/python-quality-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/reports/web-browser-d2b5cacfa5ac3bd156736d41e248c7bbc77ebecf-1/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/source-equivalence.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/main-final-36992014614/summary.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/artifact-11220160701.zip` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/logs/job-110788553709.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/official-checkout-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack-gates.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/agent-heartbeat.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/agent-runtime-permissions.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/built-images.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-001.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-002.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-003.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-005.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-006.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-007.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-008.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-009.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-010.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-011.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-012.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-013.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-015.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-016.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-017.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-018.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-019.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-020.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-021.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-022.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-023.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-024.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-025.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-026.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-027.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-028.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-029.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-040.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-051.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-052.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-053.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-054.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-058.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-062.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-063.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-064.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-065.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-068.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-069.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/command-072.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/compose-sanitized.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/minio-source-version.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/persisted-chain.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/process-snapshot.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/service-readiness.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/sys_metrics.raw.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/target-identity-after.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/target-identity-before.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/task-admission.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/task-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/task-events.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/task-final.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/reports/clean-stack/web-http-contract.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-clean-36991509500/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/logs/job-110788553604.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/logs/job-110788553866.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/logs/job-110788553876.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/logs/job-110788554029.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/logs/job-110788554036.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/logs/job-110788554066.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/logs/job-110788554086.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/logs/job-110788554131.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/logs/job-110788554156.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/logs/job-110788554164.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/logs/job-110788554165.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/logs/job-110788554175.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/logs/job-110788554179.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/logs/job-110788555072.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/official-artifacts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/official-ci-merge-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/official-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/official-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/official-source-commit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/hotspot-controls-73130b62473064f3ed3933b236243ecb314b4830-1/go-io-window/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/hotspot-controls-73130b62473064f3ed3933b236243ecb314b4830-1/hotspot-controls/measurement/go/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/hotspot-controls-73130b62473064f3ed3933b236243ecb314b4830-1/hotspot-controls/measurement/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/hotspot-controls-73130b62473064f3ed3933b236243ecb314b4830-1/hotspot-controls/measurement/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/hotspot-controls-73130b62473064f3ed3933b236243ecb314b4830-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/native-agent-binary-73130b62473064f3ed3933b236243ecb314b4830-1/ctest.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/observation-controls-73130b62473064f3ed3933b236243ecb314b4830-1/cpp/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/observation-controls-73130b62473064f3ed3933b236243ecb314b4830-1/java/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/observation-controls-73130b62473064f3ed3933b236243ecb314b4830-1/perf-source-toolchain/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/observation-controls-73130b62473064f3ed3933b236243ecb314b4830-1/python/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/postgres-concurrency-73130b62473064f3ed3933b236243ecb314b4830-1/gate.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/postgres-concurrency-73130b62473064f3ed3933b236243ecb314b4830-1/go-version.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/postgres-concurrency-73130b62473064f3ed3933b236243ecb314b4830-1/python.junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/postgres-concurrency-73130b62473064f3ed3933b236243ecb314b4830-1/runtime.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/python-quality-73130b62473064f3ed3933b236243ecb314b4830-1/python-all/junit.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/python-quality-73130b62473064f3ed3933b236243ecb314b4830-1/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/reports/web-browser-73130b62473064f3ed3933b236243ecb314b4830-1/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/source-equivalence.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/ci/subject-boundaries/prepared-main-36991509506/summary.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/activation.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/apply_measured_capacity.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load` |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/capture_capacity.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final-publication-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final-release-r3/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final-release-r3/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final-release-r3/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final-release-r3/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final-release-r3/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final-release-r3/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final-release-r3/web-build.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final-runtime-predeployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/activation_r5.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/final-release-r4/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/final-release-r4/web-build.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/final-release-r5/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/final-release-r5/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/final-release-r5/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/final-release-r5/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/final-release-r5/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/final-release-r5/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/final-release-r5/release-tag.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/final-release-r5/source-head.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/final-release-r5/web-build.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/followup-scoped-candidate.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/immediate_baseline_r5.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/measure_r5_capacity.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load` |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/preflight_r5.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load_helper`、`provider`、`tls_client`、`runtime_baseline`、`verify_public_baseline` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/prepare_release_r5.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `digest`、`git`、`git_files`、`owned_target`、`write_blob` 等 9 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/r5-measured-deployment-capacity.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/r5-publication-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/r5-runtime-preactivation.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/r5-runtime-predeployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/subject-final-scoped-candidate.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/final/verify_runtime_r5.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/fix_mount_comparison.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/immediate-runtime-preactivation.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/immediate_baseline.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/initial-live-baseline.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/measured-deployment-capacity.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/preactivation-mount-order-failure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/preflight-fixed-threshold-failure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/preflight.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load_helper`、`provider`、`tls_client`、`runtime_baseline`、`verify_public_baseline` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prepare_release.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `digest`、`git`、`git_files`、`owned_target`、`write_blob` 等 9 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/activation_r7.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/final-release-r7/ci-jobs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/final-release-r7/ci-run.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/final-release-r7/deploy_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `output`、`inspect`、`save_private`、`health`、`switch` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/final-release-r7/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/final-release-r7/platform-deployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/final-release-r7/platform-deployment.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/final-release-r7/release-tag.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/final-release-r7/source-head.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/final-release-r7/web-build.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/followup-scoped-candidate.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/immediate_baseline_r7.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/measure_r7_capacity.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load` |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/preflight_r7.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load_helper`、`provider`、`tls_client`、`runtime_baseline`、`verify_public_baseline` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/prepare_release_r7.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `digest`、`git`、`git_files`、`owned_target`、`write_blob` 等 9 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/prompt-final-scoped-candidate.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/r7-measured-deployment-capacity.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/r7-publication-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/r7-runtime-preactivation.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/r7-runtime-predeployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/subject-final-scoped-candidate.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/prompt-final/verify_runtime_r7.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/deployment/verify_runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/evaluator-source.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha`、`canonical`、`behavior_digest`、`public_only`、`validate_freeze` 等 19 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/freeze.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/implementation-source.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/provider.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v01.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v02.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v03.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v04.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v05.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v06.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v07.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v08.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v09.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v10.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v11.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v12.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v13.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v14.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v15.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v16.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v17.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v18.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v19.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v20.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v21.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v22.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v23.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/records/v24.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v01.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v02.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v03.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v04.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v05.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v06.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v07.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v08.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v09.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v10.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v11.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v12.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v13.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v14.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v15.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v16.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v17.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v18.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v19.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v20.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v21.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v22.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v23.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/first-run/requests/v24.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/freeze/planning_retrieval_v2_manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/freeze/planning_retrieval_v2_private.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/freeze/planning_retrieval_v2_public.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/historical-arithmetic-diagnostic/diagnose_historical_arithmetic.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `naive_sum`、`stable_sum` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/historical-arithmetic-diagnostic/python313.jsonl` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/historical-arithmetic-diagnostic/python314.jsonl` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/historical-arithmetic-diagnostic/receipt.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/implementation-source.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/provenance.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v01.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v02.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v03.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v04.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v05.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v06.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v07.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v08.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v09.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v10.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v11.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v12.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v13.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v14.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v15.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v16.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v17.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v18.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v19.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v20.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v21.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v22.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v23.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/records/v24.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/hybrid-first-run/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/analyzer/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/analyzer/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/analyzer/config.example.toml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/analyzer/mini_drop_analyzer/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/analyzer/mini_drop_analyzer/hotmethod_analyzer.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` 等 15 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/analyzer/mini_drop_analyzer/pprof_analyzer.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load_profile`、`stack_frames`、`analyze_profile`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/analyzer/mini_drop_analyzer/profile.proto` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `Profile`、`ValueType`、`Sample`、`Label`、`Mapping` 等 8 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/analyzer/mini_drop_analyzer/profile_pb2.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/analyzer/mini_drop_analyzer/pyspy_analyzer.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load_speedscope`、`analyze_speedscope`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/analyzer/scripts/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/analyzer/scripts/cddl1.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/analyzer/scripts/flamegraph.pl` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/analyzer/scripts/stackcollapse-perf.pl` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/diagnosis-v2/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/diagnosis-v2/private/oracles.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/diagnosis-v2/public/cases.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/diagnosis-v2/sources.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/evaluation-suite/dataset.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/evaluation-suite/dataset.xlsx` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/retrieval/heldout_20261002_frozen_inputs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/retrieval/heldout_20261002_manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/retrieval/heldout_20261002_private.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/retrieval/heldout_20261002_public.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/retrieval/planning_retrieval_v2_manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/retrieval/planning_retrieval_v2_private.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/retrieval/planning_retrieval_v2_public.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/retrieval/sre_queries.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/root-cause-v1/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/root-cause-v1/private/oracles.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/benchmarks/root-cause-v1/public/cases.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/contracts/business_test_plan.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/contracts/engineering_cases.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/contracts/engineering_diagnosis.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/contracts/error-codes.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/contracts/interview_delivery.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/contracts/performance_audit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/contracts/quality_plan.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/contracts/task-statuses.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/contracts/taskkinds.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/knowledge/agent_experiments.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/knowledge/agent_tool_governance.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/knowledge/catalog.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/knowledge/cgroup_cpu.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/knowledge/distributed_attribution.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/knowledge/go_profiles.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/knowledge/jvm_gc.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/knowledge/latency_measurement.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/knowledge/linux_cpu.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/knowledge/linux_iowait.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/knowledge/linux_memory.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/knowledge/memory_pressure.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/knowledge/mysql_lock_wait.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/knowledge/postgres_waits.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/knowledge/python_sampling.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/knowledge/rag_quality.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/knowledge/sre_recovery.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/knowledge/tcp_retransmit.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/audit_fault_plaza_failures.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `evaluate_recorded_lineage`、`audit_case`、`build_audit`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/benchmark_profile_aggregation.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/bootstrap_object_store.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/build_agi_saber_ingest_patch.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/build_ai_diagnosis_test_report_docx.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `set_cell_shading`、`set_cell_margins`、`set_repeat_table_header`、`prevent_row_split`、`set_repeat_header_text` 等 16 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/build_business_acceptance_view.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `verified`、`build` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/build_engineering_case_index.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `evidence`、`junit`、`evaluate_case`、`build`、`generate` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/build_engineering_diagnosis.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `generate`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/build_fault_plaza_acceptance_index.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `verified_json`、`build` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/build_interview_delivery.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `pinned`、`generate`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/build_knowledge_index.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/build_performance_audit.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `generate`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/capture_learning_guide_screenshots.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `find_browser`、`Cdp`、`wait_for_devtools`、`wait_for_page`、`click_text` 等 10 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/check_business_test_plan.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `validate`、`affected` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/check_openapi_routes.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` 等 8 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/check_web_bundle.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/check_worker_compatibility.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/engineering_profile_observation.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `finite`、`measured_runtime_profile` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/evaluate_engineering_diagnosis.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `evaluate_engineering_case` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/evaluate_heldout_diagnosis.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha`、`canonical`、`normalize_query`、`assert_no_oracle`、`frozen_inputs` 等 20 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/evaluate_performance_localization.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `evaluate_localization_reports` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/evaluate_planning_retrieval_v2.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha`、`canonical`、`behavior_digest`、`public_only`、`validate_freeze` 等 19 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/evaluate_same_load_business_fix.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `evaluate`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/evaluate_sre_retrieval.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/generate_business_contracts.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/generate_cancellation_contract.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/generate_diagnosis_benchmark_v2.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `build`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/generate_error_code_contracts.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/generate_learning_guide_file_index.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `topic_for`、`describe`、`current_files`、`directory_description`、`symbols` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/generate_root_cause_benchmark.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `build`、`main` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/generate_service_request_contract.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/generate_status_contracts.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/generate_taskkind_contracts.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` 等 10 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/inspect_cloud_python_sampling.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `inspect`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/local_sre.ps1` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/package_skill_evolution_delivery.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `build`、`main` 等 9 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/package_sre_release.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/prepare-control-ssh.ps1` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/process_resource_monitor.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `summarize_resources`、`ResourceMonitor` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/release_knowledge_cloud.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/release_sre_cloud.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run`、`inspect`、`save`、`compose`、`healthy` 等 10 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/render_actual_rag_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/render_business_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `render` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/render_fault_plaza_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `render` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/render_learning_guide.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `build` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/render_load_report.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `figure`、`html`、`render` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/reproduce_parallel_timing_defect.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `reproduce` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/run_actual_rag_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `get`、`measure`、`run` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/run_business_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `write_json`、`measure`、`aggregate_repeats`、`run` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/run_diagnosis_benchmark_v2.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/run_distributed_endurance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `machine_identity`、`sources`、`validate_identity`、`validate_windows`、`verify_distributed` 等 10 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/run_dual_format_benchmark.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `generate_dataset_files`、`generate_evaluation_reports`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/run_engineering_diagnosis_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `download_artifacts`、`run_case`、`run_campaign` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/run_fault_plaza_closure_campaign.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run_scenario`、`run_campaign`、`main` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/run_fault_plaza_strict_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `now`、`RecordingClient`、`measure`、`evaluate_window_identity`、`evaluate_intervention` 等 10 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/run_live_skill_ab_campaign.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `Client`、`run_one`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/run_load_endurance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `Plan`、`write_json`、`percentile`、`summarize`、`capacity_summary` 等 12 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/run_multi_cloud_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `Client`、`items_of`、`compact`、`select_process`、`run_agent` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/run_quality_gate.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `utc_now`、`digest`、`load_plan`、`read_junit`、`read_go_json` 等 12 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/run_root_cause_benchmark.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/run_scaled_skill_ab.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/same_load_rag_fix_fixture.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load`、`emit`、`identity`、`measure`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/setup_local_sre.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/start_demo_wsl.ps1` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_actual_rag_search.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `verify` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_backup_restore.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_backup_restore.sh` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_clean_stack.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `AcceptanceError`、`require`、`sha`、`validate_key_stat`、`validate_minio_source` 等 17 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_cloud_sre.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_cloud_sre_browser.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_external_acceptance.sh` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_fault_plaza_runtime_smoke.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run_smoke`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_final_ui_acceptance.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_frontend_workbench.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_go_io_window.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `window_average`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_historical_heldout.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha`、`historical_numeric_sum`、`restored_inputs`、`historical_verifier_bytes`、`historical_test_scope` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_hotspot_controls.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `write`、`api`、`pprof_result`、`evaluate`、`cpu_window` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_interview_demo.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `AcceptanceError`、`Client`、`items_of`、`run_acceptance`、`main` 等 24 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_lats_replay_showcase.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `AcceptanceError`、`Client`、`main` 等 9 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_load_report.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `fail`、`finite`、`verify` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_local_sre.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `collection_chain_checks`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_local_sre_browser.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_multi_replica.sh` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_native_ebpf.sh` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_perf_source_toolchain.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha256`、`command`、`parse_hotspot_symbol`、`parse_source_mapping`、`check_in_container` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_priority_collectors.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run_acceptance`、`main` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_report_presentation_ui.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_runtime_observation_controls.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `counter_window`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/scripts/verify_semantic_retrieval.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/_env.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `_find_env_file`、`_is_docker`、`_load_dotenv` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/agent_runtime/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/agent_runtime/chroma_http.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `BoundedClient`、`bounded_http_client` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/agent_runtime/context.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `trusted_json_default`、`trusted_context_json`、`normalize_trusted_context`、`bounded_tail` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/agent_runtime/deadlines.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `remaining_seconds`、`probe_deadline_check`、`planning_seconds` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/agent_runtime/grafana_observations.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `query_service_observations` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/agent_runtime/harness.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `safe_scope_candidates`、`selected_authorized_candidate` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/agent_runtime/incident_memory.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `recall_incidents` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/agent_runtime/investigation_strategy.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `select_react_candidate` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/agent_runtime/memory.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `project_investigation_memory`、`load_investigation_memory`、`AgentMemoryPolicy` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/agent_runtime/model_factory.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `create_chat_model` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/agent_runtime/planning_output.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `PlanningHypothesis`、`PlanningOutput`、`validate_planning_output`、`planning_output_schema` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/agent_runtime/relevance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `query_profile`、`curated_anchor_text`、`concept_score`、`assess_relevance`、`relevance_audit` 等 8 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/agent_runtime/retrieval.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `retrieve_knowledge`、`build_retrieval_trace` 等 11 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/agent_runtime/runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `RuntimeDescriptor` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/agent_runtime/semantic_retrieval.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `RetrievalUnavailable`、`RetrievalSettings`、`SemanticProvider`、`corpus`、`snapshot_name` 等 11 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/agent_runtime/themes.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `diagnosis_system_prompt`、`scope_system_prompt` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/ai_provider.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ModelBoundaryError`、`AISettings`、`get_ai_settings`、`is_feature_enabled`、`chat_completions` 等 17 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/analysis_jobs.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `analysis_error_code`、`artifact_input_checksum`、`enqueue_artifact_analysis`、`ProcessResult`、`AnalyzerOutput` 等 16 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/analyzer_runner.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `AnalyzerQualityError`、`AnalyzerCommandError`、`analyze_raw_perf_artifacts`、`analyze_continuous_perf_bundle`、`analyze_pprof_artifacts` 等 30 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/artifact_contracts.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `CollectorArtifactContract`、`ArtifactContractError`、`ArtifactQualityError`、`get_collector_contract` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/artifact_integrity.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ArtifactIntegrityError`、`hash_chunks`、`hash_file`、`normalize_sha256`、`prepare_artifact` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/artifact_lifecycle.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `classify_family`、`retention_days`、`ArtifactReconciliation`、`reconcile_artifacts`、`list_expired_artifacts` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/common_utils.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `env_bool`、`status_value` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/database.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `init_db`、`new_session`、`reset_engine` 等 9 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/diagnosis_worker.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `DiagnosisWorker`、`main` 等 10 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/diagnostic_ai_rpc.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `dispatch`、`DiagnosticAIService`、`add_diagnostic_ai_service`、`start_diagnostic_ai_server` 等 11 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/adaptive_planner.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `propose_hypothesis_plan` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/artifact_evidence.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ArtifactEvidenceAssessment`、`assess_artifact_evidence`、`extract_sample_count` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/benchmark_v2.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `canonical_sha256`、`load_json`、`evaluate_skill_reuse` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/bottleneck_localization.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `localize_verified_observation` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/builtin_skills.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load_repository_skill_instructions`、`load_repository_skill_definitions`、`seed_repository_skills` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/business_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `Contract`、`Workload`、`RequestOutcome`、`MeasurementWindow`、`AcceptancePolicy` 等 8 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/business_observations.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `OfficeObservation`、`GatewayObservation`、`recent_observations`、`resolve_observation`、`diagnosis_context` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/business_showcase.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `get_business_acceptance` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/campaign_matrix.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `validate_collector_reports`、`build_campaign_admission` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/claim_verifier.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `resolve_json_pointer`、`evidence_ref_to_json_pointer`、`verify_report_claims`、`verify_legacy_report_claims`、`generate_sre_remediation_advice` 等 13 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/cpu_criteria.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `process_cpu_thresholds`、`cpu_utilization_hypothesis`、`cpu_observation_plan`、`compile_cpu_observation_contract`、`cpu_plan_validation_error` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/diagnosis_agent.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `DiagnosisAgentContext`、`search_knowledge`、`read_knowledge_chunk`、`search_incident_memory`、`query_service_observations` 等 39 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/event_store.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `_append_event`、`_event_semantic_scope`、`_freeze_event_value`、`_latest_semantic_event_has_payload`、`_enqueue_diagnosis_event` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/evidence.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `observed_nonnegative`、`observed_count`、`StrictModel`、`EvidenceSource`、`EvidenceScope` 等 10 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/exploration_tree.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `get_live_exploration_tree` 等 11 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/fault_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `latest_acceptance` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/fault_plaza.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `FaultScenario`、`FaultPlazaError`、`get_fault_plaza`、`start_fault_scenario`、`stop_fault_scenario` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/fix_verification.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `compare_before_after`、`verify_diagnosis_fix`、`list_fix_verifications` 等 8 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/frozen_replay_showcase.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `FrozenReplayShowcaseNotFound`、`FrozenReplayManifestError`、`get_frozen_replay_catalog`、`start_frozen_replay_run`、`advance_frozen_replay_showcases` 等 19 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/health_assessment.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `assess_health_window` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/hypothesis_predicate.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `_invalid_numeric_observation`、`_structured_signal_predicate`、`_criterion_text_indexes`、`_process_cpu_control`、`_compute_hypothesis_predicate` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/lats.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `LATSConfig`、`FrozenReplayObservationProvider`、`execution_semantics`、`stable_candidate_key`、`prepare_candidates` 等 24 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/managed_services.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/managed_services.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `StartServiceDiagnosis`、`catalog`、`list_managed_services`、`start_service_diagnosis` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/observation_verifier.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `verify_performance_observation` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/operator_memory.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `list_operator_preferences`、`put_operator_preference`、`delete_operator_preference`、`load_safe_agent_preferences` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/performance_criteria.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `performance_observation_plan`、`parse_performance_criterion`、`evaluate_performance_criterion` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/policy.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `PolicyContext`、`evaluate_tool_call` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/rcaeval_benchmark.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `PrivateCase`、`TelemetrySignature`、`RouteSkill`、`Prediction`、`SkillGate` 等 28 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/report_conclusion.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `_ObservationFinding`、`_derive_report_conclusion`、`_concrete_report_finding`、`_derive_next_actions` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/retrieval_benchmark.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load_benchmark`、`run_benchmark` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/root_cause_benchmark.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `evaluate_controlled_root_causes`、`report_sha256` 等 16 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/rounds.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `selection_iteration_by_hypothesis`、`effective_round_by_hypothesis`、`report_execution_rounds` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/scaled_skill_ab.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ScaledCase`、`assign_ab_arm`、`expand_catalog`、`evaluate_scaled_ab`、`calibrate_retrieval_gates` 等 12 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/schemas.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `StrictModel`、`CancelDiagnosisRequest`、`DiagnosticTarget`、`DiagnosticTimeRange`、`DiagnosisBudget` 等 30 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/service.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `discover_target_candidates`、`resolve_diagnosis_scope_autonomously`、`create_diagnosis`、`open_effective_time_range`、`finalize_effective_time_range` 等 136 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/showcase.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `get_mentor_complex_showcase`、`list_showcase_diagnostic_cases`、`get_showcase_diagnostic_case` 等 8 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/signal_window_validation.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `validate_signal_window` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/skill_benchmark.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `BenchmarkObservation`、`validate_benchmark_dataset`、`compare_benchmark_runs` 等 12 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/skill_evolution.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `list_skills`、`get_skill`、`create_candidate_from_diagnosis`、`evaluate_skill`、`record_campaign_validation` 等 35 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/skill_experiments.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `create_experiment`、`list_experiments`、`get_experiment`、`assign_experiment_diagnosis`、`record_experiment_outcome` 等 13 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/source_mapper.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `configured_source_roots`、`map_hot_functions` 等 19 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/drop_insight/tools.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/generated/.gitignore` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/generated/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/generated/diagnostic_ai_pb2.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/generated/diagnostic_ai_pb2_grpc.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/generated/error_code_contract.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/generated/status_contract.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/generated/taskkind_contract.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/kernel_compatibility.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `CollectorSupport`、`kernel_tuple`、`evaluate_kernel_support` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/logging_utils.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `bind_traceparent`、`reset_traceparent`、`current_traceparent`、`current_trace_id`、`log_event` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/metric_analyzers.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `analyze_sys_metrics_artifacts`、`analyze_memory_artifacts`、`analyze_ebpf_io_artifacts`、`summarize_application_metric_window` 等 27 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/models.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `Base`、`AgentModel`、`ProcessCandidateSnapshotModel`、`ProcessCandidateModel`、`TaskModel` 等 35 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/outbox_dispatcher.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `OutboxDispatcher` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/process_attestation.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ProcessSnapshotState`、`ProcessCandidateInput`、`ProcessCandidateSnapshotInput`、`ProcessIdentityBinding`、`ResolvedProcessCandidate` 等 16 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/repositories/agent_repo.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `AgentMixin` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/repositories/analysis_job_repo.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `AnalysisJobMixin` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/repositories/artifact_repo.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ArtifactMixin` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/repositories/outbox_repo.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `OutboxMixin` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/repositories/task_repo.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `TaskMixin` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/schemas.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `APIResponse`、`AgentRegistration`、`AgentMetrics`、`ProcessIdentityBindingRequest`、`CreateTaskRequest` 等 9 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/sql_repository.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `SqlRepository` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/state_machine.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `TaskStatus`、`Actor`、`StatusEvent`、`now_utc`、`validate_transition` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/storage.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ensure_bucket`、`bucket_available`、`upload_file`、`read_object_bytes`、`stream_object` 等 11 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/app/task_attempt_authority.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `TaskDispatch`、`AuthorizedTaskAttempt`、`generate_task_attempt_authority`、`task_attempt_authority_sha256`、`verify_task_attempt_authority` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/migrations/env.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run_migrations_offline`、`run_migrations_online` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/migrations/script.py.mako` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/migrations/versions/20260813_0012_legacy_adoption_marker.py` | Alembic 迁移：20260813 0012 legacy adoption marker。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/migrations/versions/20260901_0001_current_baseline.py` | Alembic 迁移：20260901 0001 current baseline。 | `upgrade`、`downgrade` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/migrations/versions/20260901_0002_legacy_runtime_columns.py` | Alembic 迁移：20260901 0002 legacy runtime columns。 | `upgrade`、`downgrade` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/migrations/versions/20260901_0003_tool_call_terminal_timestamp.py` | Alembic 迁移：20260901 0003 tool call terminal timestamp。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/migrations/versions/20260901_0004_legacy_runtime_constraints.py` | Alembic 迁移：20260901 0004 legacy runtime constraints。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/migrations/versions/20260901_0005_task_updated_at.py` | Alembic 迁移：20260901 0005 task updated at。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/migrations/versions/20260901_0006_diagnosis_skill_policy.py` | Alembic 迁移：20260901 0006 diagnosis skill policy。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/migrations/versions/20260908_0007_experiments_and_operator_memory.py` | Alembic 迁移：20260908 0007 experiments and operator memory。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/original-source/server/migrations/versions/20260910_0008_agent_latest_metrics.py` | Alembic 迁移：20260910 0008 agent latest metrics。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/deployed-corpus-raw-identity-r3.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/diagnose_hybrid_doc_hash.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/evaluation-clean-source-r3.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/execution-completed-r3.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/hybrid-first-run-r3.stderr.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/hybrid-first-run-r3.stdout.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/hybrid-independent-review-r3.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/initial-hybrid-raw-identity-audit-failure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/inspect_remote_corpus_r3.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/model-first-run-r3.stderr.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/model-first-run-r3.stdout.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/model-independent-review-r3.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/model-verify-clean-r3.stderr.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/model-verify-clean-r3.stdout.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/preimplementation-freeze.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/provider-budget-started-r3.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/public-noanswer-boundary-findings.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/source-receipt-preflight-r3.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/evaluation/receipts/verify_hybrid_receipts_r3.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `verify` |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial-task-counts/counts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial-task-counts/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/helpers/browser_planning_smoke.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/helpers/browser_planning_smoke.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/helpers/live_planning_smoke.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `helper`、`save`、`deployed_guard`、`collect`、`target_inventory` 等 8 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/helpers/live_runtime_audit.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r1/expected.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r1/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/current-engineering-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/current-engineering-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/current-engineering-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/current-engineering-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/expected.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/missing-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/missing-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/missing-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/missing-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/rag-missing-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/rag-missing-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/rag-missing-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/rag-missing-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/rag-normal-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/rag-normal-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/rag-normal-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/rag-normal-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/rag-refused-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/rag-refused-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/rag-refused-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/rag-refused-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/refused-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/refused-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/refused-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/refused-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-browser-r2/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-runtime-audit-r3.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/deployment-witness.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/missing/after-cleanup.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/missing/cleanup-cancellation.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/missing/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/missing/discovery.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/missing/request.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/missing/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/normal/after-cleanup.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/normal/cleanup-cancellation.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/normal/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/normal/discovery.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/normal/request.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/normal/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/refused/after-cleanup.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/refused/cleanup-cancellation.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/refused/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/refused/discovery.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/refused/request.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/refused/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r1/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r2/deployment-witness.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r2/missing/request.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r2/missing/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r2/normal/request.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r2/normal/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r2/refused/request.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r2/refused/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r2/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r2/target-inventory.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/deployment-witness.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/missing/binding-selection.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/missing/bound.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/missing/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/missing/discovery.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/missing/planner-response.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/missing/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/missing/request.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/missing/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/normal/after-cleanup.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/normal/binding-selection.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/normal/bound.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/normal/cleanup-cancellation.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/normal/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/normal/discovery.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/normal/planner-response.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/normal/progress-events.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/normal/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/normal/request.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/normal/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/refused/binding-selection.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/refused/bound.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/refused/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/refused/discovery.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/refused/planner-response.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/refused/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/refused/request.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/refused/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-smoke-r3/target-inventory.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/live-target-inventory.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/initial/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/current-engineering-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/current-engineering-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/current-engineering-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/current-engineering-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/expected.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/missing-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/missing-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/missing-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/missing-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/rag-missing-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/rag-missing-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/rag-missing-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/rag-missing-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/rag-normal-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/rag-normal-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/rag-normal-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/rag-normal-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/rag-refused-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/rag-refused-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/rag-refused-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/rag-refused-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/refused-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/refused-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/refused-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/refused-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/browser/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/checkpoint-audit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/helpers/archive_post_isolation.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `digest`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/helpers/attribute_normal_timeouts.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/helpers/browser_planning_smoke.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/helpers/browser_planning_smoke.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/helpers/live_planning_smoke.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `helper`、`save`、`deployed_guard`、`collect`、`target_inventory` 等 9 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/helpers/live_runtime_audit.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/helpers/verify_legacy_checkpoint_preservation.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/normal-smoke/deployment-witness.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/normal-smoke/normal/after-cleanup.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/normal-smoke/normal/binding-selection.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/normal-smoke/normal/bound.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/normal-smoke/normal/cleanup-cancellation.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/normal-smoke/normal/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/normal-smoke/normal/discovery.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/normal-smoke/normal/planner-response.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/normal-smoke/normal/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/normal-smoke/normal/request.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/normal-smoke/normal/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/normal-smoke/persisted-task-counts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/normal-smoke/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/normal-smoke/target-inventory.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/old-checkpoints-preserved.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/publication-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/release-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/source-pins.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/timeout-attribution-raw.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-isolation/timeout-attribution.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/current-engineering-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/current-engineering-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/current-engineering-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/current-engineering-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/expected.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/missing-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/missing-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/missing-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/missing-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/rag-missing-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/rag-missing-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/rag-missing-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/rag-missing-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/rag-normal-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/rag-normal-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/rag-normal-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/rag-normal-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/rag-refused-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/rag-refused-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/rag-refused-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/rag-refused-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/refused-1024.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/refused-1440.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/refused-375.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/refused-768.png` | 可视化/截图静态资源；结合引用位置与拍摄日期解释，不是可执行业务代码。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/browser/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/checkpoint-audit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/helpers/archive_post_prompt.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `digest`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/helpers/browser_planning_smoke.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/helpers/browser_planning_smoke.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/helpers/live_planning_smoke.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `helper`、`save`、`deployed_guard`、`collect`、`target_inventory` 等 9 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/helpers/live_runtime_audit.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/normal-smoke/deployment-witness.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/normal-smoke/normal/after-cleanup.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/normal-smoke/normal/binding-selection.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/normal-smoke/normal/bound.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/normal-smoke/normal/created.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/normal-smoke/normal/discovery.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/normal-smoke/normal/planner-response.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/normal-smoke/normal/records.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/normal-smoke/normal/request.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/normal-smoke/normal/result.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/normal-smoke/persisted-task-counts.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/normal-smoke/summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/normal-smoke/target-inventory.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/publication-verification.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/release-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/live/post-prompt/source-pins.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/canonical-ast-fix-gates.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/evaluation-gates-final1.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/evaluation-gates-final2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/evaluation-gates.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/historical-arithmetic-diagnostic/receipt.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/historical-arithmetic-fix-gates.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/lexical-development-final.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/lexical-development-first.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/planning-first.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/planning-related-final.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/planning-related-r3.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/planning-related-r4.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/planning-related-r5.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/planning-related-r6.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/planning-v2-first.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/planning-v2-r2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/archive_prompt_boundaries.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/clean/docs/AGENT_RUNTIME.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/clean/server/app/agent_runtime/planning_output.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `PlanningHypothesis`、`PlanningOutput`、`validate_planning_output`、`planning_output_schema` |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/clean/server/app/agent_runtime/runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `checkpoint_thread_id`、`RuntimeDescriptor` |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/clean/server/app/agent_runtime/themes.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `diagnosis_system_prompt`、`scope_system_prompt` |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/clean/server/app/drop_insight/adaptive_planner.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `propose_hypothesis_plan` |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/clean/server/app/drop_insight/diagnosis_agent.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `DiagnosisAgentContext`、`search_knowledge`、`read_knowledge_chunk`、`search_incident_memory`、`query_service_observations` 等 39 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/clean/server/app/drop_insight/performance_criteria.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `performance_observation_plan`、`parse_performance_criterion`、`evaluate_performance_criterion` |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/clean/tests/test_disposition_first_prompts.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `executed_finish`、`test_rejected_plan_can_correct_to_each_stop_state_without_probe_or_extra_turn`、`test_noninvestigation_success_stops_after_one_correlated_finish`、`test_timeout_is_not_reinterpreted_as_normal_or_retried`、`test_investigation_numeric_and_collection_failure_gates_survive_prompt_revision` |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/prepare_four_state_prompts.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `once`、`transform`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/pytest.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/pytest.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/ruff.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-boundaries/source-candidates.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-literal-compatibility/archive_prompt_literal_compatibility.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-literal-compatibility/clean/diagnosis_agent.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `DiagnosisAgentContext`、`search_knowledge`、`read_knowledge_chunk`、`search_incident_memory`、`query_service_observations` 等 39 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-literal-compatibility/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-literal-compatibility/original-ci-failure-summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-literal-compatibility/original-ci-failure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-literal-compatibility/prepare_prompt_literal_compatibility.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-literal-compatibility/pytest.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-literal-compatibility/ruff.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/prompt-literal-compatibility/source-candidates.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/python-full.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/python-full.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/retrieval-implementation-review.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/retrieval-new-gates-isolated.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/retrieval-new-gates.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/retrieval-regression.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/exposed-public5-subject-final-r2-exact.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/exposed-public5-subject-v2-final-exact.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/exposed-public5-subject-v2-final.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/exposed-public5-subject-v2.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/lexical-development-subject-v2-final-r2.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/lexical-development-subject-v2-final.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/lexical-development-subject-v2.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/public-noanswer-boundary-findings.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/retrieval-subject-final-r2.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/retrieval-subject-final-source-map.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/retrieval-subject-final.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/retrieval-subject-first.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/retrieval-subject-second.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/retrieval-subject-source-map.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/retrieval-subject-third.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/status.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/subject-final-r2-map.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/subject-boundaries/subject-r2-clean-ruff.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/v2-arithmetic-fix-gates.xml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/web-full-bounded-workers.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/local/web-full.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/publication/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/publication/archive_final_delivery_materials.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/publication/build_final_evidence_manifest.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `read`、`generate`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/publication/final-document-review.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/publication/final-document-source-map.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/publication/final-generator-source-map.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/publication/final-readonly-document-audit-postdeployment.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/publication/final-readonly-document-audit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/publication/finalize_delivery_docs.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `git`、`read`、`pin`、`module`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/publication/prepare_final_generator.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `transform` |
+| `reports/quality/planning-retrieval-v2-20261002/publication/stage_final_delivery.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `git`、`sha`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/EXPOSURE.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/archive-manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25.stderr.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25.stdout.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/implementation-source.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/provenance.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v01.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v02.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v03.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v04.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v05.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v06.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v07.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v08.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v09.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v10.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v11.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v12.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v13.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v14.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v15.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v16.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v17.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v18.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v19.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v20.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v21.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v22.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v23.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/records/v24.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/bm25/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/deployed-corpus-identity.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid.stderr.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid.stdout.log` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/implementation-source.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/provenance.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v01.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v02.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v03.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v04.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v05.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v06.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v07.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v08.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v09.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v10.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v11.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v12.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v13.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v14.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v15.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v16.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v17.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v18.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v19.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v20.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v21.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v22.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v23.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/records/v24.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/hybrid/report.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/independent-audit-initial-contract-failure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/independent-audit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/receipts/evaluation-clean-source-r5.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/receipts/exact-source.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/receipts/precommit-evaluation-not-executed.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/receipts/run_exposed_retrieval_regression.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `write`、`copy_tree`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/receipts/source-receipt-preflight-r5.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/receipts/verify_exposed_retrieval_regression.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/regression-summary.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/analyzer/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/analyzer/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/analyzer/config.example.toml` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/analyzer/mini_drop_analyzer/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/analyzer/mini_drop_analyzer/hotmethod_analyzer.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` 等 15 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/analyzer/mini_drop_analyzer/pprof_analyzer.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load_profile`、`stack_frames`、`analyze_profile`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/analyzer/mini_drop_analyzer/profile.proto` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `Profile`、`ValueType`、`Sample`、`Label`、`Mapping` 等 8 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/analyzer/mini_drop_analyzer/profile_pb2.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/analyzer/mini_drop_analyzer/pyspy_analyzer.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load_speedscope`、`analyze_speedscope`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/analyzer/scripts/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/analyzer/scripts/cddl1.txt` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/analyzer/scripts/flamegraph.pl` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/analyzer/scripts/stackcollapse-perf.pl` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/diagnosis-v2/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/diagnosis-v2/private/oracles.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/diagnosis-v2/public/cases.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/diagnosis-v2/sources.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/evaluation-suite/dataset.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/evaluation-suite/dataset.xlsx` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/retrieval/heldout_20261002_frozen_inputs.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/retrieval/heldout_20261002_manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/retrieval/heldout_20261002_private.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/retrieval/heldout_20261002_public.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/retrieval/planning_retrieval_v2_manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/retrieval/planning_retrieval_v2_private.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/retrieval/planning_retrieval_v2_public.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/retrieval/sre_queries.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/root-cause-v1/manifest.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/root-cause-v1/private/oracles.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/benchmarks/root-cause-v1/public/cases.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/contracts/business_test_plan.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/contracts/engineering_cases.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/contracts/engineering_diagnosis.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/contracts/error-codes.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/contracts/interview_delivery.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/contracts/performance_audit.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/contracts/quality_plan.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/contracts/task-statuses.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/contracts/taskkinds.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/knowledge/agent_experiments.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/knowledge/agent_tool_governance.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/knowledge/catalog.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/knowledge/cgroup_cpu.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/knowledge/distributed_attribution.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/knowledge/go_profiles.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/knowledge/jvm_gc.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/knowledge/latency_measurement.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/knowledge/linux_cpu.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/knowledge/linux_iowait.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/knowledge/linux_memory.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/knowledge/memory_pressure.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/knowledge/mysql_lock_wait.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/knowledge/postgres_waits.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/knowledge/python_sampling.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/knowledge/rag_quality.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/knowledge/sre_recovery.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/knowledge/tcp_retransmit.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/audit_fault_plaza_failures.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `evaluate_recorded_lineage`、`audit_case`、`build_audit`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/benchmark_profile_aggregation.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/bootstrap_object_store.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/build_agi_saber_ingest_patch.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/build_ai_diagnosis_test_report_docx.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `set_cell_shading`、`set_cell_margins`、`set_repeat_table_header`、`prevent_row_split`、`set_repeat_header_text` 等 16 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/build_business_acceptance_view.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `verified`、`build` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/build_engineering_case_index.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `evidence`、`junit`、`evaluate_case`、`build`、`generate` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/build_engineering_diagnosis.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `generate`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/build_fault_plaza_acceptance_index.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `verified_json`、`build` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/build_interview_delivery.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `pinned`、`generate`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/build_knowledge_index.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/build_performance_audit.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `generate`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/capture_learning_guide_screenshots.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `find_browser`、`Cdp`、`wait_for_devtools`、`wait_for_page`、`click_text` 等 10 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/check_business_test_plan.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `validate`、`affected` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/check_openapi_routes.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` 等 8 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/check_web_bundle.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/check_worker_compatibility.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/engineering_profile_observation.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `finite`、`measured_runtime_profile` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/evaluate_engineering_diagnosis.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `evaluate_engineering_case` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/evaluate_heldout_diagnosis.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha`、`canonical`、`normalize_query`、`assert_no_oracle`、`frozen_inputs` 等 20 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/evaluate_performance_localization.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `evaluate_localization_reports` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/evaluate_planning_retrieval_v2.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha`、`canonical`、`behavior_digest`、`public_only`、`validate_freeze` 等 19 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/evaluate_same_load_business_fix.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `evaluate`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/evaluate_sre_retrieval.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/generate_business_contracts.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/generate_cancellation_contract.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/generate_diagnosis_benchmark_v2.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `build`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/generate_error_code_contracts.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/generate_learning_guide_file_index.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `topic_for`、`describe`、`current_files`、`directory_description`、`symbols` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/generate_root_cause_benchmark.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `build`、`main` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/generate_service_request_contract.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/generate_status_contracts.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/generate_taskkind_contracts.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` 等 10 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/inspect_cloud_python_sampling.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `inspect`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/local_sre.ps1` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/package_skill_evolution_delivery.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `build`、`main` 等 9 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/package_sre_release.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/prepare-control-ssh.ps1` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/process_resource_monitor.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `summarize_resources`、`ResourceMonitor` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/release_knowledge_cloud.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/release_sre_cloud.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run`、`inspect`、`save`、`compose`、`healthy` 等 10 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/render_actual_rag_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/render_business_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `render` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/render_fault_plaza_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `render` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/render_learning_guide.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `build` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/render_load_report.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `figure`、`html`、`render` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/reproduce_parallel_timing_defect.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `reproduce` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/run_actual_rag_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `get`、`measure`、`run` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/run_business_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `write_json`、`measure`、`aggregate_repeats`、`run` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/run_diagnosis_benchmark_v2.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/run_distributed_endurance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `machine_identity`、`sources`、`validate_identity`、`validate_windows`、`verify_distributed` 等 10 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/run_dual_format_benchmark.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `generate_dataset_files`、`generate_evaluation_reports`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/run_engineering_diagnosis_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `download_artifacts`、`run_case`、`run_campaign` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/run_fault_plaza_closure_campaign.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run_scenario`、`run_campaign`、`main` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/run_fault_plaza_strict_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `now`、`RecordingClient`、`measure`、`evaluate_window_identity`、`evaluate_intervention` 等 10 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/run_live_skill_ab_campaign.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `Client`、`run_one`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/run_load_endurance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `Plan`、`write_json`、`percentile`、`summarize`、`capacity_summary` 等 12 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/run_multi_cloud_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `Client`、`items_of`、`compact`、`select_process`、`run_agent` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/run_quality_gate.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `utc_now`、`digest`、`load_plan`、`read_junit`、`read_go_json` 等 12 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/run_root_cause_benchmark.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/run_scaled_skill_ab.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/same_load_rag_fix_fixture.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load`、`emit`、`identity`、`measure`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/setup_local_sre.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/start_demo_wsl.ps1` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_actual_rag_search.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `verify` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_backup_restore.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_backup_restore.sh` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_clean_stack.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `AcceptanceError`、`require`、`sha`、`validate_key_stat`、`validate_minio_source` 等 17 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_cloud_sre.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_cloud_sre_browser.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_external_acceptance.sh` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_fault_plaza_runtime_smoke.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run_smoke`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_final_ui_acceptance.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_frontend_workbench.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_go_io_window.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `window_average`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_historical_heldout.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha`、`historical_numeric_sum`、`restored_inputs`、`historical_verifier_bytes`、`historical_test_scope` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_hotspot_controls.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `write`、`api`、`pprof_result`、`evaluate`、`cpu_window` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_interview_demo.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `AcceptanceError`、`Client`、`items_of`、`run_acceptance`、`main` 等 24 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_lats_replay_showcase.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `AcceptanceError`、`Client`、`main` 等 9 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_load_report.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `fail`、`finite`、`verify` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_local_sre.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `collection_chain_checks`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_local_sre_browser.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_multi_replica.sh` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_native_ebpf.sh` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_perf_source_toolchain.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `sha256`、`command`、`parse_hotspot_symbol`、`parse_source_mapping`、`check_in_container` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_priority_collectors.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run_acceptance`、`main` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_report_presentation_ui.mjs` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_runtime_observation_controls.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `counter_window`、`main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/scripts/verify_semantic_retrieval.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `main` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/README.md` | 当前目录的用途、运行方式、依赖与边界说明。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/_env.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `_find_env_file`、`_is_docker`、`_load_dotenv` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/agent_runtime/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/agent_runtime/chroma_http.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `BoundedClient`、`bounded_http_client` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/agent_runtime/context.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `trusted_json_default`、`trusted_context_json`、`normalize_trusted_context`、`bounded_tail` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/agent_runtime/deadlines.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `remaining_seconds`、`probe_deadline_check`、`planning_seconds` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/agent_runtime/grafana_observations.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `query_service_observations` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/agent_runtime/harness.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `safe_scope_candidates`、`selected_authorized_candidate` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/agent_runtime/incident_memory.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `recall_incidents` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/agent_runtime/investigation_strategy.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `select_react_candidate` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/agent_runtime/memory.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `project_investigation_memory`、`load_investigation_memory`、`AgentMemoryPolicy` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/agent_runtime/model_factory.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `create_chat_model` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/agent_runtime/planning_output.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `PlanningHypothesis`、`PlanningOutput`、`validate_planning_output`、`planning_output_schema` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/agent_runtime/relevance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `query_profile`、`curated_anchor_text`、`concept_score`、`assess_relevance`、`relevance_audit` 等 15 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/agent_runtime/retrieval.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `retrieve_knowledge`、`build_retrieval_trace` 等 11 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/agent_runtime/runtime.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `checkpoint_thread_id`、`RuntimeDescriptor` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/agent_runtime/semantic_retrieval.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `RetrievalUnavailable`、`RetrievalSettings`、`SemanticProvider`、`corpus`、`snapshot_name` 等 11 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/agent_runtime/themes.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `diagnosis_system_prompt`、`scope_system_prompt` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/ai_provider.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ModelBoundaryError`、`AISettings`、`get_ai_settings`、`is_feature_enabled`、`chat_completions` 等 17 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/analysis_jobs.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `analysis_error_code`、`artifact_input_checksum`、`enqueue_artifact_analysis`、`ProcessResult`、`AnalyzerOutput` 等 16 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/analyzer_runner.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `AnalyzerQualityError`、`AnalyzerCommandError`、`analyze_raw_perf_artifacts`、`analyze_continuous_perf_bundle`、`analyze_pprof_artifacts` 等 30 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/artifact_contracts.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `CollectorArtifactContract`、`ArtifactContractError`、`ArtifactQualityError`、`get_collector_contract` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/artifact_integrity.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ArtifactIntegrityError`、`hash_chunks`、`hash_file`、`normalize_sha256`、`prepare_artifact` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/artifact_lifecycle.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `classify_family`、`retention_days`、`ArtifactReconciliation`、`reconcile_artifacts`、`list_expired_artifacts` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/common_utils.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `env_bool`、`status_value` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/database.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `init_db`、`new_session`、`reset_engine` 等 9 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/diagnosis_worker.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `DiagnosisWorker`、`main` 等 10 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/diagnostic_ai_rpc.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `dispatch`、`DiagnosticAIService`、`add_diagnostic_ai_service`、`start_diagnostic_ai_server` 等 11 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/adaptive_planner.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `propose_hypothesis_plan` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/artifact_evidence.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ArtifactEvidenceAssessment`、`assess_artifact_evidence`、`extract_sample_count` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/benchmark_v2.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `canonical_sha256`、`load_json`、`evaluate_skill_reuse` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/bottleneck_localization.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `localize_verified_observation` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/builtin_skills.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load_repository_skill_instructions`、`load_repository_skill_definitions`、`seed_repository_skills` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/business_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `Contract`、`Workload`、`RequestOutcome`、`MeasurementWindow`、`AcceptancePolicy` 等 8 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/business_observations.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `OfficeObservation`、`GatewayObservation`、`recent_observations`、`resolve_observation`、`diagnosis_context` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/business_showcase.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `get_business_acceptance` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/campaign_matrix.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `validate_collector_reports`、`build_campaign_admission` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/claim_verifier.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `resolve_json_pointer`、`evidence_ref_to_json_pointer`、`verify_report_claims`、`verify_legacy_report_claims`、`generate_sre_remediation_advice` 等 13 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/cpu_criteria.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `process_cpu_thresholds`、`cpu_utilization_hypothesis`、`cpu_observation_plan`、`compile_cpu_observation_contract`、`cpu_plan_validation_error` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/diagnosis_agent.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `DiagnosisAgentContext`、`search_knowledge`、`read_knowledge_chunk`、`search_incident_memory`、`query_service_observations` 等 39 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/event_store.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `_append_event`、`_event_semantic_scope`、`_freeze_event_value`、`_latest_semantic_event_has_payload`、`_enqueue_diagnosis_event` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/evidence.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `observed_nonnegative`、`observed_count`、`StrictModel`、`EvidenceSource`、`EvidenceScope` 等 10 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/exploration_tree.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `get_live_exploration_tree` 等 11 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/fault_acceptance.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `latest_acceptance` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/fault_plaza.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `FaultScenario`、`FaultPlazaError`、`get_fault_plaza`、`start_fault_scenario`、`stop_fault_scenario` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/fix_verification.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `compare_before_after`、`verify_diagnosis_fix`、`list_fix_verifications` 等 8 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/frozen_replay_showcase.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `FrozenReplayShowcaseNotFound`、`FrozenReplayManifestError`、`get_frozen_replay_catalog`、`start_frozen_replay_run`、`advance_frozen_replay_showcases` 等 19 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/health_assessment.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `assess_health_window` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/hypothesis_predicate.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `_invalid_numeric_observation`、`_structured_signal_predicate`、`_criterion_text_indexes`、`_process_cpu_control`、`_compute_hypothesis_predicate` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/lats.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `LATSConfig`、`FrozenReplayObservationProvider`、`execution_semantics`、`stable_candidate_key`、`prepare_candidates` 等 24 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/managed_services.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/managed_services.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `StartServiceDiagnosis`、`catalog`、`list_managed_services`、`start_service_diagnosis` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/observation_verifier.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `verify_performance_observation` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/operator_memory.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `list_operator_preferences`、`put_operator_preference`、`delete_operator_preference`、`load_safe_agent_preferences` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/performance_criteria.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `performance_observation_plan`、`parse_performance_criterion`、`evaluate_performance_criterion` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/policy.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `PolicyContext`、`evaluate_tool_call` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/rcaeval_benchmark.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `PrivateCase`、`TelemetrySignature`、`RouteSkill`、`Prediction`、`SkillGate` 等 28 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/report_conclusion.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `_ObservationFinding`、`_derive_report_conclusion`、`_concrete_report_finding`、`_derive_next_actions` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/retrieval_benchmark.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `load_benchmark`、`run_benchmark` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/root_cause_benchmark.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `evaluate_controlled_root_causes`、`report_sha256` 等 16 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/rounds.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `selection_iteration_by_hypothesis`、`effective_round_by_hypothesis`、`report_execution_rounds` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/scaled_skill_ab.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ScaledCase`、`assign_ab_arm`、`expand_catalog`、`evaluate_scaled_ab`、`calibrate_retrieval_gates` 等 12 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/schemas.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `StrictModel`、`CancelDiagnosisRequest`、`DiagnosticTarget`、`DiagnosticTimeRange`、`DiagnosisBudget` 等 30 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/service.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `discover_target_candidates`、`resolve_diagnosis_scope_autonomously`、`create_diagnosis`、`open_effective_time_range`、`finalize_effective_time_range` 等 136 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/showcase.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `get_mentor_complex_showcase`、`list_showcase_diagnostic_cases`、`get_showcase_diagnostic_case` 等 8 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/signal_window_validation.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `validate_signal_window` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/skill_benchmark.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `BenchmarkObservation`、`validate_benchmark_dataset`、`compare_benchmark_runs` 等 12 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/skill_evolution.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `list_skills`、`get_skill`、`create_candidate_from_diagnosis`、`evaluate_skill`、`record_campaign_validation` 等 35 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/skill_experiments.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `create_experiment`、`list_experiments`、`get_experiment`、`assign_experiment_diagnosis`、`record_experiment_outcome` 等 13 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/source_mapper.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `configured_source_roots`、`map_hot_functions` 等 19 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/drop_insight/tools.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/generated/.gitignore` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/generated/__init__.py` | Python 包入口；声明包边界并按需导出公共对象，不是常驻服务启动器。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/generated/diagnostic_ai_pb2.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/generated/diagnostic_ai_pb2_grpc.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/generated/error_code_contract.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/generated/status_contract.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/generated/taskkind_contract.py` | 由协议或 JSON 合同自动生成的代码；应修改源合同后重新生成，不要手改。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/kernel_compatibility.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `CollectorSupport`、`kernel_tuple`、`evaluate_kernel_support` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/logging_utils.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `bind_traceparent`、`reset_traceparent`、`current_traceparent`、`current_trace_id`、`log_event` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/metric_analyzers.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `analyze_sys_metrics_artifacts`、`analyze_memory_artifacts`、`analyze_ebpf_io_artifacts`、`summarize_application_metric_window` 等 27 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/models.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `Base`、`AgentModel`、`ProcessCandidateSnapshotModel`、`ProcessCandidateModel`、`TaskModel` 等 35 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/outbox_dispatcher.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `OutboxDispatcher` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/process_attestation.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ProcessSnapshotState`、`ProcessCandidateInput`、`ProcessCandidateSnapshotInput`、`ProcessIdentityBinding`、`ResolvedProcessCandidate` 等 16 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/repositories/agent_repo.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `AgentMixin` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/repositories/analysis_job_repo.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `AnalysisJobMixin` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/repositories/artifact_repo.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ArtifactMixin` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/repositories/outbox_repo.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `OutboxMixin` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/repositories/task_repo.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `TaskMixin` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/schemas.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `APIResponse`、`AgentRegistration`、`AgentMetrics`、`ProcessIdentityBindingRequest`、`CreateTaskRequest` 等 9 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/sql_repository.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `SqlRepository` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/state_machine.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `TaskStatus`、`Actor`、`StatusEvent`、`now_utc`、`validate_transition` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/storage.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `ensure_bucket`、`bucket_available`、`upload_file`、`read_object_bytes`、`stream_object` 等 11 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/app/task_attempt_authority.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `TaskDispatch`、`AuthorizedTaskAttempt`、`generate_task_attempt_authority`、`task_attempt_authority_sha256`、`verify_task_attempt_authority` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/migrations/env.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `run_migrations_offline`、`run_migrations_online` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/migrations/script.py.mako` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/migrations/versions/20260813_0012_legacy_adoption_marker.py` | Alembic 迁移：20260813 0012 legacy adoption marker。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/migrations/versions/20260901_0001_current_baseline.py` | Alembic 迁移：20260901 0001 current baseline。 | `upgrade`、`downgrade` 等 6 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/migrations/versions/20260901_0002_legacy_runtime_columns.py` | Alembic 迁移：20260901 0002 legacy runtime columns。 | `upgrade`、`downgrade` 等 7 个声明 |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/migrations/versions/20260901_0003_tool_call_terminal_timestamp.py` | Alembic 迁移：20260901 0003 tool call terminal timestamp。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/migrations/versions/20260901_0004_legacy_runtime_constraints.py` | Alembic 迁移：20260901 0004 legacy runtime constraints。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/migrations/versions/20260901_0005_task_updated_at.py` | Alembic 迁移：20260901 0005 task updated at。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/migrations/versions/20260901_0006_diagnosis_skill_policy.py` | Alembic 迁移：20260901 0006 diagnosis skill policy。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/migrations/versions/20260908_0007_experiments_and_operator_memory.py` | Alembic 迁移：20260908 0007 experiments and operator memory。 | `upgrade`、`downgrade` |
+| `reports/quality/planning-retrieval-v2-20261002/retrieval-regression/source/server/migrations/versions/20260910_0008_agent_latest_metrics.py` | Alembic 迁移：20260910 0008 agent latest metrics。 | `upgrade`、`downgrade` |
 | `reports/quality/rpc-read-stability-20260930/acceptance_client.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `AcceptanceError`、`Client`、`items_of`、`run_acceptance`、`main` 等 24 个声明 |
 | `reports/quality/rpc-read-stability-20260930/archive-download-id-failure.json` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/quality/rpc-read-stability-20260930/archive_ci.py` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | `get` |

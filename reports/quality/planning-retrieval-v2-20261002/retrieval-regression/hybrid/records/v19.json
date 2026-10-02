@@ -1,0 +1,1719 @@
+{
+  "case_id": "v19",
+  "query": "目标与同节点实例磁盘等待同升，设备队列有积压但没有 block I/O 时延直方图；如何验证共享块设备争抢而非凭相关性定因？",
+  "trace": {
+    "relevance_policy": "knowledge-subject-admission-v2",
+    "relevance_query": "目标与同节点实例磁盘等待同升，设备队列有积压但没有 block I/O 时延直方图；如何验证共享块设备争抢而非凭相关性定因？",
+    "query_profile": {
+      "concepts": [
+        "block_io"
+      ],
+      "runtime_scopes": [],
+      "database_scopes": [],
+      "technical_subjects": [
+        "block"
+      ],
+      "active_clauses": [
+        "目标与同节点实例磁盘等待同升",
+        "设备队列有积压",
+        "没有 block I/O 时延直方图",
+        "如何验证共享块设备争抢"
+      ],
+      "excluded_mentions": [
+        "凭相关性定因"
+      ]
+    },
+    "accepted": [
+      {
+        "knowledge_id": "linux.iowait.shared_block_device",
+        "chunk_id": "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+        "document": "knowledge/linux_iowait.md",
+        "content_hash": "450e93a8ddc8d18be3747f84f03f997e8e5e00e28f50a00649613fb475b27b7a",
+        "score": 0.999157,
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "block_io"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "目标与同节点实例磁盘等待同升",
+        "source_profile": {
+          "concepts": [
+            "block_io"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      }
+    ],
+    "rejected": [
+      {
+        "knowledge_id": "go.profile.selection",
+        "chunk_id": "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "score": 0.04598,
+        "recall_channels": [
+          "BM25",
+          "ENTITY",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "go.profile.selection",
+        "chunk_id": "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "score": 0.04445,
+        "recall_channels": [
+          "BM25",
+          "ENTITY",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "go.profile.selection",
+        "chunk_id": "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+        "document": "knowledge/go_profiles.md",
+        "content_hash": "f32aed88a4d9e3fc4603582b0550d321671899fd7f6fa0a6c586606362c2cd8f",
+        "score": 0.042731,
+        "recall_channels": [
+          "BM25",
+          "ENTITY",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait",
+            "sampling"
+          ],
+          "runtime_scopes": [
+            "GO"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "sre.latency.measurement",
+        "chunk_id": "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+        "document": "knowledge/latency_measurement.md",
+        "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+        "score": 0.032002,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "latency_measurement"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "distributed.downstream_pressure",
+        "chunk_id": "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+        "document": "knowledge/distributed_attribution.md",
+        "content_hash": "125545c1d816b4024d3991965b7ec37ecf1757ed9c8f510a79e1254ab54f92ba",
+        "score": 0.03125,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "dependency"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "sre.latency.measurement",
+        "chunk_id": "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+        "document": "knowledge/latency_measurement.md",
+        "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+        "score": 0.030835,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "latency_measurement"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "distributed.same_host_noisy_neighbor",
+        "chunk_id": "5d3467234a4fafe1e262d108fb6ec4a532091e02d25708b56c5b58ae75e826b7",
+        "document": "knowledge/distributed_attribution.md",
+        "content_hash": "125545c1d816b4024d3991965b7ec37ecf1757ed9c8f510a79e1254ab54f92ba",
+        "score": 0.030579,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "host_contention"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "mysql.lock_wait",
+        "chunk_id": "692152962216609c542343500b50f8f1e777cbd507831d9cf4e94ddac33d76c9",
+        "document": "knowledge/mysql_lock_wait.md",
+        "content_hash": "453953cedcbad24e3f3e47aad42a554b830de07a5b815bad8303338777119d79",
+        "score": 0.029437,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": [
+            "MYSQL"
+          ]
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "postgres.waits",
+        "chunk_id": "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d",
+        "document": "knowledge/postgres_waits.md",
+        "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+        "score": 0.029083,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": [
+            "POSTGRES"
+          ]
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "postgres.waits",
+        "chunk_id": "7aedbee604406b6f18556cde8481603449656652341f808b01ebc315bf68af51",
+        "document": "knowledge/postgres_waits.md",
+        "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+        "score": 0.028006,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": [
+            "POSTGRES"
+          ]
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "sre.latency.measurement",
+        "chunk_id": "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+        "document": "knowledge/latency_measurement.md",
+        "content_hash": "c39877ee88c57e107b4f1cfc82682156ae4abaf92dc29ba2653b0a3fa92e880c",
+        "score": 0.027778,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "latency_measurement"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "postgres.waits",
+        "chunk_id": "63c16b6ab2e2c0f6b8fab32b352d32ddc9acecac5e72c9e3981e61e421ca55bc",
+        "document": "knowledge/postgres_waits.md",
+        "content_hash": "41e8a7f95c68b5cbfad1589ef3e198b4674774ee530648abb4b7129bdb22ae14",
+        "score": 0.026857,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "lock_wait"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": [
+            "POSTGRES"
+          ]
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "linux.cpu.kernel_overhead",
+        "chunk_id": "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+        "score": 0.025992,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "kernel"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "linux.cpu.process_pressure",
+        "chunk_id": "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "1c6fc4e8b6c995bfbfd7c4875af80d8ab85090d76a0fb563157d3df0f5bb9ca9",
+        "score": 0.025158,
+        "recall_channels": [
+          "BM25",
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "sampling"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "container.cpu.throttling",
+        "chunk_id": "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "score": 0.015385,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu_quota"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "linux.network.retransmit",
+        "chunk_id": "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+        "document": "knowledge/tcp_retransmit.md",
+        "content_hash": "047ead61bb408ae09574042dcfb2852023acfc7175db7b2e0dc5409e061757bd",
+        "score": 0.014085,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "network"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "container.memory.pressure",
+        "chunk_id": "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+        "document": "knowledge/memory_pressure.md",
+        "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+        "score": 0.013333,
+        "recall_channels": [
+          "BM25"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "memory_pressure"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "agent.strategy.evaluation",
+        "chunk_id": "85078c83ff1bc401b5a7c65faeaa5d5b7dc514364eb7792930b5d5347f187269",
+        "document": "knowledge/agent_experiments.md",
+        "content_hash": "fe4be7194bcc17e4bab8aa26f3fb0156e2796cc3566434ffb1507231148695bb",
+        "score": 0.012987,
+        "recall_channels": [
+          "BM25"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "strategy_evaluation"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "container.cpu.throttling",
+        "chunk_id": "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "score": 0.012987,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu_quota"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "container.cpu.throttling",
+        "chunk_id": "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "score": 0.012821,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "cpu_quota"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "jvm.gc.pressure",
+        "chunk_id": "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9",
+        "document": "knowledge/jvm_gc.md",
+        "content_hash": "54d23c97c73b4d8c8e0d5bded2d3152c531404cb8901ce54d95e53a4a4aa4667",
+        "score": 0.0125,
+        "recall_channels": [
+          "DENSE"
+        ],
+        "accepted": false,
+        "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+        "shared_concepts": [],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "",
+        "source_profile": {
+          "concepts": [
+            "gc"
+          ],
+          "runtime_scopes": [
+            "JVM"
+          ],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      {
+        "knowledge_id": "sre.recovery.acceptance",
+        "chunk_id": "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+        "document": "knowledge/sre_recovery.md",
+        "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+        "accepted": false,
+        "reason": "RERANK_BELOW_THRESHOLD",
+        "shared_concepts": [
+          "block_io"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "目标与同节点实例磁盘等待同升",
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "recovery"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": [],
+        "score": 0.005108
+      },
+      {
+        "knowledge_id": "sre.recovery.acceptance",
+        "chunk_id": "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+        "document": "knowledge/sre_recovery.md",
+        "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+        "accepted": false,
+        "reason": "RERANK_BELOW_THRESHOLD",
+        "shared_concepts": [
+          "block_io"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "目标与同节点实例磁盘等待同升",
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "recovery"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": [],
+        "score": 0.000459
+      },
+      {
+        "knowledge_id": "sre.recovery.acceptance",
+        "chunk_id": "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7",
+        "document": "knowledge/sre_recovery.md",
+        "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+        "accepted": false,
+        "reason": "RERANK_BELOW_THRESHOLD",
+        "shared_concepts": [
+          "block_io"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "目标与同节点实例磁盘等待同升",
+        "source_profile": {
+          "concepts": [
+            "block_io",
+            "recovery"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "目标与同节点实例磁盘等待同升"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "设备队列有积压"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有 block I/O 时延直方图"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "block_io"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "如何验证共享块设备争抢"
+          }
+        ],
+        "unregistered_subjects": [],
+        "score": 0.000291
+      }
+    ],
+    "outcome": "MATCHED",
+    "health": "HEALTHY",
+    "health_scope": "RETRIEVAL_ONLY",
+    "no_match_is_normal": false,
+    "actual_backend": "BM25_ENTITY_CHROMA_RRF_RERANK",
+    "requested_backend": "HYBRID",
+    "recall_channels": {
+      "BM25": {
+        "available": true,
+        "candidate_count": 20,
+        "chunk_ids": [
+          "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+          "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+          "5d3467234a4fafe1e262d108fb6ec4a532091e02d25708b56c5b58ae75e826b7",
+          "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+          "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d",
+          "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+          "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+          "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+          "7aedbee604406b6f18556cde8481603449656652341f808b01ebc315bf68af51",
+          "692152962216609c542343500b50f8f1e777cbd507831d9cf4e94ddac33d76c9",
+          "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+          "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+          "63c16b6ab2e2c0f6b8fab32b352d32ddc9acecac5e72c9e3981e61e421ca55bc",
+          "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+          "867d364146281514592bf0a4feefbac24321c3d8a9349d88486023acb1e58d16",
+          "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7",
+          "85078c83ff1bc401b5a7c65faeaa5d5b7dc514364eb7792930b5d5347f187269",
+          "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+          "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+          "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d"
+        ]
+      },
+      "ENTITY": {
+        "available": true,
+        "candidate_count": 7,
+        "chunk_ids": [
+          "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+          "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+          "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+          "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+          "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+          "74d86bd4752a7b990aa910b3253401a4702d8c1274b5775746918ccfd6e69a19",
+          "0023eba6af7cadbc55c6bcd10dc5d16a126a207016c159a52ab8b3be509decc7"
+        ]
+      },
+      "DENSE": {
+        "available": true,
+        "candidate_count": 20,
+        "chunk_ids": [
+          "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+          "99d323ded4ee92b9b00d9df36df14dc18f558df5e3d922dacb5b5ed4fb0e45b9",
+          "9b421b0a2b1a6d87f5d0209e9f692bbf664b9dd2f576abad358a1f8b83fc05c9",
+          "5ecc6a17ac5f5fe748d73a9d17d56fd052d2a92fe99e6e2a9628a6e5b9ca06bc",
+          "2c9b897bba9dec4319095c83fbc5470cf429f70d57f5f4ddef266dc47c33b57b",
+          "692152962216609c542343500b50f8f1e777cbd507831d9cf4e94ddac33d76c9",
+          "e5b7c0d8ae8269595ac8780cb84c0340ef8c2e36c373bf856dde9a46b37250c9",
+          "5d3467234a4fafe1e262d108fb6ec4a532091e02d25708b56c5b58ae75e826b7",
+          "2e97031a72e6320cfe972971043155d7bb7d47c0c194e71c7188a94dc2d4f509",
+          "35943a6de68fe86f8b51234d6145862f936fe673b691f383d739e91c24eb6c0d",
+          "c5539ba9875cc7ca15faf938aa0fd3aa24adba528959068d5605c7458bad52a5",
+          "c101909158c81c1871e0256318bde58d44fc730d7e7a894d30a90fb670bacfcc",
+          "c1ef6efd74efad57951ef937c3eb59cd37e60776f5e5c9eea22b59e1deee379d",
+          "7aedbee604406b6f18556cde8481603449656652341f808b01ebc315bf68af51",
+          "fe38d58fbd4df09259f2f57ee417c0aa9351e64a88559193f7cbd05c3708c49c",
+          "63c16b6ab2e2c0f6b8fab32b352d32ddc9acecac5e72c9e3981e61e421ca55bc",
+          "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+          "f4f4c4bf996e2d6b0789912dfb1b3ca1cf588dd6069ac742bfebde6e66d95d3d",
+          "3ad1d9c71970aa2f0439fe4dc21c9f4185e70fddc10a38b4c1dcf700a58b0c1d",
+          "093846fae87156815b6f214cfdc4bd7821d1d20f6fc17ec4b7e13690f1a451e9"
+        ]
+      }
+    },
+    "degraded_reasons": [],
+    "index_version": "md-knowledge-71ac29e6e40c93255b0f152b830e977c",
+    "embedding_model": "Qwen/Qwen3-Embedding-4B",
+    "dimensions": 1024,
+    "query": "目标与同节点实例磁盘等待同升，设备队列有积压但没有 block I/O 时延直方图；如何验证共享块设备争抢而非凭相关性定因？",
+    "query_hash": "8ea5528f7d7e31a6a276b032c08b87dcabb614575bb0b5cfef41fd258f96f1a0",
+    "relevance_query_hash": "8ea5528f7d7e31a6a276b032c08b87dcabb614575bb0b5cfef41fd258f96f1a0",
+    "retriever": "knowledge-hybrid-v5-subject-admission",
+    "catalog": "knowledge/catalog.json",
+    "top_k": 3,
+    "matched_count": 1,
+    "matches": [
+      {
+        "chunk_id": "412045ef7ac3b970154492b9d9b76e16c674e8843ffe411ae540187500441dae",
+        "knowledge_id": "linux.iowait.shared_block_device",
+        "title": "共享块设备与 I/O wait 争抢",
+        "document": "knowledge/linux_iowait.md",
+        "content_hash": "450e93a8ddc8d18be3747f84f03f997e8e5e00e28f50a00649613fb475b27b7a",
+        "excerpt": "# Linux I/O wait 诊断\n\n同宿主多个实例同时出现 iowait 更支持共享块设备或宿主机争抢，但仍需设备延迟、队列和工作负载方向排除共同流量上涨。虚拟机磁盘还可能在物理宿主层共享设备。\n\n安全探针优先级：sys_metrics（R1）→ 设备统计 → 单次 eBPF I/O 延迟（R2）。",
+        "required_evidence": [
+          "目标与邻居 iowait",
+          "块设备延迟直方图",
+          "设备队列深度"
+        ],
+        "caveats": [
+          "相关性不等于噪声邻居导致",
+          "虚拟磁盘可能共享宿主物理设备"
+        ],
+        "query": "目标与同节点实例磁盘等待同升，设备队列有积压但没有 block I/O 时延直方图；如何验证共享块设备争抢而非凭相关性定因？",
+        "relevance": {
+          "accepted": true,
+          "reason": "PRIMARY_CAPABILITY_MATCH",
+          "shared_concepts": [
+            "block_io"
+          ],
+          "matched_anchors": [],
+          "unsupported_subjects": [],
+          "clause": "目标与同节点实例磁盘等待同升",
+          "source_profile": {
+            "concepts": [
+              "block_io"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          },
+          "clause_decisions": [
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "目标与同节点实例磁盘等待同升"
+            },
+            {
+              "accepted": false,
+              "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+              "shared_concepts": [],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "设备队列有积压"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "没有 block I/O 时延直方图"
+            },
+            {
+              "accepted": true,
+              "reason": "PRIMARY_CAPABILITY_MATCH",
+              "shared_concepts": [
+                "block_io"
+              ],
+              "matched_anchors": [],
+              "unsupported_subjects": [],
+              "clause": "如何验证共享块设备争抢"
+            }
+          ],
+          "unregistered_subjects": []
+        },
+        "score": 0.999157,
+        "score_kind": "RERANK_RELEVANCE",
+        "matched_terms": [],
+        "recall_channels": [
+          "BM25",
+          "ENTITY",
+          "DENSE"
+        ]
+      }
+    ],
+    "evidence_contract": {
+      "is_evidence": false,
+      "status": "KNOWLEDGE_PRIOR_ONLY",
+      "message": "检索知识只指导下一步取证，不能作为本次故障 Evidence。"
+    }
+  },
+  "matched_ids": [
+    "linux.iowait.shared_block_device"
+  ]
+}

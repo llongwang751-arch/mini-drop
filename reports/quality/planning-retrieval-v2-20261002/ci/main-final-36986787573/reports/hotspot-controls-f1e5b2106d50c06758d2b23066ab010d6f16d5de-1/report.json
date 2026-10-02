@@ -1,0 +1,110 @@
+{
+  "schema": "mini-drop.quality-report.v1",
+  "run_id": "20261002T085528Z-2cd733c2",
+  "state": "COMPLETED",
+  "profile": "hotspot-controls",
+  "started_at": "2026-10-02T08:55:28.697795+00:00",
+  "scope": "Repository regression only; live diagnosis, capacity and production release are separate acceptances.",
+  "plan_sha256": "91d77654e194e94d6af9850850d6239a31353644db477ea9e86ccc52e4b5473d",
+  "environment": {
+    "python": "3.11.16",
+    "platform": "Linux-6.8.0-1064-azure-x86_64-with-glibc2.35",
+    "git_head": "f1e5b2106d50c06758d2b23066ab010d6f16d5de",
+    "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dirty": false,
+    "source_sha256": "f84f1253c59bcf140456387a0e82fb5b26b3eacedfee3478bc44786120be4723",
+    "source_files": 512
+  },
+  "selected_suites": [
+    "hotspot-controls"
+  ],
+  "suites": [
+    {
+      "id": "hotspot-controls",
+      "title": "隔离 Linux Python/Go 热点与独立 CPU 对照（不是云端 AI 根因验收）",
+      "risks": [
+        "false-conclusion",
+        "test-harness"
+      ],
+      "started_at": "2026-10-02T08:55:29.411946+00:00",
+      "returncodes": [
+        0
+      ],
+      "logs": [
+        "hotspot-controls/command-1.log"
+      ],
+      "counts": null,
+      "duration_seconds": 52.388,
+      "status": "PASSED",
+      "artifacts": {
+        "hotspot-controls/command-1.log": "928fc4e9fb9b1de6ee644c7e77e34d9bd577b20bc735b9165073bdfdcf23eb48"
+      }
+    }
+  ],
+  "status": "PASSED",
+  "risk_results": {
+    "contract-drift": {
+      "description": "跨语言协议或生成物漂移",
+      "suites": [],
+      "statuses": [
+        "NOT_RUN"
+      ]
+    },
+    "task-lifecycle": {
+      "description": "非法状态迁移、重复效果与预算泄漏",
+      "suites": [],
+      "statuses": [
+        "NOT_RUN"
+      ]
+    },
+    "false-conclusion": {
+      "description": "无效证据或缺失观测被误判为已验证",
+      "suites": [
+        "hotspot-controls"
+      ],
+      "statuses": [
+        "PASSED"
+      ]
+    },
+    "business-regression": {
+      "description": "降低负载或牺牲回答质量换取更快延迟",
+      "suites": [],
+      "statuses": [
+        "NOT_RUN"
+      ]
+    },
+    "ui-regression": {
+      "description": "页面状态、异步竞争与报告展示错误",
+      "suites": [],
+      "statuses": [
+        "NOT_RUN"
+      ]
+    },
+    "api-regression": {
+      "description": "接口鉴权、调度与并发行为回归",
+      "suites": [],
+      "statuses": [
+        "NOT_RUN"
+      ]
+    },
+    "test-harness": {
+      "description": "测试未执行、跳过或报告损坏却被判通过",
+      "suites": [
+        "hotspot-controls"
+      ],
+      "statuses": [
+        "PASSED"
+      ]
+    }
+  },
+  "finished_at": "2026-10-02T08:56:21.800968+00:00",
+  "environment_after": {
+    "python": "3.11.16",
+    "platform": "Linux-6.8.0-1064-azure-x86_64-with-glibc2.35",
+    "git_head": "f1e5b2106d50c06758d2b23066ab010d6f16d5de",
+    "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dirty": true,
+    "source_sha256": "f84f1253c59bcf140456387a0e82fb5b26b3eacedfee3478bc44786120be4723",
+    "source_files": 512
+  }
+}

@@ -1,0 +1,179 @@
+{
+  "type": "result",
+  "case_id": "v03",
+  "status": "OK",
+  "response": {
+    "id": "01a0fbe3a029fb94c404f8cf6c2f61eb",
+    "object": "chat.completion",
+    "created": 1790932395,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n    \"schema_version\": \"mini-drop.planning-output.v2\",\n    \"disposition\": \"NORMAL\",\n    \"reasoning_summary\": \"用户要求仅评价容器 CPU 限额节流（throttled）和内存 OOM 杀死（oom_kill）这两项在最近一分钟的观测。提供的合成观测显示，在 60 秒窗口内，`cpu_throttled_delta` 和 `oom_kill_delta` 均为 0，且测量已完成。这表明在指定时间窗口和观测项下，未检测到 CPU 配额节流计数增长和 OOM 杀死事件。此评价仅限于给定的两项指标，不涉及业务整体健康状态。\",\n    \"tool_name\": null,\n    \"hypotheses\": [],\n    \"missing_evidence\": [],\n    \"limitations\": [\"本次规划仅基于用户提供的两项合成观测（cpu_throttled_delta, oom_kill_delta）进行有界评价。未评估 CPU 使用率、内存压力、进程性能、网络、I/O 或其他可能影响业务的指标。不能声明平台或业务整体健康。\"],\n    \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4371,
+      "completion_tokens": 250,
+      "total_tokens": 4621,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2688
+      },
+      "prompt_cache_hit_tokens": 2688,
+      "prompt_cache_miss_tokens": 1683
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fbe3a029fb94c404f8cf6c2f61eb\",\"object\":\"chat.completion\",\"created\":1790932395,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n    \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n    \\\"disposition\\\": \\\"NORMAL\\\",\\n    \\\"reasoning_summary\\\": \\\"用户要求仅评价容器 CPU 限额节流（throttled）和内存 OOM 杀死（oom_kill）这两项在最近一分钟的观测。提供的合成观测显示，在 60 秒窗口内，`cpu_throttled_delta` 和 `oom_kill_delta` 均为 0，且测量已完成。这表明在指定时间窗口和观测项下，未检测到 CPU 配额节流计数增长和 OOM 杀死事件。此评价仅限于给定的两项指标，不涉及业务整体健康状态。\\\",\\n    \\\"tool_name\\\": null,\\n    \\\"hypotheses\\\": [],\\n    \\\"missing_evidence\\\": [],\\n    \\\"limitations\\\": [\\\"本次规划仅基于用户提供的两项合成观测（cpu_throttled_delta, oom_kill_delta）进行有界评价。未评估 CPU 使用率、内存压力、进程性能、网络、I/O 或其他可能影响业务的指标。不能声明平台或业务整体健康。\\\"],\\n    \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":4371,\"completion_tokens\":250,\"total_tokens\":4621,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2688},\"prompt_cache_hit_tokens\":2688,\"prompt_cache_miss_tokens\":1683},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "d3c683afc3aa67036f69e7b064115de49917e2321a3b85d48522539143d5c06a",
+  "seconds": 28.388613,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "container.memory.pressure",
+      "container.cpu.throttling",
+      "linux.cpu.process_pressure"
+    ],
+    "matches": [
+      {
+        "query": "容器 CPU 限额这一分钟没有 throttled 计数增长，memory.events oom_kill 也没变；只评价这两项，不要承诺整个业务健康。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "memory",
+            "memory_pressure"
+          ],
+          "matched_anchors": [
+            "OOM",
+            "memory.events"
+          ],
+          "source_profile": {
+            "concepts": [
+              "memory",
+              "memory_pressure"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "container.memory.pressure",
+        "title": "容器内存回收与 OOM",
+        "document": "knowledge/memory_pressure.md",
+        "content_hash": "a638cd34bd3b9c4655875c457f8c4a14bbd517abb6c051b117df3939ed66350b",
+        "chunk_id": "2272298e3d20d5dfd199987cd01900c9faf16f5de64b9ebc82f4e41d0c2c1208",
+        "score": 12.830515,
+        "matched_terms": [
+          "memory.events",
+          "oom",
+          "容器"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## memory.events 与压力观察\n\n记录 memory.current、memory.max、memory.high、memory.events 的同窗增量，并观察 memory.pressure。回收压力、OOM 和进程退出应对齐时间；不可用最终一次 RSS 代替退出前观测。不同内核版本字段能力需现场核对。"
+      },
+      {
+        "query": "容器 CPU 限额这一分钟没有 throttled 计数增长，memory.events oom_kill 也没变；只评价这两项，不要承诺整个业务健康。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu",
+            "cpu_quota"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "cpu_quota"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "container.cpu.throttling",
+        "title": "容器 CPU 配额节流",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "chunk_id": "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+        "score": 11.100444,
+        "matched_terms": [
+          "throttled",
+          "cpu",
+          "容器"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## CPU throttling 的观测窗口\n\n读取 cpu.max 和 cpu.stat，在等长窗口比较 nr_periods、nr_throttled、throttled_usec 的增量，同时记录请求量及进程 CPU。累计节流时间非零不证明当前故障；祖先 cgroup 的限制也可能影响目标。"
+      },
+      {
+        "query": "容器 CPU 限额这一分钟没有 throttled 计数增长，memory.events oom_kill 也没变；只评价这两项，不要承诺整个业务健康。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "gc",
+              "host_contention",
+              "sampling"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.cpu.process_pressure",
+        "title": "Linux 进程用户态 CPU 热点",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+        "chunk_id": "85e0e4cf5696c3626de2a02fee11730f4fca25b216490b0fcb4bd4961f80c9eb",
+        "score": 5.715884,
+        "matched_terms": [
+          "cpu",
+          "增长"
+        ],
+        "required_evidence": [
+          "CPU user/system 比例",
+          "Profile TopN",
+          "同宿主资源对比"
+        ],
+        "caveats": [
+          "单次 CPU 高不能证明代码回归",
+          "缺少符号时应返回证据不足"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

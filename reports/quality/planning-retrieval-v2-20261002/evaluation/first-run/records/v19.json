@@ -1,0 +1,145 @@
+{
+  "type": "result",
+  "case_id": "v19",
+  "status": "OK",
+  "response": {
+    "id": "01a0fbe760271f0024a3bbbc28374bdf",
+    "object": "chat.completion",
+    "created": 1790932640,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"INVESTIGATE\",\n  \"reasoning_summary\": \"用户报告目标与邻居实例的磁盘等待百分比（iowait）同时升高，且共享设备队列深度为12，表明存在I/O积压。但当前缺少块设备延迟直方图，无法区分是共享设备争抢还是共同流量上涨导致的延迟。需要启动eBPF I/O延迟分析来获取设备级的延迟分布，以验证争抢假设。\",\n  \"tool_name\": \"start_ebpf_io_profile\",\n  \"hypotheses\": [\n    {\n      \"statement\": \"目标与邻居实例的iowait同时升高是由于共享块设备上的I/O争抢导致，表现为设备队列积压和延迟增加。\",\n      \"expected_observations\": [\"io_latency.latency_p95_us >= 1000\", \"io_latency.operation_count_delta >= 10\"],\n      \"falsification_criteria\": [\"io_latency.latency_p95_us < 1000\"],\n      \"rationale\": \"已知目标与邻居iowait均高（32%和29%），且设备队列深度为12，表明I/O请求积压。若共享设备争抢是主要原因，应能观测到显著的I/O延迟（如P95延迟≥1ms）和足够的操作数。\",\n      \"prior_probability\": 0.6,\n      \"estimated_value\": 0.7\n    },\n    {\n      \"statement\": \"目标进程的I/O活动主导了其iowait升高，表现为同步写操作耗时显著。\",\n      \"expected_observations\": [\"io_latency.average_latency_ms >= 10\", \"io_latency.operation_count_delta >= 5\"],\n      \"falsification_criteria\": [\"io_latency.average_latency_ms < 10\"],\n      \"rationale\": \"高iowait可能由目标进程自身的I/O操作（如fsync）引起。如果该假设成立，通过eBPF I/O分析应能捕捉到目标进程发起的、平均延迟较高的I/O操作。\",\n      \"prior_probability\": 0.3,\n      \"estimated_value\": 0.5\n    },\n    {\n      \"statement\": \"观测到的iowait升高和队列积压主要由邻居实例的I/O活动驱动，目标进程受到间接影响。\",\n      \"expected_observations\": [\"io_activity.disk_write_kbps >= 50000\", \"io_activity.io_operations_delta >= 100\"],\n      \"falsification_criteria\": [\"io_activity.disk_write_kbps < 50000\"],\n      \"rationale\": \"邻居实例也可能产生高I/O负载，从而在共享设备上造成争抢，影响目标进程。如果邻居是主要驱动者，eBPF分析可能显示来自邻居（或整体设备）的高吞吐量或高IOPS。\",\n      \"prior_probability\": 0.1,\n      \"estimated_value\": 0.3\n    }\n  ],\n  \"missing_evidence\": [],\n  \"limitations\": [\"本次规划基于合成观测，未执行实际工具采集。eBPF I/O分析需要内核支持且可能受权限限制。虚拟化环境中，观测到的设备可能不是底层物理设备，争抢源头可能位于宿主机层。\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4011,
+      "completion_tokens": 738,
+      "total_tokens": 4749,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2688
+      },
+      "prompt_cache_hit_tokens": 2688,
+      "prompt_cache_miss_tokens": 1323
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fbe760271f0024a3bbbc28374bdf\",\"object\":\"chat.completion\",\"created\":1790932640,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"INVESTIGATE\\\",\\n  \\\"reasoning_summary\\\": \\\"用户报告目标与邻居实例的磁盘等待百分比（iowait）同时升高，且共享设备队列深度为12，表明存在I/O积压。但当前缺少块设备延迟直方图，无法区分是共享设备争抢还是共同流量上涨导致的延迟。需要启动eBPF I/O延迟分析来获取设备级的延迟分布，以验证争抢假设。\\\",\\n  \\\"tool_name\\\": \\\"start_ebpf_io_profile\\\",\\n  \\\"hypotheses\\\": [\\n    {\\n      \\\"statement\\\": \\\"目标与邻居实例的iowait同时升高是由于共享块设备上的I/O争抢导致，表现为设备队列积压和延迟增加。\\\",\\n      \\\"expected_observations\\\": [\\\"io_latency.latency_p95_us \\u003e= 1000\\\", \\\"io_latency.operation_count_delta \\u003e= 10\\\"],\\n      \\\"falsification_criteria\\\": [\\\"io_latency.latency_p95_us \\u003c 1000\\\"],\\n      \\\"rationale\\\": \\\"已知目标与邻居iowait均高（32%和29%），且设备队列深度为12，表明I/O请求积压。若共享设备争抢是主要原因，应能观测到显著的I/O延迟（如P95延迟≥1ms）和足够的操作数。\\\",\\n      \\\"prior_probability\\\": 0.6,\\n      \\\"estimated_value\\\": 0.7\\n    },\\n    {\\n      \\\"statement\\\": \\\"目标进程的I/O活动主导了其iowait升高，表现为同步写操作耗时显著。\\\",\\n      \\\"expected_observations\\\": [\\\"io_latency.average_latency_ms \\u003e= 10\\\", \\\"io_latency.operation_count_delta \\u003e= 5\\\"],\\n      \\\"falsification_criteria\\\": [\\\"io_latency.average_latency_ms \\u003c 10\\\"],\\n      \\\"rationale\\\": \\\"高iowait可能由目标进程自身的I/O操作（如fsync）引起。如果该假设成立，通过eBPF I/O分析应能捕捉到目标进程发起的、平均延迟较高的I/O操作。\\\",\\n      \\\"prior_probability\\\": 0.3,\\n      \\\"estimated_value\\\": 0.5\\n    },\\n    {\\n      \\\"statement\\\": \\\"观测到的iowait升高和队列积压主要由邻居实例的I/O活动驱动，目标进程受到间接影响。\\\",\\n      \\\"expected_observations\\\": [\\\"io_activity.disk_write_kbps \\u003e= 50000\\\", \\\"io_activity.io_operations_delta \\u003e= 100\\\"],\\n      \\\"falsification_criteria\\\": [\\\"io_activity.disk_write_kbps \\u003c 50000\\\"],\\n      \\\"rationale\\\": \\\"邻居实例也可能产生高I/O负载，从而在共享设备上造成争抢，影响目标进程。如果邻居是主要驱动者，eBPF分析可能显示来自邻居（或整体设备）的高吞吐量或高IOPS。\\\",\\n      \\\"prior_probability\\\": 0.1,\\n      \\\"estimated_value\\\": 0.3\\n    }\\n  ],\\n  \\\"missing_evidence\\\": [],\\n  \\\"limitations\\\": [\\\"本次规划基于合成观测，未执行实际工具采集。eBPF I/O分析需要内核支持且可能受权限限制。虚拟化环境中，观测到的设备可能不是底层物理设备，争抢源头可能位于宿主机层。\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":4011,\"completion_tokens\":738,\"total_tokens\":4749,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2688},\"prompt_cache_hit_tokens\":2688,\"prompt_cache_miss_tokens\":1323},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "8dcb77892794367edcf21aa5e85034376c8894bc38b8fdbae12d0685218fb358",
+  "seconds": 34.134138,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.iowait.shared_block_device",
+      "sre.recovery.acceptance"
+    ],
+    "matches": [
+      {
+        "query": "目标与同节点实例磁盘等待同升，设备队列有积压但没有 block I/O 时延直方图；如何验证共享块设备争抢而非凭相关性定因？",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "block_io"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "block_io",
+              "host_contention"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.iowait.shared_block_device",
+        "title": "共享块设备与 I/O wait 争抢",
+        "document": "knowledge/linux_iowait.md",
+        "content_hash": "e3971659434c227524eaf75bccdb04f539cc7745b94d4c4ba5a23596a9ed4cea",
+        "chunk_id": "0be9ff17e3bf65ba7611d5bc5dbc283050fe97a3d45dff5b67cda6f3f95a04bd",
+        "score": 89.159324,
+        "matched_terms": [
+          "block",
+          "享块设",
+          "共享块",
+          "块设备",
+          "备队列",
+          "目标与",
+          "直方图",
+          "相关性",
+          "设备队",
+          "争抢",
+          "享块",
+          "共享",
+          "关性",
+          "块设",
+          "备队",
+          "实例"
+        ],
+        "required_evidence": [
+          "目标与邻居 iowait",
+          "块设备延迟直方图",
+          "设备队列深度"
+        ],
+        "caveats": [
+          "相关性不等于噪声邻居导致",
+          "虚拟磁盘可能共享宿主物理设备"
+        ],
+        "excerpt": "# Linux I/O wait 诊断\n\n同宿主多个实例同时出现 iowait 更支持共享块设备或宿主机争抢，但仍需设备延迟、队列和工作负载方向排除共同流量上涨。虚拟机磁盘还可能在物理宿主层共享设备。\n\n安全探针优先级：sys_metrics（R1）→ 设备统计 → 单次 eBPF I/O 延迟（R2）。"
+      },
+      {
+        "query": "目标与同节点实例磁盘等待同升，设备队列有积压但没有 block I/O 时延直方图；如何验证共享块设备争抢而非凭相关性定因？",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "block_io"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "block_io",
+              "recovery"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "sre.recovery.acceptance",
+        "title": "Agent 恢复与容量验收",
+        "document": "knowledge/sre_recovery.md",
+        "content_hash": "d96a9a5cb761e76e4323f5eb988d5a8242309c2de5ba53e654bddb2d2d288dc4",
+        "chunk_id": "cfa5f26ef553647285a57f343d0877445c184f35576bc5b21b9f9aa9e43a54fb",
+        "score": 6.638748,
+        "matched_terms": [
+          "磁盘",
+          "队列",
+          "验证"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "# SRE Agent 故障恢复验收\n\n分别验收 API、任务队列、采集器、分析器、模型供应商、数据库和对象存储；健康检查通过不表示运行中任务可恢复。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

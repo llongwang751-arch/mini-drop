@@ -1,0 +1,128 @@
+{
+  "type": "result",
+  "case_id": "v04",
+  "status": "OK",
+  "response": {
+    "id": "01a0fbe3e9d117ee705e7f6a0f0046f6",
+    "object": "chat.completion",
+    "created": 1790932413,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"NORMAL\",\n  \"reasoning_summary\": \"用户报告了 Go 服务在 20 秒 TCP 测量窗口内的网络状况：无重传、无丢包、RTT 低于 2ms。这是一个有界观测的描述，没有提出需要验证的性能异常。当前任务仅限于报告测量到的网络范围，没有要求进一步诊断。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [],\n  \"limitations\": [\"本次规划仅基于用户提供的网络观测描述，未提出待验证的异常。规划范围仅限于评估描述性输入，不涉及对平台健康或业务全部正常性的声明。\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3936,
+      "completion_tokens": 174,
+      "total_tokens": 4110,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2688
+      },
+      "prompt_cache_hit_tokens": 2688,
+      "prompt_cache_miss_tokens": 1248
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fbe3e9d117ee705e7f6a0f0046f6\",\"object\":\"chat.completion\",\"created\":1790932413,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"NORMAL\\\",\\n  \\\"reasoning_summary\\\": \\\"用户报告了 Go 服务在 20 秒 TCP 测量窗口内的网络状况：无重传、无丢包、RTT 低于 2ms。这是一个有界观测的描述，没有提出需要验证的性能异常。当前任务仅限于报告测量到的网络范围，没有要求进一步诊断。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [],\\n  \\\"limitations\\\": [\\\"本次规划仅基于用户提供的网络观测描述，未提出待验证的异常。规划范围仅限于评估描述性输入，不涉及对平台健康或业务全部正常性的声明。\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3936,\"completion_tokens\":174,\"total_tokens\":4110,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2688},\"prompt_cache_hit_tokens\":2688,\"prompt_cache_miss_tokens\":1248},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "d38ab950120d567fb3b6395be3758029384b686d556861386b9502d17ff16168",
+  "seconds": 12.780816,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "linux.network.retransmit",
+      "linux.cpu.kernel_overhead"
+    ],
+    "matches": [
+      {
+        "query": "The Go service has no retransmissions or packet losses in this 20-second TCP measurement, and its RTT stayed below 2ms. Report only the measured network scope.",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "network"
+          ],
+          "matched_anchors": [
+            "tcp"
+          ],
+          "source_profile": {
+            "concepts": [
+              "network"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.network.retransmit",
+        "title": "TCP 重传、丢包与网络延迟",
+        "document": "knowledge/tcp_retransmit.md",
+        "content_hash": "f11f3e51d60ac31446a49719465fe5d26333b52a65c90e66d5bc95faa05020f7",
+        "chunk_id": "5939e5f7c7df54f3570a2733c6ceca1ea9899d55fa6cbfe94d24b008b8d18973",
+        "score": 21.080778,
+        "matched_terms": [
+          "network",
+          "packet",
+          "rtt",
+          "tcp"
+        ],
+        "required_evidence": [
+          "重传率",
+          "连接级 RTT",
+          "链路两端指标"
+        ],
+        "caveats": [
+          "应用超时和网络丢包可能互相影响"
+        ],
+        "excerpt": "# TCP 重传与网络延迟\n\n高吞吐不代表网络故障。重传和丢包要在同一时间窗检查连接两端、RTT、连接级分布和路径信息；应用处理变慢也可能引发超时与重试，不能倒因为果。"
+      },
+      {
+        "query": "The Go service has no retransmissions or packet losses in this 20-second TCP measurement, and its RTT stayed below 2ms. Report only the measured network scope.",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "network"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "kernel",
+              "network"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.cpu.kernel_overhead",
+        "title": "Linux 系统态 CPU 偏高",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+        "chunk_id": "510186cf4cd1e8d74b01bdefd7bbd496cc3868146c4cb32f96645bc915c56263",
+        "score": 0.4,
+        "matched_terms": [],
+        "required_evidence": [
+          "CPU system 比例",
+          "内核栈或系统调用分布"
+        ],
+        "caveats": [
+          "不能仅凭 system% 判断具体内核模块"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

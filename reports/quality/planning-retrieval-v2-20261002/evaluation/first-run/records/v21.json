@@ -1,0 +1,184 @@
+{
+  "type": "result",
+  "case_id": "v21",
+  "status": "OK",
+  "response": {
+    "id": "01a0fbe7e58f304156087883fb641c6a",
+    "object": "chat.completion",
+    "created": 1790932674,
+    "model": "deepseek-ai/DeepSeek-V3.2",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"schema_version\": \"mini-drop.planning-output.v2\",\n  \"disposition\": \"NORMAL\",\n  \"reasoning_summary\": \"用户提供了匹配时间窗口内的观测：Python进程的py-spy采样显示一个循环函数占92%的样本，但同一窗口内进程CPU使用率仅为0.4%（单核）。根据性能诊断原则，采样图占比高仅表明在采集到的样本中该函数是主要活动，但样本总数（12个）少且进程整体CPU使用率极低，这共同表明进程并未处于CPU饱和状态。当前证据不支持存在待验证的CPU性能异常。\",\n  \"tool_name\": null,\n  \"hypotheses\": [],\n  \"missing_evidence\": [],\n  \"limitations\": [\"本次规划仅基于提供的合成观测数据（profile占比92%，进程CPU 0.4%，样本数12）进行评价，未对系统进行新的状态检查。\", \"规划范围仅限于解释已有观测，未提出新的待验证异常或执行取证动作。\"],\n  \"causal_root_cause_verified\": false\n}"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4476,
+      "completion_tokens": 231,
+      "total_tokens": 4707,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 2944
+      },
+      "prompt_cache_hit_tokens": 2944,
+      "prompt_cache_miss_tokens": 1532
+    },
+    "system_fingerprint": ""
+  },
+  "http_status": 200,
+  "response_text": "{\"id\":\"01a0fbe7e58f304156087883fb641c6a\",\"object\":\"chat.completion\",\"created\":1790932674,\"model\":\"deepseek-ai/DeepSeek-V3.2\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\n  \\\"schema_version\\\": \\\"mini-drop.planning-output.v2\\\",\\n  \\\"disposition\\\": \\\"NORMAL\\\",\\n  \\\"reasoning_summary\\\": \\\"用户提供了匹配时间窗口内的观测：Python进程的py-spy采样显示一个循环函数占92%的样本，但同一窗口内进程CPU使用率仅为0.4%（单核）。根据性能诊断原则，采样图占比高仅表明在采集到的样本中该函数是主要活动，但样本总数（12个）少且进程整体CPU使用率极低，这共同表明进程并未处于CPU饱和状态。当前证据不支持存在待验证的CPU性能异常。\\\",\\n  \\\"tool_name\\\": null,\\n  \\\"hypotheses\\\": [],\\n  \\\"missing_evidence\\\": [],\\n  \\\"limitations\\\": [\\\"本次规划仅基于提供的合成观测数据（profile占比92%，进程CPU 0.4%，样本数12）进行评价，未对系统进行新的状态检查。\\\", \\\"规划范围仅限于解释已有观测，未提出新的待验证异常或执行取证动作。\\\"],\\n  \\\"causal_root_cause_verified\\\": false\\n}\"},\"finish_reason\":\"stop\",\"logprobs\":null}],\"usage\":{\"prompt_tokens\":4476,\"completion_tokens\":231,\"total_tokens\":4707,\"completion_tokens_details\":{\"reasoning_tokens\":0},\"prompt_tokens_details\":{\"cached_tokens\":2944},\"prompt_cache_hit_tokens\":2944,\"prompt_cache_miss_tokens\":1532},\"system_fingerprint\":\"\"}",
+  "response_text_sha256": "e56544c2a6e4125885948b8051dbf2ee236efd0b60ee1e9aaa84d1ce4f541c5b",
+  "seconds": 12.12248,
+  "retrieval": {
+    "requested_backend": "BM25",
+    "actual_backend": "BM25",
+    "degraded_reasons": [],
+    "matched_ids": [
+      "python.sampling.attribution",
+      "linux.cpu.process_pressure",
+      "container.cpu.throttling"
+    ],
+    "matches": [
+      {
+        "query": "有人说 Python py-spy 图的循环函数占 92% 就是 CPU 打满，但匹配窗口进程 CPU 0.4%；请说明图占比不能支持饱和，并仅评价已测范围。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "sampling"
+          ],
+          "matched_anchors": [
+            "py-spy"
+          ],
+          "source_profile": {
+            "concepts": [
+              "sampling"
+            ],
+            "runtime_scopes": [
+              "PYTHON"
+            ],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "python.sampling.attribution",
+        "title": "Python 采样归因与空闲线程",
+        "document": "knowledge/python_sampling.md",
+        "content_hash": "721e323a82ddb32913dac47ecba68c5ae32161c456b12b6eb941c3809fb554dc",
+        "chunk_id": "b12137d6bb5a6bbb2c34bc1c6610dc88a7498fc114985cde91a73970c0babdec",
+        "score": 24.840013,
+        "matched_terms": [
+          "python",
+          "spy",
+          "能支持",
+          "py",
+          "函数",
+          "支持",
+          "能支",
+          "进程"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## Python 源码热点与独立验证\n\n同一函数不同执行行可能分散样本，需同时阅读函数和行级统计。只有可解析源码位置、有效样本和同窗进程压力才能支持热点调查；热点仍不自动证明业务回归。相同输入、并发与时长复测，并用吞吐、延迟及错误率确认影响。采集失败不属于反证。\n\n来源：https://github.com/benfred/py-spy 。2026-09-19 核对；本文为 Mini-Drop 调查指南，非上游逐字转载。知识不属于本次事故证据。"
+      },
+      {
+        "query": "有人说 Python py-spy 图的循环函数占 92% 就是 CPU 打满，但匹配窗口进程 CPU 0.4%；请说明图占比不能支持饱和，并仅评价已测范围。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu",
+            "sampling"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "gc",
+              "host_contention",
+              "sampling"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "linux.cpu.process_pressure",
+        "title": "Linux 进程用户态 CPU 热点",
+        "document": "knowledge/linux_cpu.md",
+        "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+        "chunk_id": "85e0e4cf5696c3626de2a02fee11730f4fca25b216490b0fcb4bd4961f80c9eb",
+        "score": 8.735413,
+        "matched_terms": [
+          "cpu",
+          "说明",
+          "进程"
+        ],
+        "required_evidence": [
+          "CPU user/system 比例",
+          "Profile TopN",
+          "同宿主资源对比"
+        ],
+        "caveats": [
+          "单次 CPU 高不能证明代码回归",
+          "缺少符号时应返回证据不足"
+        ],
+        "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+      },
+      {
+        "query": "有人说 Python py-spy 图的循环函数占 92% 就是 CPU 打满，但匹配窗口进程 CPU 0.4%；请说明图占比不能支持饱和，并仅评价已测范围。",
+        "relevance": {
+          "accepted": true,
+          "reason": "DOMAIN_ANCHOR_MATCH",
+          "shared_concepts": [
+            "cpu"
+          ],
+          "matched_anchors": [],
+          "source_profile": {
+            "concepts": [
+              "cpu",
+              "cpu_quota"
+            ],
+            "runtime_scopes": [],
+            "database_scopes": []
+          }
+        },
+        "knowledge_id": "container.cpu.throttling",
+        "title": "容器 CPU 配额节流",
+        "document": "knowledge/cgroup_cpu.md",
+        "content_hash": "9b4153f381e6021935b299887216b97a70fcaffeba972b5ae3155d4793cca7be",
+        "chunk_id": "f5179df354a94fa088e2260d58de2025b47533edd6a829e6a43a2ea5fa1cc57a",
+        "score": 7.994761,
+        "matched_terms": [
+          "cpu",
+          "窗口",
+          "进程"
+        ],
+        "required_evidence": [
+          "当前目标身份与时间窗",
+          "与问题对应的原始观测",
+          "独立对照或反证"
+        ],
+        "caveats": [
+          "知识只能指导调查，不是当前事故证据",
+          "缺少所需连接器时明确报告观测缺口"
+        ],
+        "excerpt": "## CPU throttling 的观测窗口\n\n读取 cpu.max 和 cpu.stat，在等长窗口比较 nr_periods、nr_throttled、throttled_usec 的增量，同时记录请求量及进程 CPU。累计节流时间非零不证明当前故障；祖先 cgroup 的限制也可能影响目标。"
+      }
+    ],
+    "knowledge_is_evidence": false
+  }
+}

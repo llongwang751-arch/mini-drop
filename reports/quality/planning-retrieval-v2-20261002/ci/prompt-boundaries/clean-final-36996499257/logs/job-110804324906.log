@@ -1,0 +1,373 @@
+﻿2026-10-02T10:37:36.5841464Z Current runner version: '2.337.0'
+2026-10-02T10:37:36.5878662Z ##[group]Runner Image Provisioner
+2026-10-02T10:37:36.5879944Z Hosted Compute Agent
+2026-10-02T10:37:36.5881296Z Version: 20260901.588
+2026-10-02T10:37:36.5882417Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-02T10:37:36.5883769Z Build Date: 2026-09-01T19:56:44Z
+2026-10-02T10:37:36.5885134Z Worker ID: {1f23599d-13af-44c2-8303-e6382c817b32}
+2026-10-02T10:37:36.5886342Z Azure Region: eastus
+2026-10-02T10:37:36.5887540Z ##[endgroup]
+2026-10-02T10:37:36.5889977Z ##[group]Operating System
+2026-10-02T10:37:36.5891329Z Ubuntu
+2026-10-02T10:37:36.5892380Z 22.04.5
+2026-10-02T10:37:36.5893239Z LTS
+2026-10-02T10:37:36.5894190Z ##[endgroup]
+2026-10-02T10:37:36.5895207Z ##[group]Runner Image
+2026-10-02T10:37:36.5896279Z Image: ubuntu-22.04
+2026-10-02T10:37:36.5897341Z Version: 20260927.309.1
+2026-10-02T10:37:36.5899573Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20260927.309/images/ubuntu/Ubuntu2204-Readme.md
+2026-10-02T10:37:36.5902527Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20260927.309
+2026-10-02T10:37:36.5904418Z ##[endgroup]
+2026-10-02T10:37:36.5906287Z ##[group]GITHUB_TOKEN Permissions
+2026-10-02T10:37:36.5909401Z Contents: read
+2026-10-02T10:37:36.5910417Z Metadata: read
+2026-10-02T10:37:36.5911690Z ##[endgroup]
+2026-10-02T10:37:36.5914949Z Secret source: Actions
+2026-10-02T10:37:36.5916484Z Cache mode: write
+2026-10-02T10:37:36.5917846Z Prepare workflow directory
+2026-10-02T10:37:36.6353804Z Prepare all required actions
+2026-10-02T10:37:36.6404320Z Getting action download info
+2026-10-02T10:37:36.8599290Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-02T10:37:36.9599602Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-10-02T10:37:37.0424376Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-02T10:37:37.3207494Z Complete job name: Exact Git core stack, mTLS and real Agent artifact
+2026-10-02T10:37:37.4045112Z ##[group]Run actions/checkout@v4
+2026-10-02T10:37:37.4046057Z with:
+2026-10-02T10:37:37.4046525Z   persist-credentials: false
+2026-10-02T10:37:37.4047091Z   repository: llongwang751-arch/mini-drop
+2026-10-02T10:37:37.4051342Z   token: ***
+2026-10-02T10:37:37.4051797Z   ssh-strict: true
+2026-10-02T10:37:37.4052239Z   ssh-user: git
+2026-10-02T10:37:37.4052663Z   clean: true
+2026-10-02T10:37:37.4053125Z   sparse-checkout-cone-mode: true
+2026-10-02T10:37:37.4053652Z   fetch-depth: 1
+2026-10-02T10:37:37.4054081Z   fetch-tags: false
+2026-10-02T10:37:37.4054538Z   show-progress: true
+2026-10-02T10:37:37.4054990Z   lfs: false
+2026-10-02T10:37:37.4055414Z   submodules: false
+2026-10-02T10:37:37.4055865Z   set-safe-directory: true
+2026-10-02T10:37:37.4056376Z   allow-unsafe-pr-checkout: false
+2026-10-02T10:37:37.4057187Z ##[endgroup]
+2026-10-02T10:37:37.5176624Z Syncing repository: llongwang751-arch/mini-drop
+2026-10-02T10:37:37.5179224Z ##[group]Getting Git version info
+2026-10-02T10:37:37.5180162Z Working directory is '/home/runner/work/mini-drop/mini-drop'
+2026-10-02T10:37:37.5181693Z [command]/usr/bin/git version
+2026-10-02T10:37:37.5275189Z git version 2.55.0
+2026-10-02T10:37:37.5298596Z ##[endgroup]
+2026-10-02T10:37:37.5315005Z Temporarily overriding HOME='/home/runner/work/_temp/6574706a-2b8e-47c9-8b07-3bb63c65a4a2' before making global git config changes
+2026-10-02T10:37:37.5317410Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-02T10:37:37.5321180Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mini-drop/mini-drop
+2026-10-02T10:37:37.5380564Z Deleting the contents of '/home/runner/work/mini-drop/mini-drop'
+2026-10-02T10:37:37.5393807Z ##[group]Initializing the repository
+2026-10-02T10:37:37.5395119Z [command]/usr/bin/git init /home/runner/work/mini-drop/mini-drop
+2026-10-02T10:37:37.5552965Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-02T10:37:37.5555951Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-02T10:37:37.5561567Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-02T10:37:37.5563539Z hint: call:
+2026-10-02T10:37:37.5564452Z hint:
+2026-10-02T10:37:37.5565547Z hint: 	git config --global init.defaultBranch <name>
+2026-10-02T10:37:37.5568720Z hint:
+2026-10-02T10:37:37.5570183Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-02T10:37:37.5572655Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-02T10:37:37.5574375Z hint:
+2026-10-02T10:37:37.5575378Z hint: 	git branch -m <name>
+2026-10-02T10:37:37.5576351Z hint:
+2026-10-02T10:37:37.5577561Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-02T10:37:37.5579724Z Initialized empty Git repository in /home/runner/work/mini-drop/mini-drop/.git/
+2026-10-02T10:37:37.5584117Z [command]/usr/bin/git remote add origin https://github.com/llongwang751-arch/mini-drop
+2026-10-02T10:37:37.5631883Z ##[endgroup]
+2026-10-02T10:37:37.5633390Z ##[group]Disabling automatic garbage collection
+2026-10-02T10:37:37.5635856Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-02T10:37:37.5684362Z ##[endgroup]
+2026-10-02T10:37:37.5685821Z ##[group]Setting up auth
+2026-10-02T10:37:37.5699627Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-02T10:37:37.5738239Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-02T10:37:37.6217954Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-02T10:37:37.6267557Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-02T10:37:37.6625142Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-02T10:37:37.6663990Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-02T10:37:37.6966672Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-02T10:37:37.7020230Z ##[endgroup]
+2026-10-02T10:37:37.7021493Z ##[group]Fetching the repository
+2026-10-02T10:37:37.7031264Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +4321aba043be6c2eb36580cf3b00d56c50bda914:refs/remotes/pull/1/merge
+2026-10-02T10:37:44.8256834Z From https://github.com/llongwang751-arch/mini-drop
+2026-10-02T10:37:44.8258071Z  * [new ref]         4321aba043be6c2eb36580cf3b00d56c50bda914 -> pull/1/merge
+2026-10-02T10:37:44.8261544Z ##[endgroup]
+2026-10-02T10:37:44.8262729Z ##[group]Determining the checkout info
+2026-10-02T10:37:44.8264315Z ##[endgroup]
+2026-10-02T10:37:44.8272019Z [command]/usr/bin/git sparse-checkout disable
+2026-10-02T10:37:44.8332677Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-02T10:37:44.8384129Z ##[group]Checking out the ref
+2026-10-02T10:37:44.8388284Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/1/merge
+2026-10-02T10:37:45.8568550Z Updating files:  63% (2785/4371)
+2026-10-02T10:37:45.8613938Z Updating files:  64% (2798/4371)
+2026-10-02T10:37:45.8664578Z Updating files:  65% (2842/4371)
+2026-10-02T10:37:45.8699420Z Updating files:  66% (2885/4371)
+2026-10-02T10:37:45.8752450Z Updating files:  67% (2929/4371)
+2026-10-02T10:37:45.8789073Z Updating files:  68% (2973/4371)
+2026-10-02T10:37:45.9014425Z Updating files:  69% (3016/4371)
+2026-10-02T10:37:45.9330126Z Updating files:  70% (3060/4371)
+2026-10-02T10:37:45.9515712Z Updating files:  71% (3104/4371)
+2026-10-02T10:37:45.9569942Z Updating files:  72% (3148/4371)
+2026-10-02T10:37:45.9635136Z Updating files:  73% (3191/4371)
+2026-10-02T10:37:45.9706891Z Updating files:  74% (3235/4371)
+2026-10-02T10:37:45.9801470Z Updating files:  75% (3279/4371)
+2026-10-02T10:37:45.9857384Z Updating files:  76% (3322/4371)
+2026-10-02T10:37:45.9901945Z Updating files:  77% (3366/4371)
+2026-10-02T10:37:45.9924073Z Updating files:  78% (3410/4371)
+2026-10-02T10:37:45.9975000Z Updating files:  79% (3454/4371)
+2026-10-02T10:37:46.0018261Z Updating files:  80% (3497/4371)
+2026-10-02T10:37:46.0059178Z Updating files:  81% (3541/4371)
+2026-10-02T10:37:46.0129110Z Updating files:  82% (3585/4371)
+2026-10-02T10:37:46.0169704Z Updating files:  83% (3628/4371)
+2026-10-02T10:37:46.0226440Z Updating files:  84% (3672/4371)
+2026-10-02T10:37:46.0327090Z Updating files:  85% (3716/4371)
+2026-10-02T10:37:46.0386193Z Updating files:  86% (3760/4371)
+2026-10-02T10:37:46.0447329Z Updating files:  87% (3803/4371)
+2026-10-02T10:37:46.0479140Z Updating files:  88% (3847/4371)
+2026-10-02T10:37:46.0515033Z Updating files:  89% (3891/4371)
+2026-10-02T10:37:46.0548803Z Updating files:  90% (3934/4371)
+2026-10-02T10:37:46.0599791Z Updating files:  91% (3978/4371)
+2026-10-02T10:37:46.0628247Z Updating files:  92% (4022/4371)
+2026-10-02T10:37:46.0659128Z Updating files:  93% (4066/4371)
+2026-10-02T10:37:46.0687945Z Updating files:  94% (4109/4371)
+2026-10-02T10:37:46.0723328Z Updating files:  95% (4153/4371)
+2026-10-02T10:37:46.0860998Z Updating files:  96% (4197/4371)
+2026-10-02T10:37:46.0901852Z Updating files:  97% (4240/4371)
+2026-10-02T10:37:46.0918035Z Updating files:  98% (4284/4371)
+2026-10-02T10:37:46.0944219Z Updating files:  99% (4328/4371)
+2026-10-02T10:37:46.0945205Z Updating files: 100% (4371/4371)
+2026-10-02T10:37:46.0945840Z Updating files: 100% (4371/4371), done.
+2026-10-02T10:37:46.1012913Z Note: switching to 'refs/remotes/pull/1/merge'.
+2026-10-02T10:37:46.1013446Z 
+2026-10-02T10:37:46.1013867Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-02T10:37:46.1015189Z changes and commit them, and you can discard any commits you make in this
+2026-10-02T10:37:46.1016119Z state without impacting any branches by switching back to a branch.
+2026-10-02T10:37:46.1016664Z 
+2026-10-02T10:37:46.1017042Z If you want to create a new branch to retain commits you create, you may
+2026-10-02T10:37:46.1017968Z do so (now or later) by using -c with the switch command. Example:
+2026-10-02T10:37:46.1018457Z 
+2026-10-02T10:37:46.1018677Z   git switch -c <new-branch-name>
+2026-10-02T10:37:46.1019039Z 
+2026-10-02T10:37:46.1019264Z Or undo this operation with:
+2026-10-02T10:37:46.1019581Z 
+2026-10-02T10:37:46.1019756Z   git switch -
+2026-10-02T10:37:46.1019997Z 
+2026-10-02T10:37:46.1020416Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-02T10:37:46.1021270Z 
+2026-10-02T10:37:46.1021994Z HEAD is now at 4321aba Merge 73b4b18ad83553a5012a0025dfb78bb21ff8dc7f into 609ea8a73f845b496b59b5cae181f515c5919850
+2026-10-02T10:37:46.1129565Z ##[endgroup]
+2026-10-02T10:37:46.1183065Z [command]/usr/bin/git log -1 --format=%H
+2026-10-02T10:37:46.1221701Z 4321aba043be6c2eb36580cf3b00d56c50bda914
+2026-10-02T10:37:46.1233474Z ##[group]Removing auth
+2026-10-02T10:37:46.1237283Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-02T10:37:46.1279836Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-02T10:37:46.1589261Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-02T10:37:46.1623634Z http.https://github.com/.extraheader
+2026-10-02T10:37:46.1634919Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-02T10:37:46.1773249Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-02T10:37:46.1972130Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-02T10:37:46.2010633Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-02T10:37:46.2286514Z ##[endgroup]
+2026-10-02T10:37:46.2567478Z ##[group]Run actions/setup-python@v5
+2026-10-02T10:37:46.2567811Z with:
+2026-10-02T10:37:46.2568015Z   python-version: 3.11
+2026-10-02T10:37:46.2568261Z   check-latest: false
+2026-10-02T10:37:46.2571494Z   token: ***
+2026-10-02T10:37:46.2571732Z   update-environment: true
+2026-10-02T10:37:46.2571987Z   allow-prereleases: false
+2026-10-02T10:37:46.2572229Z   freethreaded: false
+2026-10-02T10:37:46.2572452Z ##[endgroup]
+2026-10-02T10:37:46.4130423Z ##[group]Installed versions
+2026-10-02T10:37:46.4238386Z (node:2090) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-02T10:37:46.4239856Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-02T10:37:46.4240698Z Successfully set up CPython (3.11.16)
+2026-10-02T10:37:46.4263969Z ##[endgroup]
+2026-10-02T10:37:46.4429939Z ##[group]Run python -m pip install 'PyYAML>=6,<7' 'pytest>=8,<9'
+2026-10-02T10:37:46.4431675Z [36;1mpython -m pip install 'PyYAML>=6,<7' 'pytest>=8,<9'[0m
+2026-10-02T10:37:46.4432903Z [36;1mpython -m pytest --noconftest tests/test_clean_stack_acceptance.py -q --junitxml=output/quality/clean-stack-gates.xml[0m
+2026-10-02T10:37:46.4918860Z shell: /usr/bin/bash -e {0}
+2026-10-02T10:37:46.4919232Z env:
+2026-10-02T10:37:46.4919585Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T10:37:46.4920136Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-02T10:37:46.4920646Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T10:37:46.4921375Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T10:37:46.4921902Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T10:37:46.4922351Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-02T10:37:46.4922759Z ##[endgroup]
+2026-10-02T10:37:48.5517272Z Collecting PyYAML<7,>=6
+2026-10-02T10:37:48.5876994Z   Downloading pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+2026-10-02T10:37:48.6242186Z Collecting pytest<9,>=8
+2026-10-02T10:37:48.6279768Z   Downloading pytest-8.4.2-py3-none-any.whl.metadata (7.7 kB)
+2026-10-02T10:37:48.6409189Z Collecting iniconfig>=1 (from pytest<9,>=8)
+2026-10-02T10:37:48.6445603Z   Downloading iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)
+2026-10-02T10:37:48.6603433Z Collecting packaging>=20 (from pytest<9,>=8)
+2026-10-02T10:37:48.6645394Z   Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+2026-10-02T10:37:48.6783859Z Collecting pluggy<2,>=1.5 (from pytest<9,>=8)
+2026-10-02T10:37:48.6819349Z   Downloading pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+2026-10-02T10:37:48.7003953Z Collecting pygments>=2.7.2 (from pytest<9,>=8)
+2026-10-02T10:37:48.7040990Z   Downloading pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+2026-10-02T10:37:48.7125890Z Downloading pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (806 kB)
+2026-10-02T10:37:48.7325402Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 806.6/806.6 kB 64.3 MB/s  0:00:00
+2026-10-02T10:37:48.7363357Z Downloading pytest-8.4.2-py3-none-any.whl (365 kB)
+2026-10-02T10:37:48.7444752Z Downloading pluggy-1.6.0-py3-none-any.whl (20 kB)
+2026-10-02T10:37:48.7508166Z Downloading iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+2026-10-02T10:37:48.7565097Z Downloading packaging-26.3-py3-none-any.whl (129 kB)
+2026-10-02T10:37:48.7635236Z Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB)
+2026-10-02T10:37:48.7791508Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 88.0 MB/s  0:00:00
+2026-10-02T10:37:48.9269056Z Installing collected packages: PyYAML, pygments, pluggy, packaging, iniconfig, pytest
+2026-10-02T10:37:50.0215810Z 
+2026-10-02T10:37:50.0226649Z Successfully installed PyYAML-6.0.3 iniconfig-2.3.0 packaging-26.3 pluggy-1.6.0 pygments-2.21.0 pytest-8.4.2
+2026-10-02T10:37:52.0738393Z ........................................................................ [ 82%]
+2026-10-02T10:37:52.1155536Z ...............                                                          [100%]
+2026-10-02T10:37:52.1156804Z - generated xml file: /home/runner/work/mini-drop/mini-drop/output/quality/clean-stack-gates.xml -
+2026-10-02T10:37:52.1157873Z 87 passed in 1.10s
+2026-10-02T10:37:52.1478164Z ##[group]Run python scripts/verify_clean_stack.py --expected-head '4321aba043be6c2eb36580cf3b00d56c50bda914' --output output/quality/clean-stack
+2026-10-02T10:37:52.1479211Z [36;1mpython scripts/verify_clean_stack.py --expected-head '4321aba043be6c2eb36580cf3b00d56c50bda914' --output output/quality/clean-stack[0m
+2026-10-02T10:37:52.1554439Z shell: /usr/bin/bash -e {0}
+2026-10-02T10:37:52.1554716Z env:
+2026-10-02T10:37:52.1554989Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T10:37:52.1555435Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-02T10:37:52.1555869Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T10:37:52.1556262Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T10:37:52.1556682Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T10:37:52.1557088Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-02T10:37:52.1557458Z ##[endgroup]
+2026-10-02T10:37:52.2472243Z clean-stack: preflight
+2026-10-02T10:37:52.2504318Z clean-stack command 1 completed in 0.0s
+2026-10-02T10:37:52.3841677Z clean-stack command 2 completed in 0.1s
+2026-10-02T10:37:52.3869034Z clean-stack command 3 completed in 0.0s
+2026-10-02T10:37:52.6347183Z clean-stack command 4 completed in 0.2s
+2026-10-02T10:37:52.7022043Z clean-stack command 5 completed in 0.1s
+2026-10-02T10:37:52.7190718Z clean-stack command 6 completed in 0.0s
+2026-10-02T10:37:52.7352334Z clean-stack command 7 completed in 0.0s
+2026-10-02T10:37:52.7524957Z clean-stack command 8 completed in 0.0s
+2026-10-02T10:37:52.7540404Z clean-stack: configuration
+2026-10-02T10:37:54.4005990Z clean-stack command 9 completed in 1.6s
+2026-10-02T10:37:54.4106572Z clean-stack command 10 completed in 0.0s
+2026-10-02T10:37:54.4199925Z clean-stack command 11 completed in 0.0s
+2026-10-02T10:37:54.4297903Z clean-stack command 12 completed in 0.0s
+2026-10-02T10:37:54.4392786Z clean-stack command 13 completed in 0.0s
+2026-10-02T10:37:54.5686696Z clean-stack command 14 completed in 0.1s
+2026-10-02T10:37:54.5732336Z clean-stack: build
+2026-10-02T10:37:54.5904849Z clean-stack command 15 completed in 0.0s
+2026-10-02T10:41:18.4228356Z clean-stack command 16 completed in 203.8s
+2026-10-02T10:41:18.4398060Z clean-stack command 17 completed in 0.0s
+2026-10-02T10:41:57.7520217Z clean-stack command 18 completed in 39.3s
+2026-10-02T10:41:57.7694904Z clean-stack command 19 completed in 0.0s
+2026-10-02T10:42:50.1853932Z clean-stack command 20 completed in 52.4s
+2026-10-02T10:42:50.2025486Z clean-stack command 21 completed in 0.0s
+2026-10-02T10:44:01.2590039Z clean-stack command 22 completed in 71.1s
+2026-10-02T10:44:01.2763767Z clean-stack command 23 completed in 0.0s
+2026-10-02T10:45:25.0378391Z clean-stack command 24 completed in 83.8s
+2026-10-02T10:45:25.0552357Z clean-stack command 25 completed in 0.0s
+2026-10-02T10:45:40.0387958Z clean-stack command 26 completed in 15.0s
+2026-10-02T10:45:40.0569569Z clean-stack command 27 completed in 0.0s
+2026-10-02T10:45:42.0370451Z clean-stack command 28 completed in 2.0s
+2026-10-02T10:45:46.3815797Z clean-stack command 29 completed in 4.3s
+2026-10-02T10:45:46.3994432Z clean-stack command 30 completed in 0.0s
+2026-10-02T10:45:46.4162032Z clean-stack command 31 completed in 0.0s
+2026-10-02T10:45:46.4329133Z clean-stack command 32 completed in 0.0s
+2026-10-02T10:45:46.4498148Z clean-stack command 33 completed in 0.0s
+2026-10-02T10:45:46.4669245Z clean-stack command 34 completed in 0.0s
+2026-10-02T10:45:46.4839365Z clean-stack command 35 completed in 0.0s
+2026-10-02T10:45:46.5011834Z clean-stack command 36 completed in 0.0s
+2026-10-02T10:45:46.5188012Z clean-stack command 37 completed in 0.0s
+2026-10-02T10:45:46.5360042Z clean-stack command 38 completed in 0.0s
+2026-10-02T10:45:46.5530564Z clean-stack command 39 completed in 0.0s
+2026-10-02T10:45:46.5542226Z clean-stack: start
+2026-10-02T10:46:22.7412315Z clean-stack command 40 completed in 36.2s
+2026-10-02T10:46:22.7709468Z clean-stack command 41 completed in 0.0s
+2026-10-02T10:46:22.8111901Z clean-stack command 42 completed in 0.0s
+2026-10-02T10:46:25.8316319Z clean-stack command 43 completed in 0.0s
+2026-10-02T10:46:25.8569269Z clean-stack command 44 completed in 0.0s
+2026-10-02T10:46:28.8764892Z clean-stack command 45 completed in 0.0s
+2026-10-02T10:46:28.9011487Z clean-stack command 46 completed in 0.0s
+2026-10-02T10:46:31.9212484Z clean-stack command 47 completed in 0.0s
+2026-10-02T10:46:31.9459617Z clean-stack command 48 completed in 0.0s
+2026-10-02T10:46:34.9709870Z clean-stack command 49 completed in 0.0s
+2026-10-02T10:46:34.9999448Z clean-stack command 50 completed in 0.0s
+2026-10-02T10:46:35.0934508Z clean-stack command 51 completed in 0.1s
+2026-10-02T10:46:35.4794263Z clean-stack command 52 completed in 0.4s
+2026-10-02T10:46:35.6235353Z clean-stack command 53 completed in 0.1s
+2026-10-02T10:46:35.6245032Z clean-stack: migration
+2026-10-02T10:46:35.7724714Z clean-stack command 54 completed in 0.1s
+2026-10-02T10:46:35.7781276Z clean-stack: heartbeat
+2026-10-02T10:46:41.7955565Z clean-stack: task
+2026-10-02T10:46:41.8133623Z clean-stack command 55 completed in 0.0s
+2026-10-02T10:46:41.9018002Z clean-stack command 56 completed in 0.1s
+2026-10-02T10:46:41.9201423Z clean-stack command 57 completed in 0.0s
+2026-10-02T10:46:56.9611145Z clean-stack: artifacts
+2026-10-02T10:46:57.1306140Z clean-stack command 58 completed in 0.2s
+2026-10-02T10:46:57.1486584Z clean-stack command 59 completed in 0.0s
+2026-10-02T10:46:57.2305381Z clean-stack command 60 completed in 0.1s
+2026-10-02T10:46:57.2486721Z clean-stack command 61 completed in 0.0s
+2026-10-02T10:46:57.4511068Z clean-stack command 62 completed in 0.2s
+2026-10-02T10:46:57.4523931Z clean-stack: readonly
+2026-10-02T10:46:57.4760518Z clean-stack command 63 completed in 0.0s
+2026-10-02T10:46:57.5064376Z clean-stack command 64 completed in 0.0s
+2026-10-02T10:46:57.6324468Z clean-stack command 65 completed in 0.1s
+2026-10-02T10:46:57.6328026Z clean-stack: cleanup
+2026-10-02T10:46:57.6533899Z clean-stack command 66 completed in 0.0s
+2026-10-02T10:46:57.6896646Z clean-stack command 67 completed in 0.0s
+2026-10-02T10:47:12.8783879Z clean-stack command 68 completed in 15.2s
+2026-10-02T10:47:12.9241521Z clean-stack command 69 completed in 0.0s
+2026-10-02T10:47:12.9406622Z clean-stack command 70 completed in 0.0s
+2026-10-02T10:47:12.9569881Z clean-stack command 71 completed in 0.0s
+2026-10-02T10:47:13.0762539Z clean-stack command 72 completed in 0.1s
+2026-10-02T10:47:13.0928497Z clean-stack command 73 completed in 0.0s
+2026-10-02T10:47:13.1097288Z clean-stack command 74 completed in 0.0s
+2026-10-02T10:47:13.1211005Z clean-stack command 75 completed in 0.0s
+2026-10-02T10:47:13.1245697Z {"status": "PASSED", "report": "/home/runner/work/mini-drop/mini-drop/output/quality/clean-stack/report.json", "failure": null}
+2026-10-02T10:47:13.1459397Z ##[group]Run actions/upload-artifact@v4
+2026-10-02T10:47:13.1459702Z with:
+2026-10-02T10:47:13.1460002Z   name: clean-core-stack-4321aba043be6c2eb36580cf3b00d56c50bda914-1
+2026-10-02T10:47:13.1460491Z   path: output/quality/clean-stack/
+output/quality/clean-stack-gates.xml
+
+2026-10-02T10:47:13.1461279Z   if-no-files-found: error
+2026-10-02T10:47:13.1461515Z   retention-days: 14
+2026-10-02T10:47:13.1461736Z   compression-level: 6
+2026-10-02T10:47:13.1461945Z   overwrite: false
+2026-10-02T10:47:13.1462157Z   include-hidden-files: false
+2026-10-02T10:47:13.1462388Z env:
+2026-10-02T10:47:13.1462866Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T10:47:13.1463296Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-02T10:47:13.1463714Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T10:47:13.1464091Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T10:47:13.1464527Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T10:47:13.1464918Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-02T10:47:13.1465236Z ##[endgroup]
+2026-10-02T10:47:13.3406575Z (node:33713) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-02T10:47:13.3408092Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-02T10:47:13.3656987Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-02T10:47:13.3660305Z The least common ancestor is /home/runner/work/mini-drop/mini-drop/output/quality. This will be the root directory of the artifact
+2026-10-02T10:47:13.3661812Z With the provided path, there will be 58 files uploaded
+2026-10-02T10:47:13.3667799Z Artifact name is valid!
+2026-10-02T10:47:13.3668849Z Root directory input is valid!
+2026-10-02T10:47:13.5734114Z Beginning upload of artifact content to blob storage
+2026-10-02T10:47:13.6755435Z (node:33713) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-02T10:47:13.7125538Z Uploaded bytes 89646
+2026-10-02T10:47:13.7345903Z Finished uploading artifact content to blob storage!
+2026-10-02T10:47:13.7347175Z SHA256 digest of uploaded artifact zip is a25586bee1bc71debbb69f3050e009abe75720bea15a7742e1aaa9874588f86c
+2026-10-02T10:47:13.7348283Z Finalizing artifact upload
+2026-10-02T10:47:13.9239822Z Artifact clean-core-stack-4321aba043be6c2eb36580cf3b00d56c50bda914-1.zip successfully finalized. Artifact ID 11222302932
+2026-10-02T10:47:13.9241639Z Artifact clean-core-stack-4321aba043be6c2eb36580cf3b00d56c50bda914-1 has been successfully uploaded! Final size is 89646 bytes. Artifact ID is 11222302932
+2026-10-02T10:47:13.9248511Z Artifact download URL: https://github.com/llongwang751-arch/mini-drop/actions/runs/36996499257/artifacts/11222302932
+2026-10-02T10:47:13.9450126Z Post job cleanup.
+2026-10-02T10:47:14.0769686Z (node:33727) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-02T10:47:14.0771021Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-02T10:47:14.0931633Z Post job cleanup.
+2026-10-02T10:47:14.1933164Z [command]/usr/bin/git version
+2026-10-02T10:47:14.1984688Z git version 2.55.0
+2026-10-02T10:47:14.2029189Z Temporarily overriding HOME='/home/runner/work/_temp/5d03434c-e2c7-4f77-a4c7-c28a66340b94' before making global git config changes
+2026-10-02T10:47:14.2031306Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-02T10:47:14.2034319Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mini-drop/mini-drop
+2026-10-02T10:47:14.2086670Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-02T10:47:14.2130686Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-02T10:47:14.2460506Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-02T10:47:14.2506969Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-02T10:47:14.2834979Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-02T10:47:14.2877384Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-02T10:47:14.3342916Z Cleaning up orphan processes
+2026-10-02T10:47:14.3712002Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

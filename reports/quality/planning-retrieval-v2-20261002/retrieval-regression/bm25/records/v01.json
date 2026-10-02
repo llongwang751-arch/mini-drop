@@ -1,0 +1,176 @@
+{
+  "case_id": "v01",
+  "query": "例行体检：Python 发布确认进程在连续窗口 CPU 0.9%，RSS 160MiB 且零增长，没有投诉，请只说明已检查的资源是否正常。",
+  "requested_backend": "BM25",
+  "actual_backend": "BM25",
+  "degraded_reasons": [],
+  "matched_ids": [
+    "linux.cpu.process_pressure",
+    "linux.memory.process_growth"
+  ],
+  "matches": [
+    {
+      "query": "例行体检：Python 发布确认进程在连续窗口 CPU 0.9%，RSS 160MiB 且零增长，没有投诉，请只说明已检查的资源是否正常。",
+      "relevance": {
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "cpu"
+        ],
+        "matched_anchors": [],
+        "unsupported_subjects": [],
+        "clause": "例行体检：Python 发布确认进程在连续窗口 CPU 0.9%",
+        "source_profile": {
+          "concepts": [
+            "cpu",
+            "sampling"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "cpu"
+            ],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "例行体检：Python 发布确认进程在连续窗口 CPU 0.9%"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "RSS 160MiB 且零增长"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有投诉"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "请只说明已检查的资源是否正常"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      "knowledge_id": "linux.cpu.process_pressure",
+      "title": "Linux 进程用户态 CPU 热点",
+      "document": "knowledge/linux_cpu.md",
+      "content_hash": "6b9304d0405dc47f603dfcbe025b2bbf9f1a6d969fc869de1904b18675704e4d",
+      "chunk_id": "85e0e4cf5696c3626de2a02fee11730f4fca25b216490b0fcb4bd4961f80c9eb",
+      "score": 12.587511,
+      "matched_terms": [
+        "cpu",
+        "增长",
+        "说明",
+        "资源",
+        "进程"
+      ],
+      "required_evidence": [
+        "CPU user/system 比例",
+        "Profile TopN",
+        "同宿主资源对比"
+      ],
+      "caveats": [
+        "单次 CPU 高不能证明代码回归",
+        "缺少符号时应返回证据不足"
+      ],
+      "excerpt": "# Linux CPU 诊断\n\n先区分用户态、系统态、等待和调度压力。用户态 CPU 高需要 Profile 证明热点位置；系统态 CPU 高需要内核栈、系统调用或网络证据。CPU 指标是现象，不能单独证明代码回归。\n\n安全探针优先级：系统指标（R1）→ 已有 Profile → 单次 perf（R2）。缺少符号时应明确返回证据不足。"
+    },
+    {
+      "query": "例行体检：Python 发布确认进程在连续窗口 CPU 0.9%，RSS 160MiB 且零增长，没有投诉，请只说明已检查的资源是否正常。",
+      "relevance": {
+        "accepted": true,
+        "reason": "PRIMARY_CAPABILITY_MATCH",
+        "shared_concepts": [
+          "memory"
+        ],
+        "matched_anchors": [
+          "rss"
+        ],
+        "unsupported_subjects": [],
+        "clause": "RSS 160MiB 且零增长",
+        "source_profile": {
+          "concepts": [
+            "memory"
+          ],
+          "runtime_scopes": [],
+          "database_scopes": []
+        },
+        "clause_decisions": [
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "例行体检：Python 发布确认进程在连续窗口 CPU 0.9%"
+          },
+          {
+            "accepted": true,
+            "reason": "PRIMARY_CAPABILITY_MATCH",
+            "shared_concepts": [
+              "memory"
+            ],
+            "matched_anchors": [
+              "rss"
+            ],
+            "unsupported_subjects": [],
+            "clause": "RSS 160MiB 且零增长"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "没有投诉"
+          },
+          {
+            "accepted": false,
+            "reason": "NO_DISTINCTIVE_DOMAIN_ANCHOR",
+            "shared_concepts": [],
+            "matched_anchors": [],
+            "unsupported_subjects": [],
+            "clause": "请只说明已检查的资源是否正常"
+          }
+        ],
+        "unregistered_subjects": []
+      },
+      "knowledge_id": "linux.memory.process_growth",
+      "title": "进程内存增长与压力",
+      "document": "knowledge/linux_memory.md",
+      "content_hash": "953e613685c18b7f6f0160d68019b8fad44958b3252a16a688a828663f412170",
+      "chunk_id": "12e302e5b76c79b026b3b59b89ef5b3adc4064b966beb58ccc10c66d52fa3512",
+      "score": 11.562159,
+      "matched_terms": [
+        "rss",
+        "增长",
+        "进程"
+      ],
+      "required_evidence": [
+        "RSS 时间序列",
+        "内存限制",
+        "分配热点或 GC 指标"
+      ],
+      "caveats": [
+        "缓存增长和泄漏表现可能相似"
+      ],
+      "excerpt": "# Linux 进程内存诊断\n\n高 RSS 与内存泄漏不是同义词。判断泄漏至少需要时间序列、稳定负载或基线、内存限制，以及堆或分配热点。缓存、预热和批处理也会造成阶段性增长。"
+    }
+  ],
+  "knowledge_is_evidence": false
+}

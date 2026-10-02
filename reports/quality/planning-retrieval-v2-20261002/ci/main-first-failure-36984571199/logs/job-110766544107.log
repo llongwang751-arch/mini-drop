@@ -1,0 +1,1004 @@
+﻿2026-10-02T08:32:10.0807163Z Current runner version: '2.337.0'
+2026-10-02T08:32:10.0843117Z ##[group]Runner Image Provisioner
+2026-10-02T08:32:10.0844970Z Hosted Compute Agent
+2026-10-02T08:32:10.0846290Z Version: 20260901.588
+2026-10-02T08:32:10.0847559Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-02T08:32:10.0849144Z Build Date: 2026-09-01T19:56:44Z
+2026-10-02T08:32:10.0850693Z Worker ID: {a72782bf-1988-45e5-9c8b-5d97b8474ac1}
+2026-10-02T08:32:10.0852020Z Azure Region: centralus
+2026-10-02T08:32:10.0853286Z ##[endgroup]
+2026-10-02T08:32:10.0855767Z ##[group]Operating System
+2026-10-02T08:32:10.0856995Z Ubuntu
+2026-10-02T08:32:10.0857984Z 22.04.5
+2026-10-02T08:32:10.0858973Z LTS
+2026-10-02T08:32:10.0860462Z ##[endgroup]
+2026-10-02T08:32:10.0861604Z ##[group]Runner Image
+2026-10-02T08:32:10.0862864Z Image: ubuntu-22.04
+2026-10-02T08:32:10.0863980Z Version: 20260927.309.1
+2026-10-02T08:32:10.0866358Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20260927.309/images/ubuntu/Ubuntu2204-Readme.md
+2026-10-02T08:32:10.0869271Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20260927.309
+2026-10-02T08:32:10.0871579Z ##[endgroup]
+2026-10-02T08:32:10.0873814Z ##[group]GITHUB_TOKEN Permissions
+2026-10-02T08:32:10.0876861Z Contents: read
+2026-10-02T08:32:10.0877625Z Metadata: read
+2026-10-02T08:32:10.0878245Z Packages: read
+2026-10-02T08:32:10.0878897Z ##[endgroup]
+2026-10-02T08:32:10.0881428Z Secret source: Actions
+2026-10-02T08:32:10.0882586Z Cache mode: write
+2026-10-02T08:32:10.0883622Z Prepare workflow directory
+2026-10-02T08:32:10.1396521Z Prepare all required actions
+2026-10-02T08:32:10.1468456Z Getting action download info
+2026-10-02T08:32:10.4174584Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-02T08:32:10.5245493Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-10-02T08:32:10.6228685Z Download action repository 'actions/setup-go@v5' (SHA:40f1582b2485089dde7abd97c1529aa768e1baff)
+2026-10-02T08:32:11.0061102Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-02T08:32:11.4345847Z Complete job name: PostgreSQL transactions and concurrency (no skips)
+2026-10-02T08:32:11.4954243Z ##[group]Checking docker version
+2026-10-02T08:32:11.4967776Z ##[command]/usr/bin/docker version --format '{{.Server.APIVersion}}'
+2026-10-02T08:32:11.5978019Z '1.48'
+2026-10-02T08:32:11.5994463Z Docker daemon API version: '1.48'
+2026-10-02T08:32:11.5995573Z ##[command]/usr/bin/docker version --format '{{.Client.APIVersion}}'
+2026-10-02T08:32:11.6198492Z '1.48'
+2026-10-02T08:32:11.6216485Z Docker client API version: '1.48'
+2026-10-02T08:32:11.6222036Z ##[endgroup]
+2026-10-02T08:32:11.6224992Z ##[group]Clean up resources from previous jobs
+2026-10-02T08:32:11.6230979Z ##[command]/usr/bin/docker ps --all --quiet --no-trunc --filter "label=abe350"
+2026-10-02T08:32:11.6417492Z ##[command]/usr/bin/docker network prune --force --filter "label=abe350"
+2026-10-02T08:32:11.6578084Z ##[endgroup]
+2026-10-02T08:32:11.6578704Z ##[group]Create local container network
+2026-10-02T08:32:11.6589418Z ##[command]/usr/bin/docker network create --label abe350 github_network_a5920e69d6dc404383b8df3d59b33173
+2026-10-02T08:32:11.7188729Z 6c646013ad170080f055203ed2c386e59ca0c970371c6934905751468a21ee63
+2026-10-02T08:32:11.7209127Z ##[endgroup]
+2026-10-02T08:32:11.7234401Z ##[group]Starting postgres service container
+2026-10-02T08:32:11.7256091Z ##[command]/usr/bin/docker pull postgres:16
+2026-10-02T08:32:12.2534389Z 16: Pulling from library/postgres
+2026-10-02T08:32:12.3947382Z 6b37362b3da7: Pulling fs layer
+2026-10-02T08:32:12.3948948Z b1fdda8975a0: Pulling fs layer
+2026-10-02T08:32:12.3950614Z 106e7e3cf19a: Pulling fs layer
+2026-10-02T08:32:12.3951708Z ba0e979d0818: Pulling fs layer
+2026-10-02T08:32:12.3952721Z ad29720ebbb9: Pulling fs layer
+2026-10-02T08:32:12.3953593Z 3a749597affc: Pulling fs layer
+2026-10-02T08:32:12.3954998Z 483fb6941c15: Pulling fs layer
+2026-10-02T08:32:12.3956577Z 359ae0fc975d: Pulling fs layer
+2026-10-02T08:32:12.3957733Z 56d4d190ef07: Pulling fs layer
+2026-10-02T08:32:12.3958707Z 74156cf9f063: Pulling fs layer
+2026-10-02T08:32:12.3959660Z f7c7d4dd80ba: Pulling fs layer
+2026-10-02T08:32:12.3961009Z 749acf6dc637: Pulling fs layer
+2026-10-02T08:32:12.3962163Z 4d848243a73e: Pulling fs layer
+2026-10-02T08:32:12.3963418Z 6ad4758748c1: Pulling fs layer
+2026-10-02T08:32:12.3964535Z ba0e979d0818: Waiting
+2026-10-02T08:32:12.3965375Z ad29720ebbb9: Waiting
+2026-10-02T08:32:12.3966445Z 3a749597affc: Waiting
+2026-10-02T08:32:12.3967571Z 483fb6941c15: Waiting
+2026-10-02T08:32:12.3968682Z 359ae0fc975d: Waiting
+2026-10-02T08:32:12.3969814Z 56d4d190ef07: Waiting
+2026-10-02T08:32:12.3971233Z 74156cf9f063: Waiting
+2026-10-02T08:32:12.3972392Z f7c7d4dd80ba: Waiting
+2026-10-02T08:32:12.3973541Z 6ad4758748c1: Waiting
+2026-10-02T08:32:12.3974693Z 4d848243a73e: Waiting
+2026-10-02T08:32:12.3975828Z 749acf6dc637: Waiting
+2026-10-02T08:32:12.5363779Z b1fdda8975a0: Verifying Checksum
+2026-10-02T08:32:12.5366270Z b1fdda8975a0: Download complete
+2026-10-02T08:32:12.5905831Z 106e7e3cf19a: Verifying Checksum
+2026-10-02T08:32:12.5908302Z 106e7e3cf19a: Download complete
+2026-10-02T08:32:12.7064809Z ba0e979d0818: Verifying Checksum
+2026-10-02T08:32:12.7067345Z ba0e979d0818: Download complete
+2026-10-02T08:32:12.7417616Z 6b37362b3da7: Verifying Checksum
+2026-10-02T08:32:12.7420114Z 6b37362b3da7: Download complete
+2026-10-02T08:32:12.8203838Z ad29720ebbb9: Verifying Checksum
+2026-10-02T08:32:12.8207211Z ad29720ebbb9: Download complete
+2026-10-02T08:32:12.8685220Z 483fb6941c15: Verifying Checksum
+2026-10-02T08:32:12.8691752Z 483fb6941c15: Download complete
+2026-10-02T08:32:12.8766347Z 3a749597affc: Verifying Checksum
+2026-10-02T08:32:12.8771016Z 3a749597affc: Download complete
+2026-10-02T08:32:12.9605609Z 359ae0fc975d: Verifying Checksum
+2026-10-02T08:32:12.9611606Z 359ae0fc975d: Download complete
+2026-10-02T08:32:13.0036158Z 74156cf9f063: Verifying Checksum
+2026-10-02T08:32:13.0040617Z 74156cf9f063: Download complete
+2026-10-02T08:32:13.0911629Z f7c7d4dd80ba: Verifying Checksum
+2026-10-02T08:32:13.0914399Z f7c7d4dd80ba: Download complete
+2026-10-02T08:32:13.1277303Z 749acf6dc637: Verifying Checksum
+2026-10-02T08:32:13.1283388Z 749acf6dc637: Download complete
+2026-10-02T08:32:13.2243811Z 4d848243a73e: Verifying Checksum
+2026-10-02T08:32:13.2254052Z 4d848243a73e: Download complete
+2026-10-02T08:32:13.2461601Z 6ad4758748c1: Verifying Checksum
+2026-10-02T08:32:13.2462703Z 6ad4758748c1: Download complete
+2026-10-02T08:32:13.5157498Z 56d4d190ef07: Download complete
+2026-10-02T08:32:13.9394473Z 6b37362b3da7: Pull complete
+2026-10-02T08:32:15.6134131Z b1fdda8975a0: Pull complete
+2026-10-02T08:32:15.7783693Z 106e7e3cf19a: Pull complete
+2026-10-02T08:32:15.8146947Z ba0e979d0818: Pull complete
+2026-10-02T08:32:16.1191851Z ad29720ebbb9: Pull complete
+2026-10-02T08:32:16.1766472Z 3a749597affc: Pull complete
+2026-10-02T08:32:16.1913431Z 483fb6941c15: Pull complete
+2026-10-02T08:32:16.1994357Z 359ae0fc975d: Pull complete
+2026-10-02T08:32:19.2236609Z 56d4d190ef07: Pull complete
+2026-10-02T08:32:19.2344566Z 74156cf9f063: Pull complete
+2026-10-02T08:32:19.2441070Z f7c7d4dd80ba: Pull complete
+2026-10-02T08:32:19.2546767Z 749acf6dc637: Pull complete
+2026-10-02T08:32:19.2634856Z 4d848243a73e: Pull complete
+2026-10-02T08:32:19.2712211Z 6ad4758748c1: Pull complete
+2026-10-02T08:32:19.2754451Z Digest: sha256:1a6ab3f5345eb6dbe04a1349529caabdb0ab09293a09590fad07b2246bfa4b54
+2026-10-02T08:32:19.2770533Z Status: Downloaded newer image for postgres:16
+2026-10-02T08:32:19.2782349Z docker.io/library/postgres:16
+2026-10-02T08:32:19.2848158Z ##[command]/usr/bin/docker create --name 3fac5e4dd78d4d1497acbc9abe40a799_postgres16_5242c4 --label abe350 --network github_network_a5920e69d6dc404383b8df3d59b33173 --network-alias postgres -p 5432:5432 --health-cmd "pg_isready -U mini_drop_ci -d mini_drop_ci_test" --health-interval 5s --health-timeout 5s --health-retries 10 -e "POSTGRES_USER=mini_drop_ci" -e "POSTGRES_PASSWORD=mini_drop_ci_ephemeral" -e "POSTGRES_DB=mini_drop_ci_test" -e GITHUB_ACTIONS=true -e CI=true postgres:16
+2026-10-02T08:32:19.3126399Z f1a64d8f5392ba58e4d9e62883170386dcc9ce7b35c3e6df92aa27c76625d932
+2026-10-02T08:32:19.3152089Z ##[command]/usr/bin/docker start f1a64d8f5392ba58e4d9e62883170386dcc9ce7b35c3e6df92aa27c76625d932
+2026-10-02T08:32:19.6251571Z f1a64d8f5392ba58e4d9e62883170386dcc9ce7b35c3e6df92aa27c76625d932
+2026-10-02T08:32:19.6279092Z ##[command]/usr/bin/docker ps --all --filter id=f1a64d8f5392ba58e4d9e62883170386dcc9ce7b35c3e6df92aa27c76625d932 --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+2026-10-02T08:32:19.6442786Z f1a64d8f5392ba58e4d9e62883170386dcc9ce7b35c3e6df92aa27c76625d932 Up Less than a second (health: starting)
+2026-10-02T08:32:19.6466646Z ##[command]/usr/bin/docker port f1a64d8f5392ba58e4d9e62883170386dcc9ce7b35c3e6df92aa27c76625d932
+2026-10-02T08:32:19.6655137Z 5432/tcp -> 0.0.0.0:5432
+2026-10-02T08:32:19.6655798Z 5432/tcp -> [::]:5432
+2026-10-02T08:32:19.6726831Z ##[endgroup]
+2026-10-02T08:32:19.6736634Z ##[group]Waiting for all services to be ready
+2026-10-02T08:32:19.6751152Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" f1a64d8f5392ba58e4d9e62883170386dcc9ce7b35c3e6df92aa27c76625d932
+2026-10-02T08:32:19.6931316Z starting
+2026-10-02T08:32:19.6982601Z postgres service is starting, waiting 2 seconds before checking again.
+2026-10-02T08:32:21.6990904Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" f1a64d8f5392ba58e4d9e62883170386dcc9ce7b35c3e6df92aa27c76625d932
+2026-10-02T08:32:21.7152224Z starting
+2026-10-02T08:32:21.7168574Z postgres service is starting, waiting 4 seconds before checking again.
+2026-10-02T08:32:25.8186306Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" f1a64d8f5392ba58e4d9e62883170386dcc9ce7b35c3e6df92aa27c76625d932
+2026-10-02T08:32:25.8344178Z healthy
+2026-10-02T08:32:25.8373950Z postgres service is healthy.
+2026-10-02T08:32:25.8374624Z ##[endgroup]
+2026-10-02T08:32:25.8669279Z ##[group]Run actions/checkout@v4
+2026-10-02T08:32:25.8669830Z with:
+2026-10-02T08:32:25.8670277Z   repository: llongwang751-arch/mini-drop
+2026-10-02T08:32:25.8672813Z   token: ***
+2026-10-02T08:32:25.8673024Z   ssh-strict: true
+2026-10-02T08:32:25.8673232Z   ssh-user: git
+2026-10-02T08:32:25.8673436Z   persist-credentials: true
+2026-10-02T08:32:25.8673664Z   clean: true
+2026-10-02T08:32:25.8673870Z   sparse-checkout-cone-mode: true
+2026-10-02T08:32:25.8674120Z   fetch-depth: 1
+2026-10-02T08:32:25.8674317Z   fetch-tags: false
+2026-10-02T08:32:25.8674516Z   show-progress: true
+2026-10-02T08:32:25.8674714Z   lfs: false
+2026-10-02T08:32:25.8674908Z   submodules: false
+2026-10-02T08:32:25.8675120Z   set-safe-directory: true
+2026-10-02T08:32:25.8675373Z   allow-unsafe-pr-checkout: false
+2026-10-02T08:32:25.8675860Z ##[endgroup]
+2026-10-02T08:32:25.9754756Z Syncing repository: llongwang751-arch/mini-drop
+2026-10-02T08:32:25.9756626Z ##[group]Getting Git version info
+2026-10-02T08:32:25.9757306Z Working directory is '/home/runner/work/mini-drop/mini-drop'
+2026-10-02T08:32:25.9758193Z [command]/usr/bin/git version
+2026-10-02T08:32:25.9836574Z git version 2.55.0
+2026-10-02T08:32:25.9859010Z ##[endgroup]
+2026-10-02T08:32:25.9876374Z Temporarily overriding HOME='/home/runner/work/_temp/265b6bd4-a451-471a-bb15-7d958bfeb8fb' before making global git config changes
+2026-10-02T08:32:25.9877919Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-02T08:32:25.9882968Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mini-drop/mini-drop
+2026-10-02T08:32:25.9927441Z Deleting the contents of '/home/runner/work/mini-drop/mini-drop'
+2026-10-02T08:32:25.9933318Z ##[group]Initializing the repository
+2026-10-02T08:32:25.9938352Z [command]/usr/bin/git init /home/runner/work/mini-drop/mini-drop
+2026-10-02T08:32:26.0066742Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-02T08:32:26.0068260Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-02T08:32:26.0069554Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-02T08:32:26.0070827Z hint: call:
+2026-10-02T08:32:26.0071575Z hint:
+2026-10-02T08:32:26.0072365Z hint: 	git config --global init.defaultBranch <name>
+2026-10-02T08:32:26.0073177Z hint:
+2026-10-02T08:32:26.0073666Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-02T08:32:26.0074353Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-02T08:32:26.0074910Z hint:
+2026-10-02T08:32:26.0075286Z hint: 	git branch -m <name>
+2026-10-02T08:32:26.0075665Z hint:
+2026-10-02T08:32:26.0076127Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-02T08:32:26.0076871Z Initialized empty Git repository in /home/runner/work/mini-drop/mini-drop/.git/
+2026-10-02T08:32:26.0080829Z [command]/usr/bin/git remote add origin https://github.com/llongwang751-arch/mini-drop
+2026-10-02T08:32:26.0125974Z ##[endgroup]
+2026-10-02T08:32:26.0126638Z ##[group]Disabling automatic garbage collection
+2026-10-02T08:32:26.0129837Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-02T08:32:26.0165588Z ##[endgroup]
+2026-10-02T08:32:26.0166221Z ##[group]Setting up auth
+2026-10-02T08:32:26.0174533Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-02T08:32:26.0213590Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-02T08:32:26.0707031Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-02T08:32:26.0747925Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-02T08:32:26.1034664Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-02T08:32:26.1074866Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-02T08:32:26.1338425Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-02T08:32:26.1383475Z ##[endgroup]
+2026-10-02T08:32:26.1384126Z ##[group]Fetching the repository
+2026-10-02T08:32:26.1393195Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +56788a921762abb5a409f608089d6d04ff1e4031:refs/remotes/pull/1/merge
+2026-10-02T08:32:29.4265551Z From https://github.com/llongwang751-arch/mini-drop
+2026-10-02T08:32:29.4266522Z  * [new ref]         56788a921762abb5a409f608089d6d04ff1e4031 -> pull/1/merge
+2026-10-02T08:32:29.4270642Z ##[endgroup]
+2026-10-02T08:32:29.4271033Z ##[group]Determining the checkout info
+2026-10-02T08:32:29.4273524Z ##[endgroup]
+2026-10-02T08:32:29.4279354Z [command]/usr/bin/git sparse-checkout disable
+2026-10-02T08:32:29.4343611Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-02T08:32:29.4379906Z ##[group]Checking out the ref
+2026-10-02T08:32:29.4384243Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/1/merge
+2026-10-02T08:32:30.4497713Z Updating files:  63% (2785/4368)
+2026-10-02T08:32:30.4549540Z Updating files:  64% (2796/4368)
+2026-10-02T08:32:30.4599222Z Updating files:  65% (2840/4368)
+2026-10-02T08:32:30.4631520Z Updating files:  66% (2883/4368)
+2026-10-02T08:32:30.4685528Z Updating files:  67% (2927/4368)
+2026-10-02T08:32:30.4722455Z Updating files:  68% (2971/4368)
+2026-10-02T08:32:30.4930645Z Updating files:  69% (3014/4368)
+2026-10-02T08:32:30.5236739Z Updating files:  70% (3058/4368)
+2026-10-02T08:32:30.5431848Z Updating files:  71% (3102/4368)
+2026-10-02T08:32:30.5488738Z Updating files:  72% (3145/4368)
+2026-10-02T08:32:30.5554380Z Updating files:  73% (3189/4368)
+2026-10-02T08:32:30.5622011Z Updating files:  74% (3233/4368)
+2026-10-02T08:32:30.5704483Z Updating files:  75% (3276/4368)
+2026-10-02T08:32:30.5765167Z Updating files:  76% (3320/4368)
+2026-10-02T08:32:30.5807555Z Updating files:  77% (3364/4368)
+2026-10-02T08:32:30.5834517Z Updating files:  78% (3408/4368)
+2026-10-02T08:32:30.5883694Z Updating files:  79% (3451/4368)
+2026-10-02T08:32:30.5925870Z Updating files:  80% (3495/4368)
+2026-10-02T08:32:30.5965221Z Updating files:  81% (3539/4368)
+2026-10-02T08:32:30.6032880Z Updating files:  82% (3582/4368)
+2026-10-02T08:32:30.6072695Z Updating files:  83% (3626/4368)
+2026-10-02T08:32:30.6120226Z Updating files:  84% (3670/4368)
+2026-10-02T08:32:30.6222077Z Updating files:  85% (3713/4368)
+2026-10-02T08:32:30.6281178Z Updating files:  86% (3757/4368)
+2026-10-02T08:32:30.6340362Z Updating files:  87% (3801/4368)
+2026-10-02T08:32:30.6380119Z Updating files:  88% (3844/4368)
+2026-10-02T08:32:30.6416202Z Updating files:  89% (3888/4368)
+2026-10-02T08:32:30.6447029Z Updating files:  90% (3932/4368)
+2026-10-02T08:32:30.6496450Z Updating files:  91% (3975/4368)
+2026-10-02T08:32:30.6525285Z Updating files:  92% (4019/4368)
+2026-10-02T08:32:30.6553934Z Updating files:  93% (4063/4368)
+2026-10-02T08:32:30.6595472Z Updating files:  94% (4106/4368)
+2026-10-02T08:32:30.6630154Z Updating files:  95% (4150/4368)
+2026-10-02T08:32:30.6763348Z Updating files:  96% (4194/4368)
+2026-10-02T08:32:30.6789768Z Updating files:  97% (4237/4368)
+2026-10-02T08:32:30.6818213Z Updating files:  98% (4281/4368)
+2026-10-02T08:32:30.6843187Z Updating files:  99% (4325/4368)
+2026-10-02T08:32:30.6843669Z Updating files: 100% (4368/4368)
+2026-10-02T08:32:30.6844124Z Updating files: 100% (4368/4368), done.
+2026-10-02T08:32:30.6906493Z Note: switching to 'refs/remotes/pull/1/merge'.
+2026-10-02T08:32:30.6906914Z 
+2026-10-02T08:32:30.6907271Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-02T08:32:30.6908460Z changes and commit them, and you can discard any commits you make in this
+2026-10-02T08:32:30.6909324Z state without impacting any branches by switching back to a branch.
+2026-10-02T08:32:30.6909791Z 
+2026-10-02T08:32:30.6910337Z If you want to create a new branch to retain commits you create, you may
+2026-10-02T08:32:30.6911047Z do so (now or later) by using -c with the switch command. Example:
+2026-10-02T08:32:30.6911458Z 
+2026-10-02T08:32:30.6911630Z   git switch -c <new-branch-name>
+2026-10-02T08:32:30.6911902Z 
+2026-10-02T08:32:30.6912065Z Or undo this operation with:
+2026-10-02T08:32:30.6912321Z 
+2026-10-02T08:32:30.6912460Z   git switch -
+2026-10-02T08:32:30.6912655Z 
+2026-10-02T08:32:30.6913024Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-02T08:32:30.6913534Z 
+2026-10-02T08:32:30.6914106Z HEAD is now at 56788a9 Merge dd3a359f07947a4f0b1ef00b06d2119a08103ad2 into 609ea8a73f845b496b59b5cae181f515c5919850
+2026-10-02T08:32:30.7026169Z ##[endgroup]
+2026-10-02T08:32:30.7073876Z [command]/usr/bin/git log -1 --format=%H
+2026-10-02T08:32:30.7107205Z 56788a921762abb5a409f608089d6d04ff1e4031
+2026-10-02T08:32:30.7361263Z ##[group]Run actions/setup-python@v5
+2026-10-02T08:32:30.7361555Z with:
+2026-10-02T08:32:30.7361751Z   python-version: 3.11
+2026-10-02T08:32:30.7361966Z   cache: pip
+2026-10-02T08:32:30.7362160Z   check-latest: false
+2026-10-02T08:32:30.7364606Z   token: ***
+2026-10-02T08:32:30.7364816Z   update-environment: true
+2026-10-02T08:32:30.7365053Z   allow-prereleases: false
+2026-10-02T08:32:30.7365279Z   freethreaded: false
+2026-10-02T08:32:30.7365485Z ##[endgroup]
+2026-10-02T08:32:30.8814846Z ##[group]Installed versions
+2026-10-02T08:32:30.8922968Z (node:2431) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-02T08:32:30.8924226Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-02T08:32:30.8924981Z Successfully set up CPython (3.11.16)
+2026-10-02T08:32:30.8926183Z ##[endgroup]
+2026-10-02T08:32:31.9115966Z [command]/opt/hostedtoolcache/Python/3.11.16/x64/bin/pip cache dir
+2026-10-02T08:32:33.5447421Z /home/runner/.cache/pip
+2026-10-02T08:32:33.7097958Z Cache hit for: setup-python-Linux-x64-22.04-Ubuntu-python-3.11.16-pip-b83510f2f07dfac019eba1c6d004d529cbdf8674a3f741a85baa99bd791dd2ac
+2026-10-02T08:32:33.7243520Z (node:2431) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-02T08:32:34.8500269Z Received 88080384 of 162712665 (54.1%), 84.0 MBs/sec
+2026-10-02T08:32:35.5809712Z Received 162712665 of 162712665 (100.0%), 89.6 MBs/sec
+2026-10-02T08:32:35.5810690Z Cache Size: ~155 MB (162712665 B)
+2026-10-02T08:32:35.5934812Z [command]/usr/bin/tar -xf /home/runner/work/_temp/5d028cfc-f478-4a51-a6b3-1cc2bcc20707/cache.tzst -P -C /home/runner/work/mini-drop/mini-drop --use-compress-program unzstd
+2026-10-02T08:32:35.9615273Z Cache restored successfully
+2026-10-02T08:32:35.9977376Z Cache restored from key: setup-python-Linux-x64-22.04-Ubuntu-python-3.11.16-pip-b83510f2f07dfac019eba1c6d004d529cbdf8674a3f741a85baa99bd791dd2ac
+2026-10-02T08:32:36.0183812Z ##[group]Run actions/setup-go@v5
+2026-10-02T08:32:36.0184092Z with:
+2026-10-02T08:32:36.0184303Z   go-version-file: apiserver/go.mod
+2026-10-02T08:32:36.0184596Z   cache-dependency-path: apiserver/go.sum
+2026-10-02T08:32:36.0184883Z   check-latest: false
+2026-10-02T08:32:36.0187304Z   token: ***
+2026-10-02T08:32:36.0187512Z   cache: true
+2026-10-02T08:32:36.0187705Z env:
+2026-10-02T08:32:36.0187967Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:32:36.0188421Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-02T08:32:36.0188855Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:32:36.0189231Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:32:36.0189622Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:32:36.0190310Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-02T08:32:36.0190659Z ##[endgroup]
+2026-10-02T08:32:36.1664747Z Setup go version spec 1.26.8
+2026-10-02T08:32:36.1690359Z Found in cache @ /opt/hostedtoolcache/go/1.26.8/x64
+2026-10-02T08:32:36.1692454Z (node:2470) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-02T08:32:36.1693708Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-02T08:32:36.1696852Z Added go to the path
+2026-10-02T08:32:36.1701704Z Successfully set up Go version 1.26.8
+2026-10-02T08:32:36.8745063Z [command]/opt/hostedtoolcache/go/1.26.8/x64/bin/go env GOMODCACHE
+2026-10-02T08:32:36.8820954Z [command]/opt/hostedtoolcache/go/1.26.8/x64/bin/go env GOCACHE
+2026-10-02T08:32:36.8851947Z /home/runner/go/pkg/mod
+2026-10-02T08:32:36.8881919Z /home/runner/.cache/go-build
+2026-10-02T08:32:37.0262402Z Cache hit for: setup-go-Linux-x64-ubuntu22-go-1.26.8-53ddbd53d793e3fffd22ee7f29b9841d7ddf0fd59f4a944399a5c4503dd61af9
+2026-10-02T08:32:37.0375969Z (node:2470) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-02T08:32:38.1637516Z Received 15439923 of 44800051 (34.5%), 14.7 MBs/sec
+2026-10-02T08:32:39.1649275Z Received 15439923 of 44800051 (34.5%), 7.4 MBs/sec
+2026-10-02T08:32:40.1662516Z Received 15439923 of 44800051 (34.5%), 4.9 MBs/sec
+2026-10-02T08:32:41.1674493Z Received 15439923 of 44800051 (34.5%), 3.7 MBs/sec
+2026-10-02T08:32:42.1687078Z Received 15439923 of 44800051 (34.5%), 2.9 MBs/sec
+2026-10-02T08:32:42.8582518Z Received 44800051 of 44800051 (100.0%), 7.5 MBs/sec
+2026-10-02T08:32:42.8584056Z Cache Size: ~43 MB (44800051 B)
+2026-10-02T08:32:42.8623544Z [command]/usr/bin/tar -xf /home/runner/work/_temp/ea55251e-bcb4-452c-8e80-2346e4fb32e0/cache.tzst -P -C /home/runner/work/mini-drop/mini-drop --use-compress-program unzstd
+2026-10-02T08:32:43.3075735Z Cache restored successfully
+2026-10-02T08:32:43.3185380Z Cache restored from key: setup-go-Linux-x64-ubuntu22-go-1.26.8-53ddbd53d793e3fffd22ee7f29b9841d7ddf0fd59f4a944399a5c4503dd61af9
+2026-10-02T08:32:43.3200268Z go version go1.26.8 linux/amd64
+2026-10-02T08:32:43.3200556Z 
+2026-10-02T08:32:43.3200990Z ##[group]go env
+2026-10-02T08:32:43.3986895Z AR='ar'
+2026-10-02T08:32:43.3987266Z CC='gcc'
+2026-10-02T08:32:43.3987640Z CGO_CFLAGS='-O2 -g'
+2026-10-02T08:32:43.3988052Z CGO_CPPFLAGS=''
+2026-10-02T08:32:43.3988437Z CGO_CXXFLAGS='-O2 -g'
+2026-10-02T08:32:43.3988839Z CGO_ENABLED='1'
+2026-10-02T08:32:43.3989198Z CGO_FFLAGS='-O2 -g'
+2026-10-02T08:32:43.3989592Z CGO_LDFLAGS='-O2 -g'
+2026-10-02T08:32:43.3990159Z CXX='g++'
+2026-10-02T08:32:43.3990499Z GCCGO='gccgo'
+2026-10-02T08:32:43.3990845Z GO111MODULE=''
+2026-10-02T08:32:43.3991197Z GOAMD64='v1'
+2026-10-02T08:32:43.3991558Z GOARCH='amd64'
+2026-10-02T08:32:43.3991780Z GOAUTH='netrc'
+2026-10-02T08:32:43.3991983Z GOBIN=''
+2026-10-02T08:32:43.3992221Z GOCACHE='/home/runner/.cache/go-build'
+2026-10-02T08:32:43.3992523Z GOCACHEPROG=''
+2026-10-02T08:32:43.3992998Z GODEBUG=''
+2026-10-02T08:32:43.3993234Z GOENV='/home/runner/.config/go/env'
+2026-10-02T08:32:43.3993509Z GOEXE=''
+2026-10-02T08:32:43.3993709Z GOEXPERIMENT=''
+2026-10-02T08:32:43.3993931Z GOFIPS140='off'
+2026-10-02T08:32:43.3994138Z GOFLAGS=''
+2026-10-02T08:32:43.3994839Z GOGCCFLAGS='-fPIC -m64 -pthread -Wl,--no-gc-sections -fmessage-length=0 -ffile-prefix-map=/tmp/go-build1417466686=/tmp/go-build -gno-record-gcc-switches'
+2026-10-02T08:32:43.3995563Z GOHOSTARCH='amd64'
+2026-10-02T08:32:43.3995789Z GOHOSTOS='linux'
+2026-10-02T08:32:43.3996007Z GOINSECURE=''
+2026-10-02T08:32:43.3996223Z GOMOD='/dev/null'
+2026-10-02T08:32:43.3996470Z GOMODCACHE='/home/runner/go/pkg/mod'
+2026-10-02T08:32:43.3996756Z GONOPROXY=''
+2026-10-02T08:32:43.3996965Z GONOSUMDB=''
+2026-10-02T08:32:43.3997173Z GOOS='linux'
+2026-10-02T08:32:43.3997395Z GOPATH='/home/runner/go'
+2026-10-02T08:32:43.3997639Z GOPRIVATE=''
+2026-10-02T08:32:43.3997939Z GOPROXY='https://proxy.golang.org,direct'
+2026-10-02T08:32:43.3998290Z GOROOT='/opt/hostedtoolcache/go/1.26.8/x64'
+2026-10-02T08:32:43.3998606Z GOSUMDB='sum.golang.org'
+2026-10-02T08:32:43.3998861Z GOTELEMETRY='local'
+2026-10-02T08:32:43.3999144Z GOTELEMETRYDIR='/home/runner/.config/go/telemetry'
+2026-10-02T08:32:43.3999471Z GOTMPDIR=''
+2026-10-02T08:32:43.3999690Z GOTOOLCHAIN='auto'
+2026-10-02T08:32:43.4000407Z GOTOOLDIR='/opt/hostedtoolcache/go/1.26.8/x64/pkg/tool/linux_amd64'
+2026-10-02T08:32:43.4000878Z GOVCS=''
+2026-10-02T08:32:43.4001101Z GOVERSION='go1.26.8'
+2026-10-02T08:32:43.4001341Z GOWORK=''
+2026-10-02T08:32:43.4001573Z PKG_CONFIG='pkg-config'
+2026-10-02T08:32:43.4001729Z 
+2026-10-02T08:32:43.4002082Z ##[endgroup]
+2026-10-02T08:32:43.4177956Z ##[group]Run mkdir -p output/postgres-ci
+2026-10-02T08:32:43.4178363Z [36;1mmkdir -p output/postgres-ci[0m
+2026-10-02T08:32:43.4268439Z shell: /usr/bin/bash -e {0}
+2026-10-02T08:32:43.4268712Z env:
+2026-10-02T08:32:43.4268998Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:32:43.4269458Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-02T08:32:43.4269916Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:32:43.4270701Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:32:43.4271092Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:32:43.4271496Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-02T08:32:43.4271827Z ##[endgroup]
+2026-10-02T08:32:43.4434059Z ##[group]Run python -m pip install -e ".[dev]"
+2026-10-02T08:32:43.4434451Z [36;1mpython -m pip install -e ".[dev]"[0m
+2026-10-02T08:32:43.4501870Z shell: /usr/bin/bash -e {0}
+2026-10-02T08:32:43.4502129Z env:
+2026-10-02T08:32:43.4502409Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:32:43.4503056Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-02T08:32:43.4503493Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:32:43.4503918Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:32:43.4504314Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:32:43.4504707Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-02T08:32:43.4505035Z ##[endgroup]
+2026-10-02T08:32:44.5588069Z Obtaining file:///home/runner/work/mini-drop/mini-drop
+2026-10-02T08:32:44.5604641Z   Installing build dependencies: started
+2026-10-02T08:32:45.3767083Z   Installing build dependencies: finished with status 'done'
+2026-10-02T08:32:45.3773704Z   Checking if build backend supports build_editable: started
+2026-10-02T08:32:45.7056053Z   Checking if build backend supports build_editable: finished with status 'done'
+2026-10-02T08:32:45.7063763Z   Getting requirements to build editable: started
+2026-10-02T08:32:46.0696031Z   Getting requirements to build editable: finished with status 'done'
+2026-10-02T08:32:46.0706228Z   Preparing editable metadata (pyproject.toml): started
+2026-10-02T08:32:46.2925415Z   Preparing editable metadata (pyproject.toml): finished with status 'done'
+2026-10-02T08:32:46.4693719Z Collecting pydantic>=2.0 (from micro-drop==0.1.0)
+2026-10-02T08:32:46.4712148Z   Using cached pydantic-2.13.5-py3-none-any.whl.metadata (110 kB)
+2026-10-02T08:32:46.9444492Z Collecting grpcio<1.81,>=1.80 (from micro-drop==0.1.0)
+2026-10-02T08:32:46.9463066Z   Using cached grpcio-1.80.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (3.8 kB)
+2026-10-02T08:32:47.0805817Z Collecting protobuf<7,>=6.33.5 (from micro-drop==0.1.0)
+2026-10-02T08:32:47.0824700Z   Using cached protobuf-6.33.6-cp39-abi3-manylinux2014_x86_64.whl.metadata (593 bytes)
+2026-10-02T08:32:47.1084288Z Collecting psycopg>=3.1 (from psycopg[binary]>=3.1->micro-drop==0.1.0)
+2026-10-02T08:32:47.1101147Z   Using cached psycopg-3.3.6-py3-none-any.whl.metadata (4.4 kB)
+2026-10-02T08:32:47.1445866Z Collecting minio>=7.0 (from micro-drop==0.1.0)
+2026-10-02T08:32:47.1461905Z   Using cached minio-7.2.20-py3-none-any.whl.metadata (6.5 kB)
+2026-10-02T08:32:47.1758686Z Collecting requests>=2.28 (from micro-drop==0.1.0)
+2026-10-02T08:32:47.1774584Z   Using cached requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)
+2026-10-02T08:32:47.4909669Z Collecting sqlalchemy>=2.0 (from micro-drop==0.1.0)
+2026-10-02T08:32:47.5539843Z   Downloading sqlalchemy-2.1.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (9.7 kB)
+2026-10-02T08:32:47.5885374Z Collecting alembic<2,>=1.13 (from micro-drop==0.1.0)
+2026-10-02T08:32:47.5901020Z   Using cached alembic-1.20.0-py3-none-any.whl.metadata (7.3 kB)
+2026-10-02T08:32:47.6516102Z Collecting langchain<1.4,>=1.3.14 (from micro-drop==0.1.0)
+2026-10-02T08:32:47.6531990Z   Using cached langchain-1.3.18-py3-none-any.whl.metadata (6.1 kB)
+2026-10-02T08:32:47.6953554Z Collecting langgraph<1.3,>=1.2.10 (from micro-drop==0.1.0)
+2026-10-02T08:32:47.6969609Z   Using cached langgraph-1.2.12-py3-none-any.whl.metadata (4.9 kB)
+2026-10-02T08:32:47.7178368Z Collecting langchain-deepseek<1.2,>=1.1 (from micro-drop==0.1.0)
+2026-10-02T08:32:47.7194388Z   Using cached langchain_deepseek-1.1.1-py3-none-any.whl.metadata (3.4 kB)
+2026-10-02T08:32:47.7540634Z Collecting langchain-openai<2,>=1.1 (from micro-drop==0.1.0)
+2026-10-02T08:32:47.7648868Z   Downloading langchain_openai-1.6.7-py3-none-any.whl.metadata (3.6 kB)
+2026-10-02T08:32:47.7912958Z Collecting langgraph-checkpoint-postgres<3.2,>=3.1 (from micro-drop==0.1.0)
+2026-10-02T08:32:47.7928976Z   Using cached langgraph_checkpoint_postgres-3.1.2-py3-none-any.whl.metadata (6.8 kB)
+2026-10-02T08:32:47.8283322Z Collecting pytest>=8.0 (from micro-drop==0.1.0)
+2026-10-02T08:32:47.8298653Z   Using cached pytest-9.1.1-py3-none-any.whl.metadata (7.6 kB)
+2026-10-02T08:32:47.8551979Z Collecting pytest-cov>=5.0 (from micro-drop==0.1.0)
+2026-10-02T08:32:47.8567544Z   Using cached pytest_cov-7.1.0-py3-none-any.whl.metadata (32 kB)
+2026-10-02T08:32:48.1524438Z Collecting hypothesis>=6.100 (from micro-drop==0.1.0)
+2026-10-02T08:32:48.1635677Z   Downloading hypothesis-6.168.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.7 kB)
+2026-10-02T08:32:48.2366657Z Collecting psutil<8,>=7.2 (from micro-drop==0.1.0)
+2026-10-02T08:32:48.2384400Z   Using cached psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl.metadata (22 kB)
+2026-10-02T08:32:48.2723637Z Collecting jsonschema<5,>=4 (from micro-drop==0.1.0)
+2026-10-02T08:32:48.2739756Z   Using cached jsonschema-4.26.0-py3-none-any.whl.metadata (7.6 kB)
+2026-10-02T08:32:48.3175758Z Collecting PyYAML<7,>=6 (from micro-drop==0.1.0)
+2026-10-02T08:32:48.3192422Z   Using cached pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+2026-10-02T08:32:48.3439627Z Collecting httpx>=0.27 (from micro-drop==0.1.0)
+2026-10-02T08:32:48.3455002Z   Using cached httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+2026-10-02T08:32:48.8973224Z Collecting grpcio-tools<1.81,>=1.80 (from micro-drop==0.1.0)
+2026-10-02T08:32:48.8991489Z   Using cached grpcio_tools-1.80.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (5.3 kB)
+2026-10-02T08:32:48.9243443Z Collecting loguru>=0.7 (from micro-drop==0.1.0)
+2026-10-02T08:32:48.9258893Z   Using cached loguru-0.7.3-py3-none-any.whl.metadata (22 kB)
+2026-10-02T08:32:49.2368101Z Collecting ruff>=0.6 (from micro-drop==0.1.0)
+2026-10-02T08:32:49.2478056Z   Downloading ruff-0.16.10-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (20 kB)
+2026-10-02T08:32:49.2778152Z Collecting Mako (from alembic<2,>=1.13->micro-drop==0.1.0)
+2026-10-02T08:32:49.2793615Z   Using cached mako-1.4.3-py3-none-any.whl.metadata (2.9 kB)
+2026-10-02T08:32:49.3032089Z Collecting typing-extensions>=4.12 (from alembic<2,>=1.13->micro-drop==0.1.0)
+2026-10-02T08:32:49.3048460Z   Using cached typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+2026-10-02T08:32:49.3109794Z Requirement already satisfied: setuptools>=77.0.1 in /opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages (from grpcio-tools<1.81,>=1.80->micro-drop==0.1.0) (79.0.1)
+2026-10-02T08:32:49.3322189Z Collecting attrs>=22.2.0 (from jsonschema<5,>=4->micro-drop==0.1.0)
+2026-10-02T08:32:49.3337394Z   Using cached attrs-26.1.0-py3-none-any.whl.metadata (8.8 kB)
+2026-10-02T08:32:49.3552355Z Collecting jsonschema-specifications>=2023.03.6 (from jsonschema<5,>=4->micro-drop==0.1.0)
+2026-10-02T08:32:49.3567548Z   Using cached jsonschema_specifications-2025.9.1-py3-none-any.whl.metadata (2.9 kB)
+2026-10-02T08:32:49.3858235Z Collecting referencing>=0.28.4 (from jsonschema<5,>=4->micro-drop==0.1.0)
+2026-10-02T08:32:49.3874622Z   Using cached referencing-0.37.0-py3-none-any.whl.metadata (2.8 kB)
+2026-10-02T08:32:49.6565267Z Collecting rpds-py>=0.25.0 (from jsonschema<5,>=4->micro-drop==0.1.0)
+2026-10-02T08:32:49.6583393Z   Using cached rpds_py-2026.6.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.1 kB)
+2026-10-02T08:32:49.7034998Z Collecting langchain-core<2.0.0,>=1.6.0 (from langchain<1.4,>=1.3.14->micro-drop==0.1.0)
+2026-10-02T08:32:49.7143982Z   Downloading langchain_core-1.6.6-py3-none-any.whl.metadata (4.8 kB)
+2026-10-02T08:32:49.7447394Z Collecting jsonpatch<2.0.0,>=1.33.0 (from langchain-core<2.0.0,>=1.6.0->langchain<1.4,>=1.3.14->micro-drop==0.1.0)
+2026-10-02T08:32:49.7462949Z   Using cached jsonpatch-1.33-py2.py3-none-any.whl.metadata (3.0 kB)
+2026-10-02T08:32:49.7662234Z Collecting langchain-protocol>=0.0.17 (from langchain-core<2.0.0,>=1.6.0->langchain<1.4,>=1.3.14->micro-drop==0.1.0)
+2026-10-02T08:32:49.7677465Z   Using cached langchain_protocol-0.0.19-py3-none-any.whl.metadata (2.4 kB)
+2026-10-02T08:32:49.8348409Z Collecting langsmith<1.0.0,>=0.3.45 (from langchain-core<2.0.0,>=1.6.0->langchain<1.4,>=1.3.14->micro-drop==0.1.0)
+2026-10-02T08:32:49.8455158Z   Downloading langsmith-0.14.3-py3-none-any.whl.metadata (22 kB)
+2026-10-02T08:32:49.8766750Z Collecting packaging>=23.2.0 (from langchain-core<2.0.0,>=1.6.0->langchain<1.4,>=1.3.14->micro-drop==0.1.0)
+2026-10-02T08:32:49.8782492Z   Using cached packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+2026-10-02T08:32:49.9031368Z Collecting tenacity!=8.4.0,<10.0.0,>=8.1.0 (from langchain-core<2.0.0,>=1.6.0->langchain<1.4,>=1.3.14->micro-drop==0.1.0)
+2026-10-02T08:32:49.9046630Z   Using cached tenacity-9.1.4-py3-none-any.whl.metadata (1.2 kB)
+2026-10-02T08:32:50.0784548Z Collecting uuid-utils<1.0,>=0.12.0 (from langchain-core<2.0.0,>=1.6.0->langchain<1.4,>=1.3.14->micro-drop==0.1.0)
+2026-10-02T08:32:50.0821401Z   Using cached uuid_utils-0.17.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.4 kB)
+2026-10-02T08:32:50.1085469Z Collecting anyio (from httpx>=0.27->micro-drop==0.1.0)
+2026-10-02T08:32:50.1101117Z   Using cached anyio-4.15.1-py3-none-any.whl.metadata (4.7 kB)
+2026-10-02T08:32:50.1370327Z Collecting certifi (from httpx>=0.27->micro-drop==0.1.0)
+2026-10-02T08:32:50.1386088Z   Using cached certifi-2026.7.22-py3-none-any.whl.metadata (2.5 kB)
+2026-10-02T08:32:50.1626540Z Collecting httpcore==1.* (from httpx>=0.27->micro-drop==0.1.0)
+2026-10-02T08:32:50.1642315Z   Using cached httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+2026-10-02T08:32:50.1883193Z Collecting idna (from httpx>=0.27->micro-drop==0.1.0)
+2026-10-02T08:32:50.1898418Z   Using cached idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+2026-10-02T08:32:50.2109339Z Collecting h11>=0.16 (from httpcore==1.*->httpx>=0.27->micro-drop==0.1.0)
+2026-10-02T08:32:50.2125101Z   Using cached h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+2026-10-02T08:32:50.2347528Z Collecting jsonpointer>=1.9 (from jsonpatch<2.0.0,>=1.33.0->langchain-core<2.0.0,>=1.6.0->langchain<1.4,>=1.3.14->micro-drop==0.1.0)
+2026-10-02T08:32:50.2362824Z   Using cached jsonpointer-3.1.1-py3-none-any.whl.metadata (2.4 kB)
+2026-10-02T08:32:50.2984054Z Collecting openai<4.0.0,>=2.45.0 (from langchain-openai<2,>=1.1->micro-drop==0.1.0)
+2026-10-02T08:32:50.3091427Z   Downloading openai-3.23.0-py3-none-any.whl.metadata (44 kB)
+2026-10-02T08:32:50.3635443Z Collecting tiktoken<1.0.0,>=0.7.0 (from langchain-openai<2,>=1.1->micro-drop==0.1.0)
+2026-10-02T08:32:50.3651295Z   Using cached tiktoken-0.14.0-cp311-cp311-manylinux_2_28_x86_64.whl.metadata (6.7 kB)
+2026-10-02T08:32:50.3908651Z Collecting langgraph-checkpoint<5.0.0,>=4.1.0 (from langgraph<1.3,>=1.2.10->micro-drop==0.1.0)
+2026-10-02T08:32:50.3924383Z   Using cached langgraph_checkpoint-4.2.0-py3-none-any.whl.metadata (6.7 kB)
+2026-10-02T08:32:50.4167249Z Collecting langgraph-prebuilt<1.2.0,>=1.1.0 (from langgraph<1.3,>=1.2.10->micro-drop==0.1.0)
+2026-10-02T08:32:50.4182613Z   Using cached langgraph_prebuilt-1.1.0-py3-none-any.whl.metadata (5.2 kB)
+2026-10-02T08:32:50.4460606Z Collecting langgraph-sdk<0.5.0,>=0.4.2 (from langgraph<1.3,>=1.2.10->micro-drop==0.1.0)
+2026-10-02T08:32:50.4475572Z   Using cached langgraph_sdk-0.4.5-py3-none-any.whl.metadata (5.1 kB)
+2026-10-02T08:32:50.5749867Z Collecting xxhash>=3.5.0 (from langgraph<1.3,>=1.2.10->micro-drop==0.1.0)
+2026-10-02T08:32:50.5767535Z   Using cached xxhash-4.0.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (17 kB)
+2026-10-02T08:32:50.6334860Z Collecting ormsgpack>=1.12.0 (from langgraph-checkpoint<5.0.0,>=4.1.0->langgraph<1.3,>=1.2.10->micro-drop==0.1.0)
+2026-10-02T08:32:50.6351463Z   Using cached ormsgpack-1.12.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (3.2 kB)
+2026-10-02T08:32:50.9155402Z Collecting orjson>=3.11.5 (from langgraph-checkpoint-postgres<3.2,>=3.1->micro-drop==0.1.0)
+2026-10-02T08:32:50.9174240Z   Using cached orjson-3.12.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (41 kB)
+2026-10-02T08:32:50.9438443Z Collecting psycopg-pool>=3.2.0 (from langgraph-checkpoint-postgres<3.2,>=3.1->micro-drop==0.1.0)
+2026-10-02T08:32:50.9454025Z   Using cached psycopg_pool-3.3.3-py3-none-any.whl.metadata (2.8 kB)
+2026-10-02T08:32:51.0608364Z Collecting websockets<17,>=14 (from langgraph-sdk<0.5.0,>=0.4.2->langgraph<1.3,>=1.2.10->micro-drop==0.1.0)
+2026-10-02T08:32:51.0627021Z   Using cached websockets-16.1.1-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (6.8 kB)
+2026-10-02T08:32:51.0857510Z Collecting distro>=1.7.0 (from langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.6.0->langchain<1.4,>=1.3.14->micro-drop==0.1.0)
+2026-10-02T08:32:51.0872404Z   Using cached distro-1.9.0-py3-none-any.whl.metadata (6.8 kB)
+2026-10-02T08:32:51.1084576Z Collecting httpx2<3,>=2 (from langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.6.0->langchain<1.4,>=1.3.14->micro-drop==0.1.0)
+2026-10-02T08:32:51.1099431Z   Using cached httpx2-2.13.1-py3-none-any.whl.metadata (9.8 kB)
+2026-10-02T08:32:51.1345299Z Collecting requests-toolbelt>=1.0.0 (from langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.6.0->langchain<1.4,>=1.3.14->micro-drop==0.1.0)
+2026-10-02T08:32:51.1359715Z   Using cached requests_toolbelt-1.0.0-py2.py3-none-any.whl.metadata (14 kB)
+2026-10-02T08:32:51.1574434Z Collecting sniffio>=1.1 (from langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.6.0->langchain<1.4,>=1.3.14->micro-drop==0.1.0)
+2026-10-02T08:32:51.1589049Z   Using cached sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)
+2026-10-02T08:32:51.2311507Z Collecting zstandard>=0.23.0 (from langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.6.0->langchain<1.4,>=1.3.14->micro-drop==0.1.0)
+2026-10-02T08:32:51.2326986Z   Using cached zstandard-0.25.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (3.3 kB)
+2026-10-02T08:32:51.2558706Z Collecting httpcore2==2.13.1 (from httpx2<3,>=2->langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.6.0->langchain<1.4,>=1.3.14->micro-drop==0.1.0)
+2026-10-02T08:32:51.2573269Z   Using cached httpcore2-2.13.1-py3-none-any.whl.metadata (26 kB)
+2026-10-02T08:32:51.2796652Z Collecting truststore>=0.10 (from httpx2<3,>=2->langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.6.0->langchain<1.4,>=1.3.14->micro-drop==0.1.0)
+2026-10-02T08:32:51.2811422Z   Using cached truststore-0.10.4-py3-none-any.whl.metadata (4.4 kB)
+2026-10-02T08:32:51.3748572Z Collecting jiter<1,>=0.16.0 (from openai<4.0.0,>=2.45.0->langchain-openai<2,>=1.1->micro-drop==0.1.0)
+2026-10-02T08:32:51.3765028Z   Using cached jiter-0.17.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.2 kB)
+2026-10-02T08:32:51.4075602Z Collecting annotated-types>=0.6.0 (from pydantic>=2.0->micro-drop==0.1.0)
+2026-10-02T08:32:51.4090591Z   Using cached annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+2026-10-02T08:32:52.0626155Z Collecting pydantic-core==2.46.5 (from pydantic>=2.0->micro-drop==0.1.0)
+2026-10-02T08:32:52.0644506Z   Using cached pydantic_core-2.46.5-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.6 kB)
+2026-10-02T08:32:52.0858613Z Collecting typing-inspection>=0.4.2 (from pydantic>=2.0->micro-drop==0.1.0)
+2026-10-02T08:32:52.0873604Z   Using cached typing_inspection-0.4.4-py3-none-any.whl.metadata (2.6 kB)
+2026-10-02T08:32:52.5009623Z Collecting regex (from tiktoken<1.0.0,>=0.7.0->langchain-openai<2,>=1.1->micro-drop==0.1.0)
+2026-10-02T08:32:52.5120157Z   Downloading regex-2026.9.29-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
+2026-10-02T08:32:52.5430621Z Collecting sortedcontainers<3.0.0,>=2.1.0 (from hypothesis>=6.100->micro-drop==0.1.0)
+2026-10-02T08:32:52.5445665Z   Using cached sortedcontainers-2.4.0-py2.py3-none-any.whl.metadata (10 kB)
+2026-10-02T08:32:52.5815700Z Collecting argon2-cffi (from minio>=7.0->micro-drop==0.1.0)
+2026-10-02T08:32:52.5830157Z   Using cached argon2_cffi-25.1.0-py3-none-any.whl.metadata (4.1 kB)
+2026-10-02T08:32:52.6583119Z Collecting pycryptodome (from minio>=7.0->micro-drop==0.1.0)
+2026-10-02T08:32:52.6598734Z   Using cached pycryptodome-3.23.0-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (3.4 kB)
+2026-10-02T08:32:52.6942863Z Collecting urllib3 (from minio>=7.0->micro-drop==0.1.0)
+2026-10-02T08:32:52.6957883Z   Using cached urllib3-2.8.0-py3-none-any.whl.metadata (7.4 kB)
+2026-10-02T08:32:52.8446524Z Collecting psycopg-binary==3.3.6 (from psycopg[binary]>=3.1->micro-drop==0.1.0)
+2026-10-02T08:32:52.8463479Z   Using cached psycopg_binary-3.3.6-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.7 kB)
+2026-10-02T08:32:52.8682486Z Collecting iniconfig>=1.0.1 (from pytest>=8.0->micro-drop==0.1.0)
+2026-10-02T08:32:52.8697554Z   Using cached iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)
+2026-10-02T08:32:52.8915561Z Collecting pluggy<2,>=1.5 (from pytest>=8.0->micro-drop==0.1.0)
+2026-10-02T08:32:52.8930774Z   Using cached pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+2026-10-02T08:32:52.9193841Z Collecting pygments>=2.7.2 (from pytest>=8.0->micro-drop==0.1.0)
+2026-10-02T08:32:52.9208654Z   Using cached pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+2026-10-02T08:32:53.3689743Z Collecting coverage>=7.10.6 (from coverage[toml]>=7.10.6->pytest-cov>=5.0->micro-drop==0.1.0)
+2026-10-02T08:32:53.3798456Z   Downloading coverage-7.16.2-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (8.2 kB)
+2026-10-02T08:32:53.5132028Z Collecting charset_normalizer<4,>=2 (from requests>=2.28->micro-drop==0.1.0)
+2026-10-02T08:32:53.5241831Z   Downloading charset_normalizer-3.5.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (46 kB)
+2026-10-02T08:32:53.5730340Z Collecting argon2-cffi-bindings (from argon2-cffi->minio>=7.0->micro-drop==0.1.0)
+2026-10-02T08:32:53.5745761Z   Using cached argon2_cffi_bindings-26.1.0-cp310-abi3-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl.metadata (7.5 kB)
+2026-10-02T08:32:53.6776424Z Collecting cffi>=1.0.1 (from argon2-cffi-bindings->argon2-cffi->minio>=7.0->micro-drop==0.1.0)
+2026-10-02T08:32:53.6793493Z   Using cached cffi-2.1.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.5 kB)
+2026-10-02T08:32:53.7010680Z Collecting pycparser (from cffi>=1.0.1->argon2-cffi-bindings->argon2-cffi->minio>=7.0->micro-drop==0.1.0)
+2026-10-02T08:32:53.7025882Z   Using cached pycparser-3.0-py3-none-any.whl.metadata (8.2 kB)
+2026-10-02T08:32:53.8386058Z Collecting MarkupSafe>=2.0 (from Mako->alembic<2,>=1.13->micro-drop==0.1.0)
+2026-10-02T08:32:53.8403441Z   Using cached markupsafe-3.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+2026-10-02T08:32:53.8472748Z Using cached alembic-1.20.0-py3-none-any.whl (268 kB)
+2026-10-02T08:32:53.8490099Z Using cached grpcio-1.80.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (6.8 MB)
+2026-10-02T08:32:53.8561668Z Using cached grpcio_tools-1.80.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (2.7 MB)
+2026-10-02T08:32:53.8597611Z Using cached jsonschema-4.26.0-py3-none-any.whl (90 kB)
+2026-10-02T08:32:53.8612645Z Using cached langchain-1.3.18-py3-none-any.whl (148 kB)
+2026-10-02T08:32:53.8719664Z Downloading langchain_core-1.6.6-py3-none-any.whl (572 kB)
+2026-10-02T08:32:53.8969027Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 572.1/572.1 kB 29.4 MB/s  0:00:00
+2026-10-02T08:32:53.8983662Z Using cached httpx-0.28.1-py3-none-any.whl (73 kB)
+2026-10-02T08:32:53.8999131Z Using cached httpcore-1.0.9-py3-none-any.whl (78 kB)
+2026-10-02T08:32:53.9014420Z Using cached jsonpatch-1.33-py2.py3-none-any.whl (12 kB)
+2026-10-02T08:32:53.9029271Z Using cached langchain_deepseek-1.1.1-py3-none-any.whl (11 kB)
+2026-10-02T08:32:53.9135784Z Downloading langchain_openai-1.6.7-py3-none-any.whl (127 kB)
+2026-10-02T08:32:53.9174115Z Using cached langgraph-1.2.12-py3-none-any.whl (250 kB)
+2026-10-02T08:32:53.9190591Z Using cached langgraph_checkpoint-4.2.0-py3-none-any.whl (56 kB)
+2026-10-02T08:32:53.9205944Z Using cached langgraph_checkpoint_postgres-3.1.2-py3-none-any.whl (52 kB)
+2026-10-02T08:32:53.9220972Z Using cached langgraph_prebuilt-1.1.0-py3-none-any.whl (41 kB)
+2026-10-02T08:32:53.9235959Z Using cached langgraph_sdk-0.4.5-py3-none-any.whl (162 kB)
+2026-10-02T08:32:53.9340567Z Downloading langsmith-0.14.3-py3-none-any.whl (813 kB)
+2026-10-02T08:32:53.9472940Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 813.9/813.9 kB 59.0 MB/s  0:00:00
+2026-10-02T08:32:53.9488916Z Using cached httpx2-2.13.1-py3-none-any.whl (95 kB)
+2026-10-02T08:32:53.9504552Z Using cached httpcore2-2.13.1-py3-none-any.whl (83 kB)
+2026-10-02T08:32:53.9612015Z Downloading openai-3.23.0-py3-none-any.whl (2.1 MB)
+2026-10-02T08:32:53.9773509Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 135.4 MB/s  0:00:00
+2026-10-02T08:32:53.9789410Z Using cached anyio-4.15.1-py3-none-any.whl (132 kB)
+2026-10-02T08:32:53.9805838Z Using cached jiter-0.17.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (346 kB)
+2026-10-02T08:32:53.9823701Z Using cached protobuf-6.33.6-cp39-abi3-manylinux2014_x86_64.whl (323 kB)
+2026-10-02T08:32:53.9841561Z Using cached psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl (155 kB)
+2026-10-02T08:32:53.9857168Z Using cached pydantic-2.13.5-py3-none-any.whl (472 kB)
+2026-10-02T08:32:53.9875938Z Using cached pydantic_core-2.46.5-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+2026-10-02T08:32:53.9907233Z Using cached pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (806 kB)
+2026-10-02T08:32:53.9928143Z Using cached tenacity-9.1.4-py3-none-any.whl (28 kB)
+2026-10-02T08:32:53.9943508Z Using cached tiktoken-0.14.0-cp311-cp311-manylinux_2_28_x86_64.whl (1.2 MB)
+2026-10-02T08:32:53.9967795Z Using cached typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+2026-10-02T08:32:53.9983181Z Using cached uuid_utils-0.17.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (327 kB)
+2026-10-02T08:32:54.0001165Z Using cached websockets-16.1.1-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (186 kB)
+2026-10-02T08:32:54.0017164Z Using cached annotated_types-0.8.0-py3-none-any.whl (13 kB)
+2026-10-02T08:32:54.0032334Z Using cached attrs-26.1.0-py3-none-any.whl (67 kB)
+2026-10-02T08:32:54.0047517Z Using cached certifi-2026.7.22-py3-none-any.whl (136 kB)
+2026-10-02T08:32:54.0063172Z Using cached distro-1.9.0-py3-none-any.whl (20 kB)
+2026-10-02T08:32:54.0077854Z Using cached h11-0.16.0-py3-none-any.whl (37 kB)
+2026-10-02T08:32:54.0187431Z Downloading hypothesis-6.168.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (1.2 MB)
+2026-10-02T08:32:54.0270149Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 155.6 MB/s  0:00:00
+2026-10-02T08:32:54.0284962Z Using cached sortedcontainers-2.4.0-py2.py3-none-any.whl (29 kB)
+2026-10-02T08:32:54.0300116Z Using cached idna-3.20-py3-none-any.whl (69 kB)
+2026-10-02T08:32:54.0315697Z Using cached jsonpointer-3.1.1-py3-none-any.whl (7.7 kB)
+2026-10-02T08:32:54.0330958Z Using cached jsonschema_specifications-2025.9.1-py3-none-any.whl (18 kB)
+2026-10-02T08:32:54.0346035Z Using cached langchain_protocol-0.0.19-py3-none-any.whl (7.3 kB)
+2026-10-02T08:32:54.0360881Z Using cached loguru-0.7.3-py3-none-any.whl (61 kB)
+2026-10-02T08:32:54.0376055Z Using cached minio-7.2.20-py3-none-any.whl (93 kB)
+2026-10-02T08:32:54.0391841Z Using cached orjson-3.12.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (131 kB)
+2026-10-02T08:32:54.0407582Z Using cached ormsgpack-1.12.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (212 kB)
+2026-10-02T08:32:54.0424828Z Using cached packaging-26.3-py3-none-any.whl (129 kB)
+2026-10-02T08:32:54.0440355Z Using cached psycopg-3.3.6-py3-none-any.whl (215 kB)
+2026-10-02T08:32:54.0456849Z Using cached psycopg_pool-3.3.3-py3-none-any.whl (40 kB)
+2026-10-02T08:32:54.0472619Z Using cached psycopg_binary-3.3.6-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (5.3 MB)
+2026-10-02T08:32:54.0528875Z Using cached pytest-9.1.1-py3-none-any.whl (386 kB)
+2026-10-02T08:32:54.0546682Z Using cached pluggy-1.6.0-py3-none-any.whl (20 kB)
+2026-10-02T08:32:54.0562475Z Using cached iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+2026-10-02T08:32:54.0577368Z Using cached pygments-2.21.0-py3-none-any.whl (1.3 MB)
+2026-10-02T08:32:54.0602253Z Using cached pytest_cov-7.1.0-py3-none-any.whl (22 kB)
+2026-10-02T08:32:54.0710858Z Downloading coverage-7.16.2-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (256 kB)
+2026-10-02T08:32:54.0754711Z Using cached referencing-0.37.0-py3-none-any.whl (26 kB)
+2026-10-02T08:32:54.0769601Z Using cached requests-2.34.2-py3-none-any.whl (73 kB)
+2026-10-02T08:32:54.0876454Z Downloading charset_normalizer-3.5.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (269 kB)
+2026-10-02T08:32:54.0916861Z Using cached urllib3-2.8.0-py3-none-any.whl (135 kB)
+2026-10-02T08:32:54.0932652Z Using cached requests_toolbelt-1.0.0-py2.py3-none-any.whl (54 kB)
+2026-10-02T08:32:54.0948084Z Using cached rpds_py-2026.6.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (371 kB)
+2026-10-02T08:32:54.1058259Z Downloading ruff-0.16.10-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (10.4 MB)
+2026-10-02T08:32:54.1521943Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.4/10.4 MB 234.0 MB/s  0:00:00
+2026-10-02T08:32:54.1537170Z Using cached sniffio-1.3.1-py3-none-any.whl (10 kB)
+2026-10-02T08:32:54.1645704Z Downloading sqlalchemy-2.1.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (4.6 MB)
+2026-10-02T08:32:54.1864537Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.6/4.6 MB 226.9 MB/s  0:00:00
+2026-10-02T08:32:54.1879922Z Using cached truststore-0.10.4-py3-none-any.whl (18 kB)
+2026-10-02T08:32:54.1895446Z Using cached typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+2026-10-02T08:32:54.1911300Z Using cached xxhash-4.0.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (261 kB)
+2026-10-02T08:32:54.1928718Z Using cached zstandard-0.25.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (5.6 MB)
+2026-10-02T08:32:54.1987934Z Using cached argon2_cffi-25.1.0-py3-none-any.whl (14 kB)
+2026-10-02T08:32:54.2003751Z Using cached argon2_cffi_bindings-26.1.0-cp310-abi3-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl (26 kB)
+2026-10-02T08:32:54.2019098Z Using cached cffi-2.1.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (217 kB)
+2026-10-02T08:32:54.2035614Z Using cached mako-1.4.3-py3-none-any.whl (80 kB)
+2026-10-02T08:32:54.2051811Z Using cached markupsafe-3.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+2026-10-02T08:32:54.2066612Z Using cached pycparser-3.0-py3-none-any.whl (48 kB)
+2026-10-02T08:32:54.2082307Z Using cached pycryptodome-3.23.0-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.3 MB)
+2026-10-02T08:32:54.2208361Z Downloading regex-2026.9.29-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (804 kB)
+2026-10-02T08:32:54.2272543Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 805.0/805.0 kB 132.7 MB/s  0:00:00
+2026-10-02T08:32:54.4356150Z Building wheels for collected packages: micro-drop
+2026-10-02T08:32:54.4364604Z   Building editable for micro-drop (pyproject.toml): started
+2026-10-02T08:32:54.6877553Z   Building editable for micro-drop (pyproject.toml): finished with status 'done'
+2026-10-02T08:32:54.6883280Z   Created wheel for micro-drop: filename=micro_drop-0.1.0-0.editable-py3-none-any.whl size=3229 sha256=9d796d223954542e0b35bd322ce80c65e20a525c8e25b475ab1da7cd972883df
+2026-10-02T08:32:54.6884918Z   Stored in directory: /tmp/pip-ephem-wheel-cache-sex5jsp4/wheels/fa/c9/d6/481fd0655cde6302393c7afa2f0f4ec796c3072abc9b849d29
+2026-10-02T08:32:54.6900510Z Successfully built micro-drop
+2026-10-02T08:32:54.8126239Z Installing collected packages: sortedcontainers, zstandard, xxhash, websockets, uuid-utils, urllib3, typing-extensions, truststore, tenacity, sniffio, ruff, rpds-py, regex, PyYAML, pygments, pycryptodome, pycparser, psycopg-binary, psutil, protobuf, pluggy, packaging, ormsgpack, orjson, MarkupSafe, loguru, jsonpointer, jiter, iniconfig, idna, hypothesis, h11, distro, coverage, charset_normalizer, certifi, attrs, annotated-types, typing-inspection, sqlalchemy, requests, referencing, pytest, pydantic-core, psycopg-pool, psycopg, Mako, langchain-protocol, jsonpatch, httpcore2, httpcore, grpcio, cffi, anyio, tiktoken, requests-toolbelt, pytest-cov, pydantic, jsonschema-specifications, httpx2, httpx, grpcio-tools, argon2-cffi-bindings, alembic, openai, langsmith, jsonschema, argon2-cffi, minio, langchain-core, langgraph-sdk, langgraph-checkpoint, langchain-openai, langgraph-prebuilt, langgraph-checkpoint-postgres, langchain-deepseek, langgraph, langchain, micro-drop
+2026-10-02T08:33:03.7836714Z 
+2026-10-02T08:33:03.7876259Z Successfully installed Mako-1.4.3 MarkupSafe-3.0.3 PyYAML-6.0.3 alembic-1.20.0 annotated-types-0.8.0 anyio-4.15.1 argon2-cffi-25.1.0 argon2-cffi-bindings-26.1.0 attrs-26.1.0 certifi-2026.7.22 cffi-2.1.1 charset_normalizer-3.5.2 coverage-7.16.2 distro-1.9.0 grpcio-1.80.0 grpcio-tools-1.80.0 h11-0.16.0 httpcore-1.0.9 httpcore2-2.13.1 httpx-0.28.1 httpx2-2.13.1 hypothesis-6.168.3 idna-3.20 iniconfig-2.3.0 jiter-0.17.0 jsonpatch-1.33 jsonpointer-3.1.1 jsonschema-4.26.0 jsonschema-specifications-2025.9.1 langchain-1.3.18 langchain-core-1.6.6 langchain-deepseek-1.1.1 langchain-openai-1.6.7 langchain-protocol-0.0.19 langgraph-1.2.12 langgraph-checkpoint-4.2.0 langgraph-checkpoint-postgres-3.1.2 langgraph-prebuilt-1.1.0 langgraph-sdk-0.4.5 langsmith-0.14.3 loguru-0.7.3 micro-drop-0.1.0 minio-7.2.20 openai-3.23.0 orjson-3.12.0 ormsgpack-1.12.2 packaging-26.3 pluggy-1.6.0 protobuf-6.33.6 psutil-7.2.2 psycopg-3.3.6 psycopg-binary-3.3.6 psycopg-pool-3.3.3 pycparser-3.0 pycryptodome-3.23.0 pydantic-2.13.5 pydantic-core-2.46.5 pygments-2.21.0 pytest-9.1.1 pytest-cov-7.1.0 referencing-0.37.0 regex-2026.9.29 requests-2.34.2 requests-toolbelt-1.0.0 rpds-py-2026.6.3 ruff-0.16.10 sniffio-1.3.1 sortedcontainers-2.4.0 sqlalchemy-2.1.2 tenacity-9.1.4 tiktoken-0.14.0 truststore-0.10.4 typing-extensions-4.16.0 typing-inspection-0.4.4 urllib3-2.8.0 uuid-utils-0.17.1 websockets-16.1.1 xxhash-4.0.1 zstandard-0.25.0
+2026-10-02T08:33:04.1511767Z ##[group]Run python - <<'PY'
+2026-10-02T08:33:04.1512111Z [36;1mpython - <<'PY'[0m
+2026-10-02T08:33:04.1512376Z [36;1mimport json, os, platform[0m
+2026-10-02T08:33:04.1512684Z [36;1mfrom datetime import datetime, timezone[0m
+2026-10-02T08:33:04.1513000Z [36;1mfrom pathlib import Path[0m
+2026-10-02T08:33:04.1513316Z [36;1mimport psycopg[0m
+2026-10-02T08:33:04.1513540Z [36;1m[0m
+2026-10-02T08:33:04.1513905Z [36;1mwith psycopg.connect(os.environ["MINI_DROP_TEST_POSTGRES_URL"]) as connection:[0m
+2026-10-02T08:33:04.1514544Z [36;1m    database, postgres = connection.execute("SELECT current_database(), version()").fetchone()[0m
+2026-10-02T08:33:04.1515131Z [36;1massert database == "mini_drop_ci_test", "Refusing a non-CI database"[0m
+2026-10-02T08:33:04.1515517Z [36;1mruntime = {[0m
+2026-10-02T08:33:04.1515777Z [36;1m    "commit": os.environ["GITHUB_SHA"],[0m
+2026-10-02T08:33:04.1516105Z [36;1m    "run_id": os.environ["GITHUB_RUN_ID"],[0m
+2026-10-02T08:33:04.1516502Z [36;1m    "run_attempt": os.environ["GITHUB_RUN_ATTEMPT"],[0m
+2026-10-02T08:33:04.1516899Z [36;1m    "created_at": datetime.now(timezone.utc).isoformat(),[0m
+2026-10-02T08:33:04.1517275Z [36;1m    "python": platform.python_version(),[0m
+2026-10-02T08:33:04.1517599Z [36;1m    "platform": platform.platform(),[0m
+2026-10-02T08:33:04.1517894Z [36;1m    "database": database,[0m
+2026-10-02T08:33:04.1518154Z [36;1m    "postgres": postgres,[0m
+2026-10-02T08:33:04.1518542Z [36;1m    "scope": "runner-local PostgreSQL; each fixture owns a temporary schema",[0m
+2026-10-02T08:33:04.1518938Z [36;1m}[0m
+2026-10-02T08:33:04.1519328Z [36;1mPath("output/postgres-ci/runtime.json").write_text(json.dumps(runtime, indent=2) + "\n")[0m
+2026-10-02T08:33:04.1519800Z [36;1mPY[0m
+2026-10-02T08:33:04.1520330Z [36;1mgo version > output/postgres-ci/go-version.txt[0m
+2026-10-02T08:33:04.1591842Z shell: /usr/bin/bash -e {0}
+2026-10-02T08:33:04.1592105Z env:
+2026-10-02T08:33:04.1592388Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:04.1592848Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-02T08:33:04.1593485Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:04.1593897Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:04.1594286Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:04.1594670Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-02T08:33:04.1595426Z   MINI_DROP_TEST_POSTGRES_URL: ***127.0.0.1:5432/mini_drop_ci_test
+2026-10-02T08:33:04.1595827Z ##[endgroup]
+2026-10-02T08:33:04.5495790Z ##[group]Run set -o pipefail
+2026-10-02T08:33:04.5496119Z [36;1mset -o pipefail[0m
+2026-10-02T08:33:04.5496723Z [36;1mpython -m pytest tests/test_drop_insight_report_effects_postgres.py tests/test_outbox_postgres.py tests/test_health_check_postgres.py \[0m
+2026-10-02T08:33:04.5497434Z [36;1m  -vv -ra --junitxml=output/postgres-ci/python.junit.xml \[0m
+2026-10-02T08:33:04.5497831Z [36;1m  2>&1 | tee output/postgres-ci/python.log[0m
+2026-10-02T08:33:04.5572285Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-02T08:33:04.5572660Z env:
+2026-10-02T08:33:04.5572947Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:04.5573394Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-02T08:33:04.5573828Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:04.5574220Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:04.5574656Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:04.5575050Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-02T08:33:04.5575396Z   RUN_POSTGRES_TESTS: 1
+2026-10-02T08:33:04.5576296Z   MINI_DROP_TEST_POSTGRES_URL: ***127.0.0.1:5432/mini_drop_ci_test
+2026-10-02T08:33:04.5576654Z ##[endgroup]
+2026-10-02T08:33:07.5361425Z ============================= test session starts ==============================
+2026-10-02T08:33:07.5362641Z platform linux -- Python 3.11.16, pytest-9.1.1, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.11.16/x64/bin/python
+2026-10-02T08:33:07.5363597Z cachedir: .pytest-cache
+2026-10-02T08:33:07.5364732Z hypothesis profile 'ci' -> database=None, deadline=None, print_blob=True, derandomize=True, suppress_health_check=(HealthCheck.too_slow,)
+2026-10-02T08:33:07.5365939Z rootdir: /home/runner/work/mini-drop/mini-drop
+2026-10-02T08:33:07.5366549Z configfile: pyproject.toml
+2026-10-02T08:33:07.5367249Z plugins: hypothesis-6.168.3, langsmith-0.14.3, cov-7.1.0, anyio-4.15.1
+2026-10-02T08:33:07.6996086Z collecting ... collected 14 items
+2026-10-02T08:33:07.6996414Z 
+2026-10-02T08:33:08.3866970Z tests/test_drop_insight_report_effects_postgres.py::test_postgres_competing_cancellations_fence_late_planner PASSED [  7%]
+2026-10-02T08:33:08.8239666Z tests/test_drop_insight_report_effects_postgres.py::test_postgres_cancellation_fences_late_analyzer_commit PASSED [ 14%]
+2026-10-02T08:33:09.6019898Z tests/test_drop_insight_report_effects_postgres.py::test_postgres_skill_activation_serializes_competing_planners PASSED [ 21%]
+2026-10-02T08:33:09.8723903Z tests/test_drop_insight_report_effects_postgres.py::test_postgres_claim_lease_takeover_and_fencing PASSED [ 28%]
+2026-10-02T08:33:10.3295578Z tests/test_drop_insight_report_effects_postgres.py::test_postgres_session_lock_serializes_event_effect_identity PASSED [ 35%]
+2026-10-02T08:33:10.6170505Z tests/test_drop_insight_report_effects_postgres.py::test_postgres_report_and_event_constraints_reject_concurrent_duplicates PASSED [ 42%]
+2026-10-02T08:33:10.8783810Z tests/test_outbox_postgres.py::test_outbox_finalize_locks_out_expired_lease_takeover[published] PASSED [ 50%]
+2026-10-02T08:33:11.1426158Z tests/test_outbox_postgres.py::test_outbox_finalize_locks_out_expired_lease_takeover[failed] PASSED [ 57%]
+2026-10-02T08:33:11.7772543Z tests/test_health_check_postgres.py::test_concurrent_completion_waits_for_parent_lock_and_commits_once PASSED [ 64%]
+2026-10-02T08:33:12.0732374Z tests/test_health_check_postgres.py::test_exception_rolls_back_event_terminal_status_and_call_phase PASSED [ 71%]
+2026-10-02T08:33:13.5247732Z tests/test_health_check_postgres.py::test_process_death_and_fresh_process_retry_preserve_atomic_completion[before] PASSED [ 78%]
+2026-10-02T08:33:14.9643229Z tests/test_health_check_postgres.py::test_process_death_and_fresh_process_retry_preserve_atomic_completion[after] PASSED [ 85%]
+2026-10-02T08:33:15.4355706Z tests/test_health_check_postgres.py::test_cancellation_wins_against_a_waiting_completion PASSED [ 92%]
+2026-10-02T08:33:15.8338957Z tests/test_health_check_postgres.py::test_running_sample_cannot_finish_and_import_requires_durable_phase PASSED [100%]
+2026-10-02T08:33:15.8339667Z 
+2026-10-02T08:33:15.8340613Z - generated xml file: /home/runner/work/mini-drop/mini-drop/output/postgres-ci/python.junit.xml -
+2026-10-02T08:33:15.8341292Z ============================== 14 passed in 8.90s ==============================
+2026-10-02T08:33:16.0671451Z ##[group]Run set -o pipefail
+2026-10-02T08:33:16.0671791Z [36;1mset -o pipefail[0m
+2026-10-02T08:33:16.0672086Z [36;1mgo test -race -count=1 -timeout=90s -json \[0m
+2026-10-02T08:33:16.0672579Z [36;1m  -run '^TestPostgresIdempotencyRaceWithOneConnection$' ./internal/repository \[0m
+2026-10-02T08:33:16.0673166Z [36;1m  2>../output/postgres-ci/go.stderr.log | tee ../output/postgres-ci/go.jsonl[0m
+2026-10-02T08:33:16.0744885Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-02T08:33:16.0745225Z env:
+2026-10-02T08:33:16.0745501Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:16.0745944Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-02T08:33:16.0746428Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:16.0746808Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:16.0747194Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:16.0747641Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-02T08:33:16.0748412Z   MINI_DROP_TEST_POSTGRES_URL: ***127.0.0.1:5432/mini_drop_ci_test?sslmode=disable
+2026-10-02T08:33:16.0748818Z   CGO_ENABLED: 1
+2026-10-02T08:33:16.0749024Z ##[endgroup]
+2026-10-02T08:33:19.6664586Z {"Time":"2026-10-02T08:33:19.666127967Z","Action":"start","Package":"mini-drop/apiserver/internal/repository"}
+2026-10-02T08:33:19.6789639Z {"Time":"2026-10-02T08:33:19.678678977Z","Action":"run","Package":"mini-drop/apiserver/internal/repository","Test":"TestPostgresIdempotencyRaceWithOneConnection"}
+2026-10-02T08:33:19.6792528Z {"Time":"2026-10-02T08:33:19.678725233Z","Action":"output","Package":"mini-drop/apiserver/internal/repository","Test":"TestPostgresIdempotencyRaceWithOneConnection","Output":"=== RUN   TestPostgresIdempotencyRaceWithOneConnection\n"}
+2026-10-02T08:33:19.7455163Z {"Time":"2026-10-02T08:33:19.745180797Z","Action":"output","Package":"mini-drop/apiserver/internal/repository","Test":"TestPostgresIdempotencyRaceWithOneConnection","Output":"--- PASS: TestPostgresIdempotencyRaceWithOneConnection (0.07s)\n"}
+2026-10-02T08:33:19.7457910Z {"Time":"2026-10-02T08:33:19.745209461Z","Action":"pass","Package":"mini-drop/apiserver/internal/repository","Test":"TestPostgresIdempotencyRaceWithOneConnection","Elapsed":0.07}
+2026-10-02T08:33:19.7459765Z {"Time":"2026-10-02T08:33:19.745266181Z","Action":"output","Package":"mini-drop/apiserver/internal/repository","Output":"PASS\n"}
+2026-10-02T08:33:20.7478080Z {"Time":"2026-10-02T08:33:20.747515277Z","Action":"output","Package":"mini-drop/apiserver/internal/repository","Output":"ok  \tmini-drop/apiserver/internal/repository\t1.081s\n"}
+2026-10-02T08:33:20.7479136Z {"Time":"2026-10-02T08:33:20.747545834Z","Action":"pass","Package":"mini-drop/apiserver/internal/repository","Elapsed":1.081}
+2026-10-02T08:33:20.7797219Z ##[group]Run python - <<'PY'
+2026-10-02T08:33:20.7797599Z [36;1mpython - <<'PY'[0m
+2026-10-02T08:33:20.7797842Z [36;1mimport json, os[0m
+2026-10-02T08:33:20.7798106Z [36;1mimport xml.etree.ElementTree as ET[0m
+2026-10-02T08:33:20.7798425Z [36;1mfrom pathlib import Path[0m
+2026-10-02T08:33:20.7798902Z [36;1m[0m
+2026-10-02T08:33:20.7799123Z [36;1mroot = Path("output/postgres-ci")[0m
+2026-10-02T08:33:20.7799452Z [36;1mroot.mkdir(parents=True, exist_ok=True)[0m
+2026-10-02T08:33:20.7799755Z [36;1mproblems = [][0m
+2026-10-02T08:33:20.7800342Z [36;1mexpected = {[0m
+2026-10-02T08:33:20.7800707Z [36;1m    "test_concurrent_completion_waits_for_parent_lock_and_commits_once",[0m
+2026-10-02T08:33:20.7801219Z [36;1m    "test_exception_rolls_back_event_terminal_status_and_call_phase",[0m
+2026-10-02T08:33:20.7801765Z [36;1m    "test_process_death_and_fresh_process_retry_preserve_atomic_completion[before]",[0m
+2026-10-02T08:33:20.7802385Z [36;1m    "test_process_death_and_fresh_process_retry_preserve_atomic_completion[after]",[0m
+2026-10-02T08:33:20.7802914Z [36;1m    "test_cancellation_wins_against_a_waiting_completion",[0m
+2026-10-02T08:33:20.7803388Z [36;1m    "test_running_sample_cannot_finish_and_import_requires_durable_phase",[0m
+2026-10-02T08:33:20.7803845Z [36;1m    "test_postgres_claim_lease_takeover_and_fencing",[0m
+2026-10-02T08:33:20.7804276Z [36;1m    "test_postgres_session_lock_serializes_event_effect_identity",[0m
+2026-10-02T08:33:20.7804793Z [36;1m    "test_postgres_report_and_event_constraints_reject_concurrent_duplicates",[0m
+2026-10-02T08:33:20.7805324Z [36;1m    "test_outbox_finalize_locks_out_expired_lease_takeover[published]",[0m
+2026-10-02T08:33:20.7805826Z [36;1m    "test_outbox_finalize_locks_out_expired_lease_takeover[failed]",[0m
+2026-10-02T08:33:20.7806197Z [36;1m}[0m
+2026-10-02T08:33:20.7806399Z [36;1mtry:[0m
+2026-10-02T08:33:20.7806713Z [36;1m    cases = list(ET.parse(root / "python.junit.xml").iter("testcase"))[0m
+2026-10-02T08:33:20.7807156Z [36;1m    executed = {case.attrib["name"] for case in cases}[0m
+2026-10-02T08:33:20.7807674Z [36;1m    problems.extend(f"Missing Python test: {name}" for name in sorted(expected - executed))[0m
+2026-10-02T08:33:20.7808137Z [36;1m    for case in cases:[0m
+2026-10-02T08:33:20.7808538Z [36;1m        if any(case.find(state) is not None for state in ("skipped", "failure", "error")):[0m
+2026-10-02T08:33:20.7809104Z [36;1m            problems.append(f"Python test did not pass: {case.attrib.get('name')}")[0m
+2026-10-02T08:33:20.7809591Z [36;1mexcept (OSError, ET.ParseError, KeyError) as error:[0m
+2026-10-02T08:33:20.7810398Z [36;1m    problems.append(f"Missing or invalid Python JUnit: {type(error).__name__}")[0m
+2026-10-02T08:33:20.7811032Z [36;1mtarget = "TestPostgresIdempotencyRaceWithOneConnection"[0m
+2026-10-02T08:33:20.7811397Z [36;1mtry:[0m
+2026-10-02T08:33:20.7811811Z [36;1m    events = [json.loads(line) for line in (root / "go.jsonl").read_text().splitlines() if line.strip()][0m
+2026-10-02T08:33:20.7812472Z [36;1m    if not any(event.get("Test") == target and event.get("Action") == "pass" for event in events):[0m
+2026-10-02T08:33:20.7813058Z [36;1m        problems.append("Go PostgreSQL idempotency test has no PASS evidence")[0m
+2026-10-02T08:33:20.7813616Z [36;1m    if not any("Test" not in event and event.get("Action") == "pass" for event in events):[0m
+2026-10-02T08:33:20.7814164Z [36;1m        problems.append("Go repository package has no PASS evidence")[0m
+2026-10-02T08:33:20.7814638Z [36;1m    if any(event.get("Action") in {"skip", "fail"} for event in events):[0m
+2026-10-02T08:33:20.7815127Z [36;1m        problems.append("Go integration run contains a skip or failure")[0m
+2026-10-02T08:33:20.7815540Z [36;1mexcept (OSError, ValueError) as error:[0m
+2026-10-02T08:33:20.7815961Z [36;1m    problems.append(f"Missing or invalid Go JSON: {type(error).__name__}")[0m
+2026-10-02T08:33:20.7816384Z [36;1mif not (root / "runtime.json").is_file():[0m
+2026-10-02T08:33:20.7817003Z [36;1m    problems.append("Isolated database runtime metadata is missing")[0m
+2026-10-02T08:33:20.7817530Z [36;1mresult = {"status": "FAILED" if problems else "PASSED", "problems": problems,[0m
+2026-10-02T08:33:20.7818061Z [36;1m          "commit": os.environ["GITHUB_SHA"], "run_id": os.environ["GITHUB_RUN_ID"],[0m
+2026-10-02T08:33:20.7818720Z [36;1m          "required_python_tests": sorted(expected), "required_go_test": target}[0m
+2026-10-02T08:33:20.7819219Z [36;1m(root / "gate.json").write_text(json.dumps(result, indent=2) + "\n")[0m
+2026-10-02T08:33:20.7819679Z [36;1mwith open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:[0m
+2026-10-02T08:33:20.7820480Z [36;1m    summary.write("### PostgreSQL concurrency gate: " + result["status"] + "\n\n")[0m
+2026-10-02T08:33:20.7821116Z [36;1m    summary.write("5 Python cases + 1 Go idempotency case with race detection; zero skips required.\n\n")[0m
+2026-10-02T08:33:20.7821727Z [36;1m    summary.write("\n".join("- " + problem for problem in problems) + "\n")[0m
+2026-10-02T08:33:20.7822134Z [36;1mprint(json.dumps(result, indent=2))[0m
+2026-10-02T08:33:20.7822462Z [36;1mraise SystemExit(1 if problems else 0)[0m
+2026-10-02T08:33:20.7822746Z [36;1mPY[0m
+2026-10-02T08:33:20.7893913Z shell: /usr/bin/bash -e {0}
+2026-10-02T08:33:20.7894175Z env:
+2026-10-02T08:33:20.7894457Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:20.7894913Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-02T08:33:20.7895350Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:20.7895734Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:20.7896127Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:20.7896520Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-02T08:33:20.7896845Z ##[endgroup]
+2026-10-02T08:33:20.8260405Z {
+2026-10-02T08:33:20.8261174Z   "status": "PASSED",
+2026-10-02T08:33:20.8261742Z   "problems": [],
+2026-10-02T08:33:20.8262176Z   "commit": "56788a921762abb5a409f608089d6d04ff1e4031",
+2026-10-02T08:33:20.8262596Z   "run_id": "36984571199",
+2026-10-02T08:33:20.8262927Z   "required_python_tests": [
+2026-10-02T08:33:20.8263399Z     "test_cancellation_wins_against_a_waiting_completion",
+2026-10-02T08:33:20.8264109Z     "test_concurrent_completion_waits_for_parent_lock_and_commits_once",
+2026-10-02T08:33:20.8264790Z     "test_exception_rolls_back_event_terminal_status_and_call_phase",
+2026-10-02T08:33:20.8265382Z     "test_outbox_finalize_locks_out_expired_lease_takeover[failed]",
+2026-10-02T08:33:20.8265987Z     "test_outbox_finalize_locks_out_expired_lease_takeover[published]",
+2026-10-02T08:33:20.8266514Z     "test_postgres_claim_lease_takeover_and_fencing",
+2026-10-02T08:33:20.8267097Z     "test_postgres_report_and_event_constraints_reject_concurrent_duplicates",
+2026-10-02T08:33:20.8267717Z     "test_postgres_session_lock_serializes_event_effect_identity",
+2026-10-02T08:33:20.8268366Z     "test_process_death_and_fresh_process_retry_preserve_atomic_completion[after]",
+2026-10-02T08:33:20.8269087Z     "test_process_death_and_fresh_process_retry_preserve_atomic_completion[before]",
+2026-10-02T08:33:20.8269756Z     "test_running_sample_cannot_finish_and_import_requires_durable_phase"
+2026-10-02T08:33:20.8270514Z   ],
+2026-10-02T08:33:20.8271095Z   "required_go_test": "TestPostgresIdempotencyRaceWithOneConnection"
+2026-10-02T08:33:20.8271520Z }
+2026-10-02T08:33:20.8349245Z ##[group]Run docker logs "$POSTGRES_CONTAINER" > output/postgres-ci/postgres.log 2>&1
+2026-10-02T08:33:20.8349836Z [36;1mdocker logs "$POSTGRES_CONTAINER" > output/postgres-ci/postgres.log 2>&1[0m
+2026-10-02T08:33:20.8418662Z shell: /usr/bin/bash -e {0}
+2026-10-02T08:33:20.8418920Z env:
+2026-10-02T08:33:20.8419193Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:20.8419645Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-02T08:33:20.8420318Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:20.8420705Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:20.8421116Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:20.8421513Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-02T08:33:20.8422198Z   POSTGRES_CONTAINER: f1a64d8f5392ba58e4d9e62883170386dcc9ce7b35c3e6df92aa27c76625d932
+2026-10-02T08:33:20.8422626Z ##[endgroup]
+2026-10-02T08:33:20.8758477Z ##[group]Run actions/upload-artifact@v4
+2026-10-02T08:33:20.8758834Z with:
+2026-10-02T08:33:20.8759178Z   name: postgres-concurrency-56788a921762abb5a409f608089d6d04ff1e4031-1
+2026-10-02T08:33:20.8759582Z   path: output/postgres-ci/
+2026-10-02T08:33:20.8759849Z   if-no-files-found: error
+2026-10-02T08:33:20.8760406Z   retention-days: 14
+2026-10-02T08:33:20.8760640Z   compression-level: 6
+2026-10-02T08:33:20.8760872Z   overwrite: false
+2026-10-02T08:33:20.8761093Z   include-hidden-files: false
+2026-10-02T08:33:20.8761334Z env:
+2026-10-02T08:33:20.8761606Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:20.8762043Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-02T08:33:20.8762495Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:20.8762880Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:20.8763280Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-02T08:33:20.8763708Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-02T08:33:20.8764036Z ##[endgroup]
+2026-10-02T08:33:21.0607887Z (node:2906) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-02T08:33:21.0608636Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-02T08:33:21.0705658Z With the provided path, there will be 8 files uploaded
+2026-10-02T08:33:21.0707265Z Artifact name is valid!
+2026-10-02T08:33:21.0707724Z Root directory input is valid!
+2026-10-02T08:33:21.3554087Z Beginning upload of artifact content to blob storage
+2026-10-02T08:33:21.3852933Z (node:2906) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-02T08:33:21.5122966Z Uploaded bytes 5633
+2026-10-02T08:33:21.5510475Z Finished uploading artifact content to blob storage!
+2026-10-02T08:33:21.5511723Z SHA256 digest of uploaded artifact zip is cbf9207191d4d0e106375ec8dcca33163833ff4585569d5dcc97fabfb6e495b1
+2026-10-02T08:33:21.5513829Z Finalizing artifact upload
+2026-10-02T08:33:21.7924871Z Artifact postgres-concurrency-56788a921762abb5a409f608089d6d04ff1e4031-1.zip successfully finalized. Artifact ID 11215779756
+2026-10-02T08:33:21.7926399Z Artifact postgres-concurrency-56788a921762abb5a409f608089d6d04ff1e4031-1 has been successfully uploaded! Final size is 5633 bytes. Artifact ID is 11215779756
+2026-10-02T08:33:21.7931549Z Artifact download URL: https://github.com/llongwang751-arch/mini-drop/actions/runs/36984571199/artifacts/11215779756
+2026-10-02T08:33:21.8094752Z Post job cleanup.
+2026-10-02T08:33:21.9416625Z (node:2918) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-02T08:33:21.9417492Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-02T08:33:21.9507954Z [command]/opt/hostedtoolcache/go/1.26.8/x64/bin/go env GOMODCACHE
+2026-10-02T08:33:21.9558347Z [command]/opt/hostedtoolcache/go/1.26.8/x64/bin/go env GOCACHE
+2026-10-02T08:33:21.9605719Z /home/runner/go/pkg/mod
+2026-10-02T08:33:21.9629705Z /home/runner/.cache/go-build
+2026-10-02T08:33:21.9641799Z Cache hit occurred on the primary key setup-go-Linux-x64-ubuntu22-go-1.26.8-53ddbd53d793e3fffd22ee7f29b9841d7ddf0fd59f4a944399a5c4503dd61af9, not saving cache.
+2026-10-02T08:33:21.9776228Z Post job cleanup.
+2026-10-02T08:33:22.1262085Z Cache hit occurred on the primary key setup-python-Linux-x64-22.04-Ubuntu-python-3.11.16-pip-b83510f2f07dfac019eba1c6d004d529cbdf8674a3f741a85baa99bd791dd2ac, not saving cache.
+2026-10-02T08:33:22.1264374Z (node:2940) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-02T08:33:22.1266185Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-02T08:33:22.1436670Z Post job cleanup.
+2026-10-02T08:33:22.2454468Z [command]/usr/bin/git version
+2026-10-02T08:33:22.2515100Z git version 2.55.0
+2026-10-02T08:33:22.2562414Z Temporarily overriding HOME='/home/runner/work/_temp/cc4ed84a-727f-460e-a5fd-4e08d3558a59' before making global git config changes
+2026-10-02T08:33:22.2564137Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-02T08:33:22.2571012Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/mini-drop/mini-drop
+2026-10-02T08:33:22.2636849Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-02T08:33:22.2693706Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-02T08:33:22.3112107Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-02T08:33:22.3135495Z http.https://github.com/.extraheader
+2026-10-02T08:33:22.3146990Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-02T08:33:22.3191256Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-02T08:33:22.3504288Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-02T08:33:22.3547137Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-02T08:33:22.3982032Z Print service container logs: 3fac5e4dd78d4d1497acbc9abe40a799_postgres16_5242c4
+2026-10-02T08:33:22.3986636Z ##[command]/usr/bin/docker logs --details f1a64d8f5392ba58e4d9e62883170386dcc9ce7b35c3e6df92aa27c76625d932
+2026-10-02T08:33:22.4150865Z  initdb: warning: enabling "trust" authentication for local connections
+2026-10-02T08:33:22.4152489Z  initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+2026-10-02T08:33:22.4153505Z  The files belonging to this database system will be owned by user "postgres".
+2026-10-02T08:33:22.4154187Z  This user must also own the server process.
+2026-10-02T08:33:22.4154756Z  
+2026-10-02T08:33:22.4155417Z  The database cluster will be initialized with locale "en_US.utf8".
+2026-10-02T08:33:22.4156173Z  The default database encoding has accordingly been set to "UTF8".
+2026-10-02T08:33:22.4156871Z  The default text search configuration will be set to "english".
+2026-10-02T08:33:22.4157499Z  
+2026-10-02T08:33:22.4157990Z  Data page checksums are disabled.
+2026-10-02T08:33:22.4159139Z  2026-10-02 08:32:20.742 UTC [1] LOG:  starting PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-10-02T08:33:22.4160430Z  2026-10-02 08:32:20.742 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-10-02T08:33:22.4160933Z  2026-10-02 08:32:20.742 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-10-02T08:33:22.4161481Z  2026-10-02 08:32:20.743 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-10-02T08:33:22.4162055Z  2026-10-02 08:32:20.746 UTC [64] LOG:  database system was shut down at 2026-10-02 08:32:20 UTC
+2026-10-02T08:33:22.4162563Z  2026-10-02 08:32:20.750 UTC [1] LOG:  database system is ready to accept connections
+2026-10-02T08:33:22.4163209Z  2026-10-02 08:33:10.559 UTC [167] ERROR:  duplicate key value violates unique constraint "uq_drop_insight_report_identity"
+2026-10-02T08:33:22.4164199Z  2026-10-02 08:33:10.559 UTC [167] DETAIL:  Key (diagnosis_id, hypothesis_id)=(diagnosis-report-postgres-identity-seed, hypothesis-report-postgres-identity-seed) already exists.
+2026-10-02T08:33:22.4167105Z  2026-10-02 08:33:10.559 UTC [167] STATEMENT:  INSERT INTO drop_insight_reports (id, diagnosis_id, hypothesis_id, conclusion, confidence, evidence_refs_json, counter_evidence_refs_json, assumptions_json, limitations_json, next_actions_json, claims_json, verification_json, effects_status, effects_phase, effects_owner, effects_lease_expires_at, effects_fencing_token, effects_applied_at, created_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::INTEGER, $6::JSON, $7::JSON, $8::JSON, $9::JSON, $10::JSON, $11::JSON, $12::JSON, $13::VARCHAR, $14::VARCHAR, $15::VARCHAR, $16::TIMESTAMP WITH TIME ZONE, $17::INTEGER, $18::TIMESTAMP WITH TIME ZONE, $19::TIMESTAMP WITH TIME ZONE)
+2026-10-02T08:33:22.4169598Z  2026-10-02 08:33:10.566 UTC [168] ERROR:  duplicate key value violates unique constraint "uq_drop_insight_report_identity"
+2026-10-02T08:33:22.4170818Z  2026-10-02 08:33:10.566 UTC [168] DETAIL:  Key (diagnosis_id, hypothesis_id)=(diagnosis-report-postgres-identity-seed, hypothesis-report-postgres-identity-seed) already exists.
+2026-10-02T08:33:22.4174478Z  2026-10-02 08:33:10.566 UTC [168] STATEMENT:  INSERT INTO drop_insight_reports (id, diagnosis_id, hypothesis_id, conclusion, confidence, evidence_refs_json, counter_evidence_refs_json, assumptions_json, limitations_json, next_actions_json, claims_json, verification_json, effects_status, effects_phase, effects_owner, effects_lease_expires_at, effects_fencing_token, effects_applied_at, created_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::INTEGER, $6::JSON, $7::JSON, $8::JSON, $9::JSON, $10::JSON, $11::JSON, $12::JSON, $13::VARCHAR, $14::VARCHAR, $15::VARCHAR, $16::TIMESTAMP WITH TIME ZONE, $17::INTEGER, $18::TIMESTAMP WITH TIME ZONE, $19::TIMESTAMP WITH TIME ZONE)
+2026-10-02T08:33:22.4177356Z  2026-10-02 08:33:10.570 UTC [168] ERROR:  duplicate key value violates unique constraint "uq_drop_insight_event_effect"
+2026-10-02T08:33:22.4178305Z  2026-10-02 08:33:10.570 UTC [168] DETAIL:  Key (diagnosis_id, effect_key)=(diagnosis-report-postgres-identity-seed, report:postgres:route:event) already exists.
+2026-10-02T08:33:22.4179703Z  2026-10-02 08:33:10.570 UTC [168] STATEMENT:  INSERT INTO drop_insight_events (id, diagnosis_id, sequence, event_type, actor, payload_json, effect_key, occurred_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::VARCHAR, $5::VARCHAR, $6::JSON, $7::VARCHAR, $8::TIMESTAMP WITH TIME ZONE)
+2026-10-02T08:33:22.4181218Z  2026-10-02 08:33:12.867 UTC [184] LOG:  unexpected EOF on client connection with an open transaction
+2026-10-02T08:33:22.4181948Z  2026-10-02 08:33:19.738 UTC [205] ERROR:  duplicate key value violates unique constraint "tasks_creator_id_idempotency_key_key"
+2026-10-02T08:33:22.4182705Z  2026-10-02 08:33:19.738 UTC [205] DETAIL:  Key (creator_id, idempotency_key)=(test, same-request-key) already exists.
+2026-10-02T08:33:22.4183231Z  2026-10-02 08:33:19.738 UTC [205] STATEMENT:  
+2026-10-02T08:33:22.4183535Z  			INSERT INTO tasks (
+2026-10-02T08:33:22.4183886Z  				id, name, agent_id, target_pid, collector_type, sample_rate, duration_sec,
+2026-10-02T08:33:22.4184411Z  				status, status_reason, collection_status, analysis_status, request_params,
+2026-10-02T08:33:22.4184950Z  				creator_id, idempotency_key, process_snapshot_id, process_binding_json, created_at
+2026-10-02T08:33:22.4185486Z  			) VALUES ($1,$2,$3,$4,$5,$6,$7,'PENDING',$8,$9,$10,$11::jsonb,$12,$13,$14,$15::json,$16)
+2026-10-02T08:33:22.4185871Z  
+2026-10-02T08:33:22.4186180Z  fixing permissions on existing directory /var/lib/postgresql/data ... ok
+2026-10-02T08:33:22.4186593Z  creating subdirectories ... ok
+2026-10-02T08:33:22.4186952Z  selecting dynamic shared memory implementation ... posix
+2026-10-02T08:33:22.4187313Z  selecting default max_connections ... 100
+2026-10-02T08:33:22.4187623Z  selecting default shared_buffers ... 128MB
+2026-10-02T08:33:22.4187924Z  selecting default time zone ... Etc/UTC
+2026-10-02T08:33:22.4188215Z  creating configuration files ... ok
+2026-10-02T08:33:22.4188500Z  running bootstrap script ... ok
+2026-10-02T08:33:22.4188995Z  performing post-bootstrap initialization ... ok
+2026-10-02T08:33:22.4189316Z  syncing data to disk ... ok
+2026-10-02T08:33:22.4189566Z  
+2026-10-02T08:33:22.4189743Z  
+2026-10-02T08:33:22.4190236Z  Success. You can now start the database server using:
+2026-10-02T08:33:22.4190594Z  
+2026-10-02T08:33:22.4190844Z      pg_ctl -D /var/lib/postgresql/data -l logfile start
+2026-10-02T08:33:22.4191154Z  
+2026-10-02T08:33:22.4191801Z  waiting for server to start....2026-10-02 08:32:20.309 UTC [48] LOG:  starting PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-10-02T08:33:22.4192689Z  2026-10-02 08:32:20.309 UTC [48] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-10-02T08:33:22.4193257Z  2026-10-02 08:32:20.312 UTC [51] LOG:  database system was shut down at 2026-10-02 08:32:20 UTC
+2026-10-02T08:33:22.4193779Z  2026-10-02 08:32:20.316 UTC [48] LOG:  database system is ready to accept connections
+2026-10-02T08:33:22.4194165Z   done
+2026-10-02T08:33:22.4194362Z  server started
+2026-10-02T08:33:22.4194572Z  CREATE DATABASE
+2026-10-02T08:33:22.4194771Z  
+2026-10-02T08:33:22.4194948Z  
+2026-10-02T08:33:22.4195265Z  /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+2026-10-02T08:33:22.4195675Z  
+2026-10-02T08:33:22.4195968Z  2026-10-02 08:32:20.519 UTC [48] LOG:  received fast shutdown request
+2026-10-02T08:33:22.4196506Z  waiting for server to shut down....2026-10-02 08:32:20.520 UTC [48] LOG:  aborting any active transactions
+2026-10-02T08:33:22.4197217Z  2026-10-02 08:32:20.522 UTC [48] LOG:  background worker "logical replication launcher" (PID 54) exited with exit code 1
+2026-10-02T08:33:22.4197931Z  2026-10-02 08:32:20.522 UTC [49] LOG:  shutting down
+2026-10-02T08:33:22.4198339Z  2026-10-02 08:32:20.552 UTC [49] LOG:  checkpoint starting: shutdown immediate
+2026-10-02T08:33:22.4199415Z  2026-10-02 08:32:20.637 UTC [49] LOG:  checkpoint complete: wrote 926 buffers (5.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.039 s, sync=0.002 s, total=0.115 s; sync files=301, longest=0.001 s, average=0.001 s; distance=4273 kB, estimate=4273 kB; lsn=0/191F0F8, redo lsn=0/191F0F8
+2026-10-02T08:33:22.4200789Z  2026-10-02 08:32:20.644 UTC [48] LOG:  database system is shut down
+2026-10-02T08:33:22.4201135Z   done
+2026-10-02T08:33:22.4201332Z  server stopped
+2026-10-02T08:33:22.4201536Z  
+2026-10-02T08:33:22.4201785Z  PostgreSQL init process complete; ready for start up.
+2026-10-02T08:33:22.4202097Z  
+2026-10-02T08:33:22.4207290Z Stop and remove container: 3fac5e4dd78d4d1497acbc9abe40a799_postgres16_5242c4
+2026-10-02T08:33:22.4212379Z ##[command]/usr/bin/docker rm --force f1a64d8f5392ba58e4d9e62883170386dcc9ce7b35c3e6df92aa27c76625d932
+2026-10-02T08:33:23.0654321Z f1a64d8f5392ba58e4d9e62883170386dcc9ce7b35c3e6df92aa27c76625d932
+2026-10-02T08:33:23.0687091Z Remove container network: github_network_a5920e69d6dc404383b8df3d59b33173
+2026-10-02T08:33:23.0691750Z ##[command]/usr/bin/docker network rm github_network_a5920e69d6dc404383b8df3d59b33173
+2026-10-02T08:33:23.1938779Z github_network_a5920e69d6dc404383b8df3d59b33173
+2026-10-02T08:33:23.2013488Z Cleaning up orphan processes
+2026-10-02T08:33:23.2438729Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-go@v5, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

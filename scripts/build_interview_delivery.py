@@ -78,7 +78,9 @@ def generate(root: Path = ROOT) -> str:
         f"| 发布版 Python | {counts['python']['passed']} 通过、{counts['python']['skipped']} 登记跳过；真实 PG 与 Chroma 由独立作业执行 |",
         f"| 发布版 Web / Chromium | {counts['web_vitest']['passed']} 项 / {counts['chromium']['passed']} 项；Chromium 为固定数据回归 |",
         f"| 真实 PostgreSQL | {counts['postgres_python']['passed']} 项、{counts['postgres_python']['skipped']} 跳过 |",
-        f"| 线上浏览器 | {len(browser['verified_downloads'])} 份下载 SHA 一致、{len(browser['layouts'])} 次布局检查通过 |",
+        (f"| 线上浏览器 | {len(browser['verified_downloads'])} 份下载 SHA 一致、{len(browser['layouts'])} 次布局检查通过 |"
+         if browser['verified_downloads'] else
+         f"| 线上浏览器 | 本次未执行证据下载；{len(browser['layouts'])} 次布局检查通过 |"),
         f"| 线上版本 | `{release['release_tag']}`，源码 `{head}` |", '',
         '性能实验中的工程判断包含支持观测和有效反证，不表示每类都定位了根因。',
         '真实业务同负载修复案例是独立 HTTP/SQLite 样例；模型规划、知识检索与真实采集分别验收。', '',

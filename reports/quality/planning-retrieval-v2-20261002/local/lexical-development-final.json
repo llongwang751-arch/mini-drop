@@ -1,0 +1,237 @@
+{
+  "kind": "CURATED_DEVELOPMENT_SET",
+  "not_held_out": true,
+  "suite_sha256": "7cc753b96cf5cfa64a66617f095c9f5a55ece0eb2f5a0a78c1614ce6c6f925a2",
+  "corpus_sha256": "8370affc39759ac182c2d6a264ed4402ed0de2b7fb1b7ad466ea48b3934f3c60",
+  "documents": 17,
+  "chunks": 39,
+  "recall_at_3": 1.0,
+  "mrr_at_3": 1.0,
+  "no_answer_false_positive_rate": 0.0,
+  "hybrid_backend_confirmed": false,
+  "cases": [
+    {
+      "query": "py-spy 的睡眠线程为什么也占好多样本",
+      "relevant_ids": [
+        "python.sampling.attribution"
+      ],
+      "matched_ids": [
+        "python.sampling.attribution",
+        "linux.cpu.process_pressure",
+        "linux.memory.process_growth"
+      ],
+      "actual_backend": "BM25",
+      "seconds": 0.057,
+      "degraded_reasons": [],
+      "recall_at_3": 1.0,
+      "reciprocal_rank": 1.0,
+      "false_positive": false
+    },
+    {
+      "query": "机器还很空闲，容器却被 cpu.max 限制",
+      "relevant_ids": [
+        "container.cpu.throttling"
+      ],
+      "matched_ids": [
+        "container.cpu.throttling",
+        "linux.cpu.kernel_overhead",
+        "linux.cpu.process_pressure"
+      ],
+      "actual_backend": "BM25",
+      "seconds": 0.056,
+      "degraded_reasons": [],
+      "recall_at_3": 1.0,
+      "reciprocal_rank": 1.0,
+      "false_positive": false
+    },
+    {
+      "query": "memory.events 的 oom_kill 一直增长怎么查",
+      "relevant_ids": [
+        "container.memory.pressure"
+      ],
+      "matched_ids": [
+        "container.memory.pressure"
+      ],
+      "actual_backend": "BM25",
+      "seconds": 0.055,
+      "degraded_reasons": [],
+      "recall_at_3": 1.0,
+      "reciprocal_rank": 1.0,
+      "false_positive": false
+    },
+    {
+      "query": "goroutine 都阻塞了该选 mutex 还是 CPU profile",
+      "relevant_ids": [
+        "go.profile.selection"
+      ],
+      "matched_ids": [
+        "go.profile.selection",
+        "linux.cpu.process_pressure",
+        "linux.cpu.kernel_overhead"
+      ],
+      "actual_backend": "BM25",
+      "seconds": 0.058,
+      "degraded_reasons": [],
+      "recall_at_3": 1.0,
+      "reciprocal_rank": 1.0,
+      "false_positive": false
+    },
+    {
+      "query": "pg_stat_activity 里长事务造成等待",
+      "relevant_ids": [
+        "postgres.waits"
+      ],
+      "matched_ids": [
+        "postgres.waits",
+        "go.profile.selection"
+      ],
+      "actual_backend": "BM25",
+      "seconds": 0.053,
+      "degraded_reasons": [],
+      "recall_at_3": 1.0,
+      "reciprocal_rank": 1.0,
+      "false_positive": false
+    },
+    {
+      "query": "多个实例的 P95 能直接求平均吗",
+      "relevant_ids": [
+        "sre.latency.measurement"
+      ],
+      "matched_ids": [
+        "sre.latency.measurement",
+        "jvm.gc.pressure"
+      ],
+      "actual_backend": "BM25",
+      "seconds": 0.056,
+      "degraded_reasons": [],
+      "recall_at_3": 1.0,
+      "reciprocal_rank": 1.0,
+      "false_positive": false
+    },
+    {
+      "query": "工具重复调用耗尽预算怎么办",
+      "relevant_ids": [
+        "agent.tool.governance"
+      ],
+      "matched_ids": [
+        "agent.tool.governance"
+      ],
+      "actual_backend": "BM25",
+      "seconds": 0.055,
+      "degraded_reasons": [],
+      "recall_at_3": 1.0,
+      "reciprocal_rank": 1.0,
+      "false_positive": false
+    },
+    {
+      "query": "怎样公平比较 ReAct 和 LATS",
+      "relevant_ids": [
+        "agent.strategy.evaluation"
+      ],
+      "matched_ids": [
+        "agent.strategy.evaluation"
+      ],
+      "actual_backend": "BM25",
+      "seconds": 0.052,
+      "degraded_reasons": [],
+      "recall_at_3": 1.0,
+      "reciprocal_rank": 1.0,
+      "false_positive": false
+    },
+    {
+      "query": "向量索引更新后怎么测 recall 和 mrr",
+      "relevant_ids": [
+        "rag.quality.lifecycle"
+      ],
+      "matched_ids": [
+        "rag.quality.lifecycle"
+      ],
+      "actual_backend": "BM25",
+      "seconds": 0.047,
+      "degraded_reasons": [],
+      "recall_at_3": 1.0,
+      "reciprocal_rank": 1.0,
+      "false_positive": false
+    },
+    {
+      "query": "Worker 中途重启如何检查租约恢复",
+      "relevant_ids": [
+        "sre.recovery.acceptance"
+      ],
+      "matched_ids": [
+        "sre.recovery.acceptance"
+      ],
+      "actual_backend": "BM25",
+      "seconds": 0.049,
+      "degraded_reasons": [],
+      "recall_at_3": 1.0,
+      "reciprocal_rank": 1.0,
+      "false_positive": false
+    },
+    {
+      "query": "TCP retransmit 丢包 RTT 增加",
+      "relevant_ids": [
+        "linux.network.retransmit"
+      ],
+      "matched_ids": [
+        "linux.network.retransmit",
+        "linux.cpu.kernel_overhead"
+      ],
+      "actual_backend": "BM25",
+      "seconds": 0.047,
+      "degraded_reasons": [],
+      "recall_at_3": 1.0,
+      "reciprocal_rank": 1.0,
+      "false_positive": false
+    },
+    {
+      "query": "JVM GC pause 垃圾回收暂停",
+      "relevant_ids": [
+        "jvm.gc.pressure"
+      ],
+      "matched_ids": [
+        "jvm.gc.pressure",
+        "linux.cpu.process_pressure"
+      ],
+      "actual_backend": "BM25",
+      "seconds": 0.052,
+      "degraded_reasons": [],
+      "recall_at_3": 1.0,
+      "reciprocal_rank": 1.0,
+      "false_positive": false
+    },
+    {
+      "query": "推荐一家好吃的餐厅",
+      "relevant_ids": [],
+      "matched_ids": [],
+      "actual_backend": "BM25",
+      "seconds": 0.044,
+      "degraded_reasons": [],
+      "recall_at_3": null,
+      "reciprocal_rank": 0,
+      "false_positive": false
+    },
+    {
+      "query": "明天出门要带伞吗",
+      "relevant_ids": [],
+      "matched_ids": [],
+      "actual_backend": "BM25",
+      "seconds": 0.044,
+      "degraded_reasons": [],
+      "recall_at_3": null,
+      "reciprocal_rank": 0,
+      "false_positive": false
+    },
+    {
+      "query": "帮我写首情诗",
+      "relevant_ids": [],
+      "matched_ids": [],
+      "actual_backend": "BM25",
+      "seconds": 0.046,
+      "degraded_reasons": [],
+      "recall_at_3": null,
+      "reciprocal_rank": 0,
+      "false_positive": false
+    }
+  ]
+}

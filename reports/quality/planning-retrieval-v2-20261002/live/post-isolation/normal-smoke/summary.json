@@ -1,0 +1,39 @@
+{
+  "schema": "mini-drop.live-planning-output-smoke.v1",
+  "status": "FAILED",
+  "source_head": "a6a3626094b8edbb5b9a48bef317153035ccca16",
+  "release": "/opt/mini-drop-releases/20261002T095001Z",
+  "cases": [
+    {
+      "name": "normal",
+      "expected_disposition": "NORMAL",
+      "passed": false,
+      "planner_invocations": 1,
+      "provider_http_call_count": null,
+      "provider_http_count_scope": "LangGraph internal model calls are not equated to planner invocations",
+      "diagnosis_id": "insight_deaf21c19bcc470581dfabd0cd5f3b1f",
+      "failure_type": "AssertionError",
+      "failure_reason": "real model did not persist exactly one no-probe decision",
+      "actual_persisted_tasks": 0
+    }
+  ],
+  "scope": "Real production Agent planner, signed process target, persisted decisions; no faults, no held-out retuning, no health/causal claims",
+  "heldout_evaluation": false,
+  "selected_cases": [
+    "normal"
+  ],
+  "planner_invocations": 1,
+  "persisted_task_counts": [
+    {
+      "diagnosis_id": "insight_deaf21c19bcc470581dfabd0cd5f3b1f",
+      "persisted_tool_calls": 0,
+      "persisted_tasks": 0,
+      "task_ids": []
+    }
+  ],
+  "faults_active_before_after": 0,
+  "target_lifetime_and_source_preserved": true,
+  "causal_root_cause_verified": false,
+  "health_check_performed": false,
+  "completed_at": "2026-10-02T10:10:32.933756+00:00"
+}

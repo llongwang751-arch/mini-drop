@@ -1,0 +1,61 @@
+{
+  "source_head": "73b4b18ad83553a5012a0025dfb78bb21ff8dc7f",
+  "release": "/opt/mini-drop-releases/20261002T103825Z",
+  "agent_version": "diagnosis-agent-v7-four-state-prompts",
+  "release_manifest": {
+    "path": "release-manifest.json",
+    "sha256": "94521d4b8e618bc5f6f71bf9f51fbc3cb98a39a6ce6b21edfe0d181749caf99c"
+  },
+  "publication_verification": {
+    "path": "publication-verification.json",
+    "sha256": "9d61524a9656c5707b274c937fa14696a53baf29897c05912eb8eea01709073b"
+  },
+  "case_producers": [
+    {
+      "source_head": "73b4b18ad83553a5012a0025dfb78bb21ff8dc7f",
+      "release": "/opt/mini-drop-releases/20261002T103825Z",
+      "status": "FAILED",
+      "total_cases": 1,
+      "passed_cases": 0,
+      "planner_invocations": 1,
+      "heldout_evaluation": false
+    },
+    {
+      "source_head": "df0d3ef00a945e7d909f73868819799b2b7cc7f7",
+      "release": "/opt/mini-drop-releases/20261002T085733Z",
+      "status": "FAILED",
+      "total_cases": 3,
+      "passed_cases": 2,
+      "planner_invocations": 3,
+      "heldout_evaluation": false
+    }
+  ],
+  "browser_ui_source_head": "73b4b18ad83553a5012a0025dfb78bb21ff8dc7f",
+  "normal_outcome": "FAILED",
+  "normal_expected_disposition": "NORMAL",
+  "actual_dispositions": [
+    "INSUFFICIENT_EVIDENCE"
+  ],
+  "accepted_planning_output": [
+    {
+      "schema_version": "mini-drop.planning-output.v2",
+      "disposition": "INSUFFICIENT_EVIDENCE",
+      "reasoning_summary": "当前仅知目标进程存在（PID 2850799），但没有任何性能观测数据。用户明确要求不提出采集动作，因此无法获取必要的系统基线或症状信息。缺少时间窗口定义和任何可观察的性能指标。",
+      "tool_name": null,
+      "hypotheses": [],
+      "missing_evidence": [
+        "系统基线指标（CPU、内存、IO等）",
+        "性能症状或异常时间窗口",
+        "进程活动模式或资源使用情况"
+      ],
+      "limitations": [
+        "用户明确要求不提出异常假设或采集动作，限制了取证能力",
+        "仅凭进程存在信息无法判断性能状态",
+        "没有历史观测数据可供参考"
+      ],
+      "causal_root_cause_verified": false
+    }
+  ],
+  "schema": "mini-drop.planning-output.v2",
+  "heldout_evaluation": false
+}

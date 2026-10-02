@@ -1,0 +1,87 @@
+{
+  "checkpoint_audit": [
+    {
+      "diagnosis_id": "insight_deaf21c19bcc470581dfabd0cd5f3b1f",
+      "physical_thread_id": "diagnosis-agent-v6-planning-output:insight_deaf21c19bcc470581dfabd0cd5f3b1f",
+      "checkpoint_namespace": "",
+      "checkpoint_present": true,
+      "legacy_checkpoint_present": false,
+      "messages": [
+        {
+          "type": "ai",
+          "name": "mini_drop_diagnosis_agent",
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "name": "finish_diagnosis_plan",
+              "args": {
+                "output": {
+                  "schema_version": "mini-drop.planning-output.v2",
+                  "disposition": "INVESTIGATE",
+                  "reasoning_summary": "当前处于诊断初始阶段，尚未采集任何系统性能数据。规则基线要求先采集系统基线以明确异常领域。需要收集目标进程的系统指标来建立性能基线，为后续可能的异常识别提供参照。",
+                  "tool_name": "collect_sys_metrics",
+                  "hypotheses": [
+                    {
+                      "statement": "目标进程在15秒采集窗口内存在可观测的系统资源使用模式，为后续异常识别提供基线",
+                      "expected_observations": [
+                        "collect_sys_metrics 成功返回包含 CPU、内存、I/O 等系统指标数据"
+                      ],
+                      "falsification_criteria": [
+                        "collect_sys_metrics 采集失败或返回权限不足错误"
+                      ],
+                      "rationale": "这是诊断流程的第一步，需要建立系统性能基线来评估后续可能的异常。如果采集失败，则无法进行后续诊断。",
+                      "prior_probability": 0.9,
+                      "estimated_value": 0.3
+                    }
+                  ],
+                  "missing_evidence": [],
+                  "limitations": [
+                    "当前仅能采集系统级指标，无法获取应用内部状态或业务逻辑信息",
+                    "15秒采集窗口可能无法捕捉间歇性异常"
+                  ],
+                  "causal_root_cause_verified": false
+                }
+              },
+              "id": "01a0fc16ae4b9c85cb6f3c91aacd7a45",
+              "type": "tool_call"
+            }
+          ],
+          "content": "根据当前诊断上下文，我处于初始阶段，尚未采集任何系统指标。规则基线指示需要先采集系统基线或复用匹配的诊断 Skill 来明确异常领域。当前 allowed_tools 中只有 collect_sys_metrics 可用。\n\n我需要填补的缺口是：缺乏目标进程的系统性能基线数据，无法判断是否存在异常或确定下一步调查方向。",
+          "usage": {
+            "input_tokens": 17023,
+            "output_tokens": 394,
+            "total_tokens": 17417,
+            "input_token_details": {
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          }
+        },
+        {
+          "type": "tool",
+          "name": "finish_diagnosis_plan",
+          "tool_call_id": "01a0fc16ae4b9c85cb6f3c91aacd7a45",
+          "tool_calls": null,
+          "content": "{\"accepted\": false, \"code\": \"INVALID_PLANNING_OUTPUT\", \"reason\": \"采集失败或不可观测不能证伪根因；请用采集成功后的相反观察。\"}",
+          "usage": null
+        }
+      ],
+      "accepted_proposal": null
+    }
+  ],
+  "provider_failure_log_types": [
+    {
+      "event": "diagnosis_agent_plan_failed",
+      "diagnosis_id": "insight_deaf21c19bcc470581dfabd0cd5f3b1f",
+      "framework": "langgraph",
+      "error": "OpenAITimeoutError",
+      "status_code": null
+    }
+  ],
+  "source_head": "a6a3626094b8edbb5b9a48bef317153035ccca16",
+  "release": "/opt/mini-drop-releases/20261002T095001Z",
+  "heldout_evaluation": false,
+  "versioned_checkpoint_verified": true
+}

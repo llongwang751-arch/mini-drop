@@ -1,0 +1,96 @@
+{
+  "schema": "mini-drop.historical-arithmetic-diagnostic.v1",
+  "status": "VERIFIED",
+  "created_at_utc": "2026-10-02T08:50:28.377653+00:00",
+  "failing_ci_run": 36984571199,
+  "ci_python_version": "3.11",
+  "diagnostic_python_versions": [
+    "3.14.0",
+    "3.13.14"
+  ],
+  "python311_naive_loop": "SIMULATED_BUILTIN_SUM_PRE_312_SEMANTICS_NO_CLAIM_OF_INSTALLED_311",
+  "exact_difference": {
+    "field": "recall_at_3",
+    "original": 0.7583333333333333,
+    "naive": 0.7583333333333334,
+    "case_differences": 0
+  },
+  "original_grader_ast_modified": false,
+  "original_report_modified": false,
+  "provider_calls": 0,
+  "primary_reference": "https://docs.python.org/3.12/library/functions.html#sum",
+  "executions": [
+    {
+      "python": "3.14.0",
+      "mode": "current",
+      "metric_diff": {},
+      "case_diff_count": 0,
+      "recall": 0.7583333333333333,
+      "mrr": 0.8
+    },
+    {
+      "python": "3.14.0",
+      "mode": "python311_naive",
+      "metric_diff": {
+        "recall_at_3": [
+          0.7583333333333333,
+          0.7583333333333334
+        ]
+      },
+      "case_diff_count": 0,
+      "recall": 0.7583333333333334,
+      "mrr": 0.8
+    },
+    {
+      "python": "3.14.0",
+      "mode": "exact_fsum",
+      "metric_diff": {},
+      "case_diff_count": 0,
+      "recall": 0.7583333333333333,
+      "mrr": 0.8
+    },
+    {
+      "python": "3.13.14",
+      "mode": "current",
+      "metric_diff": {},
+      "case_diff_count": 0,
+      "recall": 0.7583333333333333,
+      "mrr": 0.8
+    },
+    {
+      "python": "3.13.14",
+      "mode": "python311_naive",
+      "metric_diff": {
+        "recall_at_3": [
+          0.7583333333333333,
+          0.7583333333333334
+        ]
+      },
+      "case_diff_count": 0,
+      "recall": 0.7583333333333334,
+      "mrr": 0.8
+    },
+    {
+      "python": "3.13.14",
+      "mode": "exact_fsum",
+      "metric_diff": {},
+      "case_diff_count": 0,
+      "recall": 0.7583333333333333,
+      "mrr": 0.8
+    }
+  ],
+  "files": {
+    "diagnose_historical_arithmetic.py": {
+      "sha256": "29dcc60c3c0d9ff7a5a719a693ea63217c6798bdfd0711b32f5d5e6268a272b0",
+      "bytes": 1686
+    },
+    "python313.jsonl": {
+      "sha256": "6d9e1df4de2dee692ae86da8cab12f39208d6837907395e287ea11062ae28c58",
+      "bytes": 441
+    },
+    "python314.jsonl": {
+      "sha256": "2fe1ba8f7e160d1c5653244ed4838be33c7ddae559e84bb4147b0ce264d3839f",
+      "bytes": 438
+    }
+  }
+}

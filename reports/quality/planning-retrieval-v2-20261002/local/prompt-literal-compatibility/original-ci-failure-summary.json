@@ -1,0 +1,33 @@
+{
+  "artifact_id": 11221373401,
+  "official_zip_digest_verified": true,
+  "official_zip_size_verified": true,
+  "download_sha256": "2529cdefbbae798e47a716b73d72b47efe9388927764da444a1f9e4ad61cc4c1",
+  "download_bytes": 15440330,
+  "files": [
+    {
+      "path": "python-all/junit.xml",
+      "sha256": "9fa30ca3eac052362a6dda7d4bb2104081bd73aeddf594512d19cc67aadfd550",
+      "bytes": 320870
+    },
+    {
+      "path": "report.json",
+      "sha256": "72006c15c25d3c14fcfcd778d0c4d637f2be8c89c45b9f533f65818e68b6ba96",
+      "bytes": 11046
+    }
+  ],
+  "cases": 2035,
+  "failures": [
+    {
+      "name": {
+        "classname": "tests.test_diagnosis_agent",
+        "name": "test_visible_english_model_plan_uses_chinese_server_rule_fallback",
+        "time": "0.001"
+      },
+      "type": {
+        "message": "AssertionError: assert '切换证据域' in '所有面向用户展示的字段必须以简体中文书写；CPU、JVM、eBPF、py-spy、函数名和工具名等必要专有名词可以保留英文。先遵守共享四态合同；仅本轮仍有明确待验证异常且选择 INVESTIGATE 时，证据反驳或工具不可观测后才扩展未尝试候选并切换可观察的证据域，其他未知原因最多一个兜底候选。非法计划被门禁拒绝不是新的业务异常；合法非调查结果直接 finish 并停止知识查询和探针请求。'"
+      },
+      "details": "def test_visible_english_model_plan_uses_chinese_server_rule_fallback():\n        english = {\n            \"reasoning_summary\": \"Continuous profiling should find a transient hotspot.\",\n            \"tool_name\": \"start_continuous_profile\",\n            \"hypotheses\": [\n                {\n                    \"statement\": \"Synchronous writes may block the Python process.\",\n                    \"expected_observations\": [\"Stacks remain blocked in fsync.\"],\n                    \"falsification_criteria\": [\"No blocked write path appears.\"],\n                    \"rationale\": \"Earlier probes missed intermittent activity.\",\n                }\n            ],\n        }\n        normalized = normalize_diagnosis_plan_for_display(\n            english,\n            {\n                \"tool_name\": \"start_continuous_profile\",\n                \"statement\": \"异常可能是短时漂移热点，单次采样窗口没有覆盖\",\n                \"expected\": [\"连续采样至少一个窗口捕获稳定热点\"],\n                \"falsification\": [\"多个连续窗口均没有稳定热点\"],\n            },\n        )\n    \n        assert \"简体中文\" in DIAGNOSIS_OUTPUT_LANGUAGE_REQUIREMENT\n>       assert \"切换证据域\" in DIAGNOSIS_OUTPUT_LANGUAGE_REQUIREMENT\nE       AssertionError: assert '切换证据域' in '所有面向用户展示的字段必须以简体中文书写；CPU、JVM、eBPF、py-spy、函数名和工具名等必要专有名词可以保留英文。先遵守共享四态合同；仅本轮仍有明确待验证异常且选择 INVESTIGATE 时，证据反驳或工具不可观测后才扩展未尝试候选并切换可观察的证据域，其他未知原因最多一个兜底候选。非法计划被门禁拒绝不是新的业务异常；合法非调查结果直接 finish 并停止知识查询和探针请求。'\n\ntests/test_diagnosis_agent.py:269: AssertionError"
+    }
+  ]
+}

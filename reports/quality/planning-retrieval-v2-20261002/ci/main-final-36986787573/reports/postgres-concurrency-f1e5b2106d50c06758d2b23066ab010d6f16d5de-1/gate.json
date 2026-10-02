@@ -1,0 +1,20 @@
+{
+  "status": "PASSED",
+  "problems": [],
+  "commit": "f1e5b2106d50c06758d2b23066ab010d6f16d5de",
+  "run_id": "36986787573",
+  "required_python_tests": [
+    "test_cancellation_wins_against_a_waiting_completion",
+    "test_concurrent_completion_waits_for_parent_lock_and_commits_once",
+    "test_exception_rolls_back_event_terminal_status_and_call_phase",
+    "test_outbox_finalize_locks_out_expired_lease_takeover[failed]",
+    "test_outbox_finalize_locks_out_expired_lease_takeover[published]",
+    "test_postgres_claim_lease_takeover_and_fencing",
+    "test_postgres_report_and_event_constraints_reject_concurrent_duplicates",
+    "test_postgres_session_lock_serializes_event_effect_identity",
+    "test_process_death_and_fresh_process_retry_preserve_atomic_completion[after]",
+    "test_process_death_and_fresh_process_retry_preserve_atomic_completion[before]",
+    "test_running_sample_cannot_finish_and_import_requires_durable_phase"
+  ],
+  "required_go_test": "TestPostgresIdempotencyRaceWithOneConnection"
+}
