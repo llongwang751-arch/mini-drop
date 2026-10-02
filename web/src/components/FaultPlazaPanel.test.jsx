@@ -1,6 +1,7 @@
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import FaultPlazaPanel from "./FaultPlazaPanel";
+import engineeringIndex from "../../public/report-assets/engineering-diagnosis/index.json";
 
 vi.mock("../api/client", () => ({
   getFaultPlaza: vi.fn(),
@@ -48,7 +49,7 @@ describe("FaultPlazaPanel", () => {
     expect(screen.getByText(/当前显示 3 \/ 3 个场景/)).toBeInTheDocument();
     expect(api.startFaultPlazaScenario).not.toHaveBeenCalled();
   });
-  it("shows fresh acceptance gates and opens evidence without injecting a fault", async () => {
+  it("opens the engineering diagnosis rather than a legacy result without injecting a fault", async () => {
     api.getFaultPlaza.mockResolvedValue({ status: "READY", scenarios: [{
       scenario_id: "java-lock-contention", title: "Java 锁等待", target_runtime: "Java",
       acceptance_level: "LIVE_DIAGNOSIS_VERIFIED", latest_acceptance: {
@@ -58,12 +59,50 @@ describe("FaultPlazaPanel", () => {
       },
     }] });
     const open = vi.fn();
-    render(<FaultPlazaPanel onOpenDiagnosis={open} />);
-    expect(await screen.findByText("历史严格复验未通过")).toBeInTheDocument();
+    render(<FaultPlazaPanel onOpenDiagnosis={open} engineeringCases={[{
+      scenario_id: "java-lock-contention", diagnosis_id: "insight-engineering",
+      diagnosis_accepted: true, localization_accepted: false, outcome: "SUPPORTED_OBSERVATION",
+    }]} />);
+    expect(await screen.findByText("有证据支持的诊断候选")).toBeInTheDocument();
+    expect(screen.queryByText("历史严格复验未通过")).not.toBeInTheDocument();
     expect(screen.queryByText("历史严格复验通过 · 未验证代码修复")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "查看复验诊断" }));
-    expect(open).toHaveBeenCalledWith("insight-acceptance");
+    expect(screen.queryByText(/test-release|根因未通过|最近复验/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "查看复验诊断" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "查看工程诊断" }));
+    expect(open).toHaveBeenCalledWith("insight-engineering");
     expect(api.startFaultPlazaScenario).not.toHaveBeenCalled();
+  });
+
+  it.each([false, true])("never falls back to a legacy score while engineering data is unavailable (legacy passed=%s)", async passed => {
+    api.getFaultPlaza.mockResolvedValue({ status: "READY", scenarios: [{
+      scenario_id: "go-cpu-hotspot", title: "Go CPU", target_runtime: "Go", active: false,
+      acceptance_level: "LIVE_DIAGNOSIS_VERIFIED", latest_acceptance: {
+        passed, root_cause_accepted: passed, lineage_verified: true,
+        recovery_observed: true, cleanup_verified: true, tested_release: "legacy-release",
+        diagnosis_id: "insight-legacy",
+      },
+    }] });
+    render(<FaultPlazaPanel onOpenDiagnosis={vi.fn()} />);
+    expect(await screen.findByText("尚未按工程规则验收")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /启动并诊断/ })).toBeEnabled();
+    expect(screen.queryByText(/历史严格|历史链路|根因通过|根因未通过|legacy-release/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "查看复验诊断" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "查看工程诊断" })).not.toBeInTheDocument();
+  });
+
+  it("keeps all 21 current engineering scenario grades independent of old failures", async () => {
+    const scenarios = engineeringIndex.cases.map(item => ({
+      scenario_id: item.scenario_id, title: item.title, target_runtime: "Go", active: false,
+      latest_acceptance: { passed: false, root_cause_accepted: false },
+    }));
+    api.getFaultPlaza.mockResolvedValue({ status: "READY", scenarios });
+    render(<FaultPlazaPanel initialFilter="all" engineeringCases={engineeringIndex.cases} />);
+    expect(await screen.findByText("当前显示 21 / 21 个场景")).toBeInTheDocument();
+    expect(document.querySelectorAll("article.fault-scenario")).toHaveLength(21);
+    expect(screen.getAllByText("工程定位通过")).toHaveLength(6);
+    expect(screen.getAllByText("判断通过 · 异常假设被反驳")).toHaveLength(8);
+    expect(screen.getAllByRole("button", { name: "查看工程诊断" })).toHaveLength(21);
+    expect(screen.queryByText(/历史严格|根因未通过|原始因果根因/)).not.toBeInTheDocument();
   });
 
   beforeEach(() => {
@@ -207,8 +246,8 @@ describe("FaultPlazaPanel", () => {
     expect(headings[2]).toContain("C++ 计算热点");
     expect(headings[3]).toContain("Python 源码热点");
 
-    expect(within(screen.getByText("Go 服务 CPU 热点").closest("article")).getByText("历史链路记录 · 不代表根因验收")).toBeInTheDocument();
-    expect(within(screen.getByText("Python 源码热点").closest("article")).getByText("尚无验收记录")).toBeInTheDocument();
+    expect(within(screen.getByText("Go 服务 CPU 热点").closest("article")).getByText("尚未按工程规则验收")).toBeInTheDocument();
+    expect(within(screen.getByText("Python 源码热点").closest("article")).getByText("尚未按工程规则验收")).toBeInTheDocument();
     expect(screen.queryByText("全链路已验收")).not.toBeInTheDocument();
   });
 

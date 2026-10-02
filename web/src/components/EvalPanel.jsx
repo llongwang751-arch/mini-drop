@@ -22,7 +22,6 @@ import {
 import { listDiagnosticSkills } from "../api/client";
 import FaultPlazaPanel from "./FaultPlazaPanel";
 import EngineeringCasesPanel from "./EngineeringCasesPanel";
-import PerformanceDiagnosisSummary from "./PerformanceDiagnosisSummary";
 import EngineeringDiagnosisSummary from "./EngineeringDiagnosisSummary";
 import BusinessAcceptancePanel from "./BusinessAcceptancePanel";
 import LatsReplayPanel from "./LatsReplayPanel";
@@ -193,7 +192,6 @@ export default function EvalPanel({ onStartDiagnosis, onOpenDiagnosis, onCasesCh
         {section === "faults" && (
           <Space direction="vertical" size={18} style={{ width: "100%" }}>
             <EngineeringDiagnosisSummary onLoaded={setEngineeringAcceptance} onOpenDiagnosis={onOpenDiagnosis} />
-            <PerformanceDiagnosisSummary />
             <FaultPlazaPanel
               engineeringCases={engineeringAcceptance?.cases}
               initialFilter="all"

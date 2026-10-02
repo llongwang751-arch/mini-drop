@@ -35,7 +35,7 @@ export default function EngineeringDiagnosisSummary({ onLoaded, onOpenDiagnosis 
     return () => { active = false; };
   }, [reload, onLoaded]);
   return <section aria-label="当前工程诊断验收">
-    <Alert type="info" showIcon message="默认按工程诊断验收，严格因果实验单独统计"
+    <Alert type="info" showIcon message="工程诊断验收：查看判断、定位与反证"
       description="要求目标正确、证据可信、判断有测量依据、实验撤销与清理完成；独立因果对照、固定调查轮次和同负载代码修复不再是默认必选项。" />
     {error ? <Alert type="warning" message="工程诊断成绩读取失败，不推测通过数量"
       action={<Button onClick={() => setReload(n => n + 1)}>重试工程验收</Button>} /> : data ? <>
@@ -45,7 +45,7 @@ export default function EngineeringDiagnosisSummary({ onLoaded, onOpenDiagnosis 
         <Tag color="blue">有效反证 {data.refuted}</Tag>
         <Tag>已注册 {data.registered_scenarios} 类 · 待验收 {data.not_evaluated.length} 类</Tag>
       </Space>
-      <p>当前包含 {data.fresh_live_scenarios} 类新真机实验、{data.regraded_prior_scenarios} 类此前真实记录的工程重评。异常未复现也可以有完整判断，但不计为根因定位成功。历史因果成绩只描述旧批次。</p>
+      <p>当前包含 {data.fresh_live_scenarios} 类新真机实验、{data.regraded_prior_scenarios} 类此前真实记录的工程重评。异常未复现也可以有完整判断，但不计为根因定位成功。</p>
       {data.current_campaign_id && <p>新实验与历史记录分批保存；下表保留每类的原始诊断，汇总成绩不表示全部案例在本次重新运行。</p>}
       <Table rowKey="scenario_id" size="small" pagination={false} scroll={{ x: 620 }} dataSource={data.cases}
         columns={[{ title: "案例", dataIndex: "title" }, { title: "工程验收", dataIndex: "outcome", render: x => LABELS[x] || "证据不足" },

@@ -13,6 +13,25 @@ const dist = path.join(root, "web/dist");
 const outputIndex = process.argv.indexOf("--output");
 const output = path.resolve(root, outputIndex > 0 ? process.argv[outputIndex + 1] : "output/frontend-review-20260909");
 await mkdir(output, { recursive: true });
+// Generated engineering grades supply a realistic table shape, but these local
+// API responses remain UI fixtures. No saved live diagnosis is opened here.
+const engineeringFixture = JSON.parse(await readFile(path.join(root,
+  "web/public/report-assets/engineering-diagnosis/index.json"), "utf8"));
+engineeringFixture.historical_root_passes = 0;
+engineeringFixture.historical_case_count = 21;
+engineeringFixture.cases = engineeringFixture.cases.map(item => ({ ...item,
+  title: "[界面测试数据] " + item.title, diagnosis_id: "ui-fixture" }));
+const faultScenarios = engineeringFixture.cases.map(item => ({
+  scenario_id: item.scenario_id, title: item.title, family: "RUNTIME", active: false,
+  target_runtime: item.scenario_id.startsWith("go-") ? "Go"
+    : item.scenario_id.startsWith("java-") ? "Java"
+      : item.scenario_id.startsWith("cpp-") ? "C++" : "Python",
+  available: true, symptom: "[界面测试数据] 观察目标进程的性能窗口。",
+  acceptance_level: "HISTORICAL_LINEAGE_VERIFIED",
+  latest_acceptance: { passed: false, root_cause_accepted: false,
+    diagnosis_id: "ui-retired-result", tested_release: "ui-retired-release" },
+}));
+let legacyAuditRequests = 0;
 const diagnosis = {
   diagnosis_id: "ui-fixture", query: "[界面测试数据] 订单服务 CPU 升高，检查业务热点与同机争抢",
   status: "COMPLETED", mode: "AUTONOMOUS", diagnosis_version: 4,
@@ -43,6 +62,17 @@ let failReports = false;
 const streams = new Set();
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://127.0.0.1");
+  if (url.pathname === "/report-assets/engineering-diagnosis/index.json") {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(engineeringFixture)); return;
+  }
+  if (url.pathname === "/report-assets/performance-audit/index.json") {
+    legacyAuditRequests++;
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ schema: "mini-drop.performance-failure-audit.v1",
+      historical_root_passes: 0, historical_case_count: 21, recorded_chain_consistent_count: 18,
+      cases: faultScenarios.map(item => ({ scenario_id: item.scenario_id })) })); return;
+  }
   if (url.pathname.startsWith("/api/")) {
     if (url.pathname.includes("stream")) {
       res.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-cache" });
@@ -53,6 +83,7 @@ const server = http.createServer(async (req, res) => {
     }
     let data = [];
     if (url.pathname === "/api/v2/diagnoses") data = [diagnosis];
+    else if (url.pathname === "/api/v2/showcases/fault-plaza") data = { status: "READY", scenarios: faultScenarios };
     else if (url.pathname === "/api/v2/diagnoses/ui-fixture") data = diagnosis;
     else if (url.pathname.endsWith("/reports")) {
       if (failReports) { res.writeHead(503, { "Content-Type": "application/json" }); res.end('{"detail":"fixture refresh failure"}'); return; }
@@ -200,8 +231,26 @@ try {
   await screenshot("06-stale-data.png");
   failReports = false; await clickText("重试");
   await waitFor("!document.body.innerText.includes('部分数据加载失败：报告')"); checks.push("failed refresh retains report; retry clears warning");
+  await navigate("/ai-diagnosis"); await clickText("案例验证");
+  await waitFor("document.body.innerText.includes('工程诊断判断通过 21/21') && document.querySelectorAll('.fault-scenario').length === 21");
+  assert(await evaluate("document.body.innerText.includes('异常路径定位 6/21') && document.body.innerText.includes('有效反证 8')"),
+    "Current engineering scores must retain independent localization and refutation counts");
+  assert(await evaluate("!(/原始因果根因|历史严格|根因未通过|为什么旧 21|0\\/21|ui-retired-release/.test(document.body.innerText))"),
+    "Legacy scores supplied by mixed-version fixture endpoints must never be displayed");
+  assert.equal(legacyAuditRequests, 0, "Retired historical score endpoint must never be loaded");
+  assert(await evaluate("document.querySelectorAll('.fault-scenario button').length > 21 && [...document.querySelectorAll('.fault-scenario button')].filter(x => x.textContent.includes('查看工程诊断')).length === 21"),
+    "All 21 scenarios must keep their current engineering diagnosis entries");
+  assert(await evaluate("!document.querySelector('a[href*=\"performance-audit\"]') && ![...document.querySelectorAll('button')].some(x => x.textContent.includes('查看复验诊断'))"),
+    "No legacy score download or diagnosis entry may survive");
+  for (const width of [1440, 1024, 768, 375]) {
+    await viewport(width, 1000); await pause(250);
+    assert(await evaluate("document.documentElement.scrollWidth <= innerWidth + 1"), "Current engineering page must fit width " + width);
+    await screenshot("09-engineering-current-" + width + ".png");
+  }
+  checks.push("engineering scores 21/21, localization 6/21 and refutations 8 retain all 21 scenarios at four widths; no legacy score display or fetch despite mixed-version fixtures");
   assert.equal(errors.length, 0, `Browser exceptions: ${errors.join(', ')}`);
-  await writeFile(path.join(output, "result.json"), JSON.stringify({ scope: "LOCAL_SYNTHETIC_UI_FIXTURES", checks, browserExceptions: errors, passed: true }, null, 2));
+  await writeFile(path.join(output, "result.json"), JSON.stringify({ scope: "LOCAL_SYNTHETIC_UI_FIXTURES", checks, browserExceptions: errors,
+    legacyAuditRequests, engineeringGrades: { accepted: 21, localized: 6, refuted: 8 }, passed: true }, null, 2));
   console.log(JSON.stringify({ passed: true, checks, output }));
 } catch (error) {
   await writeFile(path.join(output, "result.json"), JSON.stringify({ scope: "LOCAL_SYNTHETIC_UI_FIXTURES", checks, browserExceptions: errors, passed: false, error: String(error) }, null, 2));

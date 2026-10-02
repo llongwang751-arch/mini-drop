@@ -34,7 +34,7 @@ function runtimeKey(value) {
   return "";
 }
 
-function maturityMeta(scenario, engineering) {
+function maturityMeta(engineering) {
   if (engineering?.diagnosis_accepted === true) {
     return engineering.localization_accepted === true
       ? { color: "green", text: "工程定位通过" }
@@ -42,30 +42,9 @@ function maturityMeta(scenario, engineering) {
         ? { color: "blue", text: "判断通过 · 异常假设被反驳" }
         : { color: "gold", text: "有证据支持的诊断候选" };
   }
-  const recent = scenario?.latest_acceptance;
-  if (recent && typeof recent.passed === "boolean") {
-    const verified = recent.passed && recent.lineage_verified === true
-      && recent.root_cause_accepted === true && recent.recovery_observed === true
-      && recent.cleanup_verified === true;
-    return verified
-      ? { color: "green", text: "历史严格复验通过 · 未验证代码修复" }
-      : { color: "orange", text: "历史严格复验未通过" };
-  }
-  const level = String(
-    scenario?.acceptance_level || scenario?.validation_level || scenario?.maturity_level || "",
-  ).toUpperCase();
-  if (
-    level === "LIVE_DIAGNOSIS_VERIFIED"
-    || level === "FULL_CHAIN"
-    || level === "LIVE_E2E"
-    || level === "HISTORICAL_LINEAGE_VERIFIED"
-  ) {
-    return { color: "gold", text: "历史链路记录 · 不代表根因验收" };
-  }
-  if (level === "FAULT_INJECTION_VERIFIED") {
-    return { color: "blue", text: "故障注入已验证" };
-  }
-  return { color: "default", text: "尚无验收记录" };
+  return engineering
+    ? { color: "orange", text: "工程验收证据不足" }
+    : { color: "default", text: "尚未按工程规则验收" };
 }
 
 function recommendedScenarios(scenarios) {
@@ -296,7 +275,8 @@ export default function FaultPlazaPanel({ onStartDiagnosis, onPrepareSkillAB, on
             const scenarioAvailable = scenario.available !== false;
             const unavailableReason = scenario.unavailable_reason || "当前运行时尚未准备好";
             const investigationStages = Array.isArray(scenario.investigation_stages) ? scenario.investigation_stages : [];
-            const maturity = maturityMeta(scenario, engineeringCases.find(item => item.scenario_id === scenario.scenario_id));
+            const engineering = engineeringCases.find(item => item.scenario_id === scenario.scenario_id);
+            const maturity = maturityMeta(engineering);
             return (
             <article className={`fault-scenario ${scenario.active ? "is-active" : ""} ${scenarioAvailable ? "" : "is-unavailable"}`} key={scenario.scenario_id}>
               <div className="fault-scenario-heading">
@@ -329,7 +309,7 @@ export default function FaultPlazaPanel({ onStartDiagnosis, onPrepareSkillAB, on
                   onClick={() => stopScenario(scenario)}
                 >停止并恢复</Button>
               </div>
-              <details className="fault-scenario-details"><summary>查看采集方式、历史验收和其他操作</summary>
+              <details className="fault-scenario-details"><summary>查看采集方式和其他操作</summary>
               <dl className="fault-scenario-facts">
                 <div><dt>目标运行时</dt><dd>{runtimeLabel(scenario.target_runtime)}</dd></div>
                 <div><dt>建议轮次</dt><dd>{scenario.minimum_diagnosis_rounds == null ? "服务端未说明" : `至少 ${scenario.minimum_diagnosis_rounds} 轮`}</dd></div>
@@ -342,20 +322,14 @@ export default function FaultPlazaPanel({ onStartDiagnosis, onPrepareSkillAB, on
                 <div><dt>预期信号</dt><dd>{(scenario.expected_signals || []).map((item) => chineseDiagnosticText(item)).join("；") || "等待服务端说明"}</dd></div>
                 <div><dt>推荐采集</dt><dd>{(scenario.recommended_collectors || []).map((item) => <Tag key={item}>{diagnosticToolLabel(item)}</Tag>)}</dd></div>
                 <div><dt>关联 Skill</dt><dd><Text code>{scenario.related_skill || "动态规划"}</Text></dd></div>
-                {scenario.latest_acceptance && <div><dt>最近复验</dt><dd>
-                  {scenario.latest_acceptance.root_cause_accepted ? "根因通过" : "根因未通过"}
-                  {"；"}{scenario.latest_acceptance.recovery_observed ? "撤销后活动回落" : "恢复未确认"}
-                  {"；"}{scenario.latest_acceptance.cleanup_verified ? "注入已清理" : "清理未确认"}。
-                  <br />测试版本：{scenario.latest_acceptance.tested_release}。撤销注入不等于同负载修复。
-                </dd></div>}
                 {!scenarioAvailable && <div><dt>不可用原因</dt><dd><Text type="danger">{chineseDiagnosticText(unavailableReason)}</Text></dd></div>}
                 {!supportsSkillAB && <div><dt>Skill A/B</dt><dd><Text type="secondary">{skillABReason}</Text></dd></div>}
               </dl>
               <div className="fault-scenario-actions">
-                {scenario.latest_acceptance?.diagnosis_id && <Button
-                  onClick={() => onOpenDiagnosis?.(scenario.latest_acceptance.diagnosis_id)}
+                {engineering?.diagnosis_id && <Button
+                  onClick={() => onOpenDiagnosis?.(engineering.diagnosis_id)}
                   disabled={!onOpenDiagnosis}
-                >查看复验诊断</Button>}
+                >查看工程诊断</Button>}
                 <Button
                   icon={<PlayCircleOutlined />}
                   disabled={!ready || !scenarioAvailable}

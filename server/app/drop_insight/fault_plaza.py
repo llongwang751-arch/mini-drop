@@ -16,8 +16,6 @@ from typing import Any
 from urllib import error as urllib_error
 from urllib import request as urllib_request
 
-from .fault_acceptance import latest_acceptance
-
 
 @dataclass(frozen=True)
 class FaultScenario:
@@ -70,8 +68,6 @@ class FaultScenario:
             "investigation_stages": list(self.investigation_stages),
             "duration_options_seconds": [30, 60, 120],
             "supports_skill_ab": self.supports_skill_ab,
-            "acceptance_level": self.acceptance_level,
-            "latest_acceptance": latest_acceptance(self.scenario_id),
             "skill_ab_unavailable_reason": (
                 ""
                 if self.supports_skill_ab

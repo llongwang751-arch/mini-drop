@@ -1,5 +1,7 @@
 # 文档入口
 
+- [当前成绩统一为工程诊断](../reports/architecture/engineering-score-only-20261002.md)：当前21/21、路径6/21、反证8条，旧成绩默认入口已移除。
+
 - [七类观测与规划缺口补齐](../reports/architecture/seven-gaps-20261002.md)：最新21/21工程判断、7新+14历史、源码路径/锁/配额与I/O反证，保留两次失败。
 
 - [面试五个重点补齐](../reports/architecture/interview-completion-20261001.md)：三态体检、真实业务同负载修复、PG中断恢复、精确发布及21类工程成绩。

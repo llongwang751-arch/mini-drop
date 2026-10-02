@@ -1969,7 +1969,7 @@ python scripts/render_learning_guide.py
 
 ## 34. 当前仓库逐文件字典（自动生成）
 
-本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **3862 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
+本节由 `scripts/generate_learning_guide_file_index.py` 从 Git 已登记文件和未被忽略的新增文件生成，共登记 **3863 个实际存在的文件**。`node_modules/`、`.git/`、缓存、密钥、数据库卷、MinIO 对象、临时发布包和本教材导出副本不列入；它不是递归泄露本机所有文件的清单。生成物、测试、报告和样式仍逐项说明，同类职责使用统一口径。源码定位列自动提取部分真实声明，不等于调用链，也不代表每个函数都在运行时被调用。
 
 阅读原则：先看第 19 节的数据链和第 21 节的核心路线，再到本节查文件；不要按数百个文件从头顺序读。修改协议生成物时回到 `proto/` 或 `contracts/`，修改 Benchmark 数据时回到生成器，修改报告时重新运行验收，不能直接编造结果。
 
@@ -3684,7 +3684,7 @@ python scripts/render_learning_guide.py
 | `tests/test_fault_acceptance_index.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_projection_does_not_promote_partial_or_malformed_results`、`test_changed_raw_evidence_is_rejected` |
 | `tests/test_fault_diagnosis_instance_context.py` | Python 自动化测试，验证AI 诊断状态与流程的成功、失败与边界条件。 | `test_acceptance_preserves_operator_instance_without_injecting_oracle_pid` |
 | `tests/test_fault_failure_audit.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `records`、`test_insufficient_outcome_does_not_destroy_valid_recorded_lineage`、`test_valid_neutral_analyzer_evidence_retains_lineage_without_supporting_a_root`、`test_chain_break_or_wrong_target_is_rejected` |
-| `tests/test_fault_plaza.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `configured_lab_agent`、`test_missing_lab_agent_rejects_before_injection`、`test_fault_request_carries_operator_agent_without_snapshot_pid`、`test_fault_plaza_is_explicitly_disabled_without_server_url`、`test_fault_plaza_marks_only_published_skill_routes_as_ab_supported` 等 13 个声明 |
+| `tests/test_fault_plaza.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `configured_lab_agent`、`test_missing_lab_agent_rejects_before_injection`、`test_fault_request_carries_operator_agent_without_snapshot_pid`、`test_fault_plaza_is_explicitly_disabled_without_server_url`、`test_fault_plaza_marks_only_published_skill_routes_as_ab_supported` 等 14 个声明 |
 | `tests/test_fault_plaza_closure_campaign.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_decisive_collector_is_scenario_evidence_contract_not_list_position`、`test_scenario_pass_requires_diagnosis_chain_and_cleanup`、`test_scenario_keeps_diagnosis_failure_and_still_cleans_up`、`test_scenario_caps_diagnosis_before_the_fault_lab_dead_man_switch`、`test_campaign_persists_an_atomic_running_checkpoint` 等 6 个声明 |
 | `tests/test_fault_plaza_strict_acceptance.py` | Python 自动化测试，验证故障广场及受控故障的成功、失败与边界条件。 | `test_all_21_have_strict_contract`、`test_partial_hypothesis_and_verified_wrong_cause_never_pass`、`test_recovery_uses_deltas_not_historical_counter_totals`、`test_missing_measurements_or_counter_reset_fail_closed`、`test_observation_or_invalid_scope_cannot_pass_even_with_exact_root_vocabulary` 等 18 个声明 |
 | `tests/test_fix_verification.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `hotspot`、`sessions`、`artifact`、`test_missing_before_data_cannot_establish_a_baseline`、`test_missing_after_data_is_rejected_not_counted_as_hotspot_disappearance` 等 21 个声明 |
@@ -3720,7 +3720,7 @@ python scripts/render_learning_guide.py
 | `tests/test_outbox_postgres.py` | Python 自动化测试，验证Outbox 可靠投递的成功、失败与边界条件。 | `test_outbox_finalize_locks_out_expired_lease_takeover` |
 | `tests/test_perf_callgraph.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_build_call_graph_has_direction_self_and_inclusive_samples`、`test_build_call_graph_is_bounded`、`test_native_perf_collector_recovers_header_only_vm_capture_with_cpu_clock` |
 | `tests/test_perf_source_toolchain.py` | Python 自动化测试，验证源码定位的成功、失败与边界条件。 | `test_real_extern_c_and_complete_demangled_symbols_keep_exact_name_and_address`、`test_missing_or_lookalike_hotspot_cannot_supply_a_source_address`、`test_ambiguous_overloaded_hotspot_addresses_are_not_guessed`、`test_addr2line_keeps_actual_positive_source_mapping_without_inventing_a_line`、`test_actual_discriminator_suffix_is_removed_without_changing_the_measured_line` 等 6 个声明 |
-| `tests/test_performance_audit_index.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_generated_history_does_not_turn_engineering_regressions_into_root_passes`、`test_changed_archived_evidence_is_rejected_instead_of_changing_the_score` |
+| `tests/test_performance_audit_index.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `test_retired_public_index_contains_only_the_new_engineering_pointer`、`test_changed_archived_evidence_is_rejected_instead_of_changing_the_score`、`test_old_scores_cannot_be_republished_by_changing_the_policy` |
 | `tests/test_performance_criteria.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `hypothesis`、`test_http_wait_cannot_prove_packet_loss_queue_or_compound_claim`、`test_writing_bytes_cannot_prove_fsync_or_disk_latency`、`test_missing_or_invalid_measurement_never_becomes_zero_or_support`、`test_only_satisfied_exact_slots_earn_coverage_and_counter_is_retained` 等 9 个声明 |
 | `tests/test_performance_localization_evaluation.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `report`、`test_localization_is_graded_separately_from_causal_and_fix_acceptance`、`test_localization_rejects_wrong_domain_or_unproven_contract`、`test_cpu_localization_requires_independent_cpu_observation_and_go_hot_path` |
 | `tests/test_performance_observation_verification.py` | Python 自动化测试，验证对应模块行为的成功、失败与边界条件。 | `measured`、`verify`、`test_abnormal_numeric_plan_is_checkable_without_requiring_its_opposite_to_be_true`、`test_observation_check_cannot_bypass_trust_quality_or_target_gates`、`test_unknown_slot_is_unchecked_and_conflicting_windows_are_not_merged` 等 12 个声明 |
@@ -4218,6 +4218,7 @@ python scripts/render_learning_guide.py
 | `reports/architecture/conclusion-integrity-20260928.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/deployment-validation-20260930.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/engineering-diagnosis-20261001.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
+| `reports/architecture/engineering-score-only-20261002.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/health-check-flow-20261001.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/instance-scope-fix-20260930.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
 | `reports/architecture/interview-completion-20261001.md` | 已运行后生成的验收/评测产物；结合时间、ID 链和 SHA-256 使用。 | — |
