@@ -1,5 +1,11 @@
 # 全量交付与验收矩阵
 
+## 使用指南增量（Web11 候选，2026-10-20）
+
+`/guide` 已重构为与 Drop 品牌一致的交互式技术手册，包含采集→分析→诊断→验证、场景索引、结果边界和按权限显示的操作入口。六宽度 UI15/15、原导航回归16/16、Web137、构建及 Prettier 实际通过；四宽度流程切换位移0px、axe四次0违规。Lighthouse本地导入夹具桌面99、手机91，可访问性/最佳实践100；不作为生产响应时间或真实采集/模型执行证据。见 [设计与八维复审](../design-system/drop/pages/guide.md)、[最终页面验收](evidence/guide-20261020/final/summary.json)、[导航回归](evidence/guide-20261020/final/navigation-regression/summary.json)、[性能范围](evidence/guide-20261020/final/lighthouse.json)。
+
+CI原fixture opt-in已显式启用，本机完整默认preview实际48/48通过、0skip、0fail。部署目标仍为用户已确认的82.157.81.79；计划只更新Web11，API12、AgentScope runtime2、Agent/Helper3及SQL8保持。本段在实际切换前仅记录候选检查，完成后另附上线收据和生产只读浏览器验证。
+
 ## GitHub 源码发布补充（2026-10-20）
 
 用户已明确授权替换 `mini-drop` 的过时项目文件，使用完整 tx-drop 快照并保留原提交历史。新增官方 AgentScope runtime CI、8镜像手动发布矩阵、当前项目上下文和文档索引；生成 OpenAPI 补齐实际报告 `agent_runtime` 的只读有界 schema，76路由/91schema及Proto兼容检查通过，未修改生产运行时。CRM/Saber 导出改为必填源码/输出路径，4项合成目录边界回归通过；Web137、构建/Prettier、启动器8、增量打包5实际通过。GitHub Actions 状态以推送后实际结果为准，未将其预写为通过。

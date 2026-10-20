@@ -7,6 +7,7 @@ export default defineConfig({
   ...base,
   testMatch: [
     "workspace-shell.spec.ts",
+    "guide.spec.ts",
     "flame-explorer.spec.ts",
     "flame-scale.spec.ts",
     "request-lifecycle.spec.ts",

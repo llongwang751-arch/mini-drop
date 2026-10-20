@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-20T15:28:00.966157+00:00",
+  "evidence_type": "imported synthetic UI fixture in the real React App shell",
+  "production_collection_or_model_execution": false,
+  "base_url": "http://127.0.0.1:4191",
+  "command": "npx playwright test -c playwright.guide.config.ts",
+  "prerequisite": "npm run build",
+  "playwright_version": "1.64.1",
+  "stats": {
+    "startTime": "2026-10-20T15:27:00.928Z",
+    "duration": 14999.613,
+    "expected": 14,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "viewports": [
+    1440,
+    1280,
+    1024,
+    768,
+    375,
+    320
+  ],
+  "axe": {
+    "scans": 4,
+    "violations": 0,
+    "states": [
+      "capture",
+      "verification"
+    ],
+    "widths": [
+      1440,
+      375
+    ]
+  },
+  "verified": [
+    "No document or Guide horizontal overflow at six widths",
+    "No mobile overflow after selecting verification and opening FAQ",
+    "Four mutually exclusive accessible workflow controls and labelled region",
+    "Tab order, Enter/Space activation and visible keyboard focus",
+    "Native FAQ disclosure keyboard activation",
+    "Write-action visibility for platform_admin and viewer",
+    "Reduced motion including pseudo-elements",
+    "No App page errors and no unexpected business/API write requests"
+  ],
+  "initial_findings": [
+    "1280px hero analysis node extended 5px beyond Guide",
+    "375px and 320px open FAQ rotated icon extended approximately 4px beyond Guide"
+  ],
+  "resolution": "Hero side nodes remain within bounds; FAQ reserves icon rotation space. Assertions were not relaxed. Complete second run passed.",
+  "source_sha256": {
+    "web/src/views/Guide.tsx": "133e44154e453239d96b81c0805037102155d8a0dd1273774e88db72fa283039",
+    "web/src/styles/guide.css": "32cd0ee05aed38df09ce3cf4103265bf0b2ce41a3d79ca02a3790f38dcf6bdd0",
+    "web/src/App.tsx": "49d153df12509d5816ebf453f002754c62a57c21fbdfaca27f0b689760b288ee",
+    "web/e2e/guide.spec.ts": "97cce8cc6fc9d05edb980311c0aeb82601e6f1b7c9c59599e70610be6fe135c4",
+    "web/playwright.guide.config.ts": "8b21b43496cf920ab934b2c65c2c4f88094b32f1a0d02bac0ac8630545794f5d"
+  },
+  "screenshots": [
+    {
+      "file": "guide-1440.png",
+      "bytes": 277197,
+      "sha256": "5f76c6e4f9fd14104846077ea6f6f9ef1bdcb7be4152e18e7c70a54d8300d8fb",
+      "width": 1440,
+      "height": 2346
+    },
+    {
+      "file": "guide-1280.png",
+      "bytes": 266847,
+      "sha256": "2fdc9e4eb9ef6bbea4924d634327cfc5484d3c9cf09852f25fcd24d0dcca1f79",
+      "width": 1280,
+      "height": 2355
+    },
+    {
+      "file": "guide-1024.png",
+      "bytes": 252548,
+      "sha256": "f144ad22c78757d4cf6a343be38d37d936ea7b811faf14957f8d3ad4cbe05684",
+      "width": 1024,
+      "height": 2332
+    },
+    {
+      "file": "guide-768.png",
+      "bytes": 211229,
+      "sha256": "65634f8acc02c24c9c0edd00325855cf3eab10e88d66ac79326b602673f20b60",
+      "width": 768,
+      "height": 2385
+    },
+    {
+      "file": "guide-375.png",
+      "bytes": 198804,
+      "sha256": "fe961dad8f0622efec18d2a4c5f778960066aecc16ba1448be7ca4e721d9befe",
+      "width": 375,
+      "height": 3034
+    },
+    {
+      "file": "guide-320.png",
+      "bytes": 193796,
+      "sha256": "3f3ac71103be10d8a86c828564b89f4a3036643782b9f2f3cebcf644a5422e2a",
+      "width": 320,
+      "height": 3071
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-20T15:43:48.543075+00:00",
+  "source": "imported synthetic fixtures in real App shell with native fetch/Worker and controlled browser clocks",
+  "production_or_backend_verified": false,
+  "command": "DROP_UI_PREVIEW=1 npx playwright test -c playwright.preview.config.ts event-stream.spec.ts request-lifecycle.spec.ts profile-artifact.spec.ts",
+  "stats": {
+    "startTime": "2026-10-20T15:41:51.367Z",
+    "duration": 21627.542,
+    "expected": 16,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "suites": {
+    "event-stream": 2,
+    "profile-artifact": 10,
+    "request-lifecycle": 4
+  },
+  "test_adjustment": "While navigating to the lazy Guide route, temporarily resume the virtual clock so React Suspense can commit; pause the controlled clock afterwards. All original abort and pending-fetch deduplication assertions are retained.",
+  "original_run": {
+    "passed": 15,
+    "failed": 1,
+    "reason": "Frozen virtual clock prevented the lazy route Suspense retry from committing."
+  },
+  "restored_legacy_artifacts": "Reviewed original fixture outcomes/provenance; archived this run privately and restored only five generated legacy report/screenshot files from HEAD. New dated reports are retained alongside this summary.",
+  "source_sha256": {
+    "web/e2e/request-lifecycle.spec.ts": "4c822dc35cdaa9212fce0190f6f45e192b5cab31d6727235634ebcd4ca2b7172",
+    "web/src/App.tsx": "49d153df12509d5816ebf453f002754c62a57c21fbdfaca27f0b689760b288ee",
+    "web/playwright.preview.config.ts": "de3ce7d2d875e101685d45c154e4798b224dee3fb123f3caa80c85452869d626"
+  }
+}

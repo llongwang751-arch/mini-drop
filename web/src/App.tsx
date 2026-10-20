@@ -46,7 +46,7 @@ import Rules from "./views/Rules";
 import Composites, { CompositeDetail } from "./views/Composites";
 import Schedules from "./views/Schedules";
 import Settings from "./views/Settings";
-import Guide from "./views/Guide";
+const Guide = lazy(() => import("./views/Guide"));
 const Investigations = lazy(() => import("./views/Investigations"));
 
 function DropSection() {
@@ -607,7 +607,14 @@ export default function App() {
                   path="/settings"
                   element={<Settings user={auth.user} />}
                 />
-                <Route path="/guide" element={<Guide />} />
+                <Route
+                  path="/guide"
+                  element={
+                    <Suspense fallback={<Busy />}>
+                      <Guide />
+                    </Suspense>
+                  }
+                />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
               <footer className="content-footer">

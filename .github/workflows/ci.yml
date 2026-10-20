@@ -17,6 +17,8 @@ jobs:
       - run: npm exec -- prettier --check src
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test --config playwright.preview.config.ts
+        env:
+          DROP_UI_PREVIEW: '1'
       - run: npx playwright test --config playwright.diagnosis.config.ts
   api:
     runs-on: ubuntu-24.04

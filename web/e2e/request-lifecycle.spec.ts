@@ -278,9 +278,13 @@ test.describe("imported request lifecycle fixtures", () => {
     await page.clock.runFor(10000);
     expect(calls).toBe(1);
     await page.locator('a[href="/guide"]').first().click();
+    // Lazy route loading schedules a React Suspense retry. Let that commit
+    // on the real clock before returning to the controlled polling timeline.
+    await page.clock.resume();
     await expect(
       page.getByRole("heading", { level: 1, name: /^从采集到洞察/ }),
     ).toBeVisible();
+    await pauseClock(page);
     await expect
       .poll(() =>
         page.evaluate(

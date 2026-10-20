@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-20T15:47:32.269747+00:00",
+  "source": "imported synthetic UI fixtures in real App shell; native Chromium fetch/Worker and controlled-clock lifecycle validation",
+  "production_or_backend_verified": false,
+  "command": "DROP_UI_PREVIEW=1 npx playwright test -c playwright.preview.config.ts --reporter=list,json",
+  "base_url": "http://127.0.0.1:4178",
+  "stats": {
+    "startTime": "2026-10-20T15:45:25.017Z",
+    "duration": 84205.241,
+    "expected": 48,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "includes_guide_checks": 15,
+  "checks": [
+    {
+      "file": "guide.spec.ts",
+      "name": "imported Guide layout fits 1440px without horizontal scrolling",
+      "status": "passed",
+      "duration_ms": 1048
+    },
+    {
+      "file": "guide.spec.ts",
+      "name": "imported Guide layout fits 1280px without horizontal scrolling",
+      "status": "passed",
+      "duration_ms": 945
+    },
+    {
+      "file": "guide.spec.ts",
+      "name": "imported Guide layout fits 1024px without horizontal scrolling",
+      "status": "passed",
+      "duration_ms": 894
+    },
+    {
+      "file": "guide.spec.ts",
+      "name": "imported Guide layout fits 768px without horizontal scrolling",
+      "status": "passed",
+      "duration_ms": 1135
+    },
+    {
+      "file": "guide.spec.ts",
+      "name": "imported Guide layout fits 375px without horizontal scrolling",
+      "status": "passed",
+      "duration_ms": 997
+    },
+    {
+      "file": "guide.spec.ts",
+      "name": "imported Guide layout fits 320px without horizontal scrolling",
+      "status": "passed",
+      "duration_ms": 988
+    },
+    {
+      "file": "guide.spec.ts",
+      "name": "all four workflow controls select their associated live region",
+      "status": "passed",
+      "duration_ms": 1222
+    },
+    {
+      "file": "guide.spec.ts",
+      "name": "changing workflow steps keeps the following content stable without clipping",
+      "status": "passed",
+      "duration_ms": 2373
+    },
+    {
+      "file": "guide.spec.ts",
+      "name": "workflow controls preserve keyboard order, activation and visible focus",
+      "status": "passed",
+      "duration_ms": 1096
+    },
+    {
+      "file": "guide.spec.ts",
+      "name": "FAQ remains a native keyboard-operated disclosure",
+      "status": "passed",
+      "duration_ms": 989
+    },
+    {
+      "file": "guide.spec.ts",
+      "name": "authorized Guide actions point to supported workspaces without executing them",
+      "status": "passed",
+      "duration_ms": 856
+    },
+    {
+      "file": "guide.spec.ts",
+      "name": "reduced-motion preference suppresses Guide animation and transition",
+      "status": "passed",
+      "duration_ms": 816
+    },
+    {
+      "file": "guide.spec.ts",
+      "name": "real shell and imported Guide have no axe violations at 1440px",
+      "status": "passed",
+      "duration_ms": 3020
+    },
+    {
+      "file": "guide.spec.ts",
+      "name": "real shell and imported Guide have no axe violations at 375px",
+      "status": "passed",
+      "duration_ms": 2116
+    },
+    {
+      "file": "partial-analysis.spec.ts",
+      "name": "partial analysis shows only this failed run as escaped readable data at 375 and 1440",
+      "status": "passed",
+      "duration_ms": 2726
+    },
+    {
+      "file": "partial-analysis.spec.ts",
+      "name": "partial analysis rejects stale runs and inputs and handles no-checkpoint/forbidden without retries",
+      "status": "passed",
+      "duration_ms": 1135
+    },
+    {
+      "file": "partial-analysis.spec.ts",
+      "name": "reanalyze and native retry/cancel clear partial presentation and never reuse its cache",
+      "status": "passed",
+      "duration_ms": 1129
+    },
+    {
+      "file": "partial-analysis.spec.ts",
+      "name": "leaving a task cancels its pending partial request and returning reads a fresh checkpoint",
+      "status": "passed",
+      "duration_ms": 852
+    },
+    {
+      "file": "partial-analysis.spec.ts",
+      "name": "a failed run with no checkpoint cannot render a cached successful result",
+      "status": "passed",
+      "duration_ms": 646
+    },
+    {
+      "file": "safe-markdown.spec.ts",
+      "name": "renders bounded rule Markdown and omits model and stream displays",
+      "status": "passed",
+      "duration_ms": 2993
+    },
+    {
+      "file": "task-failure.spec.ts",
+      "name": "failure evidence shows current saved collection files, seven stages and safe recovery",
+      "status": "passed",
+      "duration_ms": 5204
+    },
+    {
+      "file": "task-failure.spec.ts",
+      "name": "failed read-only execution explicitly has no readable saved artifacts",
+      "status": "passed",
+      "duration_ms": 697
+    },
+    {
+      "file": "workspace-shell.spec.ts",
+      "name": "desktop navigation collapses, persists and preserves accessible labels",
+      "status": "passed",
+      "duration_ms": 1882
+    },
+    {
+      "file": "workspace-shell.spec.ts",
+      "name": "stored desktop preference does not hide mobile navigation",
+      "status": "passed",
+      "duration_ms": 572
+    },
+    {
+      "file": "workspace-shell.spec.ts",
+      "name": "browser modifier shortcuts remain available",
+      "status": "passed",
+      "duration_ms": 539
+    },
+    {
+      "file": "workspace-shell.spec.ts",
+      "name": "login and guide omit external integration displays",
+      "status": "passed",
+      "duration_ms": 731
+    },
+    {
+      "file": "workspace-shell.spec.ts",
+      "name": "truncated imported Java class labels retain visible and full accessible names",
+      "status": "passed",
+      "duration_ms": 2149
+    }
+  ],
+  "source_sha256": {
+    "web/src/views/Guide.tsx": "44b99a2d457d2ff948b43759f6e4e8c21cdd6cefba56f593d24dee978643f191",
+    "web/src/styles/guide.css": "57cd891983e66e977038df9c79ce7e94081998110ed120d9a3eb365b7d4e3b40",
+    "web/src/App.tsx": "49d153df12509d5816ebf453f002754c62a57c21fbdfaca27f0b689760b288ee",
+    "web/e2e/guide.spec.ts": "a68142cbf00956bba107f868380399ca5bae089ac1e41c4086e12e99998cbf58",
+    "web/e2e/request-lifecycle.spec.ts": "4c822dc35cdaa9212fce0190f6f45e192b5cab31d6727235634ebcd4ca2b7172",
+    "web/playwright.preview.config.ts": "de3ce7d2d875e101685d45c154e4798b224dee3fb123f3caa80c85452869d626"
+  },
+  "legacy_generated_artifacts_restored": [
+    "docs/evidence/full/event-stream-fixtures-rc6/report.json",
+    "docs/evidence/full/failure-fixtures-rc6/failure-1440.png",
+    "docs/evidence/full/failure-fixtures-rc6/failure-375.png",
+    "docs/evidence/full/failure-fixtures-rc6/tasks-1440.png",
+    "docs/evidence/full/flame-explorer-fixtures-rc6/explorer-1440.png",
+    "docs/evidence/full/flame-explorer-fixtures-rc6/explorer-375.png",
+    "docs/evidence/full/flame-explorer-fixtures-rc6/report.json",
+    "docs/evidence/full/flame-scale-browser-rc6/flame-100000-375.png",
+    "docs/evidence/full/flame-scale-browser-rc6/report.json",
+    "docs/evidence/full/markdown-fixtures-rc6/markdown-1440.png",
+    "docs/evidence/full/markdown-fixtures-rc6/markdown-375.png",
+    "docs/evidence/full/markdown-fixtures-rc6/report.json",
+    "docs/evidence/full/partial-analysis-fixtures-rc6/partial-1440.png",
+    "docs/evidence/full/partial-analysis-fixtures-rc6/partial-375.png",
+    "docs/evidence/full/profile-artifact-fixtures-rc6/gzip-100000-1440.png",
+    "docs/evidence/full/profile-artifact-fixtures-rc6/gzip-100000-375.png",
+    "docs/evidence/full/profile-artifact-fixtures-rc6/report.json",
+    "docs/evidence/full/request-lifecycle-fixtures-rc6/report.json",
+    "docs/evidence/upgrade-20261019/workspace-1440.png",
+    "docs/evidence/upgrade-20261019/workspace-375.png"
+  ],
+  "dated_fixture_receipts": "full-preview-fixtures/",
+  "notes": [
+    "All 48 checks actually ran; none were skipped.",
+    "Resume the controlled clock during the lazy Guide route commit, then pause it again; original native-fetch abort and deduplication checks remain intact.",
+    "Only this run's pre-existing generated legacy reports and screenshots were archived privately and restored from HEAD; new Guide evidence remains."
+  ]
+}

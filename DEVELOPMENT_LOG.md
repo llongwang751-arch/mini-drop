@@ -1,3 +1,10 @@
+## 2026-10-20 · 使用指南视觉与交互重构（Web11 候选）
+
+- 根据用户截图重做 `/guide`：编辑式标题、证据闭环图、四阶段切换、现象索引、原生 FAQ 与按权限显示的开始入口。沿用现有品牌、导航和实际能力边界，未改后端或 Agent；路由按需加载，主 JS 从原 493.45KB 降至 483.07KB，新增页面 JS 27.36KB。
+- 三轮视觉复审修复节点/图标溢出、中文字体回退、手机首屏占比、正文大小和标题孤行。四宽度×四阶段布局实测下方位置变化 0px、无裁切；六宽度 320–1440px 检查通过。明确导入夹具的 Guide 15/15、原 SSE/制品 Worker/请求生命周期回归 16/16，均 0skip；axe 四次扫描 0 违规。原轮询测试在路由切换后需恢复虚拟时钟以等待 React lazy Suspense，再暂停检查，保留原取消/去重断言。
+- 最终 Web137 单测、生产构建、Prettier 通过。本地 Lighthouse13.5.0 的 gzip 构建/导入认证夹具：桌面性能99、手机91、可访问性及最佳实践均100，不代表公网 SLA。独立八维视觉审查未发现阻止发布的实质问题；见 [设计记录](design-system/drop/pages/guide.md) 与 [最终证据](docs/evidence/guide-20261020/final/summary.json)。
+- CI 的 preview 步骤显式启用原 fixture opt-in，避免以跳过冒充回归；完整默认 preview 已实际48/48通过、0skip、0fail。计划仅替换 Web 容器为 `drop-web:20261020.11`，保留原命名镜像与所有卷；实际部署及公网只读验收在完成后追加，不预写成功。
+
 ## 2026-10-20 · 15类采集器与非CRM现场演示
 
 - 响应用户“不止CRM”的要求，部署7个标记为controlled-synthetic-demo的Go/Java/Python/C++ I/O及3种原生分配器负载；真实采集，不导入profile。标准库pprof、async-profiler、HPROF、py-spy、memray、内核syscalls/VFS/block、缺页/mmap、gperftools/jemalloc、资源及固定脚本共15类/20场景通过，所有通过项RAW下载大小和SHA-256一致。

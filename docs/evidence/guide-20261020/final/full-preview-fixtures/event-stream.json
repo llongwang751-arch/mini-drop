@@ -1,0 +1,58 @@
+{
+  "passed": true,
+  "source": "imported-browser-SSE-fixtures-with-controlled-clock",
+  "production_or_backend_verified": false,
+  "real_native_fetch_stream_and_abort": true,
+  "visibility_is_document_event_simulation": true,
+  "browser_clock_is_virtual": true,
+  "checked_at": "2026-10-20T15:45:29.661Z",
+  "bundle_sha256": {
+    "/assets/index-eMh1lBbT.js": "43032fe13d68a8dba9a04c29cac8e93640a421319770837b764d4a2bb10403d6",
+    "/assets/vendor-B5GIBWiR.js": "1d6b87f7c71dd1ad94800c6c5cdb6c6ddd2f2cf814eef99e8df2e25499f71117",
+    "/assets/index-HsPIAiLP.css": "19bebd612ca38e908f62ca3c115bc014711ac5e545a50c8ef59beb8250ebad6f"
+  },
+  "checks": [
+    {
+      "name": "visibility-pause-resume-navigation-abort",
+      "passed": true,
+      "initial_streams": 1,
+      "hidden_virtual_ms": 60000,
+      "hidden_reconnects": 0,
+      "resumed_streams": 1,
+      "native_aborts": 2,
+      "reconnects_after_exit": 0
+    },
+    {
+      "name": "exact-cursor-backoff-permanent-stop",
+      "passed": true,
+      "calls": [
+        {
+          "time": 1792195200275,
+          "requestId": "f5d4a605-292f-429a-a86a-e4497bffb817"
+        },
+        {
+          "time": 1792195201444,
+          "cursor": "9007199254740993",
+          "requestId": "9f9d209b-c944-46c1-a1bd-c0cf985e8806"
+        },
+        {
+          "time": 1792195203544,
+          "cursor": "9007199254740993",
+          "requestId": "93dff087-4d4a-482e-91e4-36b8f927d8eb"
+        },
+        {
+          "time": 1792195207644,
+          "cursor": "9007199254740993",
+          "requestId": "cb38e6d4-9712-4b73-b735-e541dc95ef6d"
+        }
+      ],
+      "minimum_reconnect_delays_ms": [
+        1000,
+        2000,
+        4000
+      ],
+      "last_event_id": "9007199254740993",
+      "forbidden_reconnects_virtual_120s": 0
+    }
+  ]
+}
