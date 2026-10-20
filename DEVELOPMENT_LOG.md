@@ -461,3 +461,9 @@
 - 第二提交31cb6b3已发布并同步1551源码SHA，27生产容器/镜像保持，ready200/7监控up。服务器Linux Compose2.40.3也实际5/5通过。GitHub该提交API race/vet/govulncheck/gofmt、Web、SDK、契约及Core构建均通过。
 - maintenance后续失败是旧MinIO官方容器仓库拒绝匿名拉取；Quay精确tag匿名token后manifest仍401，未换第三方镜像或绕过隔离测试。新增仅供依赖重建的Dockerfile：官方同版本GitHub release的amd64/arm64 binary、固定官方SHA、LICENSE及源版本标识，有界下载。CI先构建本地fixture tag再运行原PG/S3集成；新开发环境可同样预构建。未更新生产MinIO镜像、配置或卷。
 - 生产storage-backend只读核对/usr/bin/minio SHA为eef6581f6509f43ece007a6f2eb4c5e3ce41498c8956e919a7ac7b4b170fa431，与官方amd64 release SHA相同；基础镜像和容器image ID不冒称相同。见docs/evidence/github-publication-20261020/minio-binary-proof.json和deploy/minio说明。最终CI结果仍以Actions为准。
+
+## 2026-10-20 · 发布最终验收
+
+- 功能源码797e9ec7e581已推送master并同步服务器1555文件SHA；本机已关联origin/master，切到codex/published-tx-drop，原main/52fb787历史保留。所有原工作文件字节保持，工作区干净，未checkout/reset/clean。
+- GitHub精确push/master run39418233749于12:10 UTC核验7/7 job全成功：API race/vet/govulncheck/gofmt、Web单测/构建/审计/浏览器、Core严格构建、AgentScope Linux、契约、维护以及Analyzer原PG/S3隔离集成均通过；两处MinIO官方binary fixture实际构建成功。旧失败日志保留，旧31cb被取代的运行已取消以释放runner。
+- 最终12:09:55 UTC线上ready200、27运行容器且无OOM/unhealthy、7监控up，API12/runtime2/Web10/Agent3及原存储镜像保持。公开CI和readiness收据补入docs/evidence/github-publication-20261020，并存Release附件；收尾提交仅更新文档/JSON，使用[skip ci]避免再次构建相同功能源码，不把文档提交冒作另一轮7项执行。

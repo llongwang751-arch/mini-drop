@@ -10,6 +10,8 @@
 
 31cb6b3已同步1551源码，Linux Compose2.40.3五项通过；远端API race/vet/漏洞检查、Web、SDK、契约、Core构建通过。MinIO上游容器拉取失败另修复为[官方同版本binary+固定SHA构建](../deploy/minio/README.md)，CI继续执行原PG/S3集成，不放宽测试；[生产binary只读SHA](evidence/github-publication-20261020/minio-binary-proof.json)与官方相同。生产存储镜像和数据未替换，新CI状态见Actions。
 
+**最终功能提交797e9ec7e581验收完成**：[push/master CI run39418233749](https://github.com/llongwang751-arch/mini-drop/actions/runs/39418233749) **7/7全部通过**，包含两个官方MinIO fixture构建、原Analyzer/Ops真实PG/S3集成、API race/静态及漏洞检查、Core、Web、SDK与契约。服务器1555源码已绑定；最终ready200/27容器健康/7监控up。[CI收据](evidence/github-publication-20261020/github-ci-797e9ec.json) · [最终健康](evidence/github-publication-20261020/final-readiness-797e9ec.json)。后续收尾提交仅文档/JSON，跳过重复CI；上述7项对应明确功能提交，不扩大为最终镜像统一安全扫描或长期稳定性验收。
+
 更新：2026-10-20。最新为API12 / AgentScope runtime2（SDK2.0.10）/ Web10 / AgentHelper3 / SQL8，27运行容器、7监控up；调查11/修复9完整网页76.4秒通过，原2+冻结6、384例、6/6对照、CPU1.5587倍。Go117、SDK33、双UID互通8、executor12及Compose5/28负控通过。详见[AgentScope发布](releases/20261020-agentscope.md)与[接入](AGENTSCOPE_INTEGRATION.md)。后面的API10表格保留为采集器组合的历史验收。
 
 历史组合部署：[https://82.157.81.79](https://82.157.81.79)，API10 / Web10 / Agent与Helper3 / SQL8，26运行容器、7监控目标up。用户点名的BOLT和malloc已通过；Saber真实FTS5组件已接入并完成最终网页全流程。详见[本次发布](releases/20261020-saber-collectors.md)。
