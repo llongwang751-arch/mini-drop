@@ -143,11 +143,11 @@ function Login({ onLogin }: { onLogin: (auth: Auth) => void }) {
       <main className="login-layout">
         <div className="login-story">
           <span className="login-kicker">从运行现场，到性能证据</span>
-          <h1>
+          <h2>
             性能，
             <br />
             <span>清晰可见。</span>
-          </h1>
+          </h2>
           <p>
             采集现场，分析调用栈。
             <br />
@@ -167,7 +167,7 @@ function Login({ onLogin }: { onLogin: (auth: Auth) => void }) {
         <div className="login-card">
           <div className="login-form-intro">
             <span className="eyebrow">DROP WORKSPACE</span>
-            <h2>登录工作空间</h2>
+            <h1>登录工作空间</h1>
             <p>使用管理员分配的账号继续。</p>
           </div>
           <form

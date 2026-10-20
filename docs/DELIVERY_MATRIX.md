@@ -1,5 +1,9 @@
 # 全量交付与验收矩阵
 
+## 云蓝与冷灰配色（2026-10-21 候选）
+
+按用户反馈统一指南及共用侧栏/按钮/登录图的配色，布局和业务行为保持；同时修复发现的移动登录H1缺失，视觉不变。新构建、Prettier、既有UI20/20（0skip）及桌面/手机登录检查通过，合计八次axe扫描零违规；主按钮白字5.82:1、辅文在背景4.73:1。成功/错误状态与火焰图编码保留，36份历史证据SHA不变。候选仅更新Web至20261021.1；实际发布及公网验收完成后另附本轮证据，不把上一版Lighthouse或现场采集记录算作本轮重跑。见 [本轮回归](evidence/palette-20261021/regression.json) 与 [登录检查](evidence/palette-20261021/login-visual.json)。
+
 ## 使用指南增量（Web11 已上线，2026-10-20）
 
 `/guide` 已重构为与 Drop 品牌一致的交互式技术手册，包含采集→分析→诊断→验证、场景索引、结果边界和按权限显示的操作入口。六宽度 UI15/15、原导航回归16/16、Web137、构建及 Prettier 实际通过；四宽度流程切换位移0px、axe四次0违规。Lighthouse本地导入夹具桌面99、手机91，可访问性/最佳实践100；不作为生产响应时间或真实采集/模型执行证据。见 [设计与八维复审](../design-system/drop/pages/guide.md)、[最终页面验收](evidence/guide-20261020/final/summary.json)、[导航回归](evidence/guide-20261020/final/navigation-regression/summary.json)、[性能范围](evidence/guide-20261020/final/lighthouse.json)。

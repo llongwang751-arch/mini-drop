@@ -73,18 +73,18 @@
 @layer base {
   :root {
     color-scheme: light;
-    --bg: #f8f8f5;
-    --sidebar: #f7f7f2;
+    --bg: #f5f7fb;
+    --sidebar: #f8faff;
     --surface: #ffffff;
     --surface-hover: #f2f5f8;
-    --surface-raised: #eff1e7;
-    --border: #e1e3da;
-    --border-strong: #c9cebd;
-    --text: #202219;
-    --muted: #565b4e;
-    --faint: #686d5e;
-    --accent: #536f12;
-    --accent-hover: #40580b;
+    --surface-raised: #edf3fd;
+    --border: #dce4ef;
+    --border-strong: #bccbdf;
+    --text: #17263c;
+    --muted: #4d6078;
+    --faint: #5e7086;
+    --accent: #1d5fd1;
+    --accent-hover: #174faf;
     --green: #167456;
     --red: #b63c42;
     --radius: 10px;
@@ -102,7 +102,7 @@
     min-width: 320px;
   }
   ::selection {
-    background: #536f124d;
+    background: var(--accent);
     color: #fff;
   }
   :focus-visible {
@@ -339,8 +339,8 @@
     color: var(--text);
   }
   .main-nav a.active {
-    background: #536f1210;
-    color: #536f12;
+    background: #1d5fd110;
+    color: #1d5fd1;
   }
   .main-nav a.active::before {
     content: "";
@@ -379,7 +379,7 @@
     width: 31px;
     height: 31px;
     background: #e3e9ee;
-    color: #536f12;
+    color: #1d5fd1;
     border: 1px solid #e3eaf4;
     border-radius: 50%;
     display: grid;
@@ -658,14 +658,14 @@
   }
   .data-table td {
     padding: 15px 22px;
-    border-bottom: 1px solid #e1e3da80;
+    border-bottom: 1px solid #dce4ef80;
     height: 66px;
   }
   .data-table tr:last-child td {
     border-bottom: none;
   }
   .data-table tbody tr:hover {
-    background: #536f1205;
+    background: #1d5fd105;
   }
   .data-table td.mono {
     font-size: 12px;
@@ -684,10 +684,10 @@
     border-radius: 5px;
     line-height: 19px;
     padding: 0 6px;
-    border: 1px solid #686d5e30;
+    border: 1px solid #5e708630;
     white-space: nowrap;
-    background: #686d5e0a;
-    color: #565b4e;
+    background: #5e70860a;
+    color: #4d6078;
   }
   .status-dot {
     width: 4px;
@@ -702,9 +702,9 @@
     border-color: #16745625;
   }
   .badge.active {
-    color: #536f12;
-    background: #536f120a;
-    border-color: #536f1230;
+    color: #1d5fd1;
+    background: #1d5fd10a;
+    border-color: #1d5fd130;
   }
   .badge.danger {
     color: var(--red);
@@ -736,7 +736,7 @@
   }
   .content-footer > .mono > span {
     margin: 0 8px;
-    color: #686d5e;
+    color: #5e7086;
   }
   .footer-dot {
     margin: 0 9px;
@@ -759,7 +759,7 @@
     background: linear-gradient(135deg, #edf2f6, #f8fafb);
     display: grid;
     place-items: center;
-    color: #536f12;
+    color: #1d5fd1;
     margin-bottom: 18px;
     box-shadow: 0 0 0 6px #ffffff01;
   }
@@ -951,7 +951,7 @@
     font-family: var(--mono);
     font-size: 12px;
     color: var(--accent);
-    border: 1px solid #536f1235;
+    border: 1px solid #1d5fd135;
     padding: 3px 6px;
     border-radius: 5px;
   }
@@ -988,8 +988,8 @@
     font-size: 12px;
   }
   .kind-option.selected {
-    background: #536f120a;
-    border-color: #536f1290;
+    background: #1d5fd10a;
+    border-color: #1d5fd190;
   }
   .kind-option.selected > svg {
     color: var(--accent);
@@ -1050,7 +1050,7 @@
   .field textarea:focus,
   .field select:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px #536f120c;
+    box-shadow: 0 0 0 3px #1d5fd10c;
   }
   .field input::placeholder,
   .field textarea::placeholder {
@@ -1241,7 +1241,7 @@
   }
   .progress-stage.current > span {
     color: var(--accent);
-    background: #536f120a;
+    background: #1d5fd10a;
     border-color: var(--accent);
   }
   .progress-stage.current {
@@ -1347,9 +1347,9 @@
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    color: #565b4e;
-    background: #536f1208;
-    border: 1px solid #536f1229;
+    color: #4d6078;
+    background: #1d5fd108;
+    border: 1px solid #1d5fd129;
     border-radius: 8px;
     padding: 15px 18px;
     margin-bottom: 24px;
@@ -1413,7 +1413,7 @@
   .flame-svg g:hover rect,
   .flame-svg g:focus-visible rect {
     filter: brightness(1.18);
-    stroke: #536f12;
+    stroke: #1d5fd1;
     stroke-width: 1;
   }
   .flame-footer {
@@ -1486,7 +1486,7 @@
     gap: 12px;
     align-items: center;
     padding: 12px 0;
-    border-bottom: 1px solid #e1e3da70;
+    border-bottom: 1px solid #dce4ef70;
   }
   .hotspot-row:last-child {
     border-bottom: 0;
@@ -1513,7 +1513,7 @@
   .hotspot-track > span {
     height: 100%;
     display: block;
-    background: #536f12;
+    background: #1d5fd1;
     border-radius: 3px;
   }
   .hotspot-row > strong {
@@ -1748,11 +1748,11 @@
     color: var(--accent);
     width: 39px;
     height: 39px;
-    border: 1px solid #536f1230;
+    border: 1px solid #1d5fd130;
     border-radius: 9px;
     display: grid;
     place-items: center;
-    background: #536f1207;
+    background: #1d5fd107;
   }
   .agent-card h2 {
     font-size: 15px;
@@ -1806,7 +1806,7 @@
     display: block;
     height: 100%;
     border-radius: 3px;
-    background: #536f12;
+    background: #1d5fd1;
     transition: width 0.6s ease;
   }
   .agent-card-footer {
@@ -1893,7 +1893,7 @@
   }
   .toggle {
     background: #d9e2e9;
-    border: 1px solid #c9cebd;
+    border: 1px solid #bccbdf;
     border-radius: 20px;
     padding: 3px;
     width: 33px;
@@ -2089,13 +2089,13 @@
     font-size: 12px;
     color: var(--accent);
   }
-  .login-story h1 {
+  .login-story h2 {
     font-size: 49px;
     letter-spacing: -0.07em;
     line-height: 1.5;
     margin-top: 25px;
   }
-  .login-story h1 > span {
+  .login-story h2 > span {
     color: var(--muted);
   }
   .login-story > p {
@@ -2118,7 +2118,7 @@
   }
   .login-visual > div {
     height: 8px;
-    background: linear-gradient(90deg, #536f12, #536f1230);
+    background: linear-gradient(90deg, #1d5fd1, #1d5fd130);
     border-radius: 2px;
   }
   .login-visual .mono {
@@ -2150,7 +2150,7 @@
   .login-card .eyebrow {
     font-size: 12px;
   }
-  .login-card h2 {
+  .login-card h1 {
     font-size: 25px;
     margin-top: 15px;
   }
@@ -2300,7 +2300,7 @@
     .login-layout {
       gap: 60px;
     }
-    .login-story h1 {
+    .login-story h2 {
       font-size: 42px;
     }
     .login-page {
@@ -2336,7 +2336,7 @@
     .login-layout {
       gap: 35px;
     }
-    .login-story h1 {
+    .login-story h2 {
       font-size: 36px;
     }
     .login-story p {
@@ -2345,7 +2345,7 @@
     .login-card {
       padding: 27px;
     }
-    .login-card h2 {
+    .login-card h1 {
       font-size: 24px;
     }
     .global-search {
@@ -2902,7 +2902,7 @@
       gap: 8px;
       padding-bottom: 22px;
     }
-    .login-card h2 {
+    .login-card h1 {
       font-size: 25px;
     }
     .login-card .field input {
