@@ -25,7 +25,11 @@ jobs:
         image: postgres:17.11-alpine
         env: {POSTGRES_USER: drop_test, POSTGRES_PASSWORD: ci-ephemeral-test-password, POSTGRES_DB: drop_test}
         ports: ['5432:5432']
-        options: --health-cmd='pg_isready -U drop_test -d drop_test' --health-interval=10s --health-timeout=5s --health-retries=10
+        options: >-
+          --health-cmd "pg_isready -U drop_test -d drop_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
     defaults: {run: {working-directory: api}}
     steps:
       - uses: actions/checkout@v4

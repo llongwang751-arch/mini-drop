@@ -7,6 +7,7 @@ socket peer credentials, outbound firewall policy or production health.
 
 from __future__ import annotations
 
+from copy import deepcopy
 import json
 import os
 from pathlib import Path
@@ -221,7 +222,7 @@ class AgentScopeDeploymentTests(unittest.TestCase):
             ({"volumes": ["helper_socket:/run/drop-helper:ro"]}, "RUNTIME_FORBIDDEN_OR_MISSING_MOUNT"),
             ({"volumes": ["ai_tool_socket:/run/drop-ai-tools"]}, "RUNTIME_SOCKET_DIRECTION:/run/drop-ai-tools"),
             ({"mem_limit": "1g"}, "RUNTIME_MEMORY_UNBOUNDED"),
-            ({"memswap_limit": "-1"}, "RUNTIME_SWAP_NOT_BOUNDED"),
+            ({"memswap_limit": "1g"}, "RUNTIME_SWAP_NOT_BOUNDED"),
             ({"cpus": 1}, "RUNTIME_CPU_UNBOUNDED"),
             ({"pids_limit": 128}, "RUNTIME_PIDS_UNBOUNDED"),
             ({"read_only": False}, "RUNTIME_ROOTFS_WRITABLE"),
@@ -230,6 +231,12 @@ class AgentScopeDeploymentTests(unittest.TestCase):
             with self.subTest(expected=expected, change=change):
                 candidate = self.compose(True, {"services": {"agent-runtime": change}})
                 self.assertIn(expected, boundary_errors(self.baseline, candidate))
+        # Compose 2.40 rejects '-1' before returning normalized configuration.
+        # Keep that unlimited-swap policy negative control independent of the
+        # parser; the real merge above uses a valid size exceeding memory.
+        unlimited_swap = deepcopy(self.merged)
+        unlimited_swap["services"]["agent-runtime"]["memswap_limit"] = -1
+        self.assertIn("RUNTIME_SWAP_NOT_BOUNDED", boundary_errors(self.baseline, unlimited_swap))
 
     def test_real_merge_rejects_api_consumer_write_and_other_service_changes(self):
         for changes, expected in (

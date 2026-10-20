@@ -449,3 +449,9 @@
 - OpenAPI生成源补齐实际Go报告agent_runtime有界只读schema及源码执行器取消说明；生成后76路由/91schema、任务契约、Proto兼容及负控通过，未修改生产Go运行时。
 - CRM/Saber导出器要求显式--source/--output，输出须源码树外且为空、拒绝symlink祖先。4项临时合成fixture回归通过，不读取真实业务配置、不修改业务源码。Web137单测、构建/Prettier、启动器8及增量打包5项实际通过。
 - 更新当前项目上下文、文档索引和公开范围；候选源码逐文件校验，排除密钥、登录态、现场RAW、缓存及录像Git blob；显式toy解析fixture保留。录像另作Release附件。推送、远端CI及服务器源码绑定以实际后续收据为准，本记录未预宣称通过。
+
+## 2026-10-20 · GitHub 发布与服务器绑定完成
+
+- 完整源码提交12fb28804f7d已普通快进推送master，父提交609ea8a保留。REST核对1548文件和tree0777cf40，旧apiserver/server/native不在当前tree。1819候选凭据扫描零命中，20个toy样本SHA/大小通过。
+- 服务器逐文件校验同步1548源码，绑定上述提交；27容器ID/镜像前后相同、ready200、7监控up、executor active、生产.env保留，未重建或重启服务。成功/首次失败录像已上传非草稿Release，GitHub digest与本机SHA一致；收据在docs/evidence/github-publication-20261020。
+- 首次远端CI的web、SDK、contracts通过；API在测试执行前因Actions健康命令单引号拆词失败，修正为双引号完整参数。maintenance因Compose2.40.3拒绝负数字符串而提前退出，实际负控改合法1GiB超512MiB预算，同时保留归一对象-1直接策略断言，未改权限fence。修后本机Compose5项/28真实overlay+1直接负控通过；新远端结果以Actions为准。

@@ -11,3 +11,5 @@ CRM 和 Saber 仅提供白名单导出工具、harness、冻结检查及基准�
 本次本机实际执行：Web 137 项测试、生产构建及 Prettier；76 HTTP 路由/91 schema、任务契约和 Proto 兼容检查；本地启动器 8 项、增量打包 5 项、外部源码导出 4 项回归。AgentScope Linux33、fresh PG117、真实浏览器闭环及采集器历史检查另见发布证据，不声称本次重新执行。GitHub `quality` 在推送后自动运行，状态以 Actions 为准；`release` 只支持手动触发，不自动部署生产，也不把工作流文件存在当作镜像签名或完整安全门禁已通过。
 
 本次 GitHub 发布只调整 CI、生成的 HTTP 契约说明、文档和本地导出工具，不改变已验收的生产运行时。服务器同步源码与发布绑定信息时保留 `.env`、Secret、数据卷、命名镜像和现有容器。
+
+完整源码已于 2026-10-20 普通快进推送，提交为 [`12fb28804f7d`](https://github.com/llongwang751-arch/mini-drop/commit/12fb28804f7d1eb5e52cca97836ac94e0caeec19)。服务器同步 1548 文件校验通过、27 个容器 ID/镜像保持；两份录像已上传并核对 GitHub SHA256。见[公开收据](evidence/github-publication-20261020/publication.json)。首次远端 CI 的健康检查参数引号和 Compose 负控可移植性问题在后续提交修复；最终状态直接查看 [Actions](https://github.com/llongwang751-arch/mini-drop/actions/workflows/ci.yml)。
