@@ -1,0 +1,14 @@
+# Artifact release for a constrained runtime host. Build with Go 1.26.9:
+# CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -tags=nomsgpack -ldflags="-s -w" -o drop-api.bin ./cmd/drop-api
+FROM alpine:3.21.3
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && apk upgrade --no-cache && apk add --no-cache ca-certificates tzdata && addgroup -S drop && adduser -S drop -G drop
+WORKDIR /app
+ENV GOMEMLIMIT=192MiB GOMAXPROCS=2
+COPY api/drop-api.bin /usr/local/bin/drop-api
+RUN chmod 755 /usr/local/bin/drop-api
+COPY contracts/task-kinds.json /app/contracts/task-kinds.json
+COPY db/migrations/ /app/db/migrations/
+USER drop
+EXPOSE 8080
+HEALTHCHECK --interval=20s --timeout=5s --start-period=20s CMD wget -q -O /dev/null http://127.0.0.1:8080/health/live || exit 1
+ENTRYPOINT ["drop-api"]

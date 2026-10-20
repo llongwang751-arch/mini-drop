@@ -1,0 +1,14 @@
+[Unit]
+Description=Rotate tx-drop internal leaves within the existing CA trust root
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/drop-current/deploy
+ExecStart=/bin/bash /opt/drop-current/deploy/rotate-internal-certs.sh
+User=root
+UMask=0077
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=300

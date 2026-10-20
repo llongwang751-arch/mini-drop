@@ -1,0 +1,41 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-20T11:15:13.319573+00:00",
+  "origin": "https://82.157.81.79",
+  "archive": "/opt/tx-drop-20261020/tx-drop-20261020-agentscope-incremental.tar.gz",
+  "archive_sha256": "53fdfb51f0ffa3350ed9bd8053e37aabd03c0f70df8115c813721c01ff84eb45",
+  "manifest_sha256": "3d6f6ab5d046ea23afdc11b0128048140377e691a81b0de3091d44ce7b470195",
+  "source_files_verified": 659,
+  "archive_members_verified": 660,
+  "source_directory": "/opt/tx-drop-20261020/source",
+  "all_running_container_ids_preserved": true,
+  "data_volumes_and_old_release_images_preserved": true,
+  "component_bindings": {
+    "api": {
+      "image": "drop-api:20261020.12",
+      "image_id": "sha256:eb06a4dbae0cd209f7045f288f95a0b1dcf07e48dab47f97d05624d60d899287",
+      "binary_sha256": "a6f451f3b844ce3979ac5e0ba74cddc1da293a3fd22e6dd1d0ce0c898831787b",
+      "go_source_sha256": "02e29ee6af1ad43c165fb167e0e1c5706040ae403643c94d399f320b435ff41c"
+    },
+    "agent_runtime": {
+      "image": "drop-agent-runtime:20261020.2",
+      "image_id": "sha256:fbfe77d790bc37668313fc8e46b93c87746dcb2783d3a0ca6d2f367e5f7da7ea",
+      "framework_version": "2.0.10",
+      "requirements_lock_sha256": "9b51bf31eb6c10707dcd0ed1beb49f0c38a01d4065b904ab9f30a34c550a6d78"
+    }
+  },
+  "secret_scan": {
+    "passed": true,
+    "counts": {
+      "known_credentials": 0,
+      "pem_private_key": 0,
+      "signed_url": 0,
+      "api_key_shape": 0
+    },
+    "known_private_values_checked": 3,
+    "scope": "all selected file bytes; no matching values or locations are logged"
+  },
+  "readiness_http": 200,
+  "acceptance": "docs/evidence/agentscope-20261020/acceptance.json",
+  "scope": "incremental source/test/documentation/actual and imported-fixture evidence; API12/runtime2 already deployed and accepted; no service restart during source sync"
+}

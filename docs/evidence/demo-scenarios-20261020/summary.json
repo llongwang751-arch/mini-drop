@@ -1,0 +1,140 @@
+{
+  "passed_live_kinds": [
+    "GO_CPU",
+    "GO_HEAP",
+    "GPERF_CPU",
+    "GPERF_HEAP",
+    "IO_TRACE",
+    "JAVA_CPU",
+    "JAVA_HEAP",
+    "JEPROF_HEAP",
+    "MEMORY_TRACE",
+    "PERF_CPU",
+    "PROC_CPU",
+    "PYTHON_CPU",
+    "PYTHON_MEMORY",
+    "RESOURCE_SNAPSHOT",
+    "SCRIPT"
+  ],
+  "passed_live_kind_count": 15,
+  "passed_live_cases": 20,
+  "all_passed_raw_download_verified": true,
+  "ai_loops": [
+    {
+      "scenario": "Go CPU",
+      "baseline": "23",
+      "candidate": "32",
+      "diagnosis": "15",
+      "verification": "7",
+      "passed": true,
+      "seconds": 36.5
+    },
+    {
+      "scenario": "Go heap",
+      "baseline": "24",
+      "candidate": "36",
+      "diagnosis": "17",
+      "verification": "8",
+      "passed": true,
+      "seconds": 24.4
+    },
+    {
+      "scenario": "Java CPU",
+      "baseline": "25",
+      "candidate": "41",
+      "diagnosis": "19",
+      "verification": "9",
+      "passed": true,
+      "seconds": 42.5
+    }
+  ],
+  "natural_java": {
+    "source": "fresh natural-language Java investigation via public UI; real DeepSeek and async-profiler",
+    "passed": true,
+    "milestones": [
+      {
+        "state": "submitted_from_browser",
+        "elapsed_seconds": 2
+      },
+      {
+        "state": "planning",
+        "elapsed_seconds": 4.2
+      },
+      {
+        "state": "awaiting_confirmation",
+        "elapsed_seconds": 6.3
+      },
+      {
+        "state": "confirmed_from_browser",
+        "elapsed_seconds": 6.5
+      },
+      {
+        "state": "collecting",
+        "elapsed_seconds": 8.6
+      },
+      {
+        "state": "diagnosing",
+        "elapsed_seconds": 23
+      },
+      {
+        "state": "verifying",
+        "elapsed_seconds": 35.4
+      },
+      {
+        "state": "success",
+        "elapsed_seconds": 78.8
+      }
+    ],
+    "target": {
+      "pid": 19080,
+      "start_time_ticks": 7998599
+    },
+    "goal": "实时面试演示：这个Java程序CPU占用偏高，请根据节点实际能力选择适合JVM的CPU函数调用栈采集器，采集10秒99Hz（不是alloc/lock事件），定位热点与调用者、检查采集质量，自动复测并再次诊断核对。只能提出有证据的假设，重复采样不能确认因果。 2026-10-20T05:07:44.605Z",
+    "investigation_id": "7",
+    "plan": {
+      "kind": "JAVA_CPU",
+      "options": {
+        "event": "cpu"
+      },
+      "rationale": "目标为Java进程且需CPU函数调用栈（非alloc/lock），目录中JAVA_CPU支持event=cpu，99Hz在1-199范围内，10秒符合要求，是成本最低的JVM专用CPU采样器。局限：仅10秒窗口、99Hz采样，样本量约1000，热点占比低的方法可能不显著；采样只能给出相关性证据，不能确认因果；若JVM未开启相应采样能力或符号缺失，栈可能不完整，需在结果中检查样本数、丢失/截断栈比例后再决定是否复测。",
+      "frequency_hz": 99,
+      "duration_seconds": 10
+    },
+    "baseline_task_id": "46",
+    "candidate_task_id": "47",
+    "verification_id": "10",
+    "elapsed_seconds": 78.8,
+    "tools": [
+      "list_collectors",
+      "propose_collection"
+    ],
+    "root_cause_status": "not_tested"
+  },
+  "browser_views": 19,
+  "browser_passed": true,
+  "limits": [
+    {
+      "task_id": "38",
+      "kind": "MEMORY_TRACE",
+      "options": {
+        "category": "alloc"
+      },
+      "error_code": "TRACE_ATTACH_UNAVAILABLE"
+    },
+    {
+      "task_id": "43",
+      "kind": "BOLT_PROFILE",
+      "options": {
+        "include_binary": true,
+        "optimize": false
+      },
+      "error_code": "RUNNER_FAILED"
+    }
+  ],
+  "notes": [
+    "Initial block task34 had no events on tmpfs, real bounded-disk task48 passed.",
+    "Task35 page-fault byte weight is zero by definition, 3952 actual page-fault events and RAW hash verified in refinement.json. Original unsuitable generic assertion preserved.",
+    "Initial no-event controlled CPU probes21/22 failed honestly.",
+    "Source auto-repair remains enrolled CRM preset only."
+  ]
+}

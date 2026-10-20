@@ -1,0 +1,160 @@
+{
+  "success": true,
+  "source_sha256": "52db1d5ad2eb36f14874d887757727fa48ba398a87b807f9a8bb9f56a5c2c126",
+  "scope": "all nine actual isolated helper cases using final Core3 binaries and Agent3 tools; no production PIDs or credentials",
+  "results": [
+    {
+      "kind": "BOLT_PROFILE",
+      "category": null,
+      "ok": true,
+      "size": 92,
+      "sha256": "75132a654984aa01806b1d76209071320c3d72e3013f598b464f4a8a6df00b81",
+      "acknowledged": true,
+      "fixture_target_uid": 10001,
+      "fixture_target": {
+        "running": true,
+        "oom_killed": false,
+        "exit_code": 0,
+        "memory_limit_bytes": 100663296
+      }
+    },
+    {
+      "kind": "IO_TRACE",
+      "category": "syscalls",
+      "ok": true,
+      "size": 59259,
+      "sha256": "8b7eeb3f01e2176f8895728893554ee30d66fee09da59a313983d1560fe8b052",
+      "acknowledged": true,
+      "fixture_target_uid": 10001,
+      "fixture_target": {
+        "running": true,
+        "oom_killed": false,
+        "exit_code": 0,
+        "memory_limit_bytes": 100663296
+      }
+    },
+    {
+      "kind": "IO_TRACE",
+      "category": "vfs",
+      "ok": true,
+      "size": 67871,
+      "sha256": "c9548da7534e8490df5b7a384b6d76637c4090c6e668d265248d6f779f5390b7",
+      "acknowledged": true,
+      "fixture_target_uid": 10001,
+      "fixture_target": {
+        "running": true,
+        "oom_killed": false,
+        "exit_code": 0,
+        "memory_limit_bytes": 100663296
+      }
+    },
+    {
+      "kind": "IO_TRACE",
+      "category": "block",
+      "ok": true,
+      "size": 55362,
+      "sha256": "ec08cedbf089e06b23d13e28d6f13d37e49b8bd02a5acefb3990ff850b67090e",
+      "acknowledged": true,
+      "fixture_target_uid": 10001,
+      "fixture_target": {
+        "running": true,
+        "oom_killed": false,
+        "exit_code": 0,
+        "memory_limit_bytes": 100663296
+      }
+    },
+    {
+      "kind": "MEMORY_TRACE",
+      "category": "pagefault",
+      "ok": true,
+      "size": 363264,
+      "sha256": "1d92a344851fbe05f3957ee70fbd7f3078cd2d99f1e321cc7af4a5d0994febfe",
+      "acknowledged": true,
+      "fixture_target_uid": 10001,
+      "fixture_target": {
+        "running": true,
+        "oom_killed": false,
+        "exit_code": 0,
+        "memory_limit_bytes": 100663296
+      }
+    },
+    {
+      "kind": "MEMORY_TRACE",
+      "category": "alloc",
+      "ok": true,
+      "size": 50224,
+      "sha256": "67470b133d64316b410f4cd0ca8ff7d179152a41af231fbca422ebbc68882239",
+      "acknowledged": true,
+      "fixture_target_uid": 10001,
+      "fixture_target": {
+        "running": true,
+        "oom_killed": false,
+        "exit_code": 0,
+        "memory_limit_bytes": 100663296
+      },
+      "target_resumption": {
+        "state": "S",
+        "cpu_ticks_before": 13,
+        "cpu_ticks_after": 14,
+        "write_calls_before": 971,
+        "write_calls_after": 1014
+      }
+    },
+    {
+      "kind": "MEMORY_TRACE",
+      "category": "mmap",
+      "ok": true,
+      "size": 55680,
+      "sha256": "083994c81e0b8224f02d52db19ee596a1a70018ff7e9318286242ed4ba633711",
+      "acknowledged": true,
+      "fixture_target_uid": 10001,
+      "fixture_target": {
+        "running": true,
+        "oom_killed": false,
+        "exit_code": 0,
+        "memory_limit_bytes": 100663296
+      }
+    },
+    {
+      "kind": "PYTHON_CPU",
+      "category": null,
+      "ok": true,
+      "size": 200,
+      "sha256": "f26b1ae2488333cf0f50edff5fa835fd01040b7afb5d1cd6e51b7be23dc06ffb",
+      "acknowledged": true,
+      "fixture_target_uid": 10001,
+      "fixture_target": {
+        "running": true,
+        "oom_killed": false,
+        "exit_code": 0,
+        "memory_limit_bytes": 201326592
+      }
+    },
+    {
+      "kind": "PYTHON_MEMORY",
+      "category": null,
+      "ok": true,
+      "size": 2697,
+      "sha256": "7f6b770a5ce3696638e58946c0e78b948bdb508b27d13ccb519b189956975f1e",
+      "acknowledged": true,
+      "fixture_target_uid": 10001,
+      "fixture_target": {
+        "running": true,
+        "oom_killed": false,
+        "exit_code": 0,
+        "memory_limit_bytes": 201326592
+      },
+      "target_resumption": {
+        "state": "R",
+        "tracer_pid": 0,
+        "cpu_ticks_before": 343,
+        "cpu_ticks_after": 353
+      },
+      "memray_reader": {
+        "records": 34,
+        "total_allocations": 34,
+        "fully_read": true
+      }
+    }
+  ]
+}

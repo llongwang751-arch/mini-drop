@@ -1,0 +1,178 @@
+{
+  "protocol": "drop-agent-runtime",
+  "version": 1,
+  "transport": "HTTP/1.1 over two separate Unix sockets; no public listener",
+  "identity": {
+    "go_uid": 10001,
+    "runner_uid": 10002,
+    "socket_group": 10003,
+    "runner_socket": "/run/drop-ai-runner/control.sock",
+    "gateway_socket": "/run/drop-ai-tools/control.sock",
+    "peer_credentials": "SO_PEERCRED verified by both servers",
+    "run_id": "public UUID, distinct from capability",
+    "capability": "per-attempt random >=192-bit secret, memory only, revoked when run ends; never model-visible or logged"
+  },
+  "run": {
+    "method": "POST",
+    "path": "/v1/run",
+    "request_fields": [
+      "version",
+      "run_id",
+      "capability",
+      "phase",
+      "model",
+      "system_prompt",
+      "messages",
+      "tools",
+      "budget"
+    ],
+    "messages": "initial user messages {role:user,content:string}; system_prompt is separate",
+    "tools": "OpenAI function definitions supplied by Go; only these business tools may be registered",
+    "budget_fields": [
+      "max_model_calls",
+      "max_tool_calls",
+      "max_tools_per_round",
+      "timeout_ms"
+    ],
+    "request_max_bytes": 262144,
+    "response_max_bytes": 131072,
+    "response_fields": [
+      "version",
+      "run_id",
+      "result",
+      "runtime"
+    ],
+    "result": "Exact Go-accepted JSON value, copied as an opaque fully validated raw value token in Python. Preserve numeric lexemes including exponent, negative zero and precision; do not decode/re-encode through binary64. Go retains strict canonical equality.",
+    "runtime_fields": [
+      "framework",
+      "framework_version",
+      "agent_class",
+      "run_id",
+      "model_calls",
+      "tool_calls",
+      "elapsed_ms"
+    ],
+    "runtime_optional_fields": [
+      "usage"
+    ],
+    "runtime_values": {
+      "framework": "agentscope",
+      "framework_version": "2.0.10",
+      "agent_class": "agentscope.agent.Agent"
+    },
+    "failure": {
+      "required_fields": [
+        "error_code"
+      ],
+      "optional_fields": [
+        "diagnostics"
+      ],
+      "max_bytes": 512,
+      "diagnostics_fields": [
+        "stage",
+        "exception_kind",
+        "model_calls",
+        "tool_calls"
+      ],
+      "stages": [
+        "setup",
+        "model_start",
+        "provider_request",
+        "provider_response",
+        "model_parse",
+        "model_end",
+        "tool_callback",
+        "agent_reply",
+        "finish_callback",
+        "result_encode",
+        "response_write"
+      ],
+      "exception_kinds": [
+        "protocol",
+        "timeout",
+        "transport",
+        "sdk",
+        "validation",
+        "internal"
+      ],
+      "counts": "integers within this phase budget; no null/extra fields",
+      "privacy": "private control-only fixed metadata; no exception message/class, request/response, argument, token, credential or profile; not model-visible"
+    }
+  },
+  "callback": {
+    "method": "POST",
+    "path": "/v1/callback/{run_id}",
+    "authorization": "Bearer capability",
+    "request_fields": [
+      "type",
+      "round",
+      "call_id",
+      "name",
+      "arguments",
+      "content",
+      "usage"
+    ],
+    "types": [
+      "model_start",
+      "model_end",
+      "tool",
+      "finish"
+    ],
+    "field_presence": "type/round/call_id required; name+arguments only for tool; content only for finish; usage optional only for model_end",
+    "request_max_bytes": 65536,
+    "response_max_bytes": 65536,
+    "success_response": {
+      "ok": true,
+      "observation": "JSON for tool, absent otherwise",
+      "accepted": "boolean for finish",
+      "result": "accepted normalized JSON",
+      "terminal": "true for accepted planning tool"
+    },
+    "rejection_response": {
+      "ok": false,
+      "error_code": "fixed safe domain code",
+      "feedback": "optional fixed safe instruction",
+      "format_only": "optional true for last diagnosis format repair",
+      "fatal": "boolean; fatal cancels whole run"
+    },
+    "idempotency": "serialize per session; identical call_id and canonical request replay returns cached response without re-execution; changed content for same call_id is fatal",
+    "model_start": "reserve next strictly consecutive round before every actual provider call; no implicit provider retries",
+    "model_end": "optional actual provider usage; once per reserved round, never provider body or hidden thought",
+    "tool": "round must be current, <=2 per round; names/schema/budget/domain fences independently enforced by Go",
+    "finish": "Go validates required tools, evidence and report; accepted result is stored server-side; no further tools/model calls after acceptance",
+    "planning_terminal": "a valid propose_collection tool may return terminal=true+result. Runner stops its Agent without another model call; only Go-confirmed plan is returned"
+  },
+  "phases": {
+    "planning": {
+      "max_model_calls": 6,
+      "max_tool_calls": 10,
+      "max_tools_per_round": 2,
+      "timeout_ms": 150000
+    },
+    "diagnosis": {
+      "max_model_calls": 5,
+      "regular_model_calls": 4,
+      "max_tool_calls": 7,
+      "max_tools_per_round": 2,
+      "timeout_ms": 150000,
+      "format_retry": "fifth call only after invalid fourth-round finish, no tools; Go independently enforces"
+    },
+    "repair": {
+      "max_model_calls": 8,
+      "max_tool_calls": 12,
+      "max_tools_per_round": 2,
+      "timeout_ms": 420000,
+      "max_sandbox_tests": 2
+    }
+  },
+  "cancellation": "Go polls domain fences <=500ms, cancels upstream HTTP context and revokes capability. Runner detects disconnect/deadline, cancels framework/model/callback tasks. In-flight domain writes remain lease/attempt fenced. Restart reruns bounded persisted phase, not exact token-level continuation.",
+  "security": [
+    "Runner has no database, object-store, Docker, collector or root code-executor credential/socket.",
+    "Model credentials come from runner server-side secret configuration, never request/model/tool parameters.",
+    "Runner rejects model mismatch and tools outside phase allowlist. No builtin shell/file/network/MCP tools or autonomous context-compression tool is enabled.",
+    "Disable SDK request/tool/content printing and hidden-thought persistence; only bounded safe runtime counters may be persisted.",
+    "Go remains authoritative for authorization, user consent, target identity, transactions, lease/attempt, tool outcomes and final acceptance. No automatic fallback to legacy on AgentScope failure.",
+    "Socket directories have separate owners, group 10003, setgid and no consumer write permission; mount consumer socket volume read-only.",
+    "Health endpoint GET /health returns framework/version/readiness metadata only and performs no model call."
+  ]
+}

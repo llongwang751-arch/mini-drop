@@ -1,0 +1,83 @@
+# Explicit synthetic time series evaluated by the official promtool binary.
+# They prove rule behavior, not a deployed Alertmanager/webhook integration.
+rule_files: [alerts.yml]
+evaluation_interval: 1m
+tests:
+  - name: actual_analyzer_failure_counter_fires_and_recovers
+    interval: 1m
+    input_series:
+      - series: 'drop_analyzer_jobs_finished_total{kind="PERF_CPU",status="failure"}'
+        values: '0+3x15 45+0x15'
+      - series: 'drop_analyzer_jobs_finished_total{kind="PERF_CPU",status="success"}'
+        values: '0+7x15 105+100x15'
+    alert_rule_test:
+      - eval_time: 4m
+        alertname: DropAnalysisFailures
+        exp_alerts: []
+      - eval_time: 15m
+        alertname: DropAnalysisFailures
+        exp_alerts:
+          - exp_labels: {severity: warning}
+            exp_annotations: {summary: 'Analysis failure ratio exceeds 20 percent'}
+      - eval_time: 30m
+        alertname: DropAnalysisFailures
+        exp_alerts: []
+  - name: low_analysis_failure_ratio_does_not_fire
+    interval: 1m
+    input_series:
+      - series: 'drop_analyzer_jobs_finished_total{kind="PERF_CPU",status="failure"}'
+        values: '0+1x30'
+      - series: 'drop_analyzer_jobs_finished_total{kind="PERF_CPU",status="success"}'
+        values: '0+9x30'
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: DropAnalysisFailures
+        exp_alerts: []
+  - name: actual_expired_lease_counter_fires_and_recovers
+    interval: 1m
+    input_series:
+      - series: 'drop_analyzer_expired_lease_recoveries_total{kind="PERF_CPU",status="all"}'
+        values: '0+1x15 15+0x15'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: DropLeaseRecoveries
+        exp_alerts: []
+      - eval_time: 8m
+        alertname: DropLeaseRecoveries
+        exp_alerts:
+          - exp_labels: {severity: warning}
+            exp_annotations: {summary: 'Repeated expired Analyzer leases'}
+      - eval_time: 30m
+        alertname: DropLeaseRecoveries
+        exp_alerts: []
+  - name: agent_scrape_failure_is_covered_and_recovers
+    interval: 1m
+    input_series:
+      - series: 'up{job="agent",instance="agent:9103"}'
+        values: '0x4 1x10'
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: DropServiceDown
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: DropServiceDown
+        exp_alerts:
+          - exp_labels: {job: agent, instance: 'agent:9103', severity: critical}
+            exp_annotations: {summary: 'Drop service metrics endpoint is unavailable'}
+      - eval_time: 8m
+        alertname: DropServiceDown
+        exp_alerts: []
+  - name: expired_public_certificate_remains_critical
+    interval: 1m
+    input_series:
+      - series: 'drop_public_certificate_expiry_seconds{job="maintenance"}'
+        values: '0x10'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: DropPublicCertificateCritical
+        exp_alerts: []
+      - eval_time: 6m
+        alertname: DropPublicCertificateCritical
+        exp_alerts:
+          - exp_labels: {job: maintenance, severity: critical}
+            exp_annotations: {summary: 'Short-lived IP certificate expires within one day'}

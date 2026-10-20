@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "source": "actual read-only public Web9 presentation of existing real Saber investigation8/repair6, no new model/computation",
+  "investigation_id": "8",
+  "repair_id": "6",
+  "backend_pipeline_evidence": "saber-live-2026-10-20T07-05-19-055Z/summary.json",
+  "attempt": "saber-ui-web9-2026-10-20T07-22-25-365Z",
+  "started_at": "2026-10-20T07:22:25.365Z",
+  "milestones": [
+    "open_existing_investigation",
+    "open_linked_source_from_investigation",
+    "correct_project_record_summary_scope_and_measurement_visible"
+  ],
+  "project_id": "saber-python",
+  "cpu_speedup": 1.5047860863440297,
+  "rendered_cpu_speedup": "1.50",
+  "actual_validation_scope": "Saber FTS5 component on synthetic 1K-8K long queries plus edge cases and real in-memory SQLite searches; excludes index construction and full app, not production P95/P99 or all Saber functions",
+  "actual_report_summary": "在绑定版本 9245ce0 上对 Saber FTS5 组件做真实 cProfile（64 条合成 1K-8K 查询 + 内存 SQLite 语料，native=false）：总 CPU 223ms，热点为 build_fts_query（line 35，self 73.8ms，total 215.8ms）及其 genexpr（line 42，22728 次调用），search 仅 1.2ms self；即长查询 CPU 主要耗在 Python 侧短语生成/去重，而非 SQL 检索。最小补丁只改 build_fts_query：把去重与 64 词元截断前移到短语生成循环内（seen 集合 + 提前 break），不再先构造全部相邻短语再 dict.fromkeys 截断；保留原有正则、casefold、中文双字短语、关键字过滤、OR 连接与返回 str 语义，未改 SQL、租户隔离、测试或限流。test_patch 实际应用成功：success=true、accepted=true，原测试 2 项与冻结契约 6 项通过，384 例输出严格一致（MATCH 参数、tenant、命中 ID/content、BM25 分数），6/6 交替对照均改善，中位 CPU 加速 1.50x（128.5ms→约 85ms），候选 profile 中 build_fts_query total 降至 45.8ms。结论仅限该登记组件受控基准，不代表全应用或生产 P95/P99。",
+  "source_render_verified": true,
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "width": 375,
+      "height": 900
+    }
+  ],
+  "mobile_horizontal_overflow": false,
+  "deployment_evidence": "../web9-deployment.json",
+  "no_page_reload_or_manual_repair_selection_after_link": true,
+  "completed_at": "2026-10-20T07:22:26.882Z",
+  "browser_errors": 0
+}

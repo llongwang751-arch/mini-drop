@@ -1,0 +1,70 @@
+{
+  "checked_at": "2026-10-18T07:15:09.300765+00:00",
+  "environment": "Windows Python pure boundary/file-system/fake-command checks; no remote execution",
+  "suites": {
+    "deploy/tests/test_capture_release_evidence.py": {
+      "run": 16,
+      "seconds": 0.18,
+      "failures": 0,
+      "skipped": 0
+    },
+    "deploy/tests/test_backup_metadata.py": {
+      "run": 6,
+      "seconds": 0.001,
+      "failures": 0,
+      "skipped": 0
+    },
+    "deploy/tests/test_helper_deployment.py": {
+      "run": 4,
+      "seconds": 0.024,
+      "failures": 0,
+      "skipped": 0
+    },
+    "deploy/tests/test_helper_spool.py": {
+      "run": 16,
+      "seconds": 0.149,
+      "failures": 0,
+      "skipped": 0
+    },
+    "ops/test_isolated_runner.py": {
+      "run": 4,
+      "seconds": 4.796,
+      "failures": 0,
+      "skipped": 0
+    }
+  },
+  "contracts": {
+    "scripts/check_contracts.py": {
+      "exit_code": 0,
+      "output_sha256": "8399a3c856e794a8b68b9b89d4bec72be51c0ead2c01fc53dc2cc5b93b26466b"
+    },
+    "scripts/check_proto_compatibility.py": {
+      "exit_code": 0,
+      "output_sha256": "344461f75e67a84bc8a808a946428e68fbdcf34b3486acde33ba5ac176b694a1"
+    },
+    "api/tools/check_http_contract.py": {
+      "exit_code": 0,
+      "output_sha256": "de8206c31dbc66c3d238abb16073bfb303809692e6add286fe376f808e88292a"
+    }
+  },
+  "sources": {
+    "deploy/tests/test_capture_release_evidence.py": "06e48f7bf84945ac5930ddcbd88c674bceeb7e9f060e4141205d1a1f61563e19",
+    "deploy/tests/test_backup_metadata.py": "4cbaaee1147a335dae9d1dd92fd224e6d8418215af9a4060aab73f5f7556cd58",
+    "deploy/tests/test_helper_deployment.py": "f23e62d7b06c2c58a1208133d831ecb3ceeebe51cf914c059b839112a1f7ba9d",
+    "deploy/tests/test_helper_spool.py": "24ea6107ea5c4d3f6f2ac871ab553e34163fa06bf6d4281de7a8386e02c8e3e1",
+    "ops/test_isolated_runner.py": "c176ac7864b94d213b9fc08ab107f7f5bf0dd178ef30a9ceb0dac8dc82721c83",
+    "scripts/check_contracts.py": "d8fda100e5f64feb5a58526f10fc9a11d02d7d8fd64c7fafc6ad7dad2f2d7427",
+    "scripts/check_proto_compatibility.py": "6bdde41b16ebbf740203ee7ed6e6c9eaa6198a3fb6709a0cc51c02963842b3b5",
+    "api/tools/check_http_contract.py": "6aea9d3eb7306a2bf25ee6a36d41e75d57230fa62cfbb6c77ee1ab252887fd4a",
+    "contracts/drop.proto": "26aebc9f42fb3008c6e46bfc0b0ac0dc17631fd152991fdbb8a57a7ec88f9bf2",
+    "contracts/task-kinds.json": "c4a8757ea8628c2756df736221816ace667dbb92c7aed30d15571b08f13da243",
+    "docs/openapi.yaml": "78684b6ef7a37c009529945dc05dfc9a7bc54cc8184b6bf1722efeac67c000cf",
+    "deploy/compose.helper.yml": "0a079cf643726270211a49531d1f690b3af9da1ec56f6e9a912d222c9e3f765e",
+    "deploy/compose.small.yml": "466513b1adfa544729aed19bde59a23a48db67069fc2781e5e7b1f9c66c8d68e",
+    "deploy/prepare-helper-spool.sh": "49fa5b816b2c2fe3a8808a6010aed4a41e54fee7a2a7d3c2a6c7284731634f3d",
+    "deploy/systemd/drop-helper-spool.service": "2463ba878ac99afb4b56d806bdc80a3e4e77d94c73d622d6a01b0e028714c60c"
+  },
+  "tests_run": 46,
+  "duration_seconds": 6.607,
+  "runtime_scope": "Does not replace separate Linux real spool/helper, database, S3 or production evidence"
+}

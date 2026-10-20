@@ -1,0 +1,90 @@
+{
+  "recorded_at": "2026-10-20T07:09:54.044877+00:00",
+  "target": "82.157.81.79",
+  "diagnostic_probe_only": true,
+  "scope": "isolated_one_second_counter_not_a_platform_task",
+  "cases": {
+    "policy": {
+      "passed": true,
+      "checks": {
+        "/sys/kernel/tracing/uprobe_events": {
+          "write_open": true
+        },
+        "/sys/kernel/tracing/kprobe_events": {
+          "write_open": false,
+          "errno": 30
+        },
+        "/sys/kernel/tracing/trace_marker": {
+          "write_open": false,
+          "errno": 30
+        },
+        "/sys/kernel/tracing/events/enable": {
+          "write_open": false,
+          "errno": 30
+        },
+        "/proc/sys/kernel/perf_event_paranoid": {
+          "write_open": false,
+          "errno": 30
+        },
+        "sys_admin": false,
+        "apparmor": "drop-collector-helper (enforce)"
+      },
+      "diagnostics": ""
+    },
+    "short_alias": {
+      "pid": 19516,
+      "start_time_ticks": "8033359",
+      "returncode": 0,
+      "result": {
+        "rc": 0,
+        "hits": 40,
+        "diagnostics": "ERROR: Unknown error -1: couldn't set RLIMIT_MEMLOCK for bpftrace. If your program is not loading, you can try \"ulimit -l 8192\" to fix the problem\n"
+      },
+      "diagnostics": "",
+      "probe_events_restored": true,
+      "single_file_writable": true,
+      "sys_admin_capability": false
+    },
+    "read_only_control": {
+      "pid": 19516,
+      "start_time_ticks": "8033359",
+      "returncode": 0,
+      "result": {
+        "rc": 255,
+        "hits": 0,
+        "diagnostics": "ERROR: Unknown error -1: couldn't set RLIMIT_MEMLOCK for bpftrace. If your program is not loading, you can try \"ulimit -l 8192\" to fix the problem\ncreate_probe_event: open(/sys/kernel/tracing/uprobe_events): Read-only file system\nERROR: Error attaching probe: uprobe:/proc/19516/root/tmp/u.htrsbnwr/a:malloc\n"
+      },
+      "diagnostics": "",
+      "probe_events_restored": true,
+      "single_file_writable": false,
+      "sys_admin_capability": false
+    },
+    "bounded_stack_control": {
+      "pid": 19516,
+      "start_time_ticks": "8033359",
+      "returncode": 0,
+      "result": {
+        "rc": 0,
+        "wall_seconds": 1.655,
+        "events": {
+          "alloc": 5,
+          "free": 4
+        },
+        "pids": [
+          19516
+        ],
+        "raw_size": 2860,
+        "raw_sha256": "f0ba890125a18a72693d351106e2c194b648953937caa962edeb0edfdad74efc",
+        "stack_begin": 9,
+        "stack_end": 9,
+        "diagnostics": "ERROR: Unknown error -1: couldn't set RLIMIT_MEMLOCK for bpftrace. If your program is not loading, you can try \"ulimit -l 8192\" to fix the problem\n",
+        "scope": "diagnostic_only_existing_RunnerBuilder_with_short_alias_and_nine_event_cap"
+      },
+      "diagnostics": "",
+      "probe_events_restored": true,
+      "single_file_writable": true,
+      "sys_admin_capability": false
+    }
+  },
+  "last_updated_at": "2026-10-20T07:11:39.172375+00:00"
+}

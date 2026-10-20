@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "scope": "local incremental-delivery packaging validation, no server mutation or upload",
+  "tests": {
+    "command": "python -m unittest discover -s deploy/tests -p test_incremental_package.py",
+    "passed": true,
+    "test_count": 5
+  },
+  "draft_scan": {
+    "command": "python deploy/package_incremental.py --mode draft",
+    "archive_created": false,
+    "passed": true,
+    "counts": {
+      "known_credentials": 0,
+      "pem_private_key": 0,
+      "signed_url": 0,
+      "api_key_shape": 0
+    },
+    "known_private_values_checked": 3,
+    "scope": "all selected file bytes; no matching values or locations are logged"
+  },
+  "final_command": "python deploy/package_incremental.py --mode final",
+  "final_evidence_location": "final-manifest.json and embedded DELIVERY_MANIFEST.json contain final scan and per-file SHA256; archive SHA is recorded outside archive to avoid a self-hash cycle",
+  "build_boundary": "Incremental over existing server source, including post-build harness/policies/evidence. Not the original Core3 compile-context snapshot."
+}

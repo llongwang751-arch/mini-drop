@@ -1,0 +1,197 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-20T08:08:07.259200+00:00",
+  "origin": "https://82.157.81.79",
+  "versions": {
+    "api": "20261020.10",
+    "web": "20261020.10",
+    "agent_helper": "20261020.3",
+    "schema": 8
+  },
+  "real_runner_kinds": 16,
+  "real_runner_cases": 20,
+  "tasks": [
+    {
+      "id": "62",
+      "kind": "PYTHON_MEMORY",
+      "passed": true
+    },
+    {
+      "id": "63",
+      "kind": "MEMORY_TRACE",
+      "passed": true
+    },
+    {
+      "id": "64",
+      "kind": "PERF_CPU",
+      "passed": true
+    },
+    {
+      "id": "65",
+      "kind": "PYTHON_CPU",
+      "passed": true
+    },
+    {
+      "id": "66",
+      "kind": "MEMORY_TRACE",
+      "passed": true
+    },
+    {
+      "id": "67",
+      "kind": "MEMORY_TRACE",
+      "passed": true
+    },
+    {
+      "id": "68",
+      "kind": "IO_TRACE",
+      "passed": true
+    },
+    {
+      "id": "69",
+      "kind": "PROC_CPU",
+      "passed": true
+    },
+    {
+      "id": "70",
+      "kind": "GO_CPU",
+      "passed": true
+    },
+    {
+      "id": "71",
+      "kind": "GO_HEAP",
+      "passed": true
+    },
+    {
+      "id": "72",
+      "kind": "JAVA_CPU",
+      "passed": true
+    },
+    {
+      "id": "73",
+      "kind": "JAVA_CPU",
+      "passed": true
+    },
+    {
+      "id": "74",
+      "kind": "JAVA_CPU",
+      "passed": true
+    },
+    {
+      "id": "75",
+      "kind": "JAVA_HEAP",
+      "passed": true
+    },
+    {
+      "id": "76",
+      "kind": "GPERF_CPU",
+      "passed": true
+    },
+    {
+      "id": "77",
+      "kind": "GPERF_HEAP",
+      "passed": true
+    },
+    {
+      "id": "78",
+      "kind": "JEPROF_HEAP",
+      "passed": true
+    },
+    {
+      "id": "79",
+      "kind": "RESOURCE_SNAPSHOT",
+      "passed": true
+    },
+    {
+      "id": "80",
+      "kind": "SCRIPT",
+      "passed": true
+    },
+    {
+      "id": "81",
+      "kind": "BOLT_PROFILE",
+      "passed": true
+    }
+  ],
+  "saber": {
+    "investigation": "9",
+    "baseline": "82",
+    "candidate": "83",
+    "repair": "7",
+    "elapsed_seconds": 88.0,
+    "scope": "enrolled real FTS5 component, synthetic queries; isolated patch, not full Saber release",
+    "evidence": "saber-final-acceptance.json"
+  },
+  "same_host_isolated_restore": {
+    "passed": true,
+    "referenced_artifacts": 551,
+    "objects": 551
+  },
+  "verification_scope": {
+    "cpp_ctest": 18,
+    "ipc_imported_fixture": 8,
+    "fresh_postgres": 110,
+    "executor": 4,
+    "ui_flow_imported_fixture": 12,
+    "bolt_display_imported_fixture": 4,
+    "final_allocator_isolated": 3
+  },
+  "runtime": {
+    "api": {
+      "image": "drop-api:20261020.10",
+      "image_id": "sha256:6b7d8c048a3aeac911db2f400b11ae1ef4249713eacae31cb4405066c41e1e88"
+    },
+    "web": {
+      "image": "drop-web:20261020.10",
+      "image_id": "sha256:f80c6f3eb6d9cd330ce6f0c610528a4f74ab9073bda60d0be72c90305995552f"
+    },
+    "agent": {
+      "image": "drop-agent:20261020.3",
+      "image_id": "sha256:abb10f7f51f7f33e08248fde4c0d6ec0bbf200f5b4c9cde7248e8701cb25c4dc"
+    },
+    "collector-helper": {
+      "image": "drop-agent:20261020.3",
+      "image_id": "sha256:abb10f7f51f7f33e08248fde4c0d6ec0bbf200f5b4c9cde7248e8701cb25c4dc"
+    },
+    "saber-workload": {
+      "image": "drop-saber-sandbox:20261020.1",
+      "image_id": "sha256:88049fe37ad3146a2f3ede5adcefccc761fbf64d6928a83a07e28519611e6779"
+    }
+  },
+  "profiles": {
+    "drop-collector-helper": "ceaeb5c9585f7da92953dd0b2043775d099fe0f632b46748d26016e9d4ffb855",
+    "drop-diagnostic-target": "f502c6cc6b22ec03a221843e0b918329bc81ccf66f7c01934a7e68117bd78c39",
+    "drop-agent-controller": "6305cb9b10b6e08b522ab118a1c5abe23a22afa4fac409778d70d135686e8748"
+  },
+  "evidence": {
+    "readiness": {
+      "path": "evidence/completion-20261020/final-readiness.json",
+      "sha256": "b3fb535d4d3a91cb97931827f50a3ce06f6bc23692871c1598cb15c188f7f3be"
+    },
+    "backup": {
+      "path": "evidence/completion-20261020/final-backup.json",
+      "sha256": "4d59c8911ceb02cb15c02ca141fe139ba25e087b7824dada87086e54b99a5fa4"
+    },
+    "saber": {
+      "path": "evidence/completion-20261020/saber-final-acceptance.json",
+      "sha256": "217ddcf0cf213b81543c542df23e7c6bcb88996131b44aa39b9cf3df9395a4d3"
+    },
+    "pg": {
+      "path": "evidence/completion-20261020/postgres-acceptance.json",
+      "sha256": "b4a7b1212f9797765ec677d5dcc15f5f62667eff8bd797bcc09c9f23987ce3a5"
+    },
+    "malloc": {
+      "path": "evidence/malloc-20261020/production-final-regression.json",
+      "sha256": "6998b4afbc86ba417ef1b8dd6867fdf33f5d48f975b2f76fb8d1c010810932b9"
+    },
+    "runners": {
+      "path": "evidence/demo-completion-20261020/final-runners.json",
+      "sha256": "14a6c88c7d5462fd4586dce33904f196a35b91bec0b75028bf39169cb9f33a76"
+    }
+  },
+  "retained_boundaries": [
+    "BOLT81 CPU ratio 0.9942: no observed CPU improvement",
+    "Saber controlled-query CPU result is not production P95/P99",
+    "SIGKILL alias/legacy probe crash recovery not guaranteed",
+    "No host reboot, full uniform image security/signature, ARM, HA or long-run capacity claim"
+  ]
+}

@@ -1,0 +1,13 @@
+[Unit]
+Description=Renew and verify tx-drop public HTTPS certificate
+After=docker.service network-online.target
+Requires=docker.service
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/drop-current/deploy
+ExecStart=/bin/bash /opt/drop-current/deploy/tls/renew-public.sh
+User=root
+UMask=0077
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=180

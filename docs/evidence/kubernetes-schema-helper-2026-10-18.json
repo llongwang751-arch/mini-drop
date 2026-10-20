@@ -1,0 +1,32 @@
+{
+  "recorded_at": "2026-10-18T06:16:24.133449+00:00",
+  "tool": "yannh/kubeconform v0.7.0",
+  "official_archive_sha256": "9cb75551d81c909c2241ab383ced2be68363b5bfb15fd989badcc5a63bea5d7e",
+  "strict": true,
+  "schema_target": "Kubernetes1.34.1",
+  "command": [
+    "kubeconform",
+    "-strict",
+    "-summary",
+    "-kubernetes-version",
+    "1.34.1",
+    "deploy/kubernetes/resources.json",
+    "deploy/kubernetes/agent-daemonset.yaml"
+  ],
+  "exit_code": 0,
+  "summary": {
+    "found": 21,
+    "valid": 21,
+    "invalid": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "sources": {
+    "deploy/kubernetes/resources.json": "121302b0c2b371340230d1be00db8786189386313246337f201316068c3fa15e",
+    "deploy/kubernetes/agent-daemonset.yaml": "76bf5c42e97866bc8c627aba816f64978199e939d763827227f50b60b3475926",
+    "scripts/render_kubernetes.py": "60c102cd2a2891d10755a8129dd666e01843709818ada1b65e1c5a247be1e485"
+  },
+  "actual_cluster_execution": false,
+  "native_helper_runtime": "pending",
+  "runtime_secret_mounts": "individual read-only subPath files; rotations require controlled rollout"
+}

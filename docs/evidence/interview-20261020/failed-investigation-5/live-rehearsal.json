@@ -1,0 +1,52 @@
+{
+  "source": "actual public browser operation, fresh investigation and real model",
+  "started_at": "2026-10-20T04:42:32.706Z",
+  "milestones": [
+    {
+      "state": "submit_from_browser",
+      "elapsed_seconds": 12
+    },
+    {
+      "state": "planning",
+      "elapsed_seconds": 14.2
+    },
+    {
+      "state": "awaiting_confirmation",
+      "elapsed_seconds": 16.3
+    },
+    {
+      "state": "plan_confirmed_from_browser",
+      "elapsed_seconds": 16.4
+    },
+    {
+      "state": "collecting",
+      "elapsed_seconds": 18.5
+    },
+    {
+      "state": "diagnosing",
+      "elapsed_seconds": 33
+    },
+    {
+      "state": "verifying",
+      "elapsed_seconds": 45.4
+    },
+    {
+      "state": "failed",
+      "elapsed_seconds": 90.8
+    }
+  ],
+  "passed": false,
+  "goal": "面试现场彩排：定位Python CRM品牌配色预览的CPU热点，选择Python调用栈采集10秒99Hz；自动复测，再定位绑定源码，生成保持Python返回类型和可变对象隔离的最小优化补丁，执行原功能回归与多组CPU对照。 2026-10-20T04:42:44.491Z",
+  "investigation_id": "5",
+  "plan": {
+    "kind": "PYTHON_CPU",
+    "options": {
+      "native": true
+    },
+    "rationale": "首选低成本采集：PYTHON_CPU 直接给出 Python 调用栈采样，10 秒 99Hz 与用户要求一致，用于定位品牌配色预览的 CPU 热点。开启 native 以便同时看到 C 扩展/解释器层热点，便于后续绑定源码。局限：仅覆盖已绑定进程的 CPU 采样，不含内存/IO 证据；采样为统计性，热点排序需复测确认；本计划不执行命令，也不涉及补丁生成与回归对照（需另行授权执行）。",
+    "frequency_hz": 99,
+    "duration_seconds": 10
+  },
+  "baseline_task_id": "13",
+  "error_code": "VERIFICATION_FAILED"
+}

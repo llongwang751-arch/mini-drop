@@ -1,0 +1,61 @@
+{
+  "application_test_results_reused": false,
+  "arm64_public_evidence": "docs/evidence/full/python-arm64-wheel-inputs-2026-10-18.json",
+  "arm64_wheel_review_sha256": "8e3b0dd2de8b1ab160bd0ccce309cf48f362016c9536b824c6aa942c4f881017",
+  "docker_started": false,
+  "image_build_executed": false,
+  "limitations": [
+    "COPY existence and shell syntax are static checks, not an image build.",
+    "Same package versions and artifact hashes do not imply the same image ID.",
+    "Signed APT transitive packages are recorded per actual image; the public recipe is not a full repository snapshot."
+  ],
+  "lock_sync_sha256": "19fb2ef3742a07d273375040331eedb75b932576578b77f1d0d9f9b627d5f97b",
+  "native_arm_execution": false,
+  "public_input_sha256": {
+    "analyzer/BUILD_INPUTS.md": "a47b508a86c8c60736b6d4904484c00c639cc4707c13a970a0f6e11667df78e1",
+    "analyzer/Dockerfile": "7d766691f1e8b01edeeac8a286ebb999b18a59fbaa11401dbd5147bfb5e836c6",
+    "analyzer/README.md": "c645608dc693ac2c989753ff99e07259c16c3a0cd1a968b86d4c9abee363ab4d",
+    "analyzer/apt-bounds.conf": "b5504228e90115dbd4a37b93db7b5f1d8f41acf769bd13444adf6ef10efefa87",
+    "analyzer/requirements.lock": "dfcc68c4e512ab7777611ff13f2b87e95171f16d6a0ebbc3b68584adaf23c804",
+    "analyzer/requirements.txt": "9dcf74723a8961f482a85a9ae70364ecb0e2f49f7833b5e3002330f2f1be0fa2",
+    "ops/Dockerfile": "988a9cf3afea4dbf9dad7839c5207e9bca6507463c988a6cbb7ea2c2b0cd06ad",
+    "ops/Dockerfile.runtime": "988a9cf3afea4dbf9dad7839c5207e9bca6507463c988a6cbb7ea2c2b0cd06ad",
+    "ops/README.md": "4edcd94d28eb6f3983aed07ea5738c59735511b0785ab617bc7ee81d02b9ad5a",
+    "ops/apt-bounds.conf": "b5504228e90115dbd4a37b93db7b5f1d8f41acf769bd13444adf6ef10efefa87",
+    "ops/requirements.lock": "a1c39f9645b1b7df247629549a3a8c59403c06e40080d6ca7b84eb1b18b7dff8",
+    "ops/requirements.txt": "165950a9448c1b4427305b98f67c05b72f45a7b73ba2913c56324ca08605d6b7"
+  },
+  "recipes": {
+    "analyzer": {
+      "copy_inputs_exist": [
+        "analyzer/apt-bounds.conf",
+        "analyzer/requirements.txt",
+        "analyzer/requirements.lock",
+        "analyzer/drop_analyzer"
+      ],
+      "only_offline_install_transport_differs": true,
+      "runtime_files_unchanged_from_candidate": 27,
+      "shell_run_commands_checked": 3
+    },
+    "ops": {
+      "copy_inputs_exist": [
+        "ops/apt-bounds.conf",
+        "ops/requirements.txt",
+        "ops/requirements.lock",
+        "ops/maintenance.py",
+        "ops/reconcile.py",
+        "ops/encrypt_existing.py",
+        "ops/ops_runtime.py"
+      ],
+      "only_offline_install_transport_differs": true,
+      "runtime_files_unchanged_from_candidate": 4,
+      "shell_run_commands_checked": 2
+    }
+  },
+  "remote_executed": false,
+  "schema_version": 1,
+  "scope": "PUBLIC_BUILD_RECIPE_AND_DEPENDENCY_INPUTS_ONLY",
+  "security_gate_pass_claimed": false,
+  "source_report_sha256": "2399dd1839ba88eb67ea2ab3933adffee51ae0c2747409989763455ce50c8154",
+  "status": "STATIC_AND_HASH_REVIEW_PASSED_NOT_IMAGE_BUILD"
+}

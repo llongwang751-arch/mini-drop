@@ -1,0 +1,13 @@
+{
+  "passed": false,
+  "recorded_at": "2026-10-20T10:51:18.457415+00:00",
+  "phase": "new runtime startup before API switch",
+  "error_code": "SOCKET_PARENT_SETGID_MISSING",
+  "observed_directory_mode": "0750",
+  "required_directory_mode": "2750",
+  "cause": "root init has no CAP_FSETID and is not member of group10003; chmod silently clears setgid",
+  "old_api_image": "drop-api:20261020.10",
+  "old_api_healthy": true,
+  "action": "add only supplementary group10003 to ephemeral permission init; preserve strict producer directory/consumer RO boundary",
+  "data_deleted": false
+}

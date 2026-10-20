@@ -1,0 +1,189 @@
+{
+  "id": "17",
+  "task_id": "24",
+  "attempt_id": "24",
+  "analysis_job_id": "22",
+  "analysis_run": 1,
+  "requested_by": "77f0de20-54bb-4142-9cfc-474d9c7df79e",
+  "goal": "面试现场多语言性能分析验收：分析Go heap的实际采集质量、单位和热点调用路径。先读取概览、质量和热点工具，区分CPU时间、样本数与字节，给出有证据引用的待验证假设，并制定相同目标同类型10秒99Hz复测计划。禁止把重复采样当成根因确认。",
+  "mode": "model",
+  "input_digest": "514da06f2bcdd24950b40dcf34592e04e38423c4af2f51b2c2b90236074641af",
+  "status": "success",
+  "trace": [
+    {
+      "tool": "read_profile_summary",
+      "evidence_id": "E1",
+      "observation": {
+        "kind": "GO_HEAP",
+        "node_count": 3,
+        "limitations": [
+          "Sample weights are not request latency; no root cause or improvement is proven.",
+          "Raw profiles and symbol names are excluded. Symbol hashes are pseudonyms, not a guarantee of anonymization."
+        ],
+        "stack_scope": "profile_dependent",
+        "total_weight": 4802021,
+        "top_functions": [
+          {
+            "symbol": "symbol_536e10fbc34a",
+            "self_percent": 100,
+            "total_percent": 100
+          },
+          {
+            "symbol": "symbol_952373f8cbd2",
+            "self_percent": 0,
+            "total_percent": 100
+          }
+        ],
+        "schema_version": 1,
+        "measurement_unit": "bytes",
+        "verification_available": false
+      }
+    },
+    {
+      "tool": "inspect_hotspots",
+      "evidence_id": "E2",
+      "observation": {
+        "hint_source": "local_symbol_heuristic_v1",
+        "top_functions": [
+          {
+            "rank": 1,
+            "symbol": "symbol_536e10fbc34a",
+            "symbol_hint": "unknown",
+            "self_percent": 100,
+            "total_percent": 100
+          },
+          {
+            "rank": 2,
+            "symbol": "symbol_952373f8cbd2",
+            "symbol_hint": "unknown",
+            "self_percent": 0,
+            "total_percent": 100
+          }
+        ],
+        "interpretation": "self为叶帧权重，total为包含子调用权重；symbol_hint为本地符号词形分类，仅作线索，不能证明锁等待或根因。比例不证明请求延迟或因果。原符号仅保留在授权结果页面。"
+      }
+    },
+    {
+      "tool": "check_collection_quality",
+      "evidence_id": "E3",
+      "observation": {
+        "kind": "GO_HEAP",
+        "issues": [
+          "采集窗口短于10秒，需在稳定负载下复测"
+        ],
+        "unknowns": [
+          "未关联业务请求延迟、吞吐和错误率",
+          "单次快照不能证明性能回退或修复收益",
+          "未采集源码、符号地址映射及丢样率，不输出文件行号"
+        ],
+        "frequency_hz": 99,
+        "duration_seconds": 5
+      }
+    },
+    {
+      "tool": "inspect_call_paths",
+      "evidence_id": "E4",
+      "observation": {
+        "limits": {
+          "depth": 64,
+          "nodes": 4096,
+          "callees": 3,
+          "ancestors": 6,
+          "occurrences": 5
+        },
+        "symbol": "symbol_536e10fbc34a",
+        "available": true,
+        "truncated": false,
+        "occurrences": [
+          {
+            "selected": {
+              "symbol": "symbol_536e10fbc34a",
+              "symbol_hint": "unknown"
+            },
+            "ancestors": [
+              {
+                "symbol": "symbol_5ef5ef0364b6",
+                "symbol_hint": "unknown"
+              },
+              {
+                "symbol": "symbol_952373f8cbd2",
+                "symbol_hint": "unknown"
+              }
+            ],
+            "self_weight": 4802021,
+            "top_callees": [],
+            "inclusive_weight": 4802021,
+            "callees_truncated": false,
+            "ancestors_truncated": false
+          }
+        ],
+        "examined_nodes": 3,
+        "interpretation": "每项是调用树中的独立出现位置；递归inclusive不可相加。权重单位沿用原profile，不能当作请求延迟。tree_truncated表示遍历预算耗尽；ancestors_truncated/callees_truncated/occurrences_truncated分别表示返回上下文省略。matched_occurrences只统计已遍历树。单次采集不证明其他时段或负载没有其他路径。",
+        "tree_truncated": false,
+        "matched_occurrences": 1,
+        "occurrences_truncated": false
+      }
+    },
+    {
+      "tool": "propose_verification",
+      "evidence_id": "E5",
+      "observation": {
+        "kind": "GO_HEAP",
+        "reason": "相同目标、稳定负载下复测，使用结果对比检查热点分布；请同时记录业务P95/P99、吞吐、错误率及采集开销。",
+        "frequency_hz": 99,
+        "duration_seconds": 10
+      }
+    }
+  ],
+  "report": {
+    "plan": {
+      "kind": "GO_HEAP",
+      "reason": "相同目标、稳定负载下复测，使用结果对比检查热点分布；请同时记录业务P95/P99、吞吐、错误率及采集开销。",
+      "frequency_hz": 99,
+      "duration_seconds": 10
+    },
+    "model": "deepseek-flash",
+    "engine": "model",
+    "summary": "本次为 GO_HEAP 采集，measurement_unit=bytes，total_weight=4802021 字节，属于堆/分配类权重，不能解读为 CPU 时间、请求延迟或调用次数。采集窗口仅 5 秒、频率 99Hz，质量检查标记窗口短于 10 秒需复测；未记录丢样率、符号地址映射与业务指标。热点 rank1 symbol_536e10fbc34a（self 100%、total 100%，symbol_hint=unknown）在调用树中仅 1 处独立出现，self_weight=inclusive_weight=4802021 字节，无被调用者，其祖先为 symbol_5ef5ef0364b6 与 symbol_952373f8cbd2（后者 total 100%、self 0%）。调用树未发生截断（tree_truncated/ancestors_truncated/callees_truncated/occurrences_truncated 均为 false），但仅代表本次采集树，不能外推到其他时段或负载。E1 显示 verification_available=false，故未调用 compare_profiles；单次快照与重复采样均不构成根因确认，需受控干预与功能/性能对照。",
+    "hypotheses": [
+      {
+        "claim": "rank1 叶帧 symbol_536e10fbc34a 是本次堆快照中唯一直接持有权重的分配点（self=total=100%，4802021 字节，无被调用者），因此该快照的堆权重几乎全部由该符号的自身分配贡献，而非其下游调用。",
+        "evidence_ids": [
+          "E1",
+          "E2",
+          "E4"
+        ],
+        "verification": "按 E5 草案在相同目标、稳定负载下以 10 秒/99Hz 复测 GO_HEAP，比较 rank1 的 self_percent 与 self_weight 是否仍接近 100% 且无被调用者；同时记录业务 P95/P99、吞吐、错误率与采集开销。验收指标（待协商示例）：rank1 self 占比与字节量在同一数量级、调用树结构一致；若出现显著漂移，需先排除采样随机性与负载差异，再讨论行为变化。"
+      },
+      {
+        "claim": "symbol_952373f8cbd2 是 rank1 的祖先帧（total 100%、self 0%），即权重沿该路径向下传递，但它本身不直接持有堆权重；其是否为真实业务入口或框架层需原符号确认。",
+        "evidence_ids": [
+          "E1",
+          "E2",
+          "E4"
+        ],
+        "verification": "复测后再次调用调用链检查，确认 symbol_952373f8cbd2 是否稳定作为 rank1 的祖先出现，并核对祖先链深度与 matched_occurrences 是否变化；结合平台授权页面查原符号名与所属模块。验收指标（待协商示例）：祖先链结构与出现次数在复测中保持一致，且不出现新的独立出现位置。"
+      },
+      {
+        "claim": "当前 5 秒窗口的采集质量不足以支撑结论，延长至 10 秒并保持 99Hz 可提高该堆快照的可比性；但窗口延长本身不证明任何性能回退或修复收益。",
+        "evidence_ids": [
+          "E3",
+          "E5"
+        ],
+        "verification": "执行 E5 的 10 秒/99Hz 同类型复测，对比两次采集的 total_weight、node_count 与热点占比；同时补齐丢样率、符号地址映射与业务指标记录。验收指标（待协商示例）：两次采集单位与目标身份一致、total_weight 差异在可解释范围内；若差异明显，需在受控负载下重复多次并做功能/性能对照，而非仅凭漂移判定缺陷。"
+      }
+    ],
+    "limitations": [
+      "仅单次 GO_HEAP 快照，verification_available=false，未执行 compare_profiles，无法评估复测可比性与差异。",
+      "采集窗口 5 秒短于建议的 10 秒，且未记录丢样率，采样代表性未知。",
+      "symbol_hint 全为 unknown，原符号名与源码映射未提供，无法定位具体分配逻辑或代码位置。",
+      "未关联业务请求延迟、吞吐、错误率与采集开销，无法判断堆权重对业务的影响。",
+      "堆/分配字节权重不能换算为 CPU 时间或请求延迟，缺少 CPU 侧证据。",
+      "调用树仅覆盖本次采集（未截断），不能代表其他时段或负载下的路径分布。",
+      "模型结论为待验证假设，不代表已确认缺陷；不提供未经符号映射验证的源码行号。",
+      "原始profile、原符号、主机、PID、路径和凭据不发送模型；问题文本会发送，请勿填入敏感信息。"
+    ]
+  },
+  "created_at": "2026-10-20T05:03:06.665626Z",
+  "updated_at": "2026-10-20T05:03:15.146514Z"
+}

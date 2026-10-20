@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:drop:partial-result:v1",
+  "title": "Current failed analysis partial result",
+  "description": "Validated parse checkpoint only. UTF-8 canonical JSON <=16384 bytes, depth <=6, finite JS-safe numbers. Current task/latest collection attempt/job/run/input id+digest and owner lease are checked separately against PostgreSQL. Never a successful AnalysisResult, full flamegraph, tool report, path or old-run fallback. The 16384-byte limit applies to compact UTF-8 data only, not the standard request_id/data/error envelope. Transport readers allow 1024 additional envelope bytes; authorized symbol text is escaped only by the renderer, not transformed into HTML.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "completeness": {
+      "type": "string",
+      "const": "partial"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,18}$",
+      "description": "Positive signed int64 decimal string; runtime also checks <=9223372036854775807."
+    },
+    "attempt_id": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,18}$",
+      "description": "Positive signed int64 decimal string; runtime also checks <=9223372036854775807."
+    },
+    "analysis_job_id": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,18}$",
+      "description": "Positive signed int64 decimal string; runtime also checks <=9223372036854775807."
+    },
+    "analysis_run": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2147483647
+    },
+    "input_artifact_id": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,18}$",
+      "description": "Positive signed int64 decimal string; runtime also checks <=9223372036854775807."
+    },
+    "input_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "PERF_CPU",
+        "PROC_CPU",
+        "JAVA_CPU",
+        "GO_CPU",
+        "GO_HEAP",
+        "PYTHON_CPU",
+        "PYTHON_MEMORY",
+        "JAVA_HEAP",
+        "IO_TRACE",
+        "MEMORY_TRACE",
+        "GPERF_CPU",
+        "GPERF_HEAP",
+        "JEPROF_HEAP",
+        "BOLT_PROFILE",
+        "SCRIPT",
+        "RESOURCE_SNAPSHOT",
+        "IMPORT_COLLAPSED"
+      ]
+    },
+    "completed_stages": {
+      "type": "array",
+      "const": [
+        "input_verified",
+        "parsed"
+      ]
+    },
+    "missing_stages": {
+      "type": "array",
+      "const": [
+        "diagnostic_rules",
+        "result_artifacts",
+        "final_commit"
+      ],
+      "description": "Outputs omitted by this checkpoint; does not assert that later processing never ran."
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": [
+            "import",
+            "perf",
+            "procfs",
+            "async-profiler",
+            "py-spy",
+            "go-pprof",
+            "hotspot-hprof",
+            "memray",
+            "linux-trace",
+            "gperftools",
+            "jemalloc",
+            "llvm-bolt",
+            "fixed-template",
+            "jfr",
+            "unknown"
+          ]
+        },
+        "unit": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]{1,32}$",
+          "description": "Bounded ASCII unit from validated analysis; unsupported syntax is mapped to unknown by producer."
+        },
+        "total_samples": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "unique_stacks": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "node_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "max_depth": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 128
+        }
+      },
+      "required": [
+        "source",
+        "unit",
+        "total_samples",
+        "unique_stacks",
+        "node_count",
+        "max_depth"
+      ]
+    },
+    "top_functions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]*$",
+            "description": "Task-authorized function symbol, strictly <=160 UTF-8 bytes at runtime, no Unicode category C characters; producer strips actual private work paths. Render only as escaped text."
+          },
+          "symbol_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "SHA256 of the original full UTF-8 symbol before bounded display-name normalization; not a profile path or URL."
+          },
+          "self": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "total": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "self_percent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "total_percent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          }
+        },
+        "required": [
+          "name",
+          "symbol_sha256",
+          "self",
+          "total",
+          "self_percent",
+          "total_percent"
+        ]
+      },
+      "maxItems": 20
+    }
+  },
+  "required": [
+    "schema_version",
+    "completeness",
+    "task_id",
+    "attempt_id",
+    "analysis_job_id",
+    "analysis_run",
+    "input_artifact_id",
+    "input_digest",
+    "kind",
+    "completed_stages",
+    "missing_stages",
+    "summary",
+    "top_functions"
+  ]
+}

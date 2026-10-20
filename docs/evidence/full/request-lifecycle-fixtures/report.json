@@ -1,0 +1,76 @@
+{
+  "passed": true,
+  "source": "imported-browser-fixtures-with-controlled-clock",
+  "production_or_backend_verified": false,
+  "checked_at": "2026-10-18T05:47:38.982Z",
+  "browser_clock_is_virtual": true,
+  "visibility_is_document_event_simulation": true,
+  "real_native_fetch_abort_signal": true,
+  "bundle_sha256": {
+    "/assets/index-DL4Gc6cu.js": "f6b9ea596c173db7596ffd8c07c4b7a5ce63ee6749a03dbbc4b0e89a2be80489",
+    "/assets/vendor-B5GIBWiR.js": "1d6b87f7c71dd1ad94800c6c5cdb6c6ddd2f2cf814eef99e8df2e25499f71117",
+    "/assets/index-DCLKEvaI.css": "981b15fe9a40b160f03567ac011e12e045b436de35a0dfe750b792643fcaaca2"
+  },
+  "checks": [
+    {
+      "name": "consecutive-error-backoff-and-reset",
+      "passed": true,
+      "virtual_request_times": [
+        1792195200302,
+        1792195201316,
+        1792195222220,
+        1792195223232,
+        1792195264116,
+        1792195274694
+      ],
+      "first_failed_cycle_backoff_ms": 20000,
+      "second_failed_cycle_backoff_ms": 40000,
+      "successful_interval_restored_ms": 10000,
+      "per_fetch_retry_count": 1
+    },
+    {
+      "name": "hidden-document-poll-suspension",
+      "passed": true,
+      "initial_requests": 1,
+      "hidden_virtual_ms": 60000,
+      "hidden_requests": 0,
+      "resumed_requests": 1,
+      "virtual_request_times": [
+        1792195200245,
+        1792195260345
+      ]
+    },
+    {
+      "name": "inflight-deduplication-and-navigation-abort",
+      "passed": true,
+      "requests_while_pending": 1,
+      "overlapping_polls": 0,
+      "wait_virtual_ms": 10000,
+      "requests_after_exit": 0,
+      "native_fetch_signal_events": [
+        {
+          "url": "/api/v1/auth/me",
+          "started": 1792195200144
+        },
+        {
+          "url": "/api/v1/tasks?search=&status=&page=1&page_size=12",
+          "started": 1792195200248,
+          "aborted": 1792195210560,
+          "reason": "AbortError"
+        },
+        {
+          "url": "/api/v1/task-kinds",
+          "started": 1792195200249
+        }
+      ]
+    },
+    {
+      "name": "terminal-and-permanent-error-stop",
+      "passed": true,
+      "task_requests_before_terminal": 2,
+      "requests_after_terminal_virtual_60s": 0,
+      "forbidden_requests": 1,
+      "automatic_forbidden_retries": 0
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "model": "deepseek-flash",
+  "provider": "deepseek",
+  "report": {
+    "model": "deepseek-flash",
+    "engine": "model",
+    "summary": "本次证据为离线导入的折叠采样快照（IMPORT_COLLAPSED），共4个节点、总采样权重1000，测量单位未知，因此不能把权重解读为耗时、CPU时间或调用次数。Top10热点中仅2个函数有非零权重：rank1 symbol_3f0919466224（self 80%、total 90%，symbol_hint=unknown）与rank2 symbol_4fb62348858c（self 20%、total 20%，symbol_hint=unknown）。rank1的self占比高且total仅比self高10个百分点，说明其权重主要落在叶帧自身，子调用占比有限；但这只是采样权重分布，不构成阻塞、内存压力或缺陷的证明。采集质量方面，duration_seconds与frequency_hz均为0，仅代表不适用或未记录，不能据此判定采集故障；已明确的问题是离线导入无法核实现场负载、采集时钟与丢样，且未关联业务请求延迟、吞吐和错误率。E1显示verification_available=false，因此未调用compare_profiles，也没有可用的复测对比基线。建议下一步用同种采集器做受控复测，并在平台按rank与哈希查原符号后再判断热点归属。",
+    "hypotheses": [
+      {
+        "claim": "rank1 symbol_3f0919466224 的采样权重集中在叶帧自身（self 80%、total 90%），是本次快照中权重最集中的位置；其权重来源可能是该函数自身执行，也可能是采样偏差或未展开的内联/子调用，当前证据无法区分。",
+        "evidence_ids": [
+          "E1",
+          "E2"
+        ],
+        "verification": "用同种采集器在相同负载场景下复测，保持采集参数一致，比较rank1的self/total占比是否稳定；同时在平台按哈希 symbol_3f0919466224 查原符号与源码归属，确认是否为叶帧自身执行。验收指标建议（待协商示例）：复测中rank1仍位于Top3且self占比与本次差异不超过10个百分点，则视为分布稳定；若差异超出，则需先排除采样随机性与负载差异，再讨论行为变化。"
+      },
+      {
+        "claim": "rank2 symbol_4fb62348858c 的total等于self（均为20%），在本次采集树中未观察到其子调用权重，可能是真正的叶节点，也可能是调用树在该处未展开或上下文省略。",
+        "evidence_ids": [
+          "E1",
+          "E2"
+        ],
+        "verification": "调用inspect_call_paths读取rank2的调用者/被调用者上下文，确认是否存在被省略或截断的子帧；随后复测并比较rank2的self/total是否仍相等。验收指标建议（待协商示例）：若调用链返回完整且复测中total-self差值仍为0，可支持其为叶节点；若出现非零差值或截断标记，则需重新评估。"
+      },
+      {
+        "claim": "本次快照的采集参数（duration_seconds=0、frequency_hz=0）与离线导入方式，使采样窗口、丢样率和现场负载均不可核实，因此当前热点排名不能代表稳定性能特征，也不能用于判断回退或修复收益。",
+        "evidence_ids": [
+          "E1",
+          "E3"
+        ],
+        "verification": "使用propose_verification生成同种采集器的受控复测草案（自定义时长与频率，仍受TaskKind契约校验），在明确记录的负载与采集时钟下重采，并核对丢样率与窗口信息；复测后若verification_available为true，再调用compare_profiles做单位与目标身份校验后的热点百分比差异对比。验收指标建议（待协商示例）：复测需返回非零时长与频率、可核实的丢样信息，且两次采集的目标身份校验通过，方可进行差异解读。"
+      }
+    ],
+    "limitations": [
+      "测量单位未知（measurement_unit=unknown），采样权重不能换算为请求延迟、CPU利用率或调用次数。",
+      "symbol_hint均为unknown，且原符号与源码映射未包含在证据中，无法定位具体函数或代码位置。",
+      "采集时长与频率均为0，现场负载、采集时钟与丢样率无法核实。",
+      "未关联业务请求延迟、吞吐和错误率，无法判断是否发生性能回退。",
+      "verification_available=false，无复测对比基线，无法评估排名或占比漂移的来源。",
+      "调用树上下文未在本轮读取，rank1/rank2的调用者与被调用者关系未知，可能存在未展开或截断路径。",
+      "模型结论为待验证假设，不代表已确认缺陷；不提供未经符号映射验证的源码行号。",
+      "原始profile、原符号、主机、PID、路径和凭据不发送模型；问题文本会发送，请勿填入敏感信息。"
+    ]
+  },
+  "source": "explicit_imported_test_fixture",
+  "status": "success",
+  "trace": [
+    {
+      "tool": "read_profile_summary",
+      "evidence_id": "E1",
+      "observation": {
+        "kind": "IMPORT_COLLAPSED",
+        "node_count": 4,
+        "limitations": [
+          "Sample weights are not request latency; no root cause or improvement is proven.",
+          "Raw profiles and symbol names are excluded. Symbol hashes are pseudonyms, not a guarantee of anonymization."
+        ],
+        "stack_scope": "profile_dependent",
+        "total_weight": 1000,
+        "top_functions": [
+          {
+            "symbol": "symbol_3f0919466224",
+            "self_percent": 80,
+            "total_percent": 90
+          },
+          {
+            "symbol": "symbol_4fb62348858c",
+            "self_percent": 20,
+            "total_percent": 20
+          }
+        ],
+        "schema_version": 1,
+        "measurement_unit": "unknown",
+        "verification_available": false
+      }
+    },
+    {
+      "tool": "inspect_hotspots",
+      "evidence_id": "E2",
+      "observation": {
+        "hint_source": "local_symbol_heuristic_v1",
+        "top_functions": [
+          {
+            "rank": 1,
+            "symbol": "symbol_3f0919466224",
+            "symbol_hint": "unknown",
+            "self_percent": 80,
+            "total_percent": 90
+          },
+          {
+            "rank": 2,
+            "symbol": "symbol_4fb62348858c",
+            "symbol_hint": "unknown",
+            "self_percent": 20,
+            "total_percent": 20
+          }
+        ],
+        "interpretation": "self为叶帧权重，total为包含子调用权重；symbol_hint为本地符号词形分类，仅作线索，不能证明锁等待或根因。比例不证明请求延迟或因果。原符号仅保留在授权结果页面。"
+      }
+    },
+    {
+      "tool": "check_collection_quality",
+      "evidence_id": "E3",
+      "observation": {
+        "kind": "IMPORT_COLLAPSED",
+        "issues": [
+          "离线导入数据：无法核实现场负载、采集时钟和丢样"
+        ],
+        "unknowns": [
+          "未关联业务请求延迟、吞吐和错误率",
+          "单次快照不能证明性能回退或修复收益",
+          "未采集源码、符号地址映射及丢样率，不输出文件行号"
+        ],
+        "frequency_hz": 0,
+        "duration_seconds": 0
+      }
+    }
+  ]
+}

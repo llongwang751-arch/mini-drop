@@ -1,0 +1,17 @@
+# Optional legacy-uprobe compatibility on AppArmor hosts. Load the dedicated
+# profile with apparmor_parser -r apparmor/drop-collector-helper first.
+# Keep tracefs RO; only BCC's registration file is writable by the helper.
+# Fixed collector templates, verified allocator symbols, selected PID/UID and
+# immutable process identity checks continue to mediate every request.
+services:
+  collector-helper:
+    security_opt: !override
+      - no-new-privileges:true
+      - seccomp=./seccomp/agent-ebpf.json
+      - apparmor=drop-collector-helper
+    volumes:
+      - type: bind
+        source: /sys/kernel/tracing/uprobe_events
+        target: /sys/kernel/tracing/uprobe_events
+        bind:
+          create_host_path: false

@@ -1,0 +1,63 @@
+{
+  "recorded_at": "2026-10-18T05:59:28.491902+00:00",
+  "scope": "E2E-only exact stored-byte download helper; runtime source/bundle/context unchanged",
+  "changed_files": [
+    "web/e2e/safe-stage-io.test.ts",
+    "web/e2e/safe-stage-io.ts"
+  ],
+  "actual_negative_control": {
+    "old_fetch_failed": true,
+    "exit_code": 1,
+    "cause": "Node fetch decoded retained Content-Encoding:gzip, changing exact S3 size/bytes"
+  },
+  "tests": {
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0,
+    "gzip_loopback_ignores_accept_encoding_and_preserves_compressed_bytes": true,
+    "redirect_never_followed": true,
+    "fixed_errors_no_cause_url_cookie": true,
+    "bounded_exact_size_total_deadline": true
+  },
+  "spec_typescript": {
+    "full_and_system_and_helper_checked": true,
+    "exit_code": 0
+  },
+  "prettier": {
+    "helper_and_tests_checked": true,
+    "exit_code": 0
+  },
+  "reports": [
+    {
+      "path": "docs/evidence/full/safe-stage-raw-gzip-before.txt",
+      "sha256": "4ef308217d970188952761faeca061cde089dff8f288ff69b81c640606c5e655"
+    },
+    {
+      "path": "docs/evidence/full/safe-stage-raw-gzip-after.txt",
+      "sha256": "a6745ec30e070f37b217ba4ce8c6ca4bb4f3dfbd61a8e8c69b6a6ddef29c32c3"
+    },
+    {
+      "path": "docs/evidence/full/safe-stage-raw-gzip-typescript.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/evidence/full/safe-stage-raw-gzip-prettier.txt",
+      "sha256": "f20510a9da4717c51c4cffee6d0dd88d6c9a723d0a83711d01216f5b48961283"
+    }
+  ],
+  "prior_runtime_verification": {
+    "path": "docs/evidence/full/web-rc2-runtime-source-freeze.json",
+    "sha256": "ccc5b10aac33cdc12ae703efc9e204c1a04981fa6454c5b951585338d3943b77",
+    "unit_tests": 96,
+    "preview_browser_tests": 21,
+    "rerun_for_e2e_only_followup": false
+  },
+  "bundle_manifest_sha256": "fcc5bd717a463c1f7f1df3fdb91bceefa200d130e26389684fd3d4e4f7590ed3",
+  "runtime_context_sha256": "0741948c378d4e05713af684ff5478ce7448b90d3ed92e40b59183708e619976",
+  "runtime_context_repacked": false,
+  "actual_stage_browser_started": false,
+  "limitations": [
+    "Does not establish real backend/S3 browser transfer; actual stage remains pending.",
+    "API signed identity response override is a separate product fix and requires real MinIO verification."
+  ]
+}

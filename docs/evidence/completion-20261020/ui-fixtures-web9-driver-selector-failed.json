@@ -1,0 +1,106 @@
+{
+  "recorded_at": "2026-10-20T07:14:15.381780+00:00",
+  "passed": false,
+  "base_url": "http://127.0.0.1:4185",
+  "source": "explicit imported local UI fixtures on current production frontend build; no production API, provider or live capture",
+  "tests_passed": 9,
+  "tests_failed": 3,
+  "skipped": 0,
+  "elapsed_seconds": 60.85,
+  "cases": [
+    {
+      "file": "diagnosis-agent.spec.ts",
+      "title": "diagnosis requires consent, shows evidence and confirms collection separately",
+      "status": "passed",
+      "duration_ms": 2424,
+      "expected_status": "passed"
+    },
+    {
+      "file": "diagnosis-agent.spec.ts",
+      "title": "model unconfigured still allows explicit local evidence mode",
+      "status": "passed",
+      "duration_ms": 842,
+      "expected_status": "passed"
+    },
+    {
+      "file": "diagnosis-agent.spec.ts",
+      "title": "read share can review history but cannot diagnose or collect",
+      "status": "passed",
+      "duration_ms": 774,
+      "expected_status": "passed"
+    },
+    {
+      "file": "diagnosis-agent.spec.ts",
+      "title": "active diagnosis can be canceled without changing collection",
+      "status": "passed",
+      "duration_ms": 806,
+      "expected_status": "passed"
+    },
+    {
+      "file": "diagnosis-agent.spec.ts",
+      "title": "mobile failure state is accessible and has no horizontal overflow",
+      "status": "passed",
+      "duration_ms": 1358,
+      "expected_status": "passed"
+    },
+    {
+      "file": "investigations.spec.ts",
+      "title": "natural-language planning binds CRM and requires confirmation before execution",
+      "status": "passed",
+      "duration_ms": 1354,
+      "expected_status": "passed"
+    },
+    {
+      "file": "investigations.spec.ts",
+      "title": "viewer and mobile layout preserve source access boundary",
+      "status": "passed",
+      "duration_ms": 774,
+      "expected_status": "passed"
+    },
+    {
+      "file": "investigations.spec.ts",
+      "title": "completed mobile comparison is keyboard accessible and source report stays escaped",
+      "status": "passed",
+      "duration_ms": 1535,
+      "expected_status": "passed"
+    },
+    {
+      "file": "investigations.spec.ts",
+      "title": "a second enrolled project binds its own identity without overwriting the user's goal",
+      "status": "passed",
+      "duration_ms": 830,
+      "expected_status": "passed"
+    },
+    {
+      "file": "investigations.spec.ts",
+      "title": "linked source loads the exact Saber record while the list remains cached with CRM",
+      "status": "failed",
+      "duration_ms": 15808,
+      "expected_status": "passed"
+    },
+    {
+      "file": "investigations.spec.ts",
+      "title": "a missing selected source record shows its ID and never falls back to old CRM",
+      "status": "failed",
+      "duration_ms": 15562,
+      "expected_status": "passed"
+    },
+    {
+      "file": "investigations.spec.ts",
+      "title": "new investigation confirmation stays on its exact ID when the list still has an older pending plan",
+      "status": "failed",
+      "duration_ms": 15707,
+      "expected_status": "passed"
+    }
+  ],
+  "raw_report_sha256": "8c3d44089639a698c7666b8bf312461eafa745449f1bfb313caf971ad9a5a132",
+  "older_evidence_preserved": true,
+  "build": {
+    "command": "npm run build",
+    "passed": true
+  },
+  "format": {
+    "command": "npx prettier --write src/views/Investigations.tsx e2e/investigations.spec.ts",
+    "passed": true
+  }
+}

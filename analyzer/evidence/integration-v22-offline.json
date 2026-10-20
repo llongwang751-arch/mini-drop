@@ -1,0 +1,236 @@
+{
+  "provenance": "Actual local Windows regression run; no remote host, Docker, database or S3 service. perf-script fixtures are synthetic imports; perf_data conversion argv was mocked, not a real perf tool execution.",
+  "analyzer_version": "0.2.2",
+  "platform": "Windows",
+  "python": "3.14.0",
+  "architecture": "AMD64",
+  "source_tree_sha256": "a05d3d81f9797acc08f64adebbd78bed02d32084db2429ebc4dd34e2790e2983",
+  "source_files": 25,
+  "tests_run": 53,
+  "passed": 48,
+  "skipped": 5,
+  "failed": 0,
+  "success": true,
+  "duration_seconds": 5.013724,
+  "log_file": "integration-v22-offline.log",
+  "log_sha256": "ba292f1952c88c9ebcddefa2dcb6401638cd0a721a368f82d2292bd11da2f918",
+  "cases": [
+    {
+      "name": "test_disk.DiskBudgetTests.test_actual_child_is_killed_for_combined_disk_usage",
+      "result": "passed"
+    },
+    {
+      "name": "test_disk.DiskBudgetTests.test_checkpoint_baseline_is_not_new_download_or_disk_growth",
+      "result": "passed"
+    },
+    {
+      "name": "test_disk.DiskBudgetTests.test_download_checks_space_before_each_chunk_and_closes_response",
+      "result": "passed"
+    },
+    {
+      "name": "test_disk.DiskBudgetTests.test_fifo_is_rejected_without_opening_it",
+      "result": "skipped",
+      "reason": "POSIX special file fixture"
+    },
+    {
+      "name": "test_disk.DiskBudgetTests.test_free_space_is_checked_before_incoming_write",
+      "result": "passed"
+    },
+    {
+      "name": "test_disk.DiskBudgetTests.test_in_job_index_is_counted_once",
+      "result": "passed"
+    },
+    {
+      "name": "test_disk.DiskBudgetTests.test_multiple_files_are_counted_together",
+      "result": "passed"
+    },
+    {
+      "name": "test_disk.DiskBudgetTests.test_replaced_root_directory_is_rejected",
+      "result": "passed"
+    },
+    {
+      "name": "test_disk.DiskBudgetTests.test_symlink_is_rejected_without_reading_its_target",
+      "result": "skipped",
+      "reason": "OS disallows fixture symlink: 22"
+    },
+    {
+      "name": "test_perf.PerfTests.test_actual_thread_identity_dso_and_nanosecond_times_are_retained",
+      "result": "passed"
+    },
+    {
+      "name": "test_perf.PerfTests.test_complete_native_proof_is_required_for_zero_loss",
+      "result": "passed"
+    },
+    {
+      "name": "test_perf.PerfTests.test_conflicting_loss_evidence_cannot_report_zero",
+      "result": "passed"
+    },
+    {
+      "name": "test_perf.PerfTests.test_corrupt_truncated_and_overdeep_script_is_rejected",
+      "result": "passed"
+    },
+    {
+      "name": "test_perf.PerfTests.test_inline_ip_and_repeated_first_callchain_frame_count_once",
+      "result": "passed"
+    },
+    {
+      "name": "test_perf.PerfTests.test_native_loss_scan_is_bounded_endian_aware_and_not_sample_invention",
+      "result": "passed"
+    },
+    {
+      "name": "test_perf.PerfTests.test_perf_data_uses_only_trusted_bounded_converter_and_same_parser",
+      "result": "passed"
+    },
+    {
+      "name": "test_perf.PerfTests.test_perf_script_crosses_actual_child_process_boundary",
+      "result": "passed"
+    },
+    {
+      "name": "test_worker.WorkerTests.test_combined_download_budget_is_checked_before_any_download",
+      "result": "passed"
+    },
+    {
+      "name": "test_worker.WorkerTests.test_lease_guard_detects_lost_ownership",
+      "result": "passed"
+    },
+    {
+      "name": "test_worker.WorkerTests.test_low_disk_space_never_downloads_or_publishes_and_cleans_workdir",
+      "result": "passed"
+    },
+    {
+      "name": "test_worker.WorkerTests.test_scavenger_and_health",
+      "result": "passed"
+    },
+    {
+      "name": "test_worker.WorkerTests.test_stale_owner_cannot_commit_after_upload",
+      "result": "passed"
+    },
+    {
+      "name": "test_worker.WorkerTests.test_storage_failure_never_publishes_success",
+      "result": "passed"
+    },
+    {
+      "name": "test_worker.WorkerTests.test_task_byte_budget_is_enforced_before_analysis_and_publication",
+      "result": "passed"
+    },
+    {
+      "name": "test_worker.WorkerTests.test_upload_all_outputs_before_commit_and_cleanup",
+      "result": "passed"
+    },
+    {
+      "name": "test_progress.AnalysisProgressTests.test_fast_child_emits_all_stages_once_through_actual_process_boundary",
+      "result": "passed"
+    },
+    {
+      "name": "test_progress.AnalysisProgressTests.test_hprof_stages_are_ordered_for_fresh_and_resumed_indexes",
+      "result": "passed"
+    },
+    {
+      "name": "test_progress.AnalysisProgressTests.test_progress_reader_is_bounded_and_rejects_unregistered_stages",
+      "result": "passed"
+    },
+    {
+      "name": "test_folded.FoldedTests.test_accepted_unicode_spaces_crlf_and_final_newline",
+      "result": "passed"
+    },
+    {
+      "name": "test_folded.FoldedTests.test_default_node_limit_accepts_100k_and_rejects_next",
+      "result": "passed"
+    },
+    {
+      "name": "test_folded.FoldedTests.test_duplicate_stacks_and_stable_output",
+      "result": "passed"
+    },
+    {
+      "name": "test_folded.FoldedTests.test_golden_tree_weights_and_top",
+      "result": "passed"
+    },
+    {
+      "name": "test_folded.FoldedTests.test_gzip_hash_size_and_expansion_limits",
+      "result": "passed"
+    },
+    {
+      "name": "test_folded.FoldedTests.test_insufficient_evidence_does_not_recommend",
+      "result": "passed"
+    },
+    {
+      "name": "test_folded.FoldedTests.test_invalid_input_is_permanent",
+      "result": "passed"
+    },
+    {
+      "name": "test_folded.FoldedTests.test_outputs_and_evidence_based_rules",
+      "result": "passed"
+    },
+    {
+      "name": "test_folded.FoldedTests.test_recursive_function_counted_once_per_sample_in_top",
+      "result": "passed"
+    },
+    {
+      "name": "test_folded.FoldedTests.test_resource_boundaries",
+      "result": "passed"
+    },
+    {
+      "name": "test_isolation_registry.IsolationRegistryTests.test_100k_nodes_fit_default_child_budget_and_next_is_rejected",
+      "result": "skipped",
+      "reason": "Linux RLIMIT_AS is required"
+    },
+    {
+      "name": "test_isolation_registry.IsolationRegistryTests.test_actual_process_tree_accounting_and_group_cleanup",
+      "result": "skipped",
+      "reason": "Linux process group accounting required"
+    },
+    {
+      "name": "test_isolation_registry.IsolationRegistryTests.test_address_space_budget_fails_without_publishing_result",
+      "result": "skipped",
+      "reason": "Linux RLIMIT_AS is required"
+    },
+    {
+      "name": "test_isolation_registry.IsolationRegistryTests.test_all_public_collection_kinds_have_unique_registry_entry",
+      "result": "passed"
+    },
+    {
+      "name": "test_isolation_registry.IsolationRegistryTests.test_cache_scavenger_preserves_unrelated_files",
+      "result": "passed"
+    },
+    {
+      "name": "test_isolation_registry.IsolationRegistryTests.test_every_pipeline_enforces_input_budget_before_decoding",
+      "result": "passed"
+    },
+    {
+      "name": "test_isolation_registry.IsolationRegistryTests.test_every_pipeline_rejects_invalid_native_format",
+      "result": "passed"
+    },
+    {
+      "name": "test_isolation_registry.IsolationRegistryTests.test_isolation_wall_budget_kills_child",
+      "result": "passed"
+    },
+    {
+      "name": "test_isolation_registry.IsolationRegistryTests.test_real_subprocess_result_and_decoder_error_classification",
+      "result": "passed"
+    },
+    {
+      "name": "test_hprof_native.HprofNativeTests.test_hprof_dominator_shared_references_and_index_resume",
+      "result": "passed"
+    },
+    {
+      "name": "test_hprof_native.HprofNativeTests.test_hprof_index_version_upgrade_and_corruption_rebuild",
+      "result": "passed"
+    },
+    {
+      "name": "test_hprof_native.HprofNativeTests.test_hprof_limit_corruption_and_recovery",
+      "result": "passed"
+    },
+    {
+      "name": "test_hprof_native.HprofNativeTests.test_native_cpu_binary_endianness_and_truncation",
+      "result": "passed"
+    },
+    {
+      "name": "test_hprof_native.HprofNativeTests.test_native_heap_truncation_does_not_become_empty_success",
+      "result": "passed"
+    },
+    {
+      "name": "test_hprof_native.HprofNativeTests.test_native_heaps_and_bolt_real_format",
+      "result": "passed"
+    }
+  ]
+}

@@ -1,0 +1,4104 @@
+{
+  "provenance": "Actual production RunnerRegistry code collected isolated toy business processes; artifacts read-only imported into the frozen Analyzer image. No production business data or restart.",
+  "cases": [
+    {
+      "kind": "GO_CPU",
+      "format": "pprof",
+      "collector": "pprof-http",
+      "fixture_source": "real toy business PID through production RunnerRegistry; not production data",
+      "collection_metadata": {
+        "target_pid": 1080,
+        "start_time_ticks": 345901519,
+        "duration_ms": 2151
+      },
+      "input_bytes": 1093,
+      "input_sha256": "c95c5d8538516bdae636ff82c13ce08e93fa770f01d6a647fd7c7be9ae435f12",
+      "status": "success",
+      "source": "import",
+      "profile_source": "go-pprof",
+      "total_weight": 450000000,
+      "unit": "nanoseconds",
+      "nodes": 12,
+      "sections": {},
+      "metadata": {
+        "schema_version": "1.0",
+        "format": "pprof/protobuf",
+        "sample_count": 450000000,
+        "stack_count": 19,
+        "unique_stack_count": 6,
+        "node_count": 12,
+        "max_depth": 6,
+        "lost_samples": null,
+        "lost_samples_status": "not_reported_by_input",
+        "filters": {
+          "labels": {},
+          "include": null,
+          "exclude": null
+        },
+        "unit": "nanoseconds",
+        "time_range": null,
+        "thread_information": "encoded_in_stack_names_if_present",
+        "profile_type": "cpu",
+        "sample_types": [
+          {
+            "type": "samples",
+            "unit": "count"
+          },
+          {
+            "type": "cpu",
+            "unit": "nanoseconds"
+          }
+        ],
+        "duration_ns": 2135942754,
+        "time_ns": 1792160248439430645,
+        "period": 10000000,
+        "filtered_samples": 0,
+        "labels": {},
+        "observation_count": 45,
+        "source": "import",
+        "profile_source": "go-pprof",
+        "provenance": "import",
+        "input_format": "pprof",
+        "pipeline": "pprof_cpu_v1",
+        "queue_class": "small",
+        "python_version": "3.12.12",
+        "collector": {
+          "source": "import"
+        }
+      },
+      "resource_usage": {
+        "duration_ms": 183.551,
+        "cpu_seconds": 0.147966,
+        "subprocess_cpu_seconds": 0.0,
+        "subprocess_max_rss_bytes": 0,
+        "max_rss_bytes": 27463680,
+        "temp_disk_bytes": 1100,
+        "index_cache_bytes": 0,
+        "observed_peak_tree_rss_bytes": 21352448,
+        "observed_processes": 1,
+        "rss_sampling_interval_ms": 50
+      },
+      "elapsed_seconds": 0.311487
+    },
+    {
+      "kind": "GO_HEAP",
+      "format": "pprof",
+      "collector": "pprof-http",
+      "fixture_source": "real toy business PID through production RunnerRegistry; not production data",
+      "collection_metadata": {
+        "target_pid": 1080,
+        "start_time_ticks": 345901519,
+        "duration_ms": 24
+      },
+      "input_bytes": 1148,
+      "input_sha256": "86568ba30576badffd2da53cce168135e2d50d035c25efa3420583d0c841692e",
+      "status": "success",
+      "source": "import",
+      "profile_source": "go-pprof",
+      "total_weight": 18405370,
+      "unit": "bytes",
+      "nodes": 3,
+      "sections": {
+        "heap": {
+          "format": "pprof",
+          "profile_type": "inuse_space",
+          "unit": "bytes",
+          "sample_types": [
+            {
+              "type": "alloc_objects",
+              "unit": "count",
+              "total": 280
+            },
+            {
+              "type": "alloc_space",
+              "unit": "bytes",
+              "total": 18405370
+            },
+            {
+              "type": "inuse_objects",
+              "unit": "count",
+              "total": 280
+            },
+            {
+              "type": "inuse_space",
+              "unit": "bytes",
+              "total": 18405370
+            }
+          ],
+          "classes": [],
+          "dominators": [],
+          "leak_paths": [],
+          "totals": {
+            "sample_weight": 18405370
+          },
+          "limitations": [
+            "pprof 是分配栈采样，不能计算对象引用图、dominator 或精确 retained size。"
+          ]
+        }
+      },
+      "metadata": {
+        "schema_version": "1.0",
+        "format": "pprof/protobuf",
+        "sample_count": 18405370,
+        "stack_count": 1,
+        "unique_stack_count": 1,
+        "node_count": 3,
+        "max_depth": 2,
+        "lost_samples": null,
+        "lost_samples_status": "not_reported_by_input",
+        "filters": {
+          "labels": {},
+          "include": null,
+          "exclude": null
+        },
+        "unit": "bytes",
+        "time_range": null,
+        "thread_information": "encoded_in_stack_names_if_present",
+        "profile_type": "inuse_space",
+        "sample_types": [
+          {
+            "type": "alloc_objects",
+            "unit": "count"
+          },
+          {
+            "type": "alloc_space",
+            "unit": "bytes"
+          },
+          {
+            "type": "inuse_objects",
+            "unit": "count"
+          },
+          {
+            "type": "inuse_space",
+            "unit": "bytes"
+          }
+        ],
+        "duration_ns": 0,
+        "time_ns": 1792160254304333469,
+        "period": 524288,
+        "filtered_samples": 0,
+        "labels": {
+          "bytes": [
+            "65536"
+          ]
+        },
+        "source": "import",
+        "profile_source": "go-pprof",
+        "provenance": "import",
+        "input_format": "pprof",
+        "pipeline": "pprof_heap_v1",
+        "queue_class": "high_memory",
+        "python_version": "3.12.12",
+        "collector": {
+          "source": "import"
+        }
+      },
+      "resource_usage": {
+        "duration_ms": 135.7,
+        "cpu_seconds": 0.13417,
+        "subprocess_cpu_seconds": 0.0,
+        "subprocess_max_rss_bytes": 0,
+        "max_rss_bytes": 27463680,
+        "temp_disk_bytes": 1135,
+        "index_cache_bytes": 0,
+        "observed_peak_tree_rss_bytes": 21184512,
+        "observed_processes": 1,
+        "rss_sampling_interval_ms": 50
+      },
+      "elapsed_seconds": 0.257908
+    },
+    {
+      "kind": "JAVA_CPU",
+      "format": "folded",
+      "collector": "async-profiler",
+      "fixture_source": "real toy business PID through production RunnerRegistry; not production data",
+      "collection_metadata": {
+        "target_pid": 1081,
+        "start_time_ticks": 345901519,
+        "duration_ms": 3086
+      },
+      "input_bytes": 113,
+      "input_sha256": "b4741e59f4d2f26b5b085571f63e44ba3a49c94ca5f5352ee3976c35ccee8f36",
+      "status": "success",
+      "source": "import",
+      "profile_source": "async-profiler",
+      "total_weight": 33,
+      "unit": "samples",
+      "nodes": 4,
+      "sections": {},
+      "metadata": {
+        "schema_version": "1.0",
+        "format": "collapsed/v1",
+        "sample_count": 33,
+        "stack_count": 2,
+        "unique_stack_count": 2,
+        "node_count": 4,
+        "max_depth": 3,
+        "lost_samples": null,
+        "lost_samples_status": "not_reported_by_input",
+        "filters": [],
+        "unit": "samples",
+        "time_range": null,
+        "thread_information": "encoded_in_stack_names_if_present",
+        "source": "import",
+        "profile_source": "async-profiler",
+        "provenance": "import",
+        "input_format": "folded",
+        "pipeline": "java_cpu_v1",
+        "queue_class": "small",
+        "python_version": "3.12.12",
+        "collector": {
+          "source": "import"
+        }
+      },
+      "resource_usage": {
+        "duration_ms": 134.86,
+        "cpu_seconds": 0.133645,
+        "subprocess_cpu_seconds": 0.0,
+        "subprocess_max_rss_bytes": 0,
+        "max_rss_bytes": 27463680,
+        "temp_disk_bytes": 1356,
+        "index_cache_bytes": 0,
+        "observed_peak_tree_rss_bytes": 20615168,
+        "observed_processes": 1,
+        "rss_sampling_interval_ms": 50
+      },
+      "elapsed_seconds": 0.307669
+    },
+    {
+      "kind": "JAVA_HEAP",
+      "format": "hprof",
+      "collector": "jcmd",
+      "fixture_source": "real toy business PID through production RunnerRegistry; not production data",
+      "collection_metadata": {
+        "target_pid": 1081,
+        "start_time_ticks": 345901519,
+        "duration_ms": 795
+      },
+      "input_bytes": 7022919,
+      "input_sha256": "64819888b3e3bdbaf7ffe35e7cbe5a9719a9432bd584b5a67316567ee0eeaf73",
+      "status": "success",
+      "source": "import",
+      "profile_source": "hotspot-hprof",
+      "total_weight": 4843530,
+      "unit": "bytes",
+      "nodes": 149,
+      "sections": {
+        "heap": {
+          "format": "hprof",
+          "unit": "bytes",
+          "size_basis": "hprof_serialized_payload_excluding_vm_headers_and_alignment",
+          "totals": {
+            "objects": 9321,
+            "shallow_bytes": 4843530,
+            "root_count": 459,
+            "reachable_objects": 9222,
+            "unreachable_objects": 99
+          },
+          "classes": [
+            {
+              "class_name": "byte[]",
+              "retained_bytes": 4520618,
+              "instances": 1730,
+              "shallow_bytes": 4520857
+            },
+            {
+              "class_name": "[Ljava.lang.Object;",
+              "retained_bytes": 4545806,
+              "instances": 439,
+              "shallow_bytes": 69208
+            },
+            {
+              "class_name": "[Ljava.util.HashMap$Node;",
+              "retained_bytes": 75768,
+              "instances": 258,
+              "shallow_bytes": 39296
+            },
+            {
+              "class_name": "char[]",
+              "retained_bytes": 32910,
+              "instances": 6,
+              "shallow_bytes": 32910
+            },
+            {
+              "class_name": "java.util.HashMap$Node",
+              "retained_bytes": 54776,
+              "instances": 999,
+              "shallow_bytes": 27972
+            },
+            {
+              "class_name": "java.util.concurrent.ConcurrentHashMap$Node",
+              "retained_bytes": 27772,
+              "instances": 896,
+              "shallow_bytes": 25088
+            },
+            {
+              "class_name": "java.lang.String",
+              "retained_bytes": 58160,
+              "instances": 1580,
+              "shallow_bytes": 22120
+            },
+            {
+              "class_name": "[Ljava.util.concurrent.ConcurrentHashMap$Node;",
+              "retained_bytes": 50108,
+              "instances": 17,
+              "shallow_bytes": 20736
+            },
+            {
+              "class_name": "java.util.HashMap",
+              "retained_bytes": 81440,
+              "instances": 260,
+              "shallow_bytes": 12480
+            },
+            {
+              "class_name": "java.lang.module.ModuleDescriptor$Exports",
+              "retained_bytes": 11468,
+              "instances": 363,
+              "shallow_bytes": 8712
+            },
+            {
+              "class_name": "java.net.URI",
+              "retained_bytes": 11686,
+              "instances": 62,
+              "shallow_bytes": 7936
+            },
+            {
+              "class_name": "java.lang.module.ModuleDescriptor",
+              "retained_bytes": 46896,
+              "instances": 62,
+              "shallow_bytes": 5828
+            },
+            {
+              "class_name": "jdk.internal.module.ModuleReferenceImpl",
+              "retained_bytes": 10038,
+              "instances": 62,
+              "shallow_bytes": 5208
+            },
+            {
+              "class_name": "java.lang.Module",
+              "retained_bytes": 74880,
+              "instances": 68,
+              "shallow_bytes": 4420
+            },
+            {
+              "class_name": "java.lang.module.ModuleDescriptor$Requires",
+              "retained_bytes": 4224,
+              "instances": 132,
+              "shallow_bytes": 4224
+            },
+            {
+              "class_name": "java.util.ImmutableCollections$Set12",
+              "retained_bytes": 8222,
+              "instances": 247,
+              "shallow_bytes": 3952
+            },
+            {
+              "class_name": "java.util.concurrent.ConcurrentHashMap",
+              "retained_bytes": 53132,
+              "instances": 37,
+              "shallow_bytes": 3108
+            },
+            {
+              "class_name": "[Ljava.lang.Integer;",
+              "retained_bytes": 3048,
+              "instances": 1,
+              "shallow_bytes": 2048
+            },
+            {
+              "class_name": "jdk.internal.loader.BuiltinClassLoader$LoadedModule",
+              "retained_bytes": 1952,
+              "instances": 61,
+              "shallow_bytes": 1952
+            },
+            {
+              "class_name": "java.util.ImmutableCollections$SetN",
+              "retained_bytes": 38998,
+              "instances": 140,
+              "shallow_bytes": 1680
+            },
+            {
+              "class_name": "int[]",
+              "retained_bytes": 1588,
+              "instances": 118,
+              "shallow_bytes": 1588
+            },
+            {
+              "class_name": "java.util.HashSet",
+              "retained_bytes": 47124,
+              "instances": 197,
+              "shallow_bytes": 1576
+            },
+            {
+              "class_name": "java.lang.Thread",
+              "retained_bytes": 1321,
+              "instances": 9,
+              "shallow_bytes": 1251
+            },
+            {
+              "class_name": "java.lang.Class",
+              "retained_bytes": 1044,
+              "instances": 9,
+              "shallow_bytes": 1044
+            },
+            {
+              "class_name": "java.lang.Integer",
+              "retained_bytes": 1024,
+              "instances": 256,
+              "shallow_bytes": 1024
+            },
+            {
+              "class_name": "long[]",
+              "retained_bytes": 1024,
+              "instances": 4,
+              "shallow_bytes": 1024
+            },
+            {
+              "class_name": "java.lang.module.ResolvedModule",
+              "retained_bytes": 992,
+              "instances": 62,
+              "shallow_bytes": 992
+            },
+            {
+              "class_name": "jdk.internal.module.ServicesCatalog$ServiceProvider",
+              "retained_bytes": 992,
+              "instances": 62,
+              "shallow_bytes": 992
+            },
+            {
+              "class_name": "jdk.internal.module.SystemModuleFinders$2",
+              "retained_bytes": 992,
+              "instances": 62,
+              "shallow_bytes": 992
+            },
+            {
+              "class_name": "java.lang.module.ModuleDescriptor$Provides",
+              "retained_bytes": 2412,
+              "instances": 60,
+              "shallow_bytes": 960
+            },
+            {
+              "class_name": "java.io.ObjectStreamField",
+              "retained_bytes": 945,
+              "instances": 21,
+              "shallow_bytes": 945
+            },
+            {
+              "class_name": "java.util.ImmutableCollections$List12",
+              "retained_bytes": 800,
+              "instances": 50,
+              "shallow_bytes": 800
+            },
+            {
+              "class_name": "sun.util.locale.BaseLocale",
+              "retained_bytes": 684,
+              "instances": 19,
+              "shallow_bytes": 684
+            },
+            {
+              "class_name": "java.security.AccessControlContext",
+              "retained_bytes": 518,
+              "instances": 12,
+              "shallow_bytes": 624
+            },
+            {
+              "class_name": "java.util.Locale",
+              "retained_bytes": 532,
+              "instances": 19,
+              "shallow_bytes": 532
+            },
+            {
+              "class_name": "java.lang.OutOfMemoryError",
+              "retained_bytes": 3876,
+              "instances": 12,
+              "shallow_bytes": 528
+            },
+            {
+              "class_name": "java.util.concurrent.CopyOnWriteArrayList",
+              "retained_bytes": 1976,
+              "instances": 30,
+              "shallow_bytes": 480
+            },
+            {
+              "class_name": "jdk.internal.module.SystemModuleFinders$3",
+              "retained_bytes": 480,
+              "instances": 60,
+              "shallow_bytes": 480
+            },
+            {
+              "class_name": "java.util.WeakHashMap$Entry",
+              "retained_bytes": 260,
+              "instances": 5,
+              "shallow_bytes": 260
+            },
+            {
+              "class_name": "short[]",
+              "retained_bytes": 256,
+              "instances": 4,
+              "shallow_bytes": 256
+            },
+            {
+              "class_name": "java.security.ProtectionDomain",
+              "retained_bytes": 906,
+              "instances": 5,
+              "shallow_bytes": 210
+            },
+            {
+              "class_name": "[Ljava.lang.String;",
+              "retained_bytes": 200,
+              "instances": 7,
+              "shallow_bytes": 200
+            },
+            {
+              "class_name": "java.util.Hashtable$Entry",
+              "retained_bytes": 196,
+              "instances": 7,
+              "shallow_bytes": 196
+            },
+            {
+              "class_name": "java.security.CodeSource",
+              "retained_bytes": 218,
+              "instances": 4,
+              "shallow_bytes": 192
+            },
+            {
+              "class_name": "[Ljava.io.ObjectStreamField;",
+              "retained_bytes": 1113,
+              "instances": 7,
+              "shallow_bytes": 168
+            },
+            {
+              "class_name": "jdk.internal.loader.ClassLoaders$AppClassLoader",
+              "retained_bytes": 4010,
+              "instances": 1,
+              "shallow_bytes": 161
+            },
+            {
+              "class_name": "jdk.internal.loader.ClassLoaders$BootClassLoader",
+              "retained_bytes": 2264,
+              "instances": 1,
+              "shallow_bytes": 161
+            },
+            {
+              "class_name": "jdk.internal.loader.ClassLoaders$PlatformClassLoader",
+              "retained_bytes": 2494,
+              "instances": 1,
+              "shallow_bytes": 161
+            },
+            {
+              "class_name": "[Ljava.lang.invoke.MethodHandle;",
+              "retained_bytes": 160,
+              "instances": 2,
+              "shallow_bytes": 160
+            },
+            {
+              "class_name": "[Ljava.util.Hashtable$Entry;",
+              "retained_bytes": 348,
+              "instances": 3,
+              "shallow_bytes": 152
+            },
+            {
+              "class_name": "[Lsun.util.locale.BaseLocale;",
+              "retained_bytes": 152,
+              "instances": 1,
+              "shallow_bytes": 152
+            },
+            {
+              "class_name": "java.lang.ThreadGroup",
+              "retained_bytes": 328,
+              "instances": 3,
+              "shallow_bytes": 150
+            },
+            {
+              "class_name": "java.util.ArrayList",
+              "retained_bytes": 4458200,
+              "instances": 9,
+              "shallow_bytes": 144
+            },
+            {
+              "class_name": "java.util.Hashtable",
+              "retained_bytes": 492,
+              "instances": 3,
+              "shallow_bytes": 144
+            },
+            {
+              "class_name": "java.lang.ref.Finalizer$FinalizerThread",
+              "retained_bytes": 192,
+              "instances": 1,
+              "shallow_bytes": 140
+            },
+            {
+              "class_name": "jdk.internal.misc.InnocuousThread",
+              "retained_bytes": 140,
+              "instances": 1,
+              "shallow_bytes": 140
+            },
+            {
+              "class_name": "java.lang.ref.Reference$ReferenceHandler",
+              "retained_bytes": 191,
+              "instances": 1,
+              "shallow_bytes": 139
+            },
+            {
+              "class_name": "sun.nio.cs.StreamEncoder",
+              "retained_bytes": 16736,
+              "instances": 2,
+              "shallow_bytes": 136
+            },
+            {
+              "class_name": "java.lang.reflect.Method",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 130
+            },
+            {
+              "class_name": "[Ljava.lang.Thread;",
+              "retained_bytes": 128,
+              "instances": 3,
+              "shallow_bytes": 128
+            },
+            {
+              "class_name": "[Ljava.util.WeakHashMap$Entry;",
+              "retained_bytes": 388,
+              "instances": 1,
+              "shallow_bytes": 128
+            },
+            {
+              "class_name": "java.util.ImmutableCollections$ListN",
+              "retained_bytes": 702,
+              "instances": 14,
+              "shallow_bytes": 126
+            },
+            {
+              "class_name": "sun.nio.cs.UTF_8$Encoder",
+              "retained_bytes": 122,
+              "instances": 2,
+              "shallow_bytes": 120
+            },
+            {
+              "class_name": "java.io.FileDescriptor",
+              "retained_bytes": 114,
+              "instances": 3,
+              "shallow_bytes": 114
+            },
+            {
+              "class_name": "java.util.ImmutableCollections$MapN",
+              "retained_bytes": 8444,
+              "instances": 4,
+              "shallow_bytes": 112
+            },
+            {
+              "class_name": "jdk.internal.loader.NativeLibraries",
+              "retained_bytes": 440,
+              "instances": 4,
+              "shallow_bytes": 104
+            },
+            {
+              "class_name": "[Ljava.lang.OutOfMemoryError;",
+              "retained_bytes": 3972,
+              "instances": 2,
+              "shallow_bytes": 96
+            },
+            {
+              "class_name": "java.lang.ModuleLayer",
+              "retained_bytes": 4984,
+              "instances": 2,
+              "shallow_bytes": 96
+            },
+            {
+              "class_name": "java.lang.module.Configuration",
+              "retained_bytes": 8512,
+              "instances": 2,
+              "shallow_bytes": 96
+            },
+            {
+              "class_name": "java.lang.module.ModuleDescriptor$Opens",
+              "retained_bytes": 96,
+              "instances": 4,
+              "shallow_bytes": 96
+            },
+            {
+              "class_name": "java.lang.ref.ReferenceQueue",
+              "retained_bytes": 96,
+              "instances": 4,
+              "shallow_bytes": 96
+            },
+            {
+              "class_name": "java.net.URL",
+              "retained_bytes": 115,
+              "instances": 1,
+              "shallow_bytes": 96
+            },
+            {
+              "class_name": "java.nio.HeapByteBuffer",
+              "retained_bytes": 16478,
+              "instances": 2,
+              "shallow_bytes": 94
+            },
+            {
+              "class_name": "java.lang.Class$ReflectionData",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 92
+            },
+            {
+              "class_name": "java.io.PrintStream",
+              "retained_bytes": 50034,
+              "instances": 2,
+              "shallow_bytes": 88
+            },
+            {
+              "class_name": "java.lang.invoke.MethodHandles$Lookup",
+              "retained_bytes": 84,
+              "instances": 3,
+              "shallow_bytes": 84
+            },
+            {
+              "class_name": "java.io.BufferedWriter",
+              "retained_bytes": 32848,
+              "instances": 2,
+              "shallow_bytes": 80
+            },
+            {
+              "class_name": "java.io.FileOutputStream",
+              "retained_bytes": 66,
+              "instances": 2,
+              "shallow_bytes": 66
+            },
+            {
+              "class_name": "java.util.HexFormat",
+              "retained_bytes": 64,
+              "instances": 2,
+              "shallow_bytes": 64
+            },
+            {
+              "class_name": "java.util.Properties",
+              "retained_bytes": 1948,
+              "instances": 1,
+              "shallow_bytes": 64
+            },
+            {
+              "class_name": "jdk.internal.ref.CleanerImpl$PhantomCleanableRef",
+              "retained_bytes": 120,
+              "instances": 1,
+              "shallow_bytes": 64
+            },
+            {
+              "class_name": "java.io.BufferedOutputStream",
+              "retained_bytes": 314,
+              "instances": 2,
+              "shallow_bytes": 58
+            },
+            {
+              "class_name": "java.lang.NullPointerException",
+              "retained_bytes": 56,
+              "instances": 1,
+              "shallow_bytes": 56
+            },
+            {
+              "class_name": "java.util.WeakHashMap",
+              "retained_bytes": 468,
+              "instances": 1,
+              "shallow_bytes": 56
+            },
+            {
+              "class_name": "jdk.internal.ref.CleanerImpl$CleanerCleanable",
+              "retained_bytes": 56,
+              "instances": 1,
+              "shallow_bytes": 56
+            },
+            {
+              "class_name": "jdk.internal.loader.URLClassPath",
+              "retained_bytes": 573,
+              "instances": 1,
+              "shallow_bytes": 49
+            },
+            {
+              "class_name": "java.io.OutputStreamWriter",
+              "retained_bytes": 16784,
+              "instances": 2,
+              "shallow_bytes": 48
+            },
+            {
+              "class_name": "java.lang.module.ModuleDescriptor$Modifier",
+              "retained_bytes": 48,
+              "instances": 4,
+              "shallow_bytes": 48
+            },
+            {
+              "class_name": "java.lang.module.ModuleDescriptor$Requires$Modifier",
+              "retained_bytes": 48,
+              "instances": 4,
+              "shallow_bytes": 48
+            },
+            {
+              "class_name": "java.lang.ref.ReferenceQueue$Null",
+              "retained_bytes": 48,
+              "instances": 2,
+              "shallow_bytes": 48
+            },
+            {
+              "class_name": "java.lang.ArithmeticException",
+              "retained_bytes": 67,
+              "instances": 1,
+              "shallow_bytes": 44
+            },
+            {
+              "class_name": "java.lang.VirtualMachineError",
+              "retained_bytes": 44,
+              "instances": 1,
+              "shallow_bytes": 44
+            },
+            {
+              "class_name": "java.lang.ref.SoftReference",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 40
+            },
+            {
+              "class_name": "jdk.internal.loader.ArchivedClassLoaders",
+              "retained_bytes": 64,
+              "instances": 1,
+              "shallow_bytes": 40
+            },
+            {
+              "class_name": "java.io.UnixFileSystem",
+              "retained_bytes": 36,
+              "instances": 1,
+              "shallow_bytes": 36
+            },
+            {
+              "class_name": "jdk.internal.misc.Signal",
+              "retained_bytes": 36,
+              "instances": 3,
+              "shallow_bytes": 36
+            },
+            {
+              "class_name": "java.io.FileInputStream",
+              "retained_bytes": 33,
+              "instances": 1,
+              "shallow_bytes": 33
+            },
+            {
+              "class_name": "[Ljava.lang.ThreadGroup;",
+              "retained_bytes": 32,
+              "instances": 1,
+              "shallow_bytes": 32
+            },
+            {
+              "class_name": "[Ljava.lang.module.ModuleDescriptor$Modifier;",
+              "retained_bytes": 32,
+              "instances": 1,
+              "shallow_bytes": 32
+            },
+            {
+              "class_name": "[Ljava.lang.module.ModuleDescriptor$Requires$Modifier;",
+              "retained_bytes": 32,
+              "instances": 1,
+              "shallow_bytes": 32
+            },
+            {
+              "class_name": "java.io.BufferedInputStream",
+              "retained_bytes": 8224,
+              "instances": 1,
+              "shallow_bytes": 32
+            },
+            {
+              "class_name": "java.lang.Module$ArchivedData",
+              "retained_bytes": 32,
+              "instances": 1,
+              "shallow_bytes": 32
+            },
+            {
+              "class_name": "java.lang.module.ModuleDescriptor$Version",
+              "retained_bytes": 144,
+              "instances": 1,
+              "shallow_bytes": 32
+            },
+            {
+              "class_name": "java.util.ArrayDeque",
+              "retained_bytes": 120,
+              "instances": 2,
+              "shallow_bytes": 32
+            },
+            {
+              "class_name": "java.util.Collections$UnmodifiableMap",
+              "retained_bytes": 3144,
+              "instances": 1,
+              "shallow_bytes": 32
+            },
+            {
+              "class_name": "java.io.File",
+              "retained_bytes": 46,
+              "instances": 1,
+              "shallow_bytes": 28
+            },
+            {
+              "class_name": "jdk.internal.module.ArchivedModuleGraph",
+              "retained_bytes": 4774,
+              "instances": 1,
+              "shallow_bytes": 26
+            },
+            {
+              "class_name": "[Ljdk.internal.module.ServicesCatalog;",
+              "retained_bytes": 24,
+              "instances": 1,
+              "shallow_bytes": 24
+            },
+            {
+              "class_name": "java.io.File$PathStatus",
+              "retained_bytes": 24,
+              "instances": 2,
+              "shallow_bytes": 24
+            },
+            {
+              "class_name": "java.nio.charset.CodingErrorAction",
+              "retained_bytes": 24,
+              "instances": 3,
+              "shallow_bytes": 24
+            },
+            {
+              "class_name": "jdk.internal.loader.URLClassPath$FileLoader",
+              "retained_bytes": 70,
+              "instances": 1,
+              "shallow_bytes": 24
+            },
+            {
+              "class_name": "jdk.internal.module.ServicesCatalog",
+              "retained_bytes": 4064,
+              "instances": 3,
+              "shallow_bytes": 24
+            },
+            {
+              "class_name": "sun.nio.cs.StandardCharsets",
+              "retained_bytes": 24,
+              "instances": 1,
+              "shallow_bytes": 24
+            },
+            {
+              "class_name": "sun.nio.cs.UTF_8",
+              "retained_bytes": 40,
+              "instances": 1,
+              "shallow_bytes": 24
+            },
+            {
+              "class_name": "java.lang.RuntimePermission",
+              "retained_bytes": 18,
+              "instances": 1,
+              "shallow_bytes": 18
+            },
+            {
+              "class_name": "java.lang.reflect.ReflectPermission",
+              "retained_bytes": 18,
+              "instances": 1,
+              "shallow_bytes": 18
+            },
+            {
+              "class_name": "java.security.BasicPermissionCollection",
+              "retained_bytes": 276,
+              "instances": 1,
+              "shallow_bytes": 18
+            },
+            {
+              "class_name": "java.security.Permissions",
+              "retained_bytes": 534,
+              "instances": 1,
+              "shallow_bytes": 18
+            },
+            {
+              "class_name": "sun.security.util.LazyCodeSourcePermissionCollection",
+              "retained_bytes": 552,
+              "instances": 1,
+              "shallow_bytes": 18
+            },
+            {
+              "class_name": "[Ljava.io.File$PathStatus;",
+              "retained_bytes": 16,
+              "instances": 1,
+              "shallow_bytes": 16
+            },
+            {
+              "class_name": "[Ljava.lang.Class;",
+              "retained_bytes": 0,
+              "instances": 4,
+              "shallow_bytes": 16
+            },
+            {
+              "class_name": "[Ljava.security.ProtectionDomain;",
+              "retained_bytes": 58,
+              "instances": 2,
+              "shallow_bytes": 16
+            },
+            {
+              "class_name": "java.lang.NamedPackage",
+              "retained_bytes": 16,
+              "instances": 1,
+              "shallow_bytes": 16
+            },
+            {
+              "class_name": "java.nio.ByteOrder",
+              "retained_bytes": 16,
+              "instances": 2,
+              "shallow_bytes": 16
+            },
+            {
+              "class_name": "java.util.Collections$EmptyMap",
+              "retained_bytes": 16,
+              "instances": 1,
+              "shallow_bytes": 16
+            },
+            {
+              "class_name": "java.util.Collections$SetFromMap",
+              "retained_bytes": 492,
+              "instances": 1,
+              "shallow_bytes": 16
+            },
+            {
+              "class_name": "jdk.internal.misc.Signal$NativeHandler",
+              "retained_bytes": 16,
+              "instances": 2,
+              "shallow_bytes": 16
+            },
+            {
+              "class_name": "jdk.internal.module.ModuleHashes",
+              "retained_bytes": 3160,
+              "instances": 1,
+              "shallow_bytes": 16
+            },
+            {
+              "class_name": "jdk.internal.module.SystemModuleFinders$SystemModuleFinder",
+              "retained_bytes": 3032,
+              "instances": 1,
+              "shallow_bytes": 16
+            },
+            {
+              "class_name": "jdk.internal.ref.CleanerImpl",
+              "retained_bytes": 136,
+              "instances": 1,
+              "shallow_bytes": 16
+            },
+            {
+              "class_name": "java.lang.StringBuilder",
+              "retained_bytes": 29,
+              "instances": 1,
+              "shallow_bytes": 13
+            },
+            {
+              "class_name": "[Ljava.lang.reflect.Method;",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 8
+            },
+            {
+              "class_name": "[Ljava.net.URL;",
+              "retained_bytes": 8,
+              "instances": 1,
+              "shallow_bytes": 8
+            },
+            {
+              "class_name": "[Ljava.util.jar.Manifest;",
+              "retained_bytes": 8,
+              "instances": 1,
+              "shallow_bytes": 8
+            },
+            {
+              "class_name": "java.lang.ThreadLocal",
+              "retained_bytes": 8,
+              "instances": 2,
+              "shallow_bytes": 8
+            },
+            {
+              "class_name": "java.lang.ref.Cleaner",
+              "retained_bytes": 8,
+              "instances": 1,
+              "shallow_bytes": 8
+            },
+            {
+              "class_name": "java.security.SecureClassLoader$CodeSourceKey",
+              "retained_bytes": 8,
+              "instances": 1,
+              "shallow_bytes": 8
+            },
+            {
+              "class_name": "java.util.HashMap$EntrySet",
+              "retained_bytes": 8,
+              "instances": 1,
+              "shallow_bytes": 8
+            },
+            {
+              "class_name": "java.util.Optional",
+              "retained_bytes": 8,
+              "instances": 1,
+              "shallow_bytes": 8
+            },
+            {
+              "class_name": "java.util.WeakHashMap$KeySet",
+              "retained_bytes": 8,
+              "instances": 1,
+              "shallow_bytes": 8
+            },
+            {
+              "class_name": "java.util.concurrent.atomic.AtomicInteger",
+              "retained_bytes": 8,
+              "instances": 2,
+              "shallow_bytes": 8
+            },
+            {
+              "class_name": "jdk.internal.module.ArchivedBootLayer",
+              "retained_bytes": 8,
+              "instances": 1,
+              "shallow_bytes": 8
+            },
+            {
+              "class_name": "jdk.internal.module.ModuleLoaderMap$Mapper",
+              "retained_bytes": 1716,
+              "instances": 1,
+              "shallow_bytes": 8
+            },
+            {
+              "class_name": "jdk.internal.module.ModulePatcher",
+              "retained_bytes": 8,
+              "instances": 1,
+              "shallow_bytes": 8
+            },
+            {
+              "class_name": "jdk.internal.module.ModuleTarget",
+              "retained_bytes": 8,
+              "instances": 1,
+              "shallow_bytes": 8
+            },
+            {
+              "class_name": "jdk.internal.reflect.ReflectionFactory",
+              "retained_bytes": 8,
+              "instances": 1,
+              "shallow_bytes": 8
+            },
+            {
+              "class_name": "java.util.Collections$EmptyList",
+              "retained_bytes": 4,
+              "instances": 1,
+              "shallow_bytes": 4
+            },
+            {
+              "class_name": "java.lang.Boolean",
+              "retained_bytes": 2,
+              "instances": 2,
+              "shallow_bytes": 2
+            },
+            {
+              "class_name": "[Ljava.lang.StackTraceElement;",
+              "retained_bytes": 0,
+              "instances": 2,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "[Ljava.lang.Throwable;",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "[Ljava.security.Principal;",
+              "retained_bytes": 0,
+              "instances": 5,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "[Ljava.security.cert.Certificate;",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.io.FileDescriptor$1",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.CharacterDataLatin1",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<JavaWorkload>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[B>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[C>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[D>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[F>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[I>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[J>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.io.File$PathStatus;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.io.ObjectStreamField;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.io.Serializable;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.Byte;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.CharSequence;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.Character;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.Class;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.ClassLoader;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.Cloneable;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.Comparable;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.Enum;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.Error;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.Integer;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.Long;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.Module;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.Number;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.Object;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.OutOfMemoryError;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.Runnable;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.Short;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.StackTraceElement;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.String;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.Thread$UncaughtExceptionHandler;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.Thread;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.ThreadGroup;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.Throwable;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.VirtualMachineError;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.annotation.Annotation;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.constant.Constable;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.constant.ConstantDesc;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.invoke.LambdaForm;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.invoke.MethodHandle;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.invoke.MethodType;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.invoke.TypeDescriptor$OfField;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.invoke.TypeDescriptor$OfMethod;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.invoke.TypeDescriptor;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.module.ModuleDescriptor$Exports;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.module.ModuleDescriptor$Modifier;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            },
+            {
+              "class_name": "java.lang.Class<[Ljava.lang.module.ModuleDescriptor$Opens;>",
+              "retained_bytes": 0,
+              "instances": 1,
+              "shallow_bytes": 0
+            }
+          ],
+          "dominators": [
+            {
+              "object_id": "0xfe045860",
+              "class_name": "java.util.ArrayList",
+              "shallow_bytes": 16,
+              "retained_bytes": 4457768
+            },
+            {
+              "object_id": "0xfe070438",
+              "class_name": "[Ljava.lang.Object;",
+              "shallow_bytes": 1304,
+              "retained_bytes": 4457752
+            },
+            {
+              "object_id": "0xfe070a48",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe080a58",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe090a68",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe0a0a78",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe0b0a88",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe0c0a98",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe0d0aa8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe0e0ab8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe0f0ac8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe100ad8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe110ae8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe120af8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe130b08",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe140b18",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe150b28",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe160b38",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe170b48",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe180b58",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe190b68",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe1a0b78",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe1b0b88",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe1c0b98",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe1d0ba8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe1e0bb8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe1f0bc8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe200bd8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe210be8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe220bf8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe230c08",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe240c18",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe250c28",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe260c38",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe270c48",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe280c58",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe290c68",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe2a0c78",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe2b0c88",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe2c0c98",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe2d0ca8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe2e0cb8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe2f0cc8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe300cd8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe310ce8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe320cf8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe330d08",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe340d18",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe350d28",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe360d38",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe370d48",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe380d58",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe390d68",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe3a0d78",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe3b0d88",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe3c0d98",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe3d0da8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe3e0db8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe3f0dc8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe400dd8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe410de8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe420df8",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe430e08",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe440e18",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe450e28",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe460e38",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe470e48",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe480e58",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe490e68",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe4a0e78",
+              "class_name": "byte[]",
+              "shallow_bytes": 65536,
+              "retained_bytes": 65536
+            },
+            {
+              "object_id": "0xfe0537c0",
+              "class_name": "java.util.concurrent.ConcurrentHashMap",
+              "shallow_bytes": 84,
+              "retained_bytes": 39168
+            },
+            {
+              "object_id": "0xfe068aa0",
+              "class_name": "[Ljava.util.concurrent.ConcurrentHashMap$Node;",
+              "shallow_bytes": 16384,
+              "retained_bytes": 39084
+            },
+            {
+              "object_id": "0xfe04c250",
+              "class_name": "java.io.PrintStream",
+              "shallow_bytes": 44,
+              "retained_bytes": 25017
+            },
+            {
+              "object_id": "0xfe04e428",
+              "class_name": "java.io.PrintStream",
+              "shallow_bytes": 44,
+              "retained_bytes": 25017
+            },
+            {
+              "object_id": "0xfe0341b0",
+              "class_name": "java.lang.Module",
+              "shallow_bytes": 65,
+              "retained_bytes": 20749
+            },
+            {
+              "object_id": "0xfe050918",
+              "class_name": "java.util.HashMap",
+              "shallow_bytes": 48,
+              "retained_bytes": 20628
+            },
+            {
+              "object_id": "0xfe065048",
+              "class_name": "[Ljava.util.HashMap$Node;",
+              "shallow_bytes": 2048,
+              "retained_bytes": 20580
+            },
+            {
+              "object_id": "0xfe05d468",
+              "class_name": "java.io.BufferedWriter",
+              "shallow_bytes": 40,
+              "retained_bytes": 16424
+            },
+            {
+              "object_id": "0xfe0618d8",
+              "class_name": "java.io.BufferedWriter",
+              "shallow_bytes": 40,
+              "retained_bytes": 16424
+            },
+            {
+              "object_id": "0xfe0007e8",
+              "class_name": "char[]",
+              "shallow_bytes": 16384,
+              "retained_bytes": 16384
+            },
+            {
+              "object_id": "0xfe00e180",
+              "class_name": "char[]",
+              "shallow_bytes": 16384,
+              "retained_bytes": 16384
+            },
+            {
+              "object_id": "0xfe04ba38",
+              "class_name": "java.lang.module.ModuleDescriptor",
+              "shallow_bytes": 94,
+              "retained_bytes": 10619
+            },
+            {
+              "object_id": "0xfe04b380",
+              "class_name": "java.lang.module.Configuration",
+              "shallow_bytes": 48,
+              "retained_bytes": 8464
+            },
+            {
+              "object_id": "0xfe04c238",
+              "class_name": "java.io.OutputStreamWriter",
+              "shallow_bytes": 24,
+              "retained_bytes": 8392
+            },
+            {
+              "object_id": "0xfe04e410",
+              "class_name": "java.io.OutputStreamWriter",
+              "shallow_bytes": 24,
+              "retained_bytes": 8392
+            },
+            {
+              "object_id": "0xfe0047f8",
+              "class_name": "sun.nio.cs.StreamEncoder",
+              "shallow_bytes": 68,
+              "retained_bytes": 8368
+            },
+            {
+              "object_id": "0xfe012190",
+              "class_name": "sun.nio.cs.StreamEncoder",
+              "shallow_bytes": 68,
+              "retained_bytes": 8368
+            },
+            {
+              "object_id": "0xfe016e38",
+              "class_name": "java.nio.HeapByteBuffer",
+              "shallow_bytes": 47,
+              "retained_bytes": 8239
+            },
+            {
+              "object_id": "0xfe01bc88",
+              "class_name": "java.nio.HeapByteBuffer",
+              "shallow_bytes": 47,
+              "retained_bytes": 8239
+            },
+            {
+              "object_id": "0xfe053b50",
+              "class_name": "java.io.BufferedInputStream",
+              "shallow_bytes": 32,
+              "retained_bytes": 8224
+            },
+            {
+              "object_id": "0xfe01f140",
+              "class_name": "byte[]",
+              "shallow_bytes": 8192,
+              "retained_bytes": 8192
+            },
+            {
+              "object_id": "0xfe023e98",
+              "class_name": "byte[]",
+              "shallow_bytes": 8192,
+              "retained_bytes": 8192
+            },
+            {
+              "object_id": "0xfe06abc0",
+              "class_name": "byte[]",
+              "shallow_bytes": 8192,
+              "retained_bytes": 8192
+            },
+            {
+              "object_id": "0xfe037a10",
+              "class_name": "[Ljava.lang.Object;",
+              "shallow_bytes": 8144,
+              "retained_bytes": 8144
+            },
+            {
+              "object_id": "0xfe05c930",
+              "class_name": "java.util.ImmutableCollections$SetN",
+              "shallow_bytes": 12,
+              "retained_bytes": 7140
+            },
+            {
+              "object_id": "0xfe007690",
+              "class_name": "[Ljava.lang.Object;",
+              "shallow_bytes": 1872,
+              "retained_bytes": 7128
+            },
+            {
+              "object_id": "0xfe048158",
+              "class_name": "java.lang.module.ModuleDescriptor",
+              "shallow_bytes": 94,
+              "retained_bytes": 5583
+            },
+            {
+              "object_id": "0xfe04b318",
+              "class_name": "java.lang.ModuleLayer",
+              "shallow_bytes": 48,
+              "retained_bytes": 4936
+            },
+            {
+              "object_id": "0xfe05b978",
+              "class_name": "java.util.HashMap",
+              "shallow_bytes": 48,
+              "retained_bytes": 4872
+            },
+            {
+              "object_id": "0xfe06d930",
+              "class_name": "[Ljava.util.HashMap$Node;",
+              "shallow_bytes": 1024,
+              "retained_bytes": 4824
+            }
+          ],
+          "leak_paths": [
+            {
+              "object_id": "0xfe045860",
+              "retained_bytes": 4457768,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            },
+            {
+              "object_id": "0xfe070438",
+              "retained_bytes": 4457752,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                },
+                {
+                  "object_id": "0xfe070438",
+                  "class_name": "[Ljava.lang.Object;"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            },
+            {
+              "object_id": "0xfe070a48",
+              "retained_bytes": 65536,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                },
+                {
+                  "object_id": "0xfe070438",
+                  "class_name": "[Ljava.lang.Object;"
+                },
+                {
+                  "object_id": "0xfe070a48",
+                  "class_name": "byte[]"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            },
+            {
+              "object_id": "0xfe080a58",
+              "retained_bytes": 65536,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                },
+                {
+                  "object_id": "0xfe070438",
+                  "class_name": "[Ljava.lang.Object;"
+                },
+                {
+                  "object_id": "0xfe080a58",
+                  "class_name": "byte[]"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            },
+            {
+              "object_id": "0xfe090a68",
+              "retained_bytes": 65536,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                },
+                {
+                  "object_id": "0xfe070438",
+                  "class_name": "[Ljava.lang.Object;"
+                },
+                {
+                  "object_id": "0xfe090a68",
+                  "class_name": "byte[]"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            },
+            {
+              "object_id": "0xfe0a0a78",
+              "retained_bytes": 65536,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                },
+                {
+                  "object_id": "0xfe070438",
+                  "class_name": "[Ljava.lang.Object;"
+                },
+                {
+                  "object_id": "0xfe0a0a78",
+                  "class_name": "byte[]"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            },
+            {
+              "object_id": "0xfe0b0a88",
+              "retained_bytes": 65536,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                },
+                {
+                  "object_id": "0xfe070438",
+                  "class_name": "[Ljava.lang.Object;"
+                },
+                {
+                  "object_id": "0xfe0b0a88",
+                  "class_name": "byte[]"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            },
+            {
+              "object_id": "0xfe0c0a98",
+              "retained_bytes": 65536,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                },
+                {
+                  "object_id": "0xfe070438",
+                  "class_name": "[Ljava.lang.Object;"
+                },
+                {
+                  "object_id": "0xfe0c0a98",
+                  "class_name": "byte[]"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            },
+            {
+              "object_id": "0xfe0d0aa8",
+              "retained_bytes": 65536,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                },
+                {
+                  "object_id": "0xfe070438",
+                  "class_name": "[Ljava.lang.Object;"
+                },
+                {
+                  "object_id": "0xfe0d0aa8",
+                  "class_name": "byte[]"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            },
+            {
+              "object_id": "0xfe0e0ab8",
+              "retained_bytes": 65536,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                },
+                {
+                  "object_id": "0xfe070438",
+                  "class_name": "[Ljava.lang.Object;"
+                },
+                {
+                  "object_id": "0xfe0e0ab8",
+                  "class_name": "byte[]"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            },
+            {
+              "object_id": "0xfe0f0ac8",
+              "retained_bytes": 65536,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                },
+                {
+                  "object_id": "0xfe070438",
+                  "class_name": "[Ljava.lang.Object;"
+                },
+                {
+                  "object_id": "0xfe0f0ac8",
+                  "class_name": "byte[]"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            },
+            {
+              "object_id": "0xfe100ad8",
+              "retained_bytes": 65536,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                },
+                {
+                  "object_id": "0xfe070438",
+                  "class_name": "[Ljava.lang.Object;"
+                },
+                {
+                  "object_id": "0xfe100ad8",
+                  "class_name": "byte[]"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            },
+            {
+              "object_id": "0xfe110ae8",
+              "retained_bytes": 65536,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                },
+                {
+                  "object_id": "0xfe070438",
+                  "class_name": "[Ljava.lang.Object;"
+                },
+                {
+                  "object_id": "0xfe110ae8",
+                  "class_name": "byte[]"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            },
+            {
+              "object_id": "0xfe120af8",
+              "retained_bytes": 65536,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                },
+                {
+                  "object_id": "0xfe070438",
+                  "class_name": "[Ljava.lang.Object;"
+                },
+                {
+                  "object_id": "0xfe120af8",
+                  "class_name": "byte[]"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            },
+            {
+              "object_id": "0xfe130b08",
+              "retained_bytes": 65536,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                },
+                {
+                  "object_id": "0xfe070438",
+                  "class_name": "[Ljava.lang.Object;"
+                },
+                {
+                  "object_id": "0xfe130b08",
+                  "class_name": "byte[]"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            },
+            {
+              "object_id": "0xfe140b18",
+              "retained_bytes": 65536,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                },
+                {
+                  "object_id": "0xfe070438",
+                  "class_name": "[Ljava.lang.Object;"
+                },
+                {
+                  "object_id": "0xfe140b18",
+                  "class_name": "byte[]"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            },
+            {
+              "object_id": "0xfe150b28",
+              "retained_bytes": 65536,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                },
+                {
+                  "object_id": "0xfe070438",
+                  "class_name": "[Ljava.lang.Object;"
+                },
+                {
+                  "object_id": "0xfe150b28",
+                  "class_name": "byte[]"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            },
+            {
+              "object_id": "0xfe160b38",
+              "retained_bytes": 65536,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                },
+                {
+                  "object_id": "0xfe070438",
+                  "class_name": "[Ljava.lang.Object;"
+                },
+                {
+                  "object_id": "0xfe160b38",
+                  "class_name": "byte[]"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            },
+            {
+              "object_id": "0xfe170b48",
+              "retained_bytes": 65536,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                },
+                {
+                  "object_id": "0xfe070438",
+                  "class_name": "[Ljava.lang.Object;"
+                },
+                {
+                  "object_id": "0xfe170b48",
+                  "class_name": "byte[]"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            },
+            {
+              "object_id": "0xfe180b58",
+              "retained_bytes": 65536,
+              "path": [
+                {
+                  "object_id": "0xfe045860",
+                  "class_name": "java.util.ArrayList",
+                  "root_kind": "java_frame"
+                },
+                {
+                  "object_id": "0xfe070438",
+                  "class_name": "[Ljava.lang.Object;"
+                },
+                {
+                  "object_id": "0xfe180b58",
+                  "class_name": "byte[]"
+                }
+              ],
+              "classification": "retention_candidate",
+              "truncated": false
+            }
+          ],
+          "limitations": [
+            "对象大小使用 HPROF 字段和数组载荷字节，不含 VM 对象头、压缩引用差异与对齐；retained 同样采用此权重。",
+            "java.lang.ref.Reference.referent 不作为强引用。retention candidate 需跨时间堆对比才能确认泄漏。",
+            "类间 retained 值不可直接相加；同类嵌套 dominator 已去重。"
+          ]
+        }
+      },
+      "metadata": {
+        "schema_version": "1.0",
+        "format": "hprof",
+        "sample_count": 4843530,
+        "stack_count": 148,
+        "unique_stack_count": 148,
+        "node_count": 149,
+        "max_depth": 1,
+        "lost_samples": null,
+        "lost_samples_status": "not_reported_by_input",
+        "filters": [],
+        "unit": "bytes",
+        "time_range": null,
+        "thread_information": "encoded_in_stack_names_if_present",
+        "timestamp_ms": 1792160264214,
+        "identifier_size": 8,
+        "index_resumed": false,
+        "index_schema_version": "1",
+        "index_rebuilt": false,
+        "source": "import",
+        "profile_source": "hotspot-hprof",
+        "provenance": "import",
+        "input_format": "hprof",
+        "pipeline": "hprof_v1",
+        "queue_class": "high_memory",
+        "python_version": "3.12.12",
+        "collector": {
+          "source": "import"
+        }
+      },
+      "resource_usage": {
+        "duration_ms": 836.168,
+        "cpu_seconds": 0.64543,
+        "subprocess_cpu_seconds": 0.0,
+        "subprocess_max_rss_bytes": 0,
+        "max_rss_bytes": 53100544,
+        "temp_disk_bytes": 2327,
+        "index_cache_bytes": 4923392,
+        "observed_peak_tree_rss_bytes": 53100544,
+        "observed_processes": 1,
+        "rss_sampling_interval_ms": 50
+      },
+      "elapsed_seconds": 0.966356
+    },
+    {
+      "kind": "PERF_CPU",
+      "format": "folded",
+      "collector": "perf",
+      "fixture_source": "real toy business PID through production RunnerRegistry; not production data",
+      "collection_metadata": {
+        "target_pid": 1087,
+        "start_time_ticks": 345901520,
+        "duration_ms": 3176
+      },
+      "input_bytes": 689,
+      "input_sha256": "eaed780e446afca6988ff150873da695851bca74057c24788eadd3166aa5dc97",
+      "status": "success",
+      "source": "import",
+      "profile_source": "perf",
+      "total_weight": 26,
+      "unit": "samples",
+      "nodes": 12,
+      "sections": {},
+      "metadata": {
+        "schema_version": "1.0",
+        "format": "collapsed/v1",
+        "sample_count": 26,
+        "stack_count": 4,
+        "unique_stack_count": 4,
+        "node_count": 12,
+        "max_depth": 9,
+        "lost_samples": null,
+        "lost_samples_status": "not_reported_by_input",
+        "filters": [],
+        "unit": "samples",
+        "time_range": null,
+        "thread_information": "encoded_in_stack_names_if_present",
+        "source": "import",
+        "profile_source": "perf",
+        "provenance": "import",
+        "input_format": "folded",
+        "pipeline": "folded_v1",
+        "queue_class": "small",
+        "python_version": "3.12.12",
+        "collector": {
+          "source": "import"
+        }
+      },
+      "resource_usage": {
+        "duration_ms": 133.848,
+        "cpu_seconds": 0.13305,
+        "subprocess_cpu_seconds": 0.0,
+        "subprocess_max_rss_bytes": 0,
+        "max_rss_bytes": 34410496,
+        "temp_disk_bytes": 1362,
+        "index_cache_bytes": 0,
+        "observed_peak_tree_rss_bytes": 21282816,
+        "observed_processes": 1,
+        "rss_sampling_interval_ms": 50
+      },
+      "elapsed_seconds": 0.255581
+    },
+    {
+      "kind": "PROC_CPU",
+      "format": "folded",
+      "collector": "procfs",
+      "fixture_source": "real toy business PID through production RunnerRegistry; not production data",
+      "collection_metadata": {
+        "target_pid": 1087,
+        "start_time_ticks": 345901520,
+        "duration_ms": 2007
+      },
+      "input_bytes": 53,
+      "input_sha256": "752585e3142869aa8f701158c0d0d74f2ddd3905dd157f0ea34e37ebdeb40b87",
+      "status": "success",
+      "source": "import",
+      "profile_source": "procfs",
+      "total_weight": 27,
+      "unit": "cpu_ticks",
+      "nodes": 3,
+      "sections": {},
+      "metadata": {
+        "schema_version": "1.0",
+        "format": "collapsed/v1",
+        "sample_count": 27,
+        "stack_count": 1,
+        "unique_stack_count": 1,
+        "node_count": 3,
+        "max_depth": 2,
+        "lost_samples": null,
+        "lost_samples_status": "not_reported_by_input",
+        "filters": [],
+        "unit": "samples",
+        "time_range": null,
+        "thread_information": "encoded_in_stack_names_if_present",
+        "source": "import",
+        "profile_source": "procfs",
+        "provenance": "import",
+        "input_format": "folded",
+        "pipeline": "folded_v1",
+        "queue_class": "small",
+        "python_version": "3.12.12",
+        "collector": {
+          "source": "import"
+        }
+      },
+      "resource_usage": {
+        "duration_ms": 140.355,
+        "cpu_seconds": 0.135272,
+        "subprocess_cpu_seconds": 0.0,
+        "subprocess_max_rss_bytes": 0,
+        "max_rss_bytes": 34410496,
+        "temp_disk_bytes": 1172,
+        "index_cache_bytes": 0,
+        "observed_peak_tree_rss_bytes": 21278720,
+        "observed_processes": 1,
+        "rss_sampling_interval_ms": 50
+      },
+      "elapsed_seconds": 0.255745
+    },
+    {
+      "kind": "PYTHON_CPU",
+      "format": "folded",
+      "collector": "py-spy",
+      "fixture_source": "real toy business PID through production RunnerRegistry; not production data",
+      "collection_metadata": {
+        "target_pid": 1086,
+        "start_time_ticks": 345901520,
+        "duration_ms": 2119
+      },
+      "input_bytes": 200,
+      "input_sha256": "e6d67d29c86b4ea1d268446e725ecb0ebed290b2cd2dec9be2c989eaae85502d",
+      "status": "success",
+      "source": "import",
+      "profile_source": "py-spy",
+      "total_weight": 190,
+      "unit": "samples",
+      "nodes": 5,
+      "sections": {},
+      "metadata": {
+        "schema_version": "1.0",
+        "format": "collapsed/v1",
+        "sample_count": 190,
+        "stack_count": 3,
+        "unique_stack_count": 3,
+        "node_count": 5,
+        "max_depth": 2,
+        "lost_samples": null,
+        "lost_samples_status": "not_reported_by_input",
+        "filters": [],
+        "unit": "samples",
+        "time_range": null,
+        "thread_information": "encoded_in_stack_names_if_present",
+        "source": "import",
+        "profile_source": "py-spy",
+        "provenance": "import",
+        "input_format": "folded",
+        "pipeline": "python_cpu_v1",
+        "queue_class": "small",
+        "python_version": "3.12.12",
+        "collector": {
+          "source": "import"
+        }
+      },
+      "resource_usage": {
+        "duration_ms": 140.948,
+        "cpu_seconds": 0.134705,
+        "subprocess_cpu_seconds": 0.0,
+        "subprocess_max_rss_bytes": 0,
+        "max_rss_bytes": 34410496,
+        "temp_disk_bytes": 1297,
+        "index_cache_bytes": 0,
+        "observed_peak_tree_rss_bytes": 21245952,
+        "observed_processes": 1,
+        "rss_sampling_interval_ms": 50
+      },
+      "elapsed_seconds": 0.256034
+    },
+    {
+      "kind": "PYTHON_MEMORY",
+      "format": "memray",
+      "collector": "memray",
+      "fixture_source": "real toy business PID through production RunnerRegistry; not production data",
+      "collection_metadata": {
+        "target_pid": 1086,
+        "start_time_ticks": 345901520,
+        "duration_ms": 4898
+      },
+      "input_bytes": 2921,
+      "input_sha256": "4bf9ff1673db80f56c50ff16ba1cb069ebcc850cab630ae7866376aa29dcc8ef",
+      "status": "success",
+      "source": "import",
+      "profile_source": "memray",
+      "total_weight": 1657337,
+      "unit": "bytes",
+      "nodes": 19,
+      "sections": {
+        "memory": {
+          "allocated_bytes": 1657385,
+          "freed_bytes": 80,
+          "live_bytes": 1657305,
+          "peak_live_bytes": 1657337,
+          "allocations": 37,
+          "frees": 10,
+          "unknown_frees": null,
+          "pagefaults": {
+            "minor": null,
+            "major": null
+          },
+          "lost_events": null,
+          "survivors": [
+            {
+              "bytes": 1638425,
+              "allocations": 25,
+              "stack": [
+                "<module> (/src/core/fixtures/python_workload.py:14)"
+              ],
+              "classification": "unfreed_at_capture_end"
+            },
+            {
+              "bytes": 16416,
+              "allocations": 2,
+              "stack": [],
+              "classification": "unfreed_at_capture_end"
+            },
+            {
+              "bytes": 1024,
+              "allocations": 1,
+              "stack": [
+                "<module> (/src/core/fixtures/python_workload.py:14)"
+              ],
+              "classification": "unfreed_at_capture_end"
+            },
+            {
+              "bytes": 528,
+              "allocations": 1,
+              "stack": [
+                "<module> (_memray_attach_hook.py:95)",
+                "track_for_duration (_memray_attach_hook.py:78)",
+                "__init__ (/usr/lib/python3.12/threading.py:1417)",
+                "__init__ (/usr/lib/python3.12/threading.py:933)",
+                "__init__ (/usr/lib/python3.12/threading.py:589)",
+                "__init__ (/usr/lib/python3.12/threading.py:293)"
+              ],
+              "classification": "unfreed_at_capture_end"
+            },
+            {
+              "bytes": 528,
+              "allocations": 1,
+              "stack": [
+                "<module> (_memray_attach_hook.py:95)",
+                "track_for_duration (_memray_attach_hook.py:78)",
+                "__init__ (/usr/lib/python3.12/threading.py:1422)",
+                "__init__ (/usr/lib/python3.12/threading.py:589)",
+                "__init__ (/usr/lib/python3.12/threading.py:293)"
+              ],
+              "classification": "unfreed_at_capture_end"
+            },
+            {
+              "bytes": 320,
+              "allocations": 2,
+              "stack": [
+                "<module> (_memray_attach_hook.py:95)",
+                "track_for_duration (_memray_attach_hook.py:80)",
+                "start (/usr/lib/python3.12/threading.py:992)"
+              ],
+              "classification": "unfreed_at_capture_end"
+            },
+            {
+              "bytes": 32,
+              "allocations": 1,
+              "stack": [
+                "<module> (_memray_attach_hook.py:95)",
+                "track_for_duration (_memray_attach_hook.py:78)",
+                "__init__ (/usr/lib/python3.12/threading.py:1417)",
+                "__init__ (/usr/lib/python3.12/threading.py:933)",
+                "__init__ (/usr/lib/python3.12/threading.py:589)"
+              ],
+              "classification": "unfreed_at_capture_end"
+            },
+            {
+              "bytes": 32,
+              "allocations": 1,
+              "stack": [
+                "<module> (_memray_attach_hook.py:95)",
+                "track_for_duration (_memray_attach_hook.py:78)",
+                "__init__ (/usr/lib/python3.12/threading.py:1422)",
+                "__init__ (/usr/lib/python3.12/threading.py:589)"
+              ],
+              "classification": "unfreed_at_capture_end"
+            }
+          ],
+          "timeseries": [
+            {
+              "time_ns": 1792160274859000000,
+              "rss_bytes": 32333824,
+              "live_bytes": 0
+            },
+            {
+              "time_ns": 1792160274914000000,
+              "rss_bytes": 32366592,
+              "live_bytes": 1472
+            },
+            {
+              "time_ns": 1792160274924000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 17888
+            },
+            {
+              "time_ns": 1792160274936000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 17888
+            },
+            {
+              "time_ns": 1792160274948000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 83425
+            },
+            {
+              "time_ns": 1792160274958000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 83425
+            },
+            {
+              "time_ns": 1792160274970000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 83425
+            },
+            {
+              "time_ns": 1792160275013000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 83425
+            },
+            {
+              "time_ns": 1792160275023000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 83425
+            },
+            {
+              "time_ns": 1792160275033000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 83425
+            },
+            {
+              "time_ns": 1792160275044000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 83425
+            },
+            {
+              "time_ns": 1792160275054000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 148962
+            },
+            {
+              "time_ns": 1792160275065000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 148962
+            },
+            {
+              "time_ns": 1792160275112000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 148962
+            },
+            {
+              "time_ns": 1792160275122000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 148962
+            },
+            {
+              "time_ns": 1792160275133000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 148962
+            },
+            {
+              "time_ns": 1792160275143000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 148962
+            },
+            {
+              "time_ns": 1792160275153000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 214499
+            },
+            {
+              "time_ns": 1792160275212000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 214499
+            },
+            {
+              "time_ns": 1792160275222000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 214499
+            },
+            {
+              "time_ns": 1792160275233000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 280036
+            },
+            {
+              "time_ns": 1792160275244000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 280036
+            },
+            {
+              "time_ns": 1792160275255000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 280036
+            },
+            {
+              "time_ns": 1792160275265000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 280036
+            },
+            {
+              "time_ns": 1792160275275000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 280036
+            },
+            {
+              "time_ns": 1792160275312000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 280036
+            },
+            {
+              "time_ns": 1792160275322000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 345573
+            },
+            {
+              "time_ns": 1792160275334000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 345573
+            },
+            {
+              "time_ns": 1792160275344000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 345573
+            },
+            {
+              "time_ns": 1792160275356000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 345573
+            },
+            {
+              "time_ns": 1792160275367000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 345573
+            },
+            {
+              "time_ns": 1792160275412000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 412134
+            },
+            {
+              "time_ns": 1792160275422000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 412134
+            },
+            {
+              "time_ns": 1792160275433000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 412134
+            },
+            {
+              "time_ns": 1792160275443000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 412134
+            },
+            {
+              "time_ns": 1792160275453000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 412134
+            },
+            {
+              "time_ns": 1792160275463000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 412134
+            },
+            {
+              "time_ns": 1792160275514000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 477671
+            },
+            {
+              "time_ns": 1792160275524000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 477671
+            },
+            {
+              "time_ns": 1792160275534000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 477671
+            },
+            {
+              "time_ns": 1792160275544000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 477671
+            },
+            {
+              "time_ns": 1792160275554000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 477671
+            },
+            {
+              "time_ns": 1792160275565000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 543208
+            },
+            {
+              "time_ns": 1792160275612000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 543208
+            },
+            {
+              "time_ns": 1792160275623000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 543208
+            },
+            {
+              "time_ns": 1792160275633000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 543208
+            },
+            {
+              "time_ns": 1792160275644000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 608745
+            },
+            {
+              "time_ns": 1792160275654000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 608745
+            },
+            {
+              "time_ns": 1792160275712000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 608745
+            },
+            {
+              "time_ns": 1792160275722000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 608745
+            },
+            {
+              "time_ns": 1792160275734000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 674282
+            },
+            {
+              "time_ns": 1792160275744000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 674282
+            },
+            {
+              "time_ns": 1792160275754000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 674282
+            },
+            {
+              "time_ns": 1792160275765000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 739819
+            },
+            {
+              "time_ns": 1792160275812000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 739819
+            },
+            {
+              "time_ns": 1792160275822000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 739819
+            },
+            {
+              "time_ns": 1792160275832000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 739819
+            },
+            {
+              "time_ns": 1792160275842000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 805356
+            },
+            {
+              "time_ns": 1792160275853000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 805356
+            },
+            {
+              "time_ns": 1792160275914000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 805356
+            },
+            {
+              "time_ns": 1792160275924000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 805356
+            },
+            {
+              "time_ns": 1792160275935000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 805356
+            },
+            {
+              "time_ns": 1792160275945000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 870893
+            },
+            {
+              "time_ns": 1792160275959000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 870893
+            },
+            {
+              "time_ns": 1792160275969000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 870893
+            },
+            {
+              "time_ns": 1792160275979000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 870893
+            },
+            {
+              "time_ns": 1792160275989000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 870893
+            },
+            {
+              "time_ns": 1792160276012000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 870893
+            },
+            {
+              "time_ns": 1792160276022000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 936430
+            },
+            {
+              "time_ns": 1792160276032000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 936430
+            },
+            {
+              "time_ns": 1792160276043000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 936430
+            },
+            {
+              "time_ns": 1792160276053000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 936430
+            },
+            {
+              "time_ns": 1792160276064000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1001967
+            },
+            {
+              "time_ns": 1792160276112000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1001967
+            },
+            {
+              "time_ns": 1792160276122000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1001967
+            },
+            {
+              "time_ns": 1792160276134000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1001967
+            },
+            {
+              "time_ns": 1792160276144000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1067504
+            },
+            {
+              "time_ns": 1792160276155000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1067504
+            },
+            {
+              "time_ns": 1792160276213000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1067504
+            },
+            {
+              "time_ns": 1792160276223000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1067504
+            },
+            {
+              "time_ns": 1792160276239000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1067504
+            },
+            {
+              "time_ns": 1792160276250000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1133041
+            },
+            {
+              "time_ns": 1792160276260000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1133041
+            },
+            {
+              "time_ns": 1792160276270000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1133041
+            },
+            {
+              "time_ns": 1792160276313000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1198578
+            },
+            {
+              "time_ns": 1792160276323000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1198578
+            },
+            {
+              "time_ns": 1792160276333000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1198578
+            },
+            {
+              "time_ns": 1792160276343000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1198578
+            },
+            {
+              "time_ns": 1792160276353000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1264115
+            },
+            {
+              "time_ns": 1792160276363000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1264115
+            },
+            {
+              "time_ns": 1792160276412000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1264115
+            },
+            {
+              "time_ns": 1792160276422000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1264115
+            },
+            {
+              "time_ns": 1792160276434000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1264115
+            },
+            {
+              "time_ns": 1792160276444000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1329652
+            },
+            {
+              "time_ns": 1792160276454000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1329652
+            },
+            {
+              "time_ns": 1792160276464000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1329652
+            },
+            {
+              "time_ns": 1792160276513000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1329652
+            },
+            {
+              "time_ns": 1792160276523000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1329652
+            },
+            {
+              "time_ns": 1792160276533000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1395189
+            },
+            {
+              "time_ns": 1792160276544000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1395189
+            },
+            {
+              "time_ns": 1792160276554000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1395189
+            },
+            {
+              "time_ns": 1792160276564000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1460726
+            },
+            {
+              "time_ns": 1792160276613000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1460726
+            },
+            {
+              "time_ns": 1792160276623000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1460726
+            },
+            {
+              "time_ns": 1792160276634000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1460726
+            },
+            {
+              "time_ns": 1792160276644000000,
+              "rss_bytes": 32415744,
+              "live_bytes": 1460726
+            },
+            {
+              "time_ns": 1792160276655000000,
+              "rss_bytes": 32481280,
+              "live_bytes": 1526263
+            },
+            {
+              "time_ns": 1792160276665000000,
+              "rss_bytes": 32481280,
+              "live_bytes": 1526263
+            },
+            {
+              "time_ns": 1792160276713000000,
+              "rss_bytes": 32481280,
+              "live_bytes": 1526263
+            },
+            {
+              "time_ns": 1792160276723000000,
+              "rss_bytes": 32481280,
+              "live_bytes": 1526263
+            },
+            {
+              "time_ns": 1792160276735000000,
+              "rss_bytes": 32481280,
+              "live_bytes": 1526263
+            },
+            {
+              "time_ns": 1792160276745000000,
+              "rss_bytes": 32481280,
+              "live_bytes": 1526263
+            },
+            {
+              "time_ns": 1792160276755000000,
+              "rss_bytes": 32546816,
+              "live_bytes": 1591800
+            },
+            {
+              "time_ns": 1792160276766000000,
+              "rss_bytes": 32546816,
+              "live_bytes": 1591800
+            },
+            {
+              "time_ns": 1792160276814000000,
+              "rss_bytes": 32546816,
+              "live_bytes": 1591800
+            },
+            {
+              "time_ns": 1792160276824000000,
+              "rss_bytes": 32546816,
+              "live_bytes": 1591800
+            },
+            {
+              "time_ns": 1792160276834000000,
+              "rss_bytes": 32546816,
+              "live_bytes": 1591800
+            },
+            {
+              "time_ns": 1792160276844000000,
+              "rss_bytes": 32616448,
+              "live_bytes": 1657337
+            },
+            {
+              "time_ns": 1792160276855000000,
+              "rss_bytes": 32616448,
+              "live_bytes": 1657337
+            },
+            {
+              "time_ns": 1792160276866000000,
+              "rss_bytes": 32616448,
+              "live_bytes": 1657337
+            },
+            {
+              "time_ns": 1792160276912000000,
+              "rss_bytes": 32616448,
+              "live_bytes": 1657337
+            },
+            {
+              "time_ns": 1792160276923000000,
+              "rss_bytes": 32616448,
+              "live_bytes": 1657337
+            }
+          ],
+          "limitations": [
+            "memray 记录分配，不记录 page fault；捕获结束仍存活不等于泄漏。",
+            "聚合格式没有逐次 alloc/free 流，对应总量为 null。"
+          ]
+        }
+      },
+      "metadata": {
+        "schema_version": "1.0",
+        "format": "memray",
+        "sample_count": 1657337,
+        "stack_count": 9,
+        "unique_stack_count": 8,
+        "node_count": 19,
+        "max_depth": 6,
+        "lost_samples": null,
+        "lost_samples_status": "not_reported_by_input",
+        "filters": [],
+        "unit": "bytes",
+        "time_range": null,
+        "thread_information": "encoded_in_stack_names_if_present",
+        "profile_type": "high_watermark",
+        "tool_version": "1.20.0",
+        "native_traces": false,
+        "start_time": "2026-10-16 14:17:54.859000+00:00",
+        "end_time": "2026-10-16 14:17:56.927000+00:00",
+        "source": "import",
+        "profile_source": "memray",
+        "provenance": "import",
+        "input_format": "memray",
+        "pipeline": "memray_v1",
+        "queue_class": "high_memory",
+        "python_version": "3.12.12",
+        "collector": {
+          "source": "import"
+        }
+      },
+      "resource_usage": {
+        "duration_ms": 272.437,
+        "cpu_seconds": 0.198101,
+        "subprocess_cpu_seconds": 0.0,
+        "subprocess_max_rss_bytes": 0,
+        "max_rss_bytes": 34410496,
+        "temp_disk_bytes": 1864,
+        "index_cache_bytes": 0,
+        "observed_peak_tree_rss_bytes": 32780288,
+        "observed_processes": 1,
+        "rss_sampling_interval_ms": 50
+      },
+      "elapsed_seconds": 0.407663
+    },
+    {
+      "kind": "RESOURCE_SNAPSHOT",
+      "format": "json",
+      "collector": "procfs-resources",
+      "fixture_source": "real toy business PID through production RunnerRegistry; not production data",
+      "collection_metadata": {
+        "target_pid": 1087,
+        "start_time_ticks": 345901520,
+        "duration_ms": 2076
+      },
+      "input_bytes": 3960,
+      "input_sha256": "a90eedf4b396b5adbe645a62992a20043aa06df12b3229c624c49036220d3643",
+      "status": "success",
+      "source": "import",
+      "profile_source": "procfs",
+      "total_weight": 0,
+      "unit": "bytes",
+      "nodes": 1,
+      "sections": {
+        "resources": {
+          "samples": [
+            {
+              "timestamp_ns": 1792160292742448958,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": null
+            },
+            {
+              "timestamp_ns": 1792160292843768427,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": 19.73954285133492
+            },
+            {
+              "timestamp_ns": 1792160292945468598,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": 9.83282515817992
+            },
+            {
+              "timestamp_ns": 1792160293047370335,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": 9.813375408900045
+            },
+            {
+              "timestamp_ns": 1792160293148439105,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": 19.78850638035864
+            },
+            {
+              "timestamp_ns": 1792160293248906896,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": 9.953438709526319
+            },
+            {
+              "timestamp_ns": 1792160293350182773,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": 19.74803930851174
+            },
+            {
+              "timestamp_ns": 1792160293451114869,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": 9.907651179660432
+            },
+            {
+              "timestamp_ns": 1792160293552670985,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": 19.693545586166373
+            },
+            {
+              "timestamp_ns": 1792160293653135906,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": 9.953723051252885
+            },
+            {
+              "timestamp_ns": 1792160293754018970,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": 9.912466576153953
+            },
+            {
+              "timestamp_ns": 1792160293854599445,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": 19.884575013192173
+            },
+            {
+              "timestamp_ns": 1792160293954773786,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": 9.982596241885934
+            },
+            {
+              "timestamp_ns": 1792160294056581001,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": 19.644973099401646
+            },
+            {
+              "timestamp_ns": 1792160294157271279,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": 9.93144541720304
+            },
+            {
+              "timestamp_ns": 1792160294257471411,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": 9.980026772819022
+            },
+            {
+              "timestamp_ns": 1792160294357671323,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": 19.960097370145395
+            },
+            {
+              "timestamp_ns": 1792160294457868515,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": 9.98031960815828
+            },
+            {
+              "timestamp_ns": 1792160294560446824,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": 9.748649687722967
+            },
+            {
+              "timestamp_ns": 1792160294660651356,
+              "rss_bytes": 3670016,
+              "vms_bytes": 6516736,
+              "read_bytes": 217088,
+              "write_bytes": 0,
+              "threads": 1,
+              "fd_count": 3,
+              "cpu_percent": 19.95917709590221
+            }
+          ],
+          "peaks": {
+            "cpu_percent": 19.960097370145395,
+            "rss_bytes": 3670016,
+            "vms_bytes": 6516736,
+            "threads": 1,
+            "fd_count": 3
+          },
+          "sample_count": 20,
+          "limitations": [
+            "进程快照可能遗漏采样间隔内的短暂峰值。"
+          ]
+        }
+      },
+      "metadata": {
+        "sample_count": 0,
+        "stack_count": 0,
+        "unique_stack_count": 0,
+        "node_count": 1,
+        "max_depth": 0,
+        "unit": "bytes",
+        "format": "resources-json/v1",
+        "source": "import",
+        "profile_source": "procfs",
+        "provenance": "import",
+        "input_format": "json",
+        "pipeline": "resources_v1",
+        "queue_class": "small",
+        "python_version": "3.12.12",
+        "collector": {
+          "source": "import"
+        }
+      },
+      "resource_usage": {
+        "duration_ms": 141.253,
+        "cpu_seconds": 0.135357,
+        "subprocess_cpu_seconds": 0.0,
+        "subprocess_max_rss_bytes": 0,
+        "max_rss_bytes": 34410496,
+        "temp_disk_bytes": 1138,
+        "index_cache_bytes": 0,
+        "observed_peak_tree_rss_bytes": 20942848,
+        "observed_processes": 1,
+        "rss_sampling_interval_ms": 50
+      },
+      "elapsed_seconds": 0.256303
+    },
+    {
+      "kind": "SCRIPT",
+      "format": "json",
+      "collector": "native-templates",
+      "fixture_source": "real toy business PID through production RunnerRegistry; not production data",
+      "collection_metadata": {
+        "target_pid": 1087,
+        "start_time_ticks": 345901520,
+        "duration_ms": 9
+      },
+      "input_bytes": 1704,
+      "input_sha256": "39d5e4855cdb9a0aa57ce6edcdfd81cf61955e36523af4b7746bb116db3d64ee",
+      "status": "success",
+      "source": "import",
+      "profile_source": "fixed-template",
+      "total_weight": 0,
+      "unit": "operations",
+      "nodes": 1,
+      "sections": {
+        "script": {
+          "template": "process_status",
+          "exit_code": 0,
+          "stdout": "Name:\tdrop_workload\nUmask:\t0022\nState:\tR (running)\nTgid:\t1087\nNgid:\t0\nPid:\t1087\nPPid:\t1\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1087\nNSpid:\t1087\nNSpgid:\t1\nNSsid:\t1\nKthread:\t0\nVmPeak:\t    6364 kB\nVmSize:\t    6364 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    3668 kB\nVmRSS:\t    3668 kB\nRssAnon:\t     200 kB\nRssFile:\t    3468 kB\nRssShmem:\t       0 kB\nVmData:\t     268 kB\nVmStk:\t     132 kB\nVmExe:\t       4 kB\nVmLib:\t    3716 kB\nVmPTE:\t      56 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t1\nSigQ:\t1/13530\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000000000\nSigCgt:\t0000000000004002\nCapInh:\t0000000000000000\nCapPrm:\t0000004000080000\nCapEff:\t0000004000080000\nCapBnd:\t0000004000080000\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t2\nSeccomp_filters:\t1\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t3\nCpus_allowed_list:\t0-1\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t4370\nnonvoluntary_ctxt_switches:\t11119\nx86_Thread_features:\t\nx86_Thread_features_locked:\t\n",
+          "stderr": "",
+          "duration_ms": 1,
+          "truncated": false
+        }
+      },
+      "metadata": {
+        "sample_count": 0,
+        "stack_count": 0,
+        "unique_stack_count": 0,
+        "node_count": 1,
+        "max_depth": 0,
+        "unit": "operations",
+        "format": "script-json/v1",
+        "source": "import",
+        "profile_source": "fixed-template",
+        "provenance": "import",
+        "input_format": "json",
+        "pipeline": "script_v1",
+        "queue_class": "small",
+        "python_version": "3.12.12",
+        "collector": {
+          "source": "import"
+        }
+      },
+      "resource_usage": {
+        "duration_ms": 136.08,
+        "cpu_seconds": 0.132626,
+        "subprocess_cpu_seconds": 0.0,
+        "subprocess_max_rss_bytes": 0,
+        "max_rss_bytes": 34410496,
+        "temp_disk_bytes": 1113,
+        "index_cache_bytes": 0,
+        "observed_peak_tree_rss_bytes": 21274624,
+        "observed_processes": 1,
+        "rss_sampling_interval_ms": 50
+      },
+      "elapsed_seconds": 0.254968
+    },
+    {
+      "kind": "GPERF_CPU",
+      "format": "gperf_cpu",
+      "collector": "native-profiler-control",
+      "fixture_source": "real instrumented toy through RunnerRegistry; not production data",
+      "collection_metadata": {
+        "target_pid": 7,
+        "start_time_ticks": 345853227,
+        "duration_ms": 2057
+      },
+      "input_bytes": 10230,
+      "input_sha256": "64ac0f0a4ca32640c03693503488efca5fae0db5f0e37b7345cb77442714c668",
+      "status": "success",
+      "source": "import",
+      "profile_source": "gperftools",
+      "total_weight": 121,
+      "unit": "samples",
+      "nodes": 44,
+      "sections": {},
+      "metadata": {
+        "schema_version": "1.0",
+        "format": "gperftools-cpu",
+        "sample_count": 121,
+        "stack_count": 67,
+        "unique_stack_count": 36,
+        "node_count": 44,
+        "max_depth": 6,
+        "lost_samples": null,
+        "lost_samples_status": "not_reported_by_input",
+        "filters": [],
+        "unit": "samples",
+        "time_range": null,
+        "thread_information": "encoded_in_stack_names_if_present",
+        "period_us": 10000,
+        "symbolization": "raw_program_counters",
+        "memory_maps": "64d0ed96d000-64d0ed971000 r--p 00000000 00:00 437616      /src/build/drop_native_workload\n64d0ed971000-64d0ed974000 r-xp 00004000 00:00 437616      /src/build/drop_native_workload\n64d0ed974000-64d0ed976000 r--p 00007000 00:00 437616      /src/build/drop_native_workload\n64d0ed976000-64d0ed977000 r--p 00008000 00:00 437616      /src/build/drop_native_workload\n64d0ed977000-64d0ed978000 rw-p 00009000 00:00 437616      /src/build/drop_native_workload\n64d102a86000-64d105c1f000 rw-p 00000000 00:00 0           [heap]\n78c8c4000000-78c8c4021000 rw-p 00000000 00:00 0           \n78c8c4021000-78c8c8000000 ---p 00000000 00:00 0           \n78c8c9e41000-78c8cab5b000 rw-p 00000000 00:00 0           \n78c8cab5b000-78c8cab5c000 ---p 00000000 00:00 0           \n78c8cab5c000-78c8cb35c000 rw-p 00000000 00:00 0           \n78c8cb35c000-78c8cb361000 rw-p 00000000 00:00 0           \n78c8cb361000-78c8cb364000 r--p 00000000 00:00 395020      /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5\n78c8cb364000-78c8cb386000 r-xp 00003000 00:00 395020      /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5\n78c8cb386000-78c8cb391000 r--p 00025000 00:00 395020      /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5\n78c8cb391000-78c8cb392000 r--p 00030000 00:00 395020      /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5\n78c8cb392000-78c8cb393000 rw-p 00031000 00:00 395020      /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5\n78c8cb393000-78c8cb396000 r--p 00000000 00:00 402390      /usr/lib/x86_64-linux-gnu/libunwind.so.8.0.1\n78c8cb396000-78c8cb3a0000 r-xp 00003000 00:00 402390      /usr/lib/x86_64-linux-gnu/libunwind.so.8.0.1\n78c8cb3a0000-78c8cb3a2000 r--p 0000d000 00:00 402390      /usr/lib/x86_64-linux-gnu/libunwind.so.8.0.1\n78c8cb3a2000-78c8cb3a3000 r--p 0000e000 00:00 402390      /usr/lib/x86_64-linux-gnu/libunwind.so.8.0.1\n78c8cb3a3000-78c8cb3a4000 rw-p 0000f000 00:00 402390      /usr/lib/x86_64-linux-gnu/libunwind.so.8.0.1\n78c8cb3a4000-78c8cb3ae000 rw-p 00000000 00:00 0           \n78c8cb3ae000-78c8cb3d6000 r--p 00000000 00:00 394979      /usr/lib/x86_64-linux-gnu/libc.so.6\n78c8cb3d6000-78c8cb55f000 r-xp 00028000 00:00 394979      /usr/lib/x86_64-linux-gnu/libc.so.6\n78c8cb55f000-78c8cb5ae000 r--p 001b1000 00:00 394979      /usr/lib/x86_64-linux-gnu/libc.so.6\n78c8cb5ae000-78c8cb5b2000 r--p 001ff000 00:00 394979      /usr/lib/x86_64-linux-gnu/libc.so.6\n78c8cb5b2000-78c8cb5b4000 rw-p 00203000 00:00 394979      /usr/lib/x86_64-linux-gnu/libc.so.6\n78c8cb5b4000-78c8cb5c3000 rw-p 00000000 00:00 0           \n78c8cb5c3000-78c8cb5c7000 r--p 00000000 00:00 395004      /usr/lib/x86_64-linux-gnu/libgcc_s.so.1\n78c8cb5c7000-78c8cb5eb000 r-xp 00004000 00:00 395004      /usr/lib/x86_64-linux-gnu/libgcc_s.so.1\n78c8cb5eb000-78c8cb5ef000 r--p 00028000 00:00 395004      /usr/lib/x86_64-linux-gnu/libgcc_s.so.1\n78c8cb5ef000-78c8cb5f0000 r--p 0002b000 00:00 395004      /usr/lib/x86_64-linux-gnu/libgcc_s.so.1\n78c8cb5f0000-78c8cb5f1000 rw-p 0002c000 00:00 395004      /usr/lib/x86_64-linux-gnu/libgcc_s.so.1\n78c8cb5f1000-78c8cb601000 r--p 00000000 00:00 395021      /usr/lib/x86_64-linux-gnu/libm.so.6\n78c8cb601000-78c8cb680000 r-xp 00010000 00:00 395021      /usr/lib/x86_64-linux-gnu/libm.so.6\n78c8cb680000-78c8cb6d8000 r--p 0008f000 00:00 395021      /usr/lib/x86_64-linux-gnu/libm.so.6\n78c8cb6d8000-78c8cb6d9000 r--p 000e7000 00:00 395021      /usr/lib/x86_64-linux-gnu/libm.so.6\n78c8cb6d9000-78c8cb6da000 rw-p 000e8000 00:00 395021      /usr/lib/x86_64-linux-gnu/libm.so.6\n78c8cb6da000-78c8cb777000 r--p 00000000 00:00 395072      /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33\n78c8cb777000-78c8cb8bf000 r-xp 0009d000 00:00 395072      /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33\n78c8cb8bf000-78c8cb946000 r--p 001e5000 00:00 395072      /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33\n78c8cb946000-78c8cb951000 r--p 0026b000 00:00 395072      /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33\n78c8cb951000-78c8cb954000 rw-p 00276000 00:00 395072      /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33\n78c8cb954000-78c8cb958000 rw-p 00000000 00:00 0           \n78c8cb958000-78c8cb9b6000 r--p 00000000 00:00 437611      /src/build/libdrop_native_profiler.so\n78c8cb9b6000-78c8cb9f1000 r-xp 0005e000 00:00 437611      /src/build/libdrop_native_profiler.so\n78c8cb9f1000-78c8cba0a000 r--p 00099000 00:00 437611      /src/build/libdrop_native_profiler.so\n78c8cba0a000-78c8cba0b000 r--p 000b1000 00:00 437611      /src/build/libdrop_native_profiler.so\n78c8cba0b000-78c8cba0f000 rw-p 000b2000 00:00 437611      /src/build/libdrop_native_profiler.so\n78c8cba0f000-78c8cba13000 r--p 00000000 00:00 1331715     /usr/lib/x86_64-linux-gnu/libprofiler.so.0.5.11\n78c8cba13000-78c8cba1b000 r-xp 00004000 00:00 1331715     /usr/lib/x86_64-linux-gnu/libprofiler.so.0.5.11\n78c8cba1b000-78c8cba1f000 r--p 0000c000 00:00 1331715     /usr/lib/x86_64-linux-gnu/libprofiler.so.0.5.11\n78c8cba1f000-78c8cba20000 r--p 0000f000 00:00 1331715     /usr/lib/x86_64-linux-gnu/libprofiler.so.0.5.11\n78c8cba20000-78c8cba21000 rw-p 00010000 00:00 1331715     /usr/lib/x86_64-linux-gnu/libprofiler.so.0.5.11\n78c8cba21000-78c8cba26000 rw-p 00000000 00:00 0           \n78c8cba29000-78c8cba2d000 rw-p 00000000 00:00 0           \n78c8cba2d000-78c8cba2e000 r--p 00000000 00:00 394959      /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2\n78c8cba2e000-78c8cba59000 r-xp 00001000 00:00 394959      /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2\n78c8cba59000-78c8cba63000 r--p 0002c000 00:00 394959      /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2\n78c8cba63000-78c8cba65000 r--p 00036000 00:00 394959      /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2\n78c8cba65000-78c8cba67000 rw-p 00038000 00:00 394959      /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2\n7ffe35c10000-7ffe35c31000 rw-p 00000000 00:00 0           [stack]\n7ffe35d70000-7ffe35d74000 r--p 00000000 00:00 0           [vvar]\n7ffe35d74000-7ffe35d76000 r-xp 00000000 00:00 0           [vdso]\nffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0           [vsyscall]\n",
+        "source": "import",
+        "profile_source": "gperftools",
+        "provenance": "import",
+        "input_format": "gperf_cpu",
+        "pipeline": "gperf_cpu_v1",
+        "queue_class": "small",
+        "python_version": "3.12.12",
+        "collector": {
+          "source": "import"
+        }
+      },
+      "resource_usage": {
+        "duration_ms": 135.126,
+        "cpu_seconds": 0.134859,
+        "subprocess_cpu_seconds": 0.0,
+        "subprocess_max_rss_bytes": 0,
+        "max_rss_bytes": 34410496,
+        "temp_disk_bytes": 1078,
+        "index_cache_bytes": 0,
+        "observed_peak_tree_rss_bytes": 21278720,
+        "observed_processes": 1,
+        "rss_sampling_interval_ms": 50
+      },
+      "elapsed_seconds": 0.256494
+    },
+    {
+      "kind": "GPERF_HEAP",
+      "format": "gperf_heap",
+      "collector": "native-profiler-control",
+      "fixture_source": "real instrumented toy through RunnerRegistry; not production data",
+      "collection_metadata": {
+        "target_pid": 33,
+        "start_time_ticks": 345853740,
+        "duration_ms": 2037
+      },
+      "input_bytes": 10580,
+      "input_sha256": "d5f01efb9997656dcdf4150c3a2498fb557f42f6302988c284adef99440cd517",
+      "status": "success",
+      "source": "import",
+      "profile_source": "gperftools",
+      "total_weight": 32700829,
+      "unit": "bytes",
+      "nodes": 66,
+      "sections": {
+        "heap": {
+          "format": "gperftools-heap",
+          "profile_type": "inuse_space",
+          "unit": "bytes",
+          "sample_types": [
+            {
+              "type": "inuse_objects",
+              "unit": "count",
+              "total": 446
+            },
+            {
+              "type": "inuse_space",
+              "unit": "bytes",
+              "total": 32700829
+            },
+            {
+              "type": "alloc_objects",
+              "unit": "count",
+              "total": 457
+            },
+            {
+              "type": "alloc_space",
+              "unit": "bytes",
+              "total": 32705083
+            }
+          ],
+          "totals": {
+            "sample_weight": 32700829
+          },
+          "classes": [],
+          "dominators": [],
+          "leak_paths": [],
+          "limitations": [
+            "分配栈 profile 不包含完整对象引用图，无法计算精确 retained size。",
+            "jemalloc 采样校正值是估计值。"
+          ]
+        }
+      },
+      "metadata": {
+        "schema_version": "1.0",
+        "format": "gperftools-heap",
+        "sample_count": 32700829,
+        "stack_count": 8,
+        "unique_stack_count": 8,
+        "node_count": 66,
+        "max_depth": 22,
+        "lost_samples": null,
+        "lost_samples_status": "not_reported_by_input",
+        "filters": [],
+        "unit": "bytes",
+        "time_range": null,
+        "thread_information": "encoded_in_stack_names_if_present",
+        "profile_type": "inuse_space",
+        "symbolization": "raw_program_counters",
+        "sampling_adjusted": false,
+        "memory_maps": "61dec7c7b000-61dec7c7f000 r--p 00000000 00:00 437616      /src/build/drop_native_workload\n61dec7c7f000-61dec7c82000 r-xp 00004000 00:00 437616      /src/build/drop_native_workload\n61dec7c82000-61dec7c84000 r--p 00007000 00:00 437616      /src/build/drop_native_workload\n61dec7c84000-61dec7c85000 r--p 00008000 00:00 437616      /src/build/drop_native_workload\n61dec7c85000-61dec7c86000 rw-p 00009000 00:00 437616      /src/build/drop_native_workload\n61deeb1ae000-61deee5ae000 rw-p 00000000 00:00 0           [heap]\n7c13f7e93000-7c13f8553000 rw-p 00000000 00:00 0           \n7c13f8553000-7c13f8554000 ---p 00000000 00:00 0           \n7c13f8554000-7c13f8d54000 rw-p 00000000 00:00 0           \n7c13f8d54000-7c13f8d59000 rw-p 00000000 00:00 0           \n7c13f8d59000-7c13f8d5c000 r--p 00000000 00:00 395020      /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5\n7c13f8d5c000-7c13f8d7e000 r-xp 00003000 00:00 395020      /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5\n7c13f8d7e000-7c13f8d89000 r--p 00025000 00:00 395020      /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5\n7c13f8d89000-7c13f8d8a000 r--p 00030000 00:00 395020      /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5\n7c13f8d8a000-7c13f8d8b000 rw-p 00031000 00:00 395020      /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5\n7c13f8d8b000-7c13f8d8e000 r--p 00000000 00:00 402390      /usr/lib/x86_64-linux-gnu/libunwind.so.8.0.1\n7c13f8d8e000-7c13f8d98000 r-xp 00003000 00:00 402390      /usr/lib/x86_64-linux-gnu/libunwind.so.8.0.1\n7c13f8d98000-7c13f8d9a000 r--p 0000d000 00:00 402390      /usr/lib/x86_64-linux-gnu/libunwind.so.8.0.1\n7c13f8d9a000-7c13f8d9b000 r--p 0000e000 00:00 402390      /usr/lib/x86_64-linux-gnu/libunwind.so.8.0.1\n7c13f8d9b000-7c13f8d9c000 rw-p 0000f000 00:00 402390      /usr/lib/x86_64-linux-gnu/libunwind.so.8.0.1\n7c13f8d9c000-7c13f8da6000 rw-p 00000000 00:00 0           \n7c13f8da6000-7c13f8dce000 r--p 00000000 00:00 394979      /usr/lib/x86_64-linux-gnu/libc.so.6\n7c13f8dce000-7c13f8f57000 r-xp 00028000 00:00 394979      /usr/lib/x86_64-linux-gnu/libc.so.6\n7c13f8f57000-7c13f8fa6000 r--p 001b1000 00:00 394979      /usr/lib/x86_64-linux-gnu/libc.so.6\n7c13f8fa6000-7c13f8faa000 r--p 001ff000 00:00 394979      /usr/lib/x86_64-linux-gnu/libc.so.6\n7c13f8faa000-7c13f8fac000 rw-p 00203000 00:00 394979      /usr/lib/x86_64-linux-gnu/libc.so.6\n7c13f8fac000-7c13f8fbb000 rw-p 00000000 00:00 0           \n7c13f8fbb000-7c13f8fbf000 r--p 00000000 00:00 395004      /usr/lib/x86_64-linux-gnu/libgcc_s.so.1\n7c13f8fbf000-7c13f8fe3000 r-xp 00004000 00:00 395004      /usr/lib/x86_64-linux-gnu/libgcc_s.so.1\n7c13f8fe3000-7c13f8fe7000 r--p 00028000 00:00 395004      /usr/lib/x86_64-linux-gnu/libgcc_s.so.1\n7c13f8fe7000-7c13f8fe8000 r--p 0002b000 00:00 395004      /usr/lib/x86_64-linux-gnu/libgcc_s.so.1\n7c13f8fe8000-7c13f8fe9000 rw-p 0002c000 00:00 395004      /usr/lib/x86_64-linux-gnu/libgcc_s.so.1\n7c13f8fe9000-7c13f8ff9000 r--p 00000000 00:00 395021      /usr/lib/x86_64-linux-gnu/libm.so.6\n7c13f8ff9000-7c13f9078000 r-xp 00010000 00:00 395021      /usr/lib/x86_64-linux-gnu/libm.so.6\n7c13f9078000-7c13f90d0000 r--p 0008f000 00:00 395021      /usr/lib/x86_64-linux-gnu/libm.so.6\n7c13f90d0000-7c13f90d1000 r--p 000e7000 00:00 395021      /usr/lib/x86_64-linux-gnu/libm.so.6\n7c13f90d1000-7c13f90d2000 rw-p 000e8000 00:00 395021      /usr/lib/x86_64-linux-gnu/libm.so.6\n7c13f90d2000-7c13f916f000 r--p 00000000 00:00 395072      /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33\n7c13f916f000-7c13f92b7000 r-xp 0009d000 00:00 395072      /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33\n7c13f92b7000-7c13f933e000 r--p 001e5000 00:00 395072      /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33\n7c13f933e000-7c13f9349000 r--p 0026b000 00:00 395072      /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33\n7c13f9349000-7c13f934c000 rw-p 00276000 00:00 395072      /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33\n7c13f934c000-7c13f9350000 rw-p 00000000 00:00 0           \n7c13f9350000-7c13f93ae000 r--p 00000000 00:00 437611      /src/build/libdrop_native_profiler.so\n7c13f93ae000-7c13f93e9000 r-xp 0005e000 00:00 437611      /src/build/libdrop_native_profiler.so\n7c13f93e9000-7c13f9402000 r--p 00099000 00:00 437611      /src/build/libdrop_native_profiler.so\n7c13f9402000-7c13f9403000 r--p 000b1000 00:00 437611      /src/build/libdrop_native_profiler.so\n7c13f9403000-7c13f9407000 rw-p 000b2000 00:00 437611      /src/build/libdrop_native_profiler.so\n7c13f9407000-7c13f9418000 r--p 00000000 00:00 1331736     /usr/lib/x86_64-linux-gnu/libtcmalloc.so.4.5.16\n7c13f9418000-7c13f943d000 r-xp 00011000 00:00 1331736     /usr/lib/x86_64-linux-gnu/libtcmalloc.so.4.5.16\n7c13f943d000-7c13f944b000 r--p 00036000 00:00 1331736     /usr/lib/x86_64-linux-gnu/libtcmalloc.so.4.5.16\n7c13f944b000-7c13f944c000 r--p 00044000 00:00 1331736     /usr/lib/x86_64-linux-gnu/libtcmalloc.so.4.5.16\n7c13f944c000-7c13f944d000 rw-p 00045000 00:00 1331736     /usr/lib/x86_64-linux-gnu/libtcmalloc.so.4.5.16\n7c13f944d000-7c13f9603000 rw-p 00000000 00:00 0           \n7c13f9606000-7c13f960a000 rw-p 00000000 00:00 0           \n7c13f960a000-7c13f960b000 r--p 00000000 00:00 394959      /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2\n7c13f960b000-7c13f9636000 r-xp 00001000 00:00 394959      /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2\n7c13f9636000-7c13f9640000 r--p 0002c000 00:00 394959      /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2\n7c13f9640000-7c13f9642000 r--p 00036000 00:00 394959      /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2\n7c13f9642000-7c13f9644000 rw-p 00038000 00:00 394959      /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2\n7fff90535000-7fff90556000 rw-p 00000000 00:00 0           [stack]\n7fff905b4000-7fff905b8000 r--p 00000000 00:00 0           [vvar]\n7fff905b8000-7fff905ba000 r-xp 00000000 00:00 0           [vdso]\nffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0           [vsyscall]",
+        "source": "import",
+        "profile_source": "gperftools",
+        "provenance": "import",
+        "input_format": "gperf_heap",
+        "pipeline": "gperf_heap_v1",
+        "queue_class": "high_memory",
+        "python_version": "3.12.12",
+        "collector": {
+          "source": "import"
+        }
+      },
+      "resource_usage": {
+        "duration_ms": 136.501,
+        "cpu_seconds": 0.133617,
+        "subprocess_cpu_seconds": 0.0,
+        "subprocess_max_rss_bytes": 0,
+        "max_rss_bytes": 34410496,
+        "temp_disk_bytes": 1088,
+        "index_cache_bytes": 0,
+        "observed_peak_tree_rss_bytes": 21151744,
+        "observed_processes": 1,
+        "rss_sampling_interval_ms": 50
+      },
+      "elapsed_seconds": 0.255916
+    },
+    {
+      "kind": "JEPROF_HEAP",
+      "format": "jeprof_heap",
+      "collector": "native-profiler-control",
+      "fixture_source": "real instrumented toy through RunnerRegistry; not production data",
+      "collection_metadata": {
+        "target_pid": 59,
+        "start_time_ticks": 345854137,
+        "duration_ms": 2017
+      },
+      "input_bytes": 7928,
+      "input_sha256": "0bf2e055558e30a3ef454c828c3ca29f2ea08035e96ed5543c9ae1b63ab33521",
+      "status": "success",
+      "source": "import",
+      "profile_source": "jemalloc",
+      "total_weight": 32631200,
+      "unit": "bytes",
+      "nodes": 97,
+      "sections": {
+        "heap": {
+          "format": "jemalloc-heap",
+          "profile_type": "inuse_space",
+          "unit": "bytes",
+          "sample_types": [
+            {
+              "type": "inuse_objects",
+              "unit": "count",
+              "total": 451
+            },
+            {
+              "type": "inuse_space",
+              "unit": "bytes",
+              "total": 32631200
+            },
+            {
+              "type": "alloc_objects",
+              "unit": "count",
+              "total": 0
+            },
+            {
+              "type": "alloc_space",
+              "unit": "bytes",
+              "total": 0
+            }
+          ],
+          "totals": {
+            "sample_weight": 32631200
+          },
+          "classes": [],
+          "dominators": [],
+          "leak_paths": [],
+          "limitations": [
+            "分配栈 profile 不包含完整对象引用图，无法计算精确 retained size。",
+            "jemalloc 采样校正值是估计值。"
+          ]
+        }
+      },
+      "metadata": {
+        "schema_version": "1.0",
+        "format": "jemalloc-heap",
+        "sample_count": 32631200,
+        "stack_count": 7,
+        "unique_stack_count": 7,
+        "node_count": 97,
+        "max_depth": 27,
+        "lost_samples": null,
+        "lost_samples_status": "not_reported_by_input",
+        "filters": [],
+        "unit": "bytes",
+        "time_range": null,
+        "thread_information": "encoded_in_stack_names_if_present",
+        "profile_type": "inuse_space",
+        "symbolization": "raw_program_counters",
+        "sampling_adjusted": true,
+        "memory_maps": "5c41547ff000-5c4154803000 r--p 00000000 103:03 437616                    /src/build/drop_native_workload\n5c4154803000-5c4154806000 r-xp 00004000 103:03 437616                    /src/build/drop_native_workload\n5c4154806000-5c4154808000 r--p 00007000 103:03 437616                    /src/build/drop_native_workload\n5c4154808000-5c4154809000 r--p 00008000 103:03 437616                    /src/build/drop_native_workload\n5c4154809000-5c415480a000 rw-p 00009000 103:03 437616                    /src/build/drop_native_workload\n74e32fa00000-74e330c00000 rw-p 00000000 00:00 0 \n74e330d00000-74e331a00000 rw-p 00000000 00:00 0 \n74e331b00000-74e332800000 rw-p 00000000 00:00 0 \n74e3328ff000-74e3331ff000 rw-p 00000000 00:00 0 \n74e3331ff000-74e333200000 ---p 00000000 00:00 0 \n74e333200000-74e333a00000 rw-p 00000000 00:00 0 \n74e333a00000-74e334200000 rw-p 00000000 00:00 0 \n74e33432a000-74e33432e000 rw-p 00000000 00:00 0 \n74e33432e000-74e334356000 r--p 00000000 00:52 394979                     /usr/lib/x86_64-linux-gnu/libc.so.6\n74e334356000-74e3344df000 r-xp 00028000 00:52 394979                     /usr/lib/x86_64-linux-gnu/libc.so.6\n74e3344df000-74e33452e000 r--p 001b1000 00:52 394979                     /usr/lib/x86_64-linux-gnu/libc.so.6\n74e33452e000-74e334532000 r--p 001ff000 00:52 394979                     /usr/lib/x86_64-linux-gnu/libc.so.6\n74e334532000-74e334534000 rw-p 00203000 00:52 394979                     /usr/lib/x86_64-linux-gnu/libc.so.6\n74e334534000-74e334543000 rw-p 00000000 00:00 0 \n74e334543000-74e334547000 r--p 00000000 00:52 395004                     /usr/lib/x86_64-linux-gnu/libgcc_s.so.1\n74e334547000-74e33456b000 r-xp 00004000 00:52 395004                     /usr/lib/x86_64-linux-gnu/libgcc_s.so.1\n74e33456b000-74e33456f000 r--p 00028000 00:52 395004                     /usr/lib/x86_64-linux-gnu/libgcc_s.so.1\n74e33456f000-74e334570000 r--p 0002b000 00:52 395004                     /usr/lib/x86_64-linux-gnu/libgcc_s.so.1\n74e334570000-74e334571000 rw-p 0002c000 00:52 395004                     /usr/lib/x86_64-linux-gnu/libgcc_s.so.1\n74e334571000-74e334581000 r--p 00000000 00:52 395021                     /usr/lib/x86_64-linux-gnu/libm.so.6\n74e334581000-74e334600000 r-xp 00010000 00:52 395021                     /usr/lib/x86_64-linux-gnu/libm.so.6\n74e334600000-74e334658000 r--p 0008f000 00:52 395021                     /usr/lib/x86_64-linux-gnu/libm.so.6\n74e334658000-74e334659000 r--p 000e7000 00:52 395021                     /usr/lib/x86_64-linux-gnu/libm.so.6\n74e334659000-74e33465a000 rw-p 000e8000 00:52 395021                     /usr/lib/x86_64-linux-gnu/libm.so.6\n74e33465a000-74e3346f7000 r--p 00000000 00:52 395072                     /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33\n74e3346f7000-74e33483f000 r-xp 0009d000 00:52 395072                     /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33\n74e33483f000-74e3348c6000 r--p 001e5000 00:52 395072                     /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33\n74e3348c6000-74e3348d1000 r--p 0026b000 00:52 395072                     /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33\n74e3348d1000-74e3348d4000 rw-p 00276000 00:52 395072                     /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33\n74e3348d4000-74e3348d8000 rw-p 00000000 00:00 0 \n74e3348d8000-74e334936000 r--p 00000000 103:03 437611                    /src/build/libdrop_native_profiler.so\n74e334936000-74e334971000 r-xp 0005e000 103:03 437611                    /src/build/libdrop_native_profiler.so\n74e334971000-74e33498a000 r--p 00099000 103:03 437611                    /src/build/libdrop_native_profiler.so\n74e33498a000-74e33498b000 r--p 000b1000 103:03 437611                    /src/build/libdrop_native_profiler.so\n74e33498b000-74e33498f000 rw-p 000b2000 103:03 437611                    /src/build/libdrop_native_profiler.so\n74e33498f000-74e334998000 r--p 00000000 00:52 1331669                    /usr/lib/x86_64-linux-gnu/libjemalloc.so.2\n74e334998000-74e334a45000 r-xp 00009000 00:52 1331669                    /usr/lib/x86_64-linux-gnu/libjemalloc.so.2\n74e334a45000-74e334a53000 r--p 000b6000 00:52 1331669                    /usr/lib/x86_64-linux-gnu/libjemalloc.so.2\n74e334a53000-74e334a59000 r--p 000c4000 00:52 1331669                    /usr/lib/x86_64-linux-gnu/libjemalloc.so.2\n74e334a59000-74e334a5a000 rw-p 000ca000 00:52 1331669                    /usr/lib/x86_64-linux-gnu/libjemalloc.so.2\n74e334a5a000-74e334c79000 rw-p 00000000 00:00 0 \n74e334c7e000-74e334c80000 rw-p 00000000 00:00 0 \n74e334c80000-74e334c81000 r--p 00000000 00:52 394959                     /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2\n74e334c81000-74e334cac000 r-xp 00001000 00:52 394959                     /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2\n74e334cac000-74e334cb6000 r--p 0002c000 00:52 394959                     /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2\n74e334cb6000-74e334cb8000 r--p 00036000 00:52 394959                     /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2\n74e334cb8000-74e334cba000 rw-p 00038000 00:52 394959                     /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2\n7ffe95881000-7ffe958a2000 rw-p 00000000 00:00 0                          [stack]\n7ffe958d5000-7ffe958d9000 r--p 00000000 00:00 0                          [vvar]\n7ffe958d9000-7ffe958db000 r-xp 00000000 00:00 0                          [vdso]\nffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0                  [vsyscall]",
+        "source": "import",
+        "profile_source": "jemalloc",
+        "provenance": "import",
+        "input_format": "jeprof_heap",
+        "pipeline": "jeprof_heap_v1",
+        "queue_class": "high_memory",
+        "python_version": "3.12.12",
+        "collector": {
+          "source": "import"
+        }
+      },
+      "resource_usage": {
+        "duration_ms": 146.124,
+        "cpu_seconds": 0.136026,
+        "subprocess_cpu_seconds": 0.0,
+        "subprocess_max_rss_bytes": 0,
+        "max_rss_bytes": 34410496,
+        "temp_disk_bytes": 1094,
+        "index_cache_bytes": 0,
+        "observed_peak_tree_rss_bytes": 21000192,
+        "observed_processes": 1,
+        "rss_sampling_interval_ms": 50
+      },
+      "elapsed_seconds": 0.261312
+    }
+  ]
+}

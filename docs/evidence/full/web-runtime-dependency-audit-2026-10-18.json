@@ -1,0 +1,54 @@
+{
+  "recorded_at": "2026-10-18T06:30:54.926029+00:00",
+  "scope": "Frozen package-lock production dependency graph used to build browser JS/assets; excludes dev dependencies from audit, not Nginx/container OS packages",
+  "command": [
+    "node",
+    "npm-cli.js",
+    "audit",
+    "--omit=dev",
+    "--json",
+    "--registry=https://registry.npmjs.org"
+  ],
+  "npm_version": "11.12.1",
+  "registry": "https://registry.npmjs.org",
+  "exit_code": 0,
+  "duration_seconds": 1.795,
+  "json_has_error": false,
+  "audit_report_version": 2,
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "dependencies": {
+      "prod": 117,
+      "dev": 136,
+      "optional": 53,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 252
+    }
+  },
+  "vulnerability_entries": 0,
+  "raw_json_sha256": "51a4375c26d3570fa3fec6b52b79796722912e1891783de55d05885600ea2f58",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_bytes": 0,
+  "stderr_retained": false,
+  "source_files": {
+    "web/package.json": "28ddedaabcc3d11bd8b1b83fa9e4ec704d6c3b5b66309ec1be74b69d86cffd5f",
+    "web/package-lock.json": "c13167f1930679ddab20c2ba7dfd67b0f44e536ef833469613d12878b5d00f84"
+  },
+  "inputs_unchanged": true,
+  "runtime_bundle_changed": false,
+  "runtime_image_changed": false,
+  "production_changed": false,
+  "metadata_count_note": "npm metadata still describes the complete lock graph (prod/dev/optional counts can overlap); --omit=dev determines the audited set. prod=117 does not mean 117 packages are installed in the Nginx image.",
+  "limitations": [
+    "Known npm advisory results at this time; not a scan of Alpine/Nginx/zlib/BusyBox or the image base.",
+    "Root's earlier PowerShell-piped audit was parsed as context only; this separate subprocess captured and verified the actual npm exit code."
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "source": "actual public browser operation, actual configured DeepSeek, AgentScope2.0.10 and freshly measured enrolled synthetic Saber component",
+  "passed": true,
+  "recorded_at": "2026-10-20T11:08:50.776Z",
+  "investigation_id": "11",
+  "task_ids": [
+    "86",
+    "87"
+  ],
+  "verification_id": "14",
+  "repair_id": "9",
+  "terminal_success_at_seconds": 75.6,
+  "total_elapsed_seconds": 76.4,
+  "runtime": {
+    "planning": {
+      "usage": {
+        "input_tokens": 23264,
+        "output_tokens": 303
+      },
+      "run_id": "18d468dc-2ee1-4e7a-ad67-19b481c64168",
+      "framework": "agentscope",
+      "elapsed_ms": 3513,
+      "tool_calls": 2,
+      "agent_class": "agentscope.agent.Agent",
+      "model_calls": 2,
+      "framework_version": "2.0.10"
+    },
+    "baseline_diagnosis": {
+      "usage": {
+        "input_tokens": 12947,
+        "output_tokens": 1352
+      },
+      "run_id": "0c3cba8e-b583-435d-bf93-282597bddb2b",
+      "framework": "agentscope",
+      "elapsed_ms": 9597,
+      "tool_calls": 6,
+      "agent_class": "agentscope.agent.Agent",
+      "model_calls": 4,
+      "framework_version": "2.0.10"
+    },
+    "candidate_diagnosis": {
+      "usage": {
+        "input_tokens": 8604,
+        "output_tokens": 1147
+      },
+      "run_id": "317da541-ba7b-472b-b865-059bcc011f97",
+      "framework": "agentscope",
+      "elapsed_ms": 8053,
+      "tool_calls": 4,
+      "agent_class": "agentscope.agent.Agent",
+      "model_calls": 3,
+      "framework_version": "2.0.10"
+    },
+    "source_repair": {
+      "usage": {
+        "input_tokens": 29449,
+        "output_tokens": 1314
+      },
+      "run_id": "e42aee22-4a63-42e1-a3d2-eb2127083fae",
+      "framework": "agentscope",
+      "elapsed_ms": 14777,
+      "tool_calls": 5,
+      "agent_class": "agentscope.agent.Agent",
+      "model_calls": 4,
+      "framework_version": "2.0.10"
+    }
+  },
+  "all_four_phase_runtime_ids_unique": true,
+  "total_model_calls": 13,
+  "total_tool_callbacks": 17,
+  "reported_usage": {
+    "input_tokens": 74264,
+    "output_tokens": 4116
+  },
+  "fresh_measurements": [
+    {
+      "tool": "profile_business_flow",
+      "cache_hit": false,
+      "job_key": "2af0240cc71c1fb1b1ab6ea5ba9ec5ff214f9842084ab82be4bc659e24350047"
+    },
+    {
+      "tool": "test_patch",
+      "cache_hit": false,
+      "job_key": "145eadf6d4c24e8603bcb184b59eaa493c467e569695635bc1c4d7bf5270c293"
+    }
+  ],
+  "original_tests": 2,
+  "frozen_contract_tests": 6,
+  "output_parity_cases": 384,
+  "improved_pairs": 6,
+  "pairs": 6,
+  "median_cpu_speedup": 1.558687787475209,
+  "root_cause_status": "validated_in_controlled_saber_benchmark",
+  "desktop_and_mobile_screenshots_visually_reviewed": true,
+  "no_page_errors": true,
+  "no_mobile_horizontal_overflow": true,
+  "current_saber_repair_selected_without_reload_or_manual_history_selection": true,
+  "artifacts": {
+    "attempt": "acceptance-saber-live-2026-10-20T11-06-25-677Z",
+    "passed": true,
+    "summary": "acceptance-saber-live-2026-10-20T11-06-25-677Z/summary.json",
+    "detail": "acceptance-saber-live-2026-10-20T11-06-25-677Z/detail.json",
+    "video": "acceptance-saber-live-2026-10-20T11-06-25-677Z/rehearsal.webm"
+  },
+  "comparison": "acceptance-saber-live-2026-10-20T11-06-25-677Z/comparison-to-historical-go.json",
+  "prior_real_failure": {
+    "retained": true,
+    "investigation_id": "10",
+    "repair_id": "8",
+    "path": "acceptance-saber-live-2026-10-20T10-52-42-826Z/failure-analysis.json",
+    "error_code": "AGENT_RUNTIME_ERROR"
+  },
+  "scope": "Saber FTS5 component on synthetic 1K-8K long queries plus edge cases and real in-memory SQLite searches; excludes index construction and full app, not production P95/P99 or all Saber functions",
+  "limitations": [
+    "Historical Go88s versus this AgentScope76.4s is observational; it does not establish framework latency or quality causation.",
+    "The measured1.5587x patch CPU ratio applies only to the enrolled Saber FTS5 synthetic benchmark, not all Saber or productionP95/P99.",
+    "SDK/tool counters are actual runtime reports independently reconciled by the Go gateway; diagnostic initial E1 is excluded from callback count."
+  ],
+  "raw_download_verification": {
+    "passed": true,
+    "receipt": "acceptance-raw-download.json",
+    "task86_raw_bytes": 7233,
+    "task87_raw_bytes": 6592,
+    "both_declared_sha256_match_actual": true
+  },
+  "recording_decode_verification": {
+    "passed": true,
+    "receipt": "acceptance-saber-live-2026-10-20T11-06-25-677Z/video-decode-check.json",
+    "duration_seconds": 76.56,
+    "width": 1440,
+    "height": 1000,
+    "offline_chromium_midpoint_seek": true,
+    "media_error": null
+  }
+}

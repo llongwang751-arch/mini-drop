@@ -1,0 +1,61 @@
+{
+  "recorded_at": "2026-10-18T07:05:02.016471+00:00",
+  "compose_version": "5.5.0",
+  "environment": "Windows local CLI; config only, no Docker daemon or network request",
+  "cases": [
+    {
+      "mode": "single-release-fallback",
+      "drop_images": {
+        "agent": "drop-agent:20261018.1-rc2",
+        "analyzer": "drop-analyzer:20261018.1-rc2",
+        "api": "drop-api:20261018.1-rc2",
+        "backup-client": "drop-analyzer:20261018.1-rc2",
+        "collector-helper": "drop-agent:20261018.1-rc2",
+        "drop-server": "drop-core:20261018.1-rc2",
+        "encrypt-existing": "drop-ops:20261018.1-rc2",
+        "maintenance": "drop-ops:20261018.1-rc2",
+        "migration": "drop-api:20261018.1-rc2",
+        "minio": "drop-nginx:20261018.1-rc2",
+        "storage-init": "drop-analyzer:20261018.1-rc2",
+        "web": "drop-web:20261018.1-rc2"
+      },
+      "helper_boundary_checked": true,
+      "loopback_web_checked": true,
+      "full_configuration_sha256": "dd400a926b3467b954de97b4b31787d38899a9f780185604eaac208a69ff1fa3"
+    },
+    {
+      "mode": "independent-candidates",
+      "drop_images": {
+        "agent": "drop-agent:20261018.1-rc2",
+        "analyzer": "drop-analyzer:20261018.1-rc3",
+        "api": "drop-api:20261018.1-rc3",
+        "backup-client": "drop-analyzer:20261018.1-rc3",
+        "collector-helper": "drop-agent:20261018.1-rc2",
+        "drop-server": "drop-core:20261018.1-rc2",
+        "encrypt-existing": "drop-ops:20261018.1-rc3",
+        "maintenance": "drop-ops:20261018.1-rc3",
+        "migration": "drop-api:20261018.1-rc3",
+        "minio": "drop-nginx:20261018.1-rc2",
+        "storage-init": "drop-analyzer:20261018.1-rc3",
+        "web": "drop-web:20261018.1-rc4"
+      },
+      "helper_boundary_checked": true,
+      "loopback_web_checked": true,
+      "full_configuration_sha256": "7ce69b50307afe014bc4a02723a9faf3c884e7d54edcd41f313d6da550ade099"
+    }
+  ],
+  "sources": {
+    "compose.yml": "10458a57f3b36086cefab92131416d7db9ce8f12478f5e63ae551bdf4b09546b",
+    "compose.perf.yml": "3ab3b29aa480404c52c0b3f46519270e34ea6c986810b20d0b997043424a0284",
+    "compose.tools.yml": "449ad6cb8455d04ac935ed2e83c8419587bba9eec0bb73489b1cd1f2529e17b1",
+    "compose.helper.yml": "0a079cf643726270211a49531d1f690b3af9da1ec56f6e9a912d222c9e3f765e",
+    "compose.helper-ebpf.yml": "63259da8fc331bc98053d99ec2856c08846ec7f24d9cfbc50efb239943109163",
+    "compose.observability.yml": "7d11fecf318ddc83d26359c114c7f5b646ef74acc867192f9e7e45595548a85a",
+    "compose.encryption-maintenance.yml": "ddf60e23d2679442c7e165602f01bd46257660bf83849fe3e807876e2994947b",
+    "compose.small.yml": "466513b1adfa544729aed19bde59a23a48db67069fc2781e5e7b1f9c66c8d68e",
+    "compose.stage.yml": "b86fc9846c28cebeb1ecb51becc8d015992870472c3fb5050e064d52d757ca04"
+  },
+  "containers_started": false,
+  "production_changed": false,
+  "remote_compose_2_40_validation": "pending actual stage configuration"
+}

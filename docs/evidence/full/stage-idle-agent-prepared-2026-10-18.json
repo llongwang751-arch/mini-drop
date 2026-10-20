@@ -1,0 +1,28 @@
+{
+  "recorded_at": "2026-10-18T06:40:09.463633+00:00",
+  "scope": "Prepared local script and imported fixtures only; no remote process/DB/Docker sampling",
+  "tests": 9,
+  "seconds": 0.003,
+  "passed": true,
+  "skipped": 0,
+  "ruff_check_passed": true,
+  "python_compile_passed": true,
+  "source_files": {
+    ".local/stage_idle_agent.py": "7b63c3950e41e28905cf1a54a36f42adb199a276e886032c5f10fae0b3d513e0",
+    ".local/test_stage_idle_agent.py": "0c40aad57d8c9986cbdef1907381b8acf65b51f0b34fbbfa655f0bceb4a8ff29"
+  },
+  "log_sha256": "ac5c506e2e84c1a0450335b3c623851dba319a6efea69ce318df92d50ec37ec6",
+  "runtime_sampling_executed": false,
+  "prepared_target": "dropfullstage unique agent/postgres labels and locked exact IDs",
+  "nominal_window_seconds": 60,
+  "measurements_when_executed": [
+    "Main drop_agent CPU ticks/elapsed/RSS/VmHWM with PID/starttime/UID10001 stability",
+    "Direct drop_workload child measured separately if present",
+    "Docker stats, cgroup-v2 CPU/memory/PSI and host PSI snapshots",
+    "Read-only DB task active counts zero at both boundaries"
+  ],
+  "limitations": [
+    "No observed RSS/CPU numbers exist until coordinator runs the script on the actual stage host.",
+    "Controlled workload and container aggregate cannot be called main-process idle or a production SLA."
+  ]
+}

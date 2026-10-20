@@ -1,0 +1,6 @@
+# Preserve a reviewed runtime binary while shipping additive SQL migrations.
+# Pass an exact, locally available image digest via API_RUNTIME_BASE. Verify the
+# final /usr/local/bin/drop-api SHA-256 against the base image before release.
+ARG API_RUNTIME_BASE
+FROM ${API_RUNTIME_BASE}
+COPY db/migrations/ /app/db/migrations/

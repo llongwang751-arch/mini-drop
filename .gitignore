@@ -1,106 +1,96 @@
-# Python
-__pycache__/
-__MACOSX/
-.pytest-*/
-.tmp-*
-hs_err_pid*.log
-replay_pid*.log
-*.class
-*.bundle
-*.py[cod]
-*.pyo
-*.egg-info/
-.eggs/
-dist/
-build/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
-
-# Virtual environment
-.venv/
-venv/
+.claude/
 .env
 .env.*
 !.env.example
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Node
-node_modules/
-web/dist/
-web/.vite/
-
-# Project artifacts
-artifacts/
-tmp/
-logs/
-external/
-extend/
-reports/**/*.json
-reports/**/*.log
-# 正式评测只提交摘要、校验清单和复现方法；逐次原始记录由脚本生成。
-reports/benchmark/official-90/raw-campaigns/
-reports/benchmark/official-90/adapter-readiness.json
-reports/benchmark/official-90/evaluation-confirmed.json
-reports/benchmark/official-90/evaluation-report.json
-reports/benchmark/official-90/run-plan.json
-reports/benchmark/official-90/submissions.json
-reports/acceptance/
-reports/eval/
-reports/benchmark/runs/
-*.dump
-*.log
-*.db
-*.sqlite
-*.sqlite3
-
-# Collected data (large binary files)
-perf.data
-perf.data.*
-*.hprof
-
-# Secrets
+*.env
+*.env.*
+!*.env.example
+secrets/
 *.pem
 *.key
-benchmarks/real_world/private/oracles.json
-deploy/certs/*
-!deploy/certs/.gitkeep
+*.p12
+*.pfx
+*.cookie
+*.csrf
+auth-state.json
+authstate.json
+storage-state.json
+storagestate.json
+node_modules/
+dist/
+build/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+.vitest/
+.venv/
+.tools/
+.deps/
+coverage/
+htmlcov/
+.coverage
+.coverage.*
+test-results/
+test-results-*/
+playwright-report/
+*.tar.gz
+*.log
+*.exe
+*.dll
+*.dylib
+*.so
+*.so.*
+*.o
+*.obj
+*.a
+*.lib
+*.test
+*.pyc
+*.tsbuildinfo
+.local/
+deploy/runtime/
+deploy/acme-webroot/
 
-# WorkBuddy internal memory (not project source)
-.workbuddy/
+# Runtime captures, process state, sandbox output and rehearsal recordings.
+# Public summaries and screenshots live in docs/evidence; generate fresh Runner
+# captures from core/fixtures rather than publishing a runtime working tree.
+core/evidence/
+*.pid
+runner.state
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.db
+*.webm
+*.mp4
+*.pprof
+*.hprof
+*.jfr
+*.perf.data
+*.perf.data.old
+*.perf-script
+*.profile
+*.prof
+*.dump
+*.fdata
+*.folded
+*.bin
+*.elf
+*.pprof.gz
+*.hprof.gz
+*.jfr.gz
+*.folded.gz
 
-# Local review scratch files (never project deliverables)
-/_*.txt
-/_trace
-/_chk.py
-/tmp_read_chunk.ps1
-/test_full_run.log
-/1
-/.edge-cdp-profile/
-
-# Local AI assistant worktrees
-.claude/
-
-# Rejected parallel RACV experiment (not part of the final evidence-first design)
-/server/app/diagnosis/racv/
-/server/app/drop_insight/racv_*.py
-/server/migrations/versions/*racv*.py
-/tests/test_racv_*.py
-
-# Temporary Git transfer bundles
-*.bundle
-
-# Local deployment staging archives and verification helpers
-/.tmp-*.tar
-/.tmp-cloud-verify.py
+# Explicit imported parser fixtures are disposable toy captures with a checked
+# SHA-256/size manifest and a reproducible generator, never business profiles.
+!analyzer/tests/fixtures/golden.folded
+!analyzer/tests/fixtures/collected/*.pprof
+!analyzer/tests/fixtures/collected/*.hprof
+!analyzer/tests/fixtures/collected/*.jfr
+!analyzer/tests/fixtures/collected/*.profile
+!analyzer/tests/fixtures/collected/*.fdata
+!analyzer/tests/fixtures/collected/*.folded
+!analyzer/tests/fixtures/collected/*.bin
+!analyzer/tests/fixtures/collected/*.elf

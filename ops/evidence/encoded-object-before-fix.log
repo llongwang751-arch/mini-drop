@@ -1,0 +1,37 @@
+test_download_preserves_encoded_object_bytes_for_integrity (analyzer.tests.test_disk.DiskBudgetTests.test_download_preserves_encoded_object_bytes_for_integrity) ... ERROR
+test_encoded_object_integrity_uses_exact_stored_bytes (ops.test_encrypt_existing.S3AdapterTests.test_encoded_object_integrity_uses_exact_stored_bytes) ... ERROR
+
+======================================================================
+ERROR: test_download_preserves_encoded_object_bytes_for_integrity (analyzer.tests.test_disk.DiskBudgetTests.test_download_preserves_encoded_object_bytes_for_integrity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "E:\tx-drop\analyzer\tests\test_disk.py", line 36, in test_download_preserves_encoded_object_bytes_for_integrity
+    actual = storage.download(
+        "imported-encoded-fixture",
+    ...<2 lines>...
+        max_bytes=len(encoded),
+    )
+  File "E:\tx-drop\analyzer\drop_analyzer\storage.py", line 50, in download
+    raise AnalysisError(
+    ...<2 lines>...
+    )
+drop_analyzer.errors.AnalysisError: Downloaded artifact exceeds declared size or input limit
+
+======================================================================
+ERROR: test_encoded_object_integrity_uses_exact_stored_bytes (ops.test_encrypt_existing.S3AdapterTests.test_encoded_object_integrity_uses_exact_stored_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "E:\tx-drop\ops\test_encrypt_existing.py", line 308, in test_encoded_object_integrity_uses_exact_stored_bytes
+    item = S3Storage(client, "fixture-bucket").verify(
+        "imported-encoded-fixture",
+        Evidence(len(encoded), hashlib.sha256(encoded).hexdigest()),
+        ReadBudget(10000), 10000,
+    )
+  File "E:\tx-drop\ops\encrypt_existing.py", line 205, in verify
+    raise MigrationFailure("OBJECT_SIZE_MISMATCH")
+encrypt_existing.MigrationFailure: OBJECT_SIZE_MISMATCH
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.006s
+
+FAILED (errors=2)

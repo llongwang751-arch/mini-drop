@@ -1,0 +1,10 @@
+# Explicit profile for target-filtered eBPF collection; combine after compose.perf.yml.
+services:
+  agent:
+    cap_add: [PERFMON, BPF]
+    security_opt:
+      - seccomp=./seccomp/agent-ebpf.json
+    ulimits:
+      memlock: {soft: 134217728, hard: 134217728}
+    volumes:
+      - /sys/kernel/tracing:/sys/kernel/tracing:ro

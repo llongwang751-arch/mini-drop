@@ -1,0 +1,107 @@
+{
+  "date": "2026-10-18",
+  "provenance": "Actual x86_64 isolated Linux candidate validation. No production database, production profile, data volume or service changed.",
+  "analyzer_version": "0.2.2",
+  "image": "sha256:326427a3996a4b2b383e4ee25d9218e6cb728bb72a49066e5836d0672ff01e31",
+  "image_tag": "drop-analyzer:v22-20261018-perf612",
+  "architecture": "amd64",
+  "uid": 10001,
+  "source_file_count": 25,
+  "source_tree_sha256": "36f726fdf62ee5262160ed8ea95fe8b959f61ba0e5274e02ddc44e60b92db8d9",
+  "runtime_files": {
+    "__init__.py": "6235ea3182004116733820d273c9e4e0ebe850a9cbb8d4a0f3434a63da9d45c1",
+    "__main__.py": "d2cd6c5e4ed65f93facac651aca1a1e44dfb5ba498239daf1b80855b5cd00ef2",
+    "child.py": "d766fcb849bfd2d238cbdf14ba8f817234e3e86f724d05441dfcf2f3b3c46fc1",
+    "config.py": "1a95b4f043a8ed50b90840f73c286342727d7647867ee8e418b863de1e53c442",
+    "disk.py": "457c901528756fbf06a66bb3efe1429987f526f5475f93140232c8cbe17698b2",
+    "errors.py": "596bd2bfd1c722d1730aae3496c841877d2cb7a12b809c70995bb2304240211f",
+    "events.py": "d4f65475fb6b245463f935e505a4247c73014a0b03a8eec61b0dd8aeb6eed727",
+    "external.py": "3628e1e5558b5f855cc47450a77c06a08222dc6c96173941ae0ace14d6ed490a",
+    "folded.py": "a41ce29c00b5ead3750e21a67d26495fb4b78cf3df07167f82b6888ee2a4a67a",
+    "health.py": "a8d2b37a04ace692ab90973f44b3ae9b345a8fb496d2f0a4ab29e8837fcad945",
+    "hprof.py": "2db0bfc46b4270484cde0283277b8da8a9460b97cc69901188309101ac10d487",
+    "isolate.py": "eec4db46aed3e46133f2db54c1afa82be67e3aff29c3b0668570094414cb383a",
+    "native.py": "f30caa77fc590b3b121187af355b9d708bdd92a30f0d684f7d8b658d0c4fff9d",
+    "perf.py": "3155881a8a8f419ca5ccb2728245f3f00d7e9b91c6cce6a6eb3e0d6d6e478ccb",
+    "pipeline.py": "a9bee18dc95dec150b0bafc8dd67609ef1dd4bfebe9e8354a6f5d54c017d55fd",
+    "pprof.py": "82a61762379e81bcd9aaccc94b99c4fb57d7731669ee0147b1c12b9967b38855",
+    "progress.py": "31aa74690b37cee5b804fc2868fde780d4ab2b1e4d5c9ef64be5553ab274dcde",
+    "registry.py": "59c268b51230f2fdaf06129fd9db6015a93cc02046716267e9e5a25246810d66",
+    "repository.py": "9c4e04c7c9fdb9015eaab109ec7104263173c1afea13859a8181f6f9d47a13e5",
+    "result.py": "dde4c207a8d73846d5077e1b3a161f94688c47ec8be5ebb941028adad351efb7",
+    "rules.py": "5d3e680ce00864898ac27d5ce1445c4415e7e89fd3b2e46b73ae0c94c2be5734",
+    "stacks.py": "38217a51377b4026cf6883a74c70d3cd39d7c6cf1561091e42afd981133105d0",
+    "storage.py": "26228e30e0b4233ec28ec6e316bbb049b8ee0ce9271531599b6725600284991d",
+    "telemetry.py": "3ae724d661b1a4f1feb9eb9a9b6c8d601fde906f6a2618217b3777152ee467bd",
+    "worker.py": "21f08091df1cf7243ce049ef49b4f1e4a6db1e834612de4a1cdf22f9f16f8370"
+  },
+  "build_inputs": {
+    "analyzer/Dockerfile": "e1611cf7a8dcdc1142ecbfc0d4df8a9280336607cb9e13495248b37902dc3b42",
+    "analyzer/requirements.txt": "7d198bf17e35eae9069b4ccaa0ccaa2d3948eeb3c556694cca9f3fffce1c69c3",
+    "analyzer/requirements.lock": "45b64eebddd9577159771076e70f6c79bbd04b9d9be232cb3b4f229286515128",
+    "analyzer/scripts/install_arm64_bolt.py": "b8e4793a142b428f66faccd0e0332fe290d2265df19ebd1f2919c77ec220ccb1"
+  },
+  "validation_scripts": {
+    "analyzer/scripts/benchmark_bolt_toy.py": "26ca68ceeb05fe54c554a71d6a58d4c935693cf6a5a626aef2cf0c8967738f44",
+    "analyzer/scripts/benchmark_flamegraph.py": "6c7f62f19fb557a6034a238c8c3bb1ae97eadaca405fd227e484fedb708efa7b",
+    "analyzer/scripts/copy_runner_fixtures.py": "b91e9db4a923f602f800370f15a0396b75b721b0e702cb87f90a3bcad26ea130",
+    "analyzer/scripts/Dockerfile.fixtures": "b9ec0f7cb8033989996995ebd73d9056ccb2be018a2afa794f1930bae915bff0",
+    "analyzer/scripts/generate_real_fixtures.py": "eed8469afbf53151874d3fb86dad2697d994bc4498ff3084bca7fd6a556fca14",
+    "analyzer/scripts/install_arm64_bolt.py": "b8e4793a142b428f66faccd0e0332fe290d2265df19ebd1f2919c77ec220ccb1",
+    "analyzer/scripts/lock_requirements.py": "289f52e544928ebe3db3bf4518e985f979fad5fd669a8fbbd905b99e133cab8e",
+    "analyzer/scripts/run-isolated-integration.sh": "ed097ea0c51f04d7abbba02c05f5241c2d449911b21aa026416bc932ad34252c",
+    "analyzer/scripts/test_integration_runner.py": "592a41c79624efab83d5135f08d54f8573cb79efc06b235700f8851a414ce622",
+    "analyzer/scripts/unittest_report.py": "b0116333de397d2d80296b2f757843cadee9b22b482087a5f52721869c6ef15a",
+    "analyzer/scripts/verify_fixture_formats.py": "9690dd406143fa693ec2f634ba3580d18382235a9e065bcbeb17c0661c770df4",
+    "analyzer/scripts/verify_perf_runner.py": "685ad1680a90c80dc81a4fdad841a98148a5ff296cfbe29160980903c2946640",
+    "analyzer/scripts/verify_release.py": "843356c76a92359553d80bef6a9617af2ae1fd86c8c48b329bded14fc78955a6",
+    "analyzer/scripts/verify_runner_artifacts.py": "ac283c63aadfd9b96bb70f739febdb971b7c6fa520c6781cc2b65887b2aad7f4"
+  },
+  "evidence": {
+    "integration-v22-perf612-linux.json": "8e7949c4e7c9026bad21695738814b5f07185f45c967cdc0080e16f1da999ac3",
+    "integration-v22-perf612-linux.log": "15d5dd68c38c8631d505e5c9f5973d836805bec114f05b4564d909022bbf8e83",
+    "perf-runner-v22.json": "4a640f18bf382db1934787dce3dcaf5e4ddb75e58a580e8cea1264656dc07aed",
+    "perf-runner-v22.log": "9729a9a8d99e89271ae4c8aa8edda9d0545760840c427630146922bf49e23337",
+    "perf-runner-before-perf612.log": "f6167c494442f06334187888cd0fadb86ccc98dd8e681ef006026c0ab7ec3ffc",
+    "perf-fixture-copy-v22.json": "46e9e6f4ebe8c8876f70e0ecd04490b503b9145a0a72856ffce44775167d91c9",
+    "benchmark-v22-512m.json": "ecc04424b0ce1bcbddd5838238e1f667b22e346368408a400993075a92f8e3b8",
+    "benchmark-v22-512m.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmark-v22-container.json": "5a8bcbaa7bb1560518d675f6d602898c28226c75fab79abb890ccfeb9da53c3a",
+    "release-source-fingerprint-v22.json": "7e4cdb58b07c059abe85a17f76b8510ae7ab9b74cafdf612f192cb5e3d4e0555",
+    "tool-inventory-v22.json": "a1fbd0143667e84fb91fd10e067cf239cf8750ad550b0309bfbe8bc798df721f"
+  },
+  "test_summary": {
+    "passed": 92,
+    "skipped": 0,
+    "duration_seconds": 58.459
+  },
+  "perf_capture_samples": {
+    "perf_script": 91,
+    "perf_data": 93
+  },
+  "benchmark": {
+    "whole_container_memory_bytes": 536870912,
+    "swap_bytes": 0,
+    "memory_peak_bytes": 159076352,
+    "nodes": [
+      10000,
+      50000,
+      100000
+    ],
+    "pipeline_wall_seconds": [
+      0.331639,
+      0.732258,
+      1.318464
+    ],
+    "over_limit": {
+      "nodes": 100001,
+      "error_code": "INPUT_LIMIT_EXCEEDED",
+      "retryable": false
+    }
+  },
+  "limitations": [
+    "No ARM64 execution is claimed.",
+    "Synthetic star topology is not a worst-case or percentile guarantee.",
+    "Deployment and production encrypted-object migration remain separate release steps."
+  ]
+}

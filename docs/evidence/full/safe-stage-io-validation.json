@@ -1,0 +1,67 @@
+{
+  "provenance": "Synthetic loopback server and deliberately fake signature/cookie strings; no real backend or credentials accessed.",
+  "unit_tests_passed": 6,
+  "actual_backend_verified": false,
+  "checks": [
+    {
+      "name": "safe-stage-io-unit",
+      "argv": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "e2e/safe-stage-io.test.ts"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 0.5
+    },
+    {
+      "name": "safe-stage-io-spec-typescript",
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--target",
+        "ES2022",
+        "--module",
+        "ESNext",
+        "--moduleResolution",
+        "bundler",
+        "--allowImportingTsExtensions",
+        "--resolveJsonModule",
+        "--isolatedModules",
+        "--verbatimModuleSyntax",
+        "--jsx",
+        "react-jsx",
+        "--strict",
+        "--skipLibCheck",
+        "--lib",
+        "ES2022,DOM,DOM.Iterable,WebWorker",
+        "e2e/event-stream.spec.ts",
+        "e2e/flame-explorer.spec.ts",
+        "e2e/flame-scale.spec.ts",
+        "e2e/full.spec.ts",
+        "e2e/profile-artifact.spec.ts",
+        "e2e/request-lifecycle.spec.ts",
+        "e2e/safe-markdown.spec.ts",
+        "e2e/system.spec.ts",
+        "e2e/safe-stage-io.test.ts"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 2.145
+    },
+    {
+      "name": "safe-stage-io-prettier",
+      "argv": [
+        "node",
+        "node_modules/prettier/bin/prettier.cjs",
+        "--check",
+        "e2e/safe-stage-io.ts",
+        "e2e/safe-stage-io.test.ts",
+        "e2e/full.spec.ts",
+        "e2e/system.spec.ts"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 0.515
+    }
+  ]
+}

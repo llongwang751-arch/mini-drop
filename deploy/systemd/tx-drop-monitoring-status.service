@@ -1,0 +1,9 @@
+[Unit]
+Description=Publish bounded tx-drop backup and certificate counters
+After=docker.service
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /opt/drop-current/deploy/monitoring-status.sh
+User=root
+UMask=0022
+TimeoutStartSec=30

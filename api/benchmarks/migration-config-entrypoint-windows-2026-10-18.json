@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "environment": "Native Windows portable PostgreSQL17.11; new private loopback cluster; no service, Docker or production data",
+  "real_api_migration_loader_runs": 2,
+  "loader_sha256": "6a6d747c66fae6da01302db0f661297b94b70b69d2f200dacfebb8413d616fb4",
+  "loader_output": [
+    "{\"agent_id\":\"\",\"attempt_id\":\"\",\"config_hash\":\"b0c8926c368299120bdc4e8b456d673fa8cba20a289da8db0c6bd95d8d1ae5ce\",\"duration_ms\":null,\"effective_config\":{\"ADMIN_PASSWORD\":\"\\u003cunset\\u003e\",\"ADMIN_USERNAME\":\"\\u003cunset\\u003e\",\"AI_ALLOW_HTTP\":\"false\",\"AI_API_KEY\":\"\\u003cunset\\u003e\",\"AI_ENDPOINT\":\"\\u003cunset\\u003e\",\"AI_MODEL\":\"\\u003cunset\\u003e\",\"DATABASE_URL\":\"\\u003cconfigured\\u003e\",\"DROP_SERVER_ADDRESS\":\"drop-server:50051\",\"HTTP_LISTEN\":\":8080\",\"MIGRATIONS_DIR\":\"\\u003cconfigured\\u003e\",\"OIDC_ALLOW_HTTP\":\"false\",\"OIDC_CLIENT_ID\":\"\\u003cunset\\u003e\",\"OIDC_CLIENT_SECRET\":\"\\u003cunset\\u003e\",\"OIDC_ISSUER\":\"\\u003cunset\\u003e\",\"OIDC_PROVIDER_NAME\":\"\u4f01\u4e1a\u8d26\u53f7\",\"OIDC_REDIRECT_URL\":\"http://localhost\",\"OTEL_EXPORTER_OTLP_ENDPOINT\":\"\\u003cunset\\u003e\",\"PUBLIC_URL\":\"http://localhost\",\"S3_ACCESS_KEY\":\"\\u003cunset\\u003e\",\"S3_BUCKET\":\"drop-artifacts\",\"S3_ENDPOINT\":\"minio:9000\",\"S3_SECRET_KEY\":\"\\u003cunset\\u003e\",\"TASK_KINDS_FILE\":\"\\u003cconfigured\\u003e\",\"TLS_CA_FILE\":\"\\u003cunset\\u003e\",\"TLS_CERT_FILE\":\"\\u003cunset\\u003e\",\"TLS_KEY_FILE\":\"\\u003cunset\\u003e\"},\"error_code\":null,\"level\":\"info\",\"message\":\"effective configuration\",\"request_id\":\"\",\"service\":\"drop-api\",\"stage\":\"startup\",\"task_id\":\"\",\"time\":\"2026-10-18T05:41:42.4335249Z\",\"version\":\"0.2.0\"}\n{\"agent_id\":\"\",\"attempt_id\":\"\",\"duration_ms\":null,\"error_code\":null,\"level\":\"info\",\"message\":\"migration complete\",\"request_id\":\"\",\"schema_version\":5,\"service\":\"drop-api\",\"stage\":\"migration\",\"task_id\":\"\",\"time\":\"2026-10-18T05:41:42.807668Z\",\"version\":\"0.2.0\"}\n",
+    "{\"agent_id\":\"\",\"attempt_id\":\"\",\"config_hash\":\"b0c8926c368299120bdc4e8b456d673fa8cba20a289da8db0c6bd95d8d1ae5ce\",\"duration_ms\":null,\"effective_config\":{\"ADMIN_PASSWORD\":\"\\u003cunset\\u003e\",\"ADMIN_USERNAME\":\"\\u003cunset\\u003e\",\"AI_ALLOW_HTTP\":\"false\",\"AI_API_KEY\":\"\\u003cunset\\u003e\",\"AI_ENDPOINT\":\"\\u003cunset\\u003e\",\"AI_MODEL\":\"\\u003cunset\\u003e\",\"DATABASE_URL\":\"\\u003cconfigured\\u003e\",\"DROP_SERVER_ADDRESS\":\"drop-server:50051\",\"HTTP_LISTEN\":\":8080\",\"MIGRATIONS_DIR\":\"\\u003cconfigured\\u003e\",\"OIDC_ALLOW_HTTP\":\"false\",\"OIDC_CLIENT_ID\":\"\\u003cunset\\u003e\",\"OIDC_CLIENT_SECRET\":\"\\u003cunset\\u003e\",\"OIDC_ISSUER\":\"\\u003cunset\\u003e\",\"OIDC_PROVIDER_NAME\":\"\u4f01\u4e1a\u8d26\u53f7\",\"OIDC_REDIRECT_URL\":\"http://localhost\",\"OTEL_EXPORTER_OTLP_ENDPOINT\":\"\\u003cunset\\u003e\",\"PUBLIC_URL\":\"http://localhost\",\"S3_ACCESS_KEY\":\"\\u003cunset\\u003e\",\"S3_BUCKET\":\"drop-artifacts\",\"S3_ENDPOINT\":\"minio:9000\",\"S3_SECRET_KEY\":\"\\u003cunset\\u003e\",\"TASK_KINDS_FILE\":\"\\u003cconfigured\\u003e\",\"TLS_CA_FILE\":\"\\u003cunset\\u003e\",\"TLS_CERT_FILE\":\"\\u003cunset\\u003e\",\"TLS_KEY_FILE\":\"\\u003cunset\\u003e\"},\"error_code\":null,\"level\":\"info\",\"message\":\"effective configuration\",\"request_id\":\"\",\"service\":\"drop-api\",\"stage\":\"startup\",\"task_id\":\"\",\"time\":\"2026-10-18T05:41:42.9122303Z\",\"version\":\"0.2.0\"}\n{\"agent_id\":\"\",\"attempt_id\":\"\",\"duration_ms\":null,\"error_code\":null,\"level\":\"info\",\"message\":\"migration complete\",\"request_id\":\"\",\"schema_version\":5,\"service\":\"drop-api\",\"stage\":\"migration\",\"task_id\":\"\",\"time\":\"2026-10-18T05:41:43.0361003Z\",\"version\":\"0.2.0\"}\n"
+  ],
+  "checks": {
+    "schema_version": 5,
+    "index_valid": true,
+    "index_definition": "CREATE INDEX idx_tasks_active_created ON public.tasks USING btree (created_at DESC, id DESC) WHERE (deleted_at IS NULL)",
+    "tasks": 0
+  },
+  "job_object": {
+    "memory_limit_bytes": 536870912,
+    "peak_committed_memory_bytes": 82382848,
+    "logical_cpus_allowed": 1
+  },
+  "migration_sha256": "01f1ab9f64ac94c77248a659139e674be8fa4a6b4e314a2c3e8e0fbc03835199",
+  "elapsed_seconds": 8.869
+}

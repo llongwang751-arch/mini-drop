@@ -1,0 +1,90 @@
+{
+  "available_memory_bytes": 2368860160,
+  "compose_file": "compose.yml:compose.perf.yml:compose.limited-release-r2.yml",
+  "containers": [
+    {
+      "container_id": "4f947b40f13489072219110f6ea65fda0e3e60450dadc780ad73b7a38a942956",
+      "health": null,
+      "image": "drop-core:20261016.1",
+      "image_id": "sha256:5c167462baf513671ad9eac5dc9f441e7d889539dd1f1096ea423a392e8792cd",
+      "oom_killed": false,
+      "running": true,
+      "service": "agent"
+    },
+    {
+      "container_id": "ae073e334d7ea065b964ee332fd951df87f4db4632b14722905bd26ca35c8427",
+      "health": "healthy",
+      "image": "drop-analyzer:20261018.1-rc4",
+      "image_id": "sha256:b9e6b659e0494e5002ed5f49a43812a73c3eb7b966d050b2e325b5990e9af136",
+      "oom_killed": false,
+      "running": true,
+      "service": "analyzer"
+    },
+    {
+      "container_id": "be8214bde68474328136d3f6658bc77d689eb11feab206783818dd7fefc6384f",
+      "health": "healthy",
+      "image": "drop-api:20261018.1-rc4",
+      "image_id": "sha256:94ad66ca5cd6a9a866c84c35916626b9cfe41e765c3cd648abb04970777abc47",
+      "oom_killed": false,
+      "running": true,
+      "service": "api"
+    },
+    {
+      "container_id": "5b020bb8f6b1f326b02b3cc5cba87e615a14fe550893f0543e3f1bfe337bcf55",
+      "health": null,
+      "image": "drop-core:20261016.1",
+      "image_id": "sha256:5c167462baf513671ad9eac5dc9f441e7d889539dd1f1096ea423a392e8792cd",
+      "oom_killed": false,
+      "running": true,
+      "service": "drop-server"
+    },
+    {
+      "container_id": "0e80f298d5bf72514c2151bf4f161914db8573c45e2d1e0d137722e1095d83e3",
+      "health": "healthy",
+      "image": "drop-nginx:20261018.1-rc2",
+      "image_id": "sha256:f76c617fd59867fba9b4d322c1cd4a041d2253cf440f4816f7cad95a3c4a6cee",
+      "oom_killed": false,
+      "running": true,
+      "service": "minio"
+    },
+    {
+      "container_id": "0055a1d7176254025c6b76689b4510b9c5d6473958645ffa8de2dade8cf5b079",
+      "health": "healthy",
+      "image": "postgres:17.11-alpine",
+      "image_id": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "oom_killed": false,
+      "running": true,
+      "service": "postgres"
+    },
+    {
+      "container_id": "9d76bf73e033fe1680e50ea9f44cee846298990d548d5f7972cb01578e5d2bb0",
+      "health": "healthy",
+      "image": "minio/minio:RELEASE.2025-07-23T15-54-02Z",
+      "image_id": "sha256:d249d1fb6966de4d8ad26c04754b545205ff15a62e4fd19ebd0f26fa5baacbc0",
+      "oom_killed": false,
+      "running": true,
+      "service": "storage-backend"
+    },
+    {
+      "container_id": "073dab2f6393907cb52aabf77c1e983054800f2cdd8fab0c9c7ec705a4b664f6",
+      "health": "healthy",
+      "image": "drop-web:20261018.1-rc7",
+      "image_id": "sha256:f42925a097c8805d817efd8145b0ca95f2530020cf170d34602226ab251bfc41",
+      "oom_killed": false,
+      "running": true,
+      "service": "web"
+    }
+  ],
+  "database": {
+    "artifacts": 125,
+    "attempts": 31,
+    "schema_version": 5,
+    "successful_smoke_tasks": 2,
+    "tasks": 25
+  },
+  "overlay_sha256": "f85cb20e6bd5cc8a68d951606a8b999561cf48fc7c3049504ee10377077dd356",
+  "protected_container_ids_unchanged": true,
+  "recorded_at": "2026-10-18T09:35:21Z",
+  "secrets_or_application_logs_collected": false,
+  "status": "POST_DEPLOYMENT_READ_ONLY_SNAPSHOT_PASSED"
+}

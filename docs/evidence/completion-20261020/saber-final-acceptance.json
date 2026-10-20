@@ -1,0 +1,83 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-20T08:05:41.943639+00:00",
+  "api": "20261020.10",
+  "web": "20261020.10",
+  "agent_helper": "20261020.3",
+  "source": "fresh full public-browser investigation on final deployed three-role AppArmor policy; real DeepSeek and collections, synthetic enrolled Saber component workload",
+  "pipeline_evidence": "saber-live-2026-10-20T08-01-13-655Z/summary.json",
+  "tool_and_patch_evidence": "saber-live-2026-10-20T08-01-13-655Z/detail.json",
+  "runtime_deployment_evidence": "peer-policy-v2-deployment.json",
+  "runtime_images": {
+    "api": "sha256:6b7d8c048a3aeac911db2f400b11ae1ef4249713eacae31cb4405066c41e1e88",
+    "web": "sha256:f80c6f3eb6d9cd330ce6f0c610528a4f74ab9073bda60d0be72c90305995552f"
+  },
+  "agent_helper_image_id": "sha256:abb10f7f51f7f33e08248fde4c0d6ec0bbf200f5b4c9cde7248e8701cb25c4dc",
+  "policy_sha256": {
+    "deploy/apparmor/drop-agent-controller": "6305cb9b10b6e08b522ab118a1c5abe23a22afa4fac409778d70d135686e8748",
+    "deploy/apparmor/drop-diagnostic-target": "f502c6cc6b22ec03a221843e0b918329bc81ccf66f7c01934a7e68117bd78c39",
+    "deploy/apparmor/drop-collector-helper": "ceaeb5c9585f7da92953dd0b2043775d099fe0f632b46748d26016e9d4ffb855",
+    "deploy/compose.helper-targets.yml": "9bd53efd30e090f55d0e1cb55ad9e5b2da10cc9574f03a67190539257ca027b1"
+  },
+  "investigation_id": "9",
+  "baseline_task_id": "82",
+  "candidate_task_id": "83",
+  "diagnosis_id": "25",
+  "candidate_diagnosis_id": "26",
+  "verification_id": "12",
+  "repair_id": "7",
+  "target": {
+    "agent_id": "tencent-local",
+    "pid": 82,
+    "uid": 10001,
+    "start_time_ticks": 9040395
+  },
+  "source_revision": "9245ce09fa2e2adceafebb669ee4605f94a2bb05153d5844d24888fb61d4f402",
+  "elapsed_seconds": 88,
+  "fresh_measurements": [
+    {
+      "tool": "profile_business_flow",
+      "cache_hit": false,
+      "job_key": "e175249e707e7388dc50af195349f8ad219cf36e5e62d3f435184e0fa2b4851e"
+    },
+    {
+      "tool": "test_patch",
+      "cache_hit": false,
+      "job_key": "35a82c47747996719fc889198aaea97e2c2392d5ea3423ce6e83e5921b8e4580"
+    }
+  ],
+  "original_tests": 2,
+  "frozen_contract_tests": 6,
+  "output_parity_cases": 384,
+  "alternating_pairs": 6,
+  "improved_pairs": 6,
+  "median_pairwise_cpu_speedup": 1.3533639366425003,
+  "root_cause_status": "validated_in_controlled_saber_benchmark",
+  "repeat_collection_comparison_root_cause_status": "not_tested",
+  "scope": "Saber FTS5 component on synthetic 1K-8K long queries plus edge cases and real in-memory SQLite searches; excludes index construction and full app, not production P95/P99 or all Saber functions",
+  "candidate_file_sha256": "f2b5ab0ca8032514ac2ebc1b0fbe6d011033bb0601e1286bd7dbddc3eae6f8d8",
+  "actual_profile_query_characters_max": 6313,
+  "sql_queries_per_64_case_measurement": 62,
+  "source_render_verified": true,
+  "actual_summary_and_scope_checked": true,
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "width": 375,
+      "height": 900
+    }
+  ],
+  "mobile_horizontal_overflow": false,
+  "browser_errors": 0,
+  "no_page_reload_or_manual_repair_selection_after_link": true,
+  "desktop_screenshot": "saber-live-2026-10-20T08-01-13-655Z/source-result.png",
+  "mobile_screenshot": "saber-live-2026-10-20T08-01-13-655Z/source-result-mobile.png",
+  "video": "saber-live-2026-10-20T08-01-13-655Z/rehearsal.webm",
+  "earlier_presentation_failure_preserved": "saber-live-2026-10-20T07-05-19-055Z/summary.json",
+  "earlier_staged_combination": "saber-combined-acceptance.json",
+  "original_source_not_modified": true,
+  "original_application_not_released": true
+}

@@ -1,0 +1,11 @@
+[Unit]
+Description=Check tx-drop internal leaf expiry daily
+
+[Timer]
+OnCalendar=*-*-* 04:40:00
+RandomizedDelaySec=15m
+Persistent=true
+Unit=tx-drop-internal-tls.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,23 @@
+# Additional enrolled live business component; API source tests remain isolated.
+services:
+  saber-workload:
+    image: drop-saber-sandbox:20261020.1
+    container_name: txdrop-saber-workload-1
+    labels:
+      drop.code-project: saber-python
+      drop.source-revision: 9245ce09fa2e2adceafebb669ee4605f94a2bb05153d5844d24888fb61d4f402
+      drop.workload-type: controlled-synthetic-business-component
+    user: '10001:10001'
+    pid: service:agent
+    network_mode: service:agent
+    depends_on: {agent: {condition: service_started}}
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: ['/tmp:size=32m,mode=1777,noexec,nosuid']
+    mem_limit: 192m
+    memswap_limit: 192m
+    cpus: 0.35
+    pids_limit: 16
+    logging: {driver: json-file, options: {max-size: 2m, max-file: '2'}}

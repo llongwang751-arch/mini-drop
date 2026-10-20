@@ -1,0 +1,144 @@
+{
+  "investigation_id": "4",
+  "baseline_task_id": "11",
+  "baseline_profile": {
+    "kind": "PYTHON_CPU",
+    "total_samples": 987,
+    "node_count": 258
+  },
+  "candidate_task_id": "12",
+  "candidate_diagnosis_id": "10",
+  "comparison": {
+    "kind": "PYTHON_CPU",
+    "unit": "samples",
+    "outcome": "insufficient_evidence",
+    "comparable": true,
+    "differences": [
+      {
+        "symbol": "symbol_6125ef45be18",
+        "baseline_self_percent": 10.0304,
+        "candidate_self_percent": 6.7745,
+        "delta_percentage_points": -3.2559000000000005
+      },
+      {
+        "symbol": "symbol_6d6d8fa66625",
+        "baseline_self_percent": 2.0263,
+        "candidate_self_percent": 4.7523,
+        "delta_percentage_points": 2.726
+      },
+      {
+        "symbol": "symbol_1393bb56aa5f",
+        "baseline_self_percent": 7.2948,
+        "candidate_self_percent": 9.8079,
+        "delta_percentage_points": 2.5130999999999997
+      },
+      {
+        "symbol": "symbol_05de95427f2d",
+        "baseline_self_percent": 2.4316,
+        "candidate_self_percent": 4.0445,
+        "delta_percentage_points": 1.6129000000000002
+      },
+      {
+        "symbol": "symbol_86675744ba56",
+        "baseline_self_percent": 2.8369,
+        "candidate_self_percent": 4.2467,
+        "delta_percentage_points": 1.4097999999999997
+      },
+      {
+        "symbol": "symbol_db621560ea44",
+        "baseline_self_percent": 10.0304,
+        "candidate_self_percent": 8.6957,
+        "delta_percentage_points": -1.3346999999999998
+      },
+      {
+        "symbol": "symbol_e9f33ed7c65c",
+        "baseline_self_percent": 2.6342,
+        "candidate_self_percent": 1.3145,
+        "delta_percentage_points": -1.3196999999999999
+      },
+      {
+        "symbol": "symbol_28518dad710e",
+        "baseline_self_percent": 1.3171,
+        "candidate_self_percent": 0.4044,
+        "delta_percentage_points": -0.9127
+      },
+      {
+        "symbol": "symbol_7cc2fbb782d0",
+        "baseline_self_percent": 1.1145,
+        "candidate_self_percent": 0.4044,
+        "delta_percentage_points": -0.7101000000000001
+      },
+      {
+        "symbol": "symbol_8e3b5b11ae7d",
+        "baseline_self_percent": 4.9645,
+        "candidate_self_percent": 4.4489,
+        "delta_percentage_points": -0.5156000000000001
+      }
+    ],
+    "limitations": [
+      "重复采样只检验现象复现；未实施受控代码或配置干预，不能确认因果根因。",
+      "百分比差值不是请求延迟或CPU利用率变化；需同一负载并记录业务指标。",
+      "样本数不足1000或单位不是采样计数；只展示描述差异，不给统计显著性结论。",
+      "Top表未出现的符号按0显示仅指已返回热点表，不证明实际没有执行。"
+    ],
+    "baseline_weight": 987,
+    "candidate_weight": 989,
+    "root_cause_status": "not_tested"
+  },
+  "repair_id": "4",
+  "source_revision": "20eb8592d7a6c9b959113417de45ef99ec2c6b2125b9c635b9c15cd574cf12a5",
+  "source_tools": [
+    "profile_business_flow",
+    "read_source",
+    "read_source",
+    "read_source",
+    "test_patch"
+  ],
+  "baseline_tools": [
+    "read_profile_summary",
+    "inspect_hotspots",
+    "check_collection_quality",
+    "inspect_call_paths",
+    "inspect_call_paths",
+    "propose_verification",
+    "inspect_call_paths"
+  ],
+  "candidate_tools": [
+    "read_profile_summary",
+    "inspect_hotspots",
+    "check_collection_quality",
+    "inspect_call_paths",
+    "inspect_call_paths",
+    "compare_profiles"
+  ],
+  "cpu_speedup": 4.334267196331836,
+  "improved_pairs": 6,
+  "output_parity_cases": 384,
+  "validation_scope": "isolated CRM palette service with synthetic novel seeds; not production P95/P99 or all CRM functions",
+  "candidate_profile_hotspots": [
+    {
+      "line": 105,
+      "path": "crm/services/brand_palette.py",
+      "calls": 58551,
+      "function": "contrast",
+      "self_seconds": 0.043665795,
+      "total_seconds": 0.082280667
+    },
+    {
+      "line": 122,
+      "path": "crm/services/brand_palette.py",
+      "calls": 21872,
+      "function": "<genexpr>",
+      "self_seconds": 0.022146396000000002,
+      "total_seconds": 0.06323044
+    },
+    {
+      "line": 127,
+      "path": "crm/services/brand_palette.py",
+      "calls": 77044,
+      "function": "<genexpr>",
+      "self_seconds": 0.019565632000000003,
+      "total_seconds": 0.100389879
+    }
+  ]
+}

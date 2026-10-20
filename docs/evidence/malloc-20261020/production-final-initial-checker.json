@@ -1,0 +1,176 @@
+{
+  "source": "fresh production API collection, upload, analysis and RAW download on controlled synthetic UID10001 processes",
+  "targets": {
+    "io": {
+      "pid": 69,
+      "uid": 10001,
+      "start_time_ticks": 9040389,
+      "namespace": "pid:[4026532328]"
+    },
+    "python": {
+      "pid": 91,
+      "uid": 10001,
+      "start_time_ticks": 9040396,
+      "namespace": "pid:[4026532328]"
+    },
+    "native": {
+      "pid": 8,
+      "uid": 10001
+    }
+  },
+  "bindings": {
+    "helper_image_id": "sha256:abb10f7f51f7f33e08248fde4c0d6ec0bbf200f5b4c9cde7248e8701cb25c4dc",
+    "profile_sha256": {
+      "drop-collector-helper": "ceaeb5c9585f7da92953dd0b2043775d099fe0f632b46748d26016e9d4ffb855",
+      "drop-diagnostic-target": "f502c6cc6b22ec03a221843e0b918329bc81ccf66f7c01934a7e68117bd78c39",
+      "drop-agent-controller": "6305cb9b10b6e08b522ab118a1c5abe23a22afa4fac409778d70d135686e8748"
+    },
+    "helper_binary_sha256": "fa4f2daf655fbf8b78d7276c636d4350b85aee6a91e3e7ea03f6a0f1cd30b4f4"
+  },
+  "cases": [
+    {
+      "kind": "PYTHON_MEMORY",
+      "target": "python",
+      "options": {
+        "native": false
+      },
+      "task_id": "62",
+      "target_recovery": {
+        "state": "R",
+        "tracer_pid": 0,
+        "identity_unchanged": true,
+        "cpu_progress": true,
+        "io_progress": false
+      },
+      "passed": true,
+      "total_samples": 870605,
+      "node_count": 19,
+      "raw_size": 3000,
+      "raw_sha256": "a7287519b1b8a266a4517d89007087425e81d33007c1a98b6ced1f9ba1c7006f",
+      "raw_download_verified": true,
+      "elapsed_seconds": 7.97
+    },
+    {
+      "kind": "MEMORY_TRACE",
+      "target": "io",
+      "options": {
+        "category": "alloc",
+        "max_events": 200,
+        "stack_depth": 8
+      },
+      "task_id": "63",
+      "native_events": {
+        "alloc": 100,
+        "free": 100
+      },
+      "actual_nonempty_stacks": true,
+      "target_recovery": {
+        "state": "S",
+        "tracer_pid": 0,
+        "identity_unchanged": true,
+        "cpu_progress": false,
+        "io_progress": true
+      },
+      "passed": true,
+      "total_samples": 6553600,
+      "node_count": 5,
+      "raw_size": 57800,
+      "raw_sha256": "7a01d5fff90477294f8c36567fcb9c8a59023f08b01647cdae5c4e5936014e8c",
+      "raw_download_verified": true,
+      "elapsed_seconds": 7.84
+    },
+    {
+      "kind": "PERF_CPU",
+      "target": "native",
+      "options": {},
+      "task_id": "64",
+      "target_recovery": {
+        "state": "S",
+        "tracer_pid": 0,
+        "identity_unchanged": true,
+        "cpu_progress": true,
+        "io_progress": false
+      },
+      "passed": true,
+      "total_samples": 61,
+      "node_count": 20,
+      "raw_size": 38112,
+      "raw_sha256": "cee37de3760bc73369889b7c8165f2d175fe5f1e1381b98f1fbb8d9586f89e20",
+      "raw_download_verified": true,
+      "elapsed_seconds": 6.91
+    },
+    {
+      "kind": "PYTHON_CPU",
+      "target": "python",
+      "options": {
+        "native": false
+      },
+      "task_id": "65",
+      "target_recovery": {
+        "state": "R",
+        "tracer_pid": 0,
+        "identity_unchanged": true,
+        "cpu_progress": true,
+        "io_progress": false
+      },
+      "passed": true,
+      "total_samples": 192,
+      "node_count": 5,
+      "raw_size": 201,
+      "raw_sha256": "94832e940838f12da6b93e3dbf4b1988c6afc58e6820f29045ee1701b573e06c",
+      "raw_download_verified": true,
+      "elapsed_seconds": 6.73
+    },
+    {
+      "kind": "MEMORY_TRACE",
+      "target": "io",
+      "options": {
+        "category": "pagefault",
+        "max_events": 200,
+        "stack_depth": 8
+      },
+      "task_id": "66",
+      "passed": false,
+      "error": "",
+      "task_state": {
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "error_code": null,
+        "error_message": null
+      },
+      "failure_target_recovery": {
+        "state": "S",
+        "tracer_pid": 0,
+        "identity_unchanged": true,
+        "cpu_progress": true,
+        "io_progress": true
+      },
+      "elapsed_seconds": 6.78
+    }
+  ],
+  "owned_debugger_or_sampler_leftovers": [],
+  "final_targets_recovery": {
+    "io": {
+      "state": "S",
+      "tracer_pid": 0,
+      "identity_unchanged": true,
+      "cpu_progress": false,
+      "io_progress": true
+    },
+    "python": {
+      "state": "R",
+      "tracer_pid": 0,
+      "identity_unchanged": true,
+      "cpu_progress": true,
+      "io_progress": false
+    },
+    "native": {
+      "state": "R",
+      "tracer_pid": 0,
+      "identity_unchanged": true,
+      "cpu_progress": true,
+      "io_progress": false
+    }
+  },
+  "passed": false
+}

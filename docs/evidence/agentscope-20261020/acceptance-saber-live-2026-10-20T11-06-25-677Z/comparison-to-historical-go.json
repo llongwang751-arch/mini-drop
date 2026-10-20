@@ -1,0 +1,307 @@
+{
+  "schema_version": 1,
+  "source": "observed historical Go run and fresh AgentScope run; no contemporaneous controlled framework experiment",
+  "controlled_framework_comparison": false,
+  "comparable_inputs": {
+    "source_revision_equal": true,
+    "collection_parameters_equal": true,
+    "same_registered_project": true,
+    "goal_text_excluding_timestamp_equal": true
+  },
+  "historic_go": {
+    "investigation_id": "9",
+    "task_ids": [
+      "82",
+      "83"
+    ],
+    "repair_id": "7",
+    "source_revision": "9245ce09fa2e2adceafebb669ee4605f94a2bb05153d5844d24888fb61d4f402",
+    "plan": {
+      "kind": "PYTHON_CPU",
+      "duration_seconds": 10,
+      "frequency_hz": 99,
+      "native": false
+    },
+    "elapsed_seconds": 88,
+    "milestones": [
+      {
+        "state": "submit_from_browser",
+        "elapsed_seconds": 1.5
+      },
+      {
+        "state": "planning",
+        "elapsed_seconds": 3.9
+      },
+      {
+        "state": "awaiting_confirmation",
+        "elapsed_seconds": 8.2
+      },
+      {
+        "state": "plan_confirmed_from_browser",
+        "elapsed_seconds": 8.4
+      },
+      {
+        "state": "collecting",
+        "elapsed_seconds": 10.5
+      },
+      {
+        "state": "diagnosing",
+        "elapsed_seconds": 24.9
+      },
+      {
+        "state": "verifying",
+        "elapsed_seconds": 39.4
+      },
+      {
+        "state": "source_running_steps_0",
+        "elapsed_seconds": 66.3
+      },
+      {
+        "state": "source_running_steps_1",
+        "elapsed_seconds": 68.4
+      },
+      {
+        "state": "source_running_steps_3",
+        "elapsed_seconds": 70.5
+      },
+      {
+        "state": "source_running_steps_4",
+        "elapsed_seconds": 72.6
+      },
+      {
+        "state": "source_running_steps_5",
+        "elapsed_seconds": 83.2
+      },
+      {
+        "state": "success",
+        "elapsed_seconds": 87.4
+      },
+      {
+        "state": "source_success_steps_5",
+        "elapsed_seconds": 87.5
+      }
+    ],
+    "diagnostics": null,
+    "planning_agent_runtime": null,
+    "source_agent_runtime": null,
+    "profile_tool_calls": 1,
+    "patch_test_tool_calls": 1,
+    "fresh_measurements": [
+      {
+        "tool": "profile_business_flow",
+        "cache_hit": false,
+        "job_key": "e175249e707e7388dc50af195349f8ad219cf36e5e62d3f435184e0fa2b4851e"
+      },
+      {
+        "tool": "test_patch",
+        "cache_hit": false,
+        "job_key": "35a82c47747996719fc889198aaea97e2c2392d5ea3423ce6e83e5921b8e4580"
+      }
+    ],
+    "output_parity_cases": 384,
+    "original_tests": 2,
+    "frozen_contract_tests": 6,
+    "cpu_speedup": 1.3533639366425003,
+    "improved_pairs": 6,
+    "root_cause_status": "validated_in_controlled_saber_benchmark",
+    "browser_errors": 0,
+    "mobile_horizontal_overflow": false,
+    "passed": true
+  },
+  "current_agentscope": {
+    "investigation_id": "11",
+    "task_ids": [
+      "86",
+      "87"
+    ],
+    "repair_id": "9",
+    "source_revision": "9245ce09fa2e2adceafebb669ee4605f94a2bb05153d5844d24888fb61d4f402",
+    "plan": {
+      "kind": "PYTHON_CPU",
+      "duration_seconds": 10,
+      "frequency_hz": 99,
+      "native": false
+    },
+    "elapsed_seconds": 76.4,
+    "milestones": [
+      {
+        "state": "submit_from_browser",
+        "elapsed_seconds": 1.9
+      },
+      {
+        "state": "planning",
+        "elapsed_seconds": 4.3
+      },
+      {
+        "state": "awaiting_confirmation",
+        "elapsed_seconds": 6.5
+      },
+      {
+        "state": "plan_confirmed_from_browser",
+        "elapsed_seconds": 6.7
+      },
+      {
+        "state": "collecting",
+        "elapsed_seconds": 8.8
+      },
+      {
+        "state": "diagnosing",
+        "elapsed_seconds": 23.3
+      },
+      {
+        "state": "verifying",
+        "elapsed_seconds": 33.6
+      },
+      {
+        "state": "source_pending_steps_0",
+        "elapsed_seconds": 58.5
+      },
+      {
+        "state": "source_running_steps_0",
+        "elapsed_seconds": 60.6
+      },
+      {
+        "state": "source_running_steps_2",
+        "elapsed_seconds": 62.8
+      },
+      {
+        "state": "source_running_steps_4",
+        "elapsed_seconds": 64.9
+      },
+      {
+        "state": "source_running_steps_5",
+        "elapsed_seconds": 71.4
+      },
+      {
+        "state": "success",
+        "elapsed_seconds": 75.6
+      },
+      {
+        "state": "source_success_steps_5",
+        "elapsed_seconds": 75.6
+      }
+    ],
+    "diagnostics": {
+      "baseline": {
+        "id": "29",
+        "task_id": "86",
+        "attempt_id": "87",
+        "analysis_job_id": "79",
+        "analysis_run": 1,
+        "runtime": {
+          "usage": {
+            "input_tokens": 12947,
+            "output_tokens": 1352
+          },
+          "run_id": "0c3cba8e-b583-435d-bf93-282597bddb2b",
+          "framework": "agentscope",
+          "elapsed_ms": 9597,
+          "tool_calls": 6,
+          "agent_class": "agentscope.agent.Agent",
+          "model_calls": 4,
+          "framework_version": "2.0.10"
+        },
+        "model": "deepseek-flash",
+        "evidence_count": 7,
+        "tools": {
+          "read_profile_summary": 1,
+          "inspect_hotspots": 1,
+          "check_collection_quality": 1,
+          "inspect_call_paths": 3,
+          "propose_verification": 1
+        },
+        "valid_report_references": true,
+        "created_at": "2026-10-20T11:06:46.767089Z",
+        "updated_at": "2026-10-20T11:06:57.575352Z"
+      },
+      "candidate": {
+        "id": "30",
+        "task_id": "87",
+        "attempt_id": "88",
+        "analysis_job_id": "80",
+        "analysis_run": 1,
+        "runtime": {
+          "usage": {
+            "input_tokens": 8604,
+            "output_tokens": 1147
+          },
+          "run_id": "317da541-ba7b-472b-b865-059bcc011f97",
+          "framework": "agentscope",
+          "elapsed_ms": 8053,
+          "tool_calls": 4,
+          "agent_class": "agentscope.agent.Agent",
+          "model_calls": 3,
+          "framework_version": "2.0.10"
+        },
+        "model": "deepseek-flash",
+        "evidence_count": 5,
+        "tools": {
+          "read_profile_summary": 1,
+          "inspect_hotspots": 1,
+          "check_collection_quality": 1,
+          "inspect_call_paths": 1,
+          "compare_profiles": 1
+        },
+        "valid_report_references": true,
+        "created_at": "2026-10-20T11:07:12.773169Z",
+        "updated_at": "2026-10-20T11:07:21.951373Z"
+      },
+      "distinct_tasks_diagnoses_and_runtime": true
+    },
+    "planning_agent_runtime": {
+      "usage": {
+        "input_tokens": 23264,
+        "output_tokens": 303
+      },
+      "run_id": "18d468dc-2ee1-4e7a-ad67-19b481c64168",
+      "framework": "agentscope",
+      "elapsed_ms": 3513,
+      "tool_calls": 2,
+      "agent_class": "agentscope.agent.Agent",
+      "model_calls": 2,
+      "framework_version": "2.0.10"
+    },
+    "source_agent_runtime": {
+      "usage": {
+        "input_tokens": 29449,
+        "output_tokens": 1314
+      },
+      "run_id": "e42aee22-4a63-42e1-a3d2-eb2127083fae",
+      "framework": "agentscope",
+      "elapsed_ms": 14777,
+      "tool_calls": 5,
+      "agent_class": "agentscope.agent.Agent",
+      "model_calls": 4,
+      "framework_version": "2.0.10"
+    },
+    "profile_tool_calls": 1,
+    "patch_test_tool_calls": 1,
+    "fresh_measurements": [
+      {
+        "tool": "profile_business_flow",
+        "cache_hit": false,
+        "job_key": "2af0240cc71c1fb1b1ab6ea5ba9ec5ff214f9842084ab82be4bc659e24350047"
+      },
+      {
+        "tool": "test_patch",
+        "cache_hit": false,
+        "job_key": "145eadf6d4c24e8603bcb184b59eaa493c467e569695635bc1c4d7bf5270c293"
+      }
+    ],
+    "output_parity_cases": 384,
+    "original_tests": 2,
+    "frozen_contract_tests": 6,
+    "cpu_speedup": 1.558687787475209,
+    "improved_pairs": 6,
+    "root_cause_status": "validated_in_controlled_saber_benchmark",
+    "browser_errors": 0,
+    "mobile_horizontal_overflow": false,
+    "passed": true
+  },
+  "limitations": [
+    "Historical versus new observations cannot establish framework latency or quality causation; provider response, load, generated patch and environment may differ.",
+    "Measured patch CPU speedup applies to the synthetic registered Saber FTS5 benchmark, not AgentScope or production P95/P99.",
+    "Milestones are browser polling observations and may miss intermediate states or include polling delay.",
+    "Historical diagnosis model-call counts and framework timings were not recorded in the old summary/detail. Missing historical runtime metrics are null, not inferred from tool evidence."
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "files": [
+    "README.md", "AGENTS.md", "DEVELOPMENT_LOG.md",
+    "core/CMakeLists.txt", "core/Dockerfile*", "core/*.py", "core/*.md",
+    "api/go.mod", "api/go.sum", "api/Dockerfile*", "api/*.md",
+    "ops/*.py", "ops/*.md", "ops/*.sh", "ops/apt-bounds.conf", "ops/requirements*.txt", "ops/requirements.lock", "ops/Dockerfile*",
+    "web/package.json", "web/package-lock.json", "web/*.ts", "web/tsconfig.json", "web/.prettierrc.json", "web/index.html", "web/nginx.conf", "web/Dockerfile*",
+    "integrations/saber-python/Dockerfile", "integrations/demo-workloads/Dockerfile*",
+    "deploy/apparmor/drop-agent-controller", "deploy/apparmor/drop-collector-helper", "deploy/apparmor/drop-diagnostic-target",
+    "deploy/compose*.yml", "deploy/package_incremental.py", "deploy/incremental-20261020.json",
+    "docs/DELIVERY_MATRIX.md", "docs/CAPABILITY_GAPS.md", "docs/DEMO_SCENARIOS.md", "docs/INTERVIEW_DEMO.md", "docs/SABER_INTEGRATION.md", "docs/BOLT_DEMO.md", "docs/MALLOC_TRACE_COMPAT.md", "docs/CONTRACT.md", "docs/releases/20261020*.md"
+  ],
+  "trees": [
+    {"path":"core/include","suffixes":[".hpp",".h"]},
+    {"path":"core/src","suffixes":[".cpp",".hpp",".h"]},
+    {"path":"core/tests","suffixes":[".cpp",".hpp",".h",".py",".json",".sh",".md"]},
+    {"path":"core/fixtures","suffixes":[".cpp",".hpp",".h",".py",".json",".go",".java",".sh",".md"]},
+    {"path":"contracts","suffixes":[".proto",".json",".py",".md",".yaml",".yml"]},
+    {"path":"api/cmd","suffixes":[".go",".json",".md"]},
+    {"path":"api/gen","suffixes":[".go",".json",".md"]},
+    {"path":"api/internal","suffixes":[".go",".json",".sql",".txt",".md",".yaml",".yml"]},
+    {"path":"api/tools","suffixes":[".py",".go",".sh",".json",".md"]},
+    {"path":"web/src","suffixes":[".ts",".tsx",".js",".jsx",".css",".json",".svg",".png"]},
+    {"path":"web/e2e","suffixes":[".ts",".tsx",".js",".mjs",".json",".md"]},
+    {"path":"web/scripts","suffixes":[".mjs",".js",".ts",".json",".md"]},
+    {"path":"web/public","suffixes":[".svg",".png",".ico",".json",".txt"]},
+    {"path":"web/dist","suffixes":[".js",".css",".html",".svg",".png",".ico",".woff",".woff2",".map",".json",".txt"]},
+    {"path":"integrations/saber-python","suffixes":[".py",".json",".md",".txt",".toml",".lock"]},
+    {"path":"integrations/demo-workloads","suffixes":[".py",".json",".md",".txt",".sh"]},
+    {"path":"deploy/seccomp","suffixes":[".json"]},
+    {"path":"deploy/tests","suffixes":[".py",".md",".sh"]},
+    {"path":"docs/evidence/completion-20261020","suffixes":[".json",".png",".webm",".log",".md",".txt"]},
+    {"path":"docs/evidence/demo-completion-20261020","suffixes":[".json",".png",".webm",".log",".md",".txt"]},
+    {"path":"docs/evidence/malloc-20261020","suffixes":[".json",".png",".webm",".log",".md",".txt"]}
+  ],
+  "required": [
+    "core/src/allocator_probe.cpp", "core/src/bolt.cpp", "core/src/runner.cpp", "core/tests/allocator_trace_isolated.py", "core/CMakeLists.txt", "contracts/fixtures/target-policy.json",
+    "api/internal/httpapi/server.go", "ops/code_executor.py", "ops/enroll_code_project.py", "web/package-lock.json", "web/tsconfig.json", "web/dist/index.html",
+    "deploy/apparmor/drop-agent-controller", "deploy/apparmor/drop-collector-helper", "deploy/apparmor/drop-diagnostic-target", "deploy/compose.helper-targets.yml", "deploy/tests/apparmor_peer_matrix_isolated.py",
+    "docs/DELIVERY_MATRIX.md", "docs/SABER_INTEGRATION.md", "docs/BOLT_DEMO.md", "docs/MALLOC_TRACE_COMPAT.md", "docs/evidence/malloc-20261020/production-final-regression.json"
+  ]
+}

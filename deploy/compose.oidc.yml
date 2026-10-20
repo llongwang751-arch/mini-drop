@@ -1,0 +1,11 @@
+services:
+  api:
+    environment:
+      OIDC_ISSUER: ${OIDC_ISSUER:?Set the trusted enterprise issuer}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:?Set the registered client ID}
+      OIDC_PROVIDER_NAME: ${OIDC_PROVIDER_NAME:-企业账号}
+      OIDC_REDIRECT_URL: ${PUBLIC_URL}/api/v1/auth/oidc/callback
+      OIDC_CLIENT_SECRET_FILE: /run/secrets/oidc_client_secret
+    secrets: [oidc_client_secret]
+secrets:
+  oidc_client_secret: {file: ./secrets/oidc_client_secret}

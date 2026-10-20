@@ -1,0 +1,6 @@
+# Reuse the pinned, already validated language-tool image for a small rollout.
+FROM drop-demo-workloads:20261020.1
+USER 0:0
+COPY core/fixtures/bolt_workload.cpp /demo/src/bolt_workload.cpp
+RUN g++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -O2 -g -fno-omit-frame-pointer -fno-reorder-blocks-and-partition -Wl,--emit-relocs -Wl,--build-id=sha1 -no-pie /demo/src/bolt_workload.cpp -o /demo/bin/drop_bolt_demo
+USER 10001:10001

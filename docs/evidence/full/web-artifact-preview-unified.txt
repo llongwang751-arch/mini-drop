@@ -1,0 +1,960 @@
+[WebServer] (node:33920) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 21 tests using 1 worker
+
+(node:11472) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 e2e\event-stream.spec.ts:177:3 › imported SSE lifecycle fixtures › aborts a hidden stream, suspends reconnects, resumes and cancels on navigation (981ms)
+  ok  2 e2e\event-stream.spec.ts:232:3 › imported SSE lifecycle fixtures › retains exact Last-Event-ID with exponential reconnects and stops on forbidden (1.2s)
+  ok  3 e2e\flame-explorer.spec.ts:12:3 › imported flame interaction fixtures › preserves evidence through thread/system/self filters and TopN navigation (4.5s)
+  ok  4 e2e\flame-scale.spec.ts:288:5 › real Worker imported flame scale baselines › 10000 nodes retain every Worker node and remain interactive (2.7s)
+  ok  5 e2e\flame-scale.spec.ts:288:5 › real Worker imported flame scale baselines › 50000 nodes retain every Worker node and remain interactive (4.0s)
+  ok  6 e2e\flame-scale.spec.ts:288:5 › real Worker imported flame scale baselines › 100000 nodes retain every Worker node and remain interactive (4.8s)
+  ok  7 e2e\profile-artifact.spec.ts:290:3 › imported authorized gzip artifact lifecycle › loads all 100k nodes from gzip in a native Worker with accessible responsive UI (2.8s)
+  ok  8 e2e\profile-artifact.spec.ts:353:5 › imported authorized gzip artifact lifecycle › expiry refreshes authorization once (445ms)
+  ok  9 e2e\profile-artifact.spec.ts:353:5 › imported authorized gzip artifact lifecycle › expired-grant refreshes authorization once (414ms)
+  ok 10 e2e\profile-artifact.spec.ts:364:3 › imported authorized gzip artifact lifecycle › repeated expiry stops after exactly one refresh and retains inline evidence (518ms)
+  ok 11 e2e\profile-artifact.spec.ts:376:5 › imported authorized gzip artifact lifecycle › forbidden is specific and never automatically refreshed (825ms)
+  ok 12 e2e\profile-artifact.spec.ts:376:5 › imported authorized gzip artifact lifecycle › gone is specific and never automatically refreshed (812ms)
+  ok 13 e2e\profile-artifact.spec.ts:394:3 › imported authorized gzip artifact lifecycle › invalid gzip surfaces a parse error while preserving the inline tree (797ms)
+  ok 14 e2e\profile-artifact.spec.ts:411:3 › imported authorized gzip artifact lifecycle › foreign signed origins are refused before any object request (678ms)
+  ok 15 e2e\profile-artifact.spec.ts:422:3 › imported authorized gzip artifact lifecycle › route exit terminates a pending artifact Worker without a duplicate grant (857ms)
+  ok 16 e2e\profile-artifact.spec.ts:463:3 › imported authorized gzip artifact lifecycle › total deadline terminates a pending download and retains the inline tree (910ms)
+  ok 17 e2e\request-lifecycle.spec.ts:165:3 › imported request lifecycle fixtures › backs off between failed polling cycles and resets after success (3.5s)
+  ok 18 e2e\request-lifecycle.spec.ts:229:3 › imported request lifecycle fixtures › hidden document suspends polling and visible document resumes (522ms)
+  ok 19 e2e\request-lifecycle.spec.ts:261:3 › imported request lifecycle fixtures › deduplicates a pending poll and aborts its native fetch on route exit (522ms)
+  ok 20 e2e\request-lifecycle.spec.ts:319:3 › imported request lifecycle fixtures › stops terminal task polling and permanent forbidden retries (656ms)
+  ok 21 e2e\safe-markdown.spec.ts:7:1 › renders bounded safe Markdown in real task rule/model/stream views (3.0s)
+
+  21 passed (38.9s)
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "E:\\tx-drop\\web\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config=playwright.preview.config.ts",
+      "--reporter=list,json"
+    ],
+    "configFile": "E:\\tx-drop\\web\\playwright.preview.config.ts",
+    "rootDir": "E:/tx-drop/web/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "E:/tx-drop/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "E:/tx-drop/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "flame-explorer.spec.ts",
+          "flame-scale.spec.ts",
+          "request-lifecycle.spec.ts",
+          "event-stream.spec.ts",
+          "safe-markdown.spec.ts",
+          "profile-artifact.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "E:\\tx-drop\\web\\test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "E:\\tx-drop\\web\\e2e",
+        "snapshotDir": "E:\\tx-drop\\web\\e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "flame-explorer.spec.ts",
+          "flame-scale.spec.ts",
+          "request-lifecycle.spec.ts",
+          "event-stream.spec.ts",
+          "safe-markdown.spec.ts",
+          "profile-artifact.spec.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:4178",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "actionTimeout": 15000
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4178 --strictPort",
+      "url": "http://127.0.0.1:4178",
+      "timeout": 30000,
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "event-stream.spec.ts",
+      "file": "event-stream.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "imported SSE lifecycle fixtures",
+          "file": "event-stream.spec.ts",
+          "line": 138,
+          "column": 6,
+          "specs": [
+            {
+              "title": "aborts a hidden stream, suspends reconnects, resumes and cancels on navigation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 981,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:57:45.029Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ed0e05b1af190b7b3bde-6760f322da112c64e626",
+              "file": "event-stream.spec.ts",
+              "line": 177,
+              "column": 3
+            },
+            {
+              "title": "retains exact Last-Event-ID with exponential reconnects and stops on forbidden",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1170,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:57:46.443Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ed0e05b1af190b7b3bde-604781913854fa739652",
+              "file": "event-stream.spec.ts",
+              "line": 232,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "flame-explorer.spec.ts",
+      "file": "flame-explorer.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "imported flame interaction fixtures",
+          "file": "flame-explorer.spec.ts",
+          "line": 7,
+          "column": 6,
+          "specs": [
+            {
+              "title": "preserves evidence through thread/system/self filters and TopN navigation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4472,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:57:47.691Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7dc6bfaf0a1d973af192-df11302a61a330564538",
+              "file": "flame-explorer.spec.ts",
+              "line": 12,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "flame-scale.spec.ts",
+      "file": "flame-scale.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "real Worker imported flame scale baselines",
+          "file": "flame-scale.spec.ts",
+          "line": 234,
+          "column": 6,
+          "specs": [
+            {
+              "title": "10000 nodes retain every Worker node and remain interactive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2709,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:57:52.193Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dc3a5b8dc0bc95235c34-6be847a998bb2b0039c4",
+              "file": "flame-scale.spec.ts",
+              "line": 288,
+              "column": 5
+            },
+            {
+              "title": "50000 nodes retain every Worker node and remain interactive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3995,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:57:54.910Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dc3a5b8dc0bc95235c34-72ad8c1832fb3b6c2994",
+              "file": "flame-scale.spec.ts",
+              "line": 288,
+              "column": 5
+            },
+            {
+              "title": "100000 nodes retain every Worker node and remain interactive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4785,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:57:58.912Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dc3a5b8dc0bc95235c34-c9fff34e3a6d4b5d3061",
+              "file": "flame-scale.spec.ts",
+              "line": 288,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "profile-artifact.spec.ts",
+      "file": "profile-artifact.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "imported authorized gzip artifact lifecycle",
+          "file": "profile-artifact.spec.ts",
+          "line": 246,
+          "column": 6,
+          "specs": [
+            {
+              "title": "loads all 100k nodes from gzip in a native Worker with accessible responsive UI",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2768,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:58:03.729Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "baec8012cdc4db0320b1-d0d2aba1a13a8e4a0f75",
+              "file": "profile-artifact.spec.ts",
+              "line": 290,
+              "column": 3
+            },
+            {
+              "title": "expiry refreshes authorization once",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 445,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:58:06.505Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "baec8012cdc4db0320b1-1109bcd85689ecc87dd1",
+              "file": "profile-artifact.spec.ts",
+              "line": 353,
+              "column": 5
+            },
+            {
+              "title": "expired-grant refreshes authorization once",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 414,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:58:06.958Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "baec8012cdc4db0320b1-ca18e16bf8c7ee264a72",
+              "file": "profile-artifact.spec.ts",
+              "line": 353,
+              "column": 5
+            },
+            {
+              "title": "repeated expiry stops after exactly one refresh and retains inline evidence",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 518,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:58:07.380Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "baec8012cdc4db0320b1-cf5553e7ed75744d79c1",
+              "file": "profile-artifact.spec.ts",
+              "line": 364,
+              "column": 3
+            },
+            {
+              "title": "forbidden is specific and never automatically refreshed",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 825,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:58:07.905Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "baec8012cdc4db0320b1-73240e5d60118edb8953",
+              "file": "profile-artifact.spec.ts",
+              "line": 376,
+              "column": 5
+            },
+            {
+              "title": "gone is specific and never automatically refreshed",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 812,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:58:08.737Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "baec8012cdc4db0320b1-683bc196feec3bdcee24",
+              "file": "profile-artifact.spec.ts",
+              "line": 376,
+              "column": 5
+            },
+            {
+              "title": "invalid gzip surfaces a parse error while preserving the inline tree",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 797,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:58:09.556Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "baec8012cdc4db0320b1-ad96da7876d2c1f8f57c",
+              "file": "profile-artifact.spec.ts",
+              "line": 394,
+              "column": 3
+            },
+            {
+              "title": "foreign signed origins are refused before any object request",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 678,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:58:10.362Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "baec8012cdc4db0320b1-3d85a7197c99ec2a08c5",
+              "file": "profile-artifact.spec.ts",
+              "line": 411,
+              "column": 3
+            },
+            {
+              "title": "route exit terminates a pending artifact Worker without a duplicate grant",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 857,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:58:11.050Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "baec8012cdc4db0320b1-cb2207dbb721dc9a1001",
+              "file": "profile-artifact.spec.ts",
+              "line": 422,
+              "column": 3
+            },
+            {
+              "title": "total deadline terminates a pending download and retains the inline tree",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 910,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:58:11.916Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "baec8012cdc4db0320b1-a771e640c8db2ead8cfd",
+              "file": "profile-artifact.spec.ts",
+              "line": 463,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "request-lifecycle.spec.ts",
+      "file": "request-lifecycle.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "imported request lifecycle fixtures",
+          "file": "request-lifecycle.spec.ts",
+          "line": 126,
+          "column": 6,
+          "specs": [
+            {
+              "title": "backs off between failed polling cycles and resets after success",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3545,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:58:12.872Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "94035169f15c54982216-8c598cdb69bb2c629c4a",
+              "file": "request-lifecycle.spec.ts",
+              "line": 165,
+              "column": 3
+            },
+            {
+              "title": "hidden document suspends polling and visible document resumes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 522,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:58:16.426Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "94035169f15c54982216-a5855ab6ebb75085d102",
+              "file": "request-lifecycle.spec.ts",
+              "line": 229,
+              "column": 3
+            },
+            {
+              "title": "deduplicates a pending poll and aborts its native fetch on route exit",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 522,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:58:16.955Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "94035169f15c54982216-56bcec78d560cb4eb603",
+              "file": "request-lifecycle.spec.ts",
+              "line": 261,
+              "column": 3
+            },
+            {
+              "title": "stops terminal task polling and permanent forbidden retries",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 656,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:58:17.485Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "94035169f15c54982216-2f3ba890edd00c47347a",
+              "file": "request-lifecycle.spec.ts",
+              "line": 319,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "safe-markdown.spec.ts",
+      "file": "safe-markdown.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "renders bounded safe Markdown in real task rule/model/stream views",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3012,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T17:58:18.181Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9cfb833f75f68079d4a2-b368a6adfd509f16086f",
+          "file": "safe-markdown.spec.ts",
+          "line": 7,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-17T17:57:43.391Z",
+    "duration": 38932.363,
+    "expected": 21,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "source": "real disposable UID10001 processes, isolated PID/network namespaces",
+  "production_profiles_reloaded": false,
+  "checks": {
+    "controller_read_only": {
+      "exe_read": true,
+      "stat_read": true,
+      "status_read": true,
+      "namespace_read": true,
+      "signal_usr1_denied": true
+    },
+    "target_no_reverse_read": {
+      "target_cannot_read_controller_exe": true
+    },
+    "helper_diagnostics": {
+      "target_exe_read": true,
+      "controller_exe_read": true,
+      "no_sys_admin": true,
+      "stop_received": true,
+      "ptrace_attach_detach": true,
+      "restored_without_tracer": true
+    },
+    "helper_quit_received": true
+  },
+  "profile_sha256": {
+    "drop-agent-controller": "6305cb9b10b6e08b522ab118a1c5abe23a22afa4fac409778d70d135686e8748",
+    "drop-diagnostic-target": "f502c6cc6b22ec03a221843e0b918329bc81ccf66f7c01934a7e68117bd78c39",
+    "drop-collector-helper": "ceaeb5c9585f7da92953dd0b2043775d099fe0f632b46748d26016e9d4ffb855"
+  },
+  "passed": true,
+  "owned_containers_removed": true,
+  "temporary_profiles_unloaded": true
+}

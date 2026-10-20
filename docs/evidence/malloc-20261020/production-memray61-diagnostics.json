@@ -1,0 +1,37 @@
+{
+  "task_id": "61",
+  "fixed_tool_diagnostics_only": true,
+  "observations": [
+    {
+      "kind": "PYTHON_MEMORY",
+      "job_files": [
+        "failure-detail.json",
+        "runner-result.json",
+        "request.json",
+        "runner.state",
+        "runner.log",
+        "result.json"
+      ],
+      "failure-detail.json": {
+        "message": "RUNNER_TIMEOUT"
+      },
+      "runner-result.json": {
+        "canceled": false,
+        "exit_code": 143,
+        "timed_out": true
+      },
+      "result.json": {
+        "error_code": "RUNNER_FAILED",
+        "state": "FAILED"
+      },
+      "runner.log": []
+    },
+    {
+      "apparmor_events": [
+        "Oct 20 15:34:16 VM-0-2-ubuntu kernel: audit: type=1400 audit(1792481656.412:167): apparmor=\"DENIED\" operation=\"open\" profile=\"drop-collector-helper\" name=\"/\" pid=1576072 comm=\"4\" requested_mask=\"r\" denied_mask=\"r\" fsuid=0 ouid=0",
+        "Oct 20 15:34:16 VM-0-2-ubuntu kernel: audit: type=1400 audit(1792481656.508:168): apparmor=\"DENIED\" operation=\"signal\" profile=\"docker-default\" pid=1576072 comm=\"4\" requested_mask=\"receive\" denied_mask=\"receive\" signal=stop peer=\"drop-collector-helper\"",
+        "Oct 20 15:37:55 VM-0-2-ubuntu kernel: audit: type=1400 audit(1792481875.295:169): apparmor=\"DENIED\" operation=\"open\" profile=\"drop-collector-helper\" name=\"/\" pid=1581149 comm=\"python3\" requested_mask=\"r\" denied_mask=\"r\" fsuid=0 ouid=0"
+      ]
+    }
+  ]
+}

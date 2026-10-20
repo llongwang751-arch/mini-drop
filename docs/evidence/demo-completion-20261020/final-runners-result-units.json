@@ -1,0 +1,271 @@
+{
+  "source": "read-only measured result units and current target restoration; no collection/model",
+  "checked_at": "2026-10-20T08:00:52.294631+00:00",
+  "cases": [
+    {
+      "task_id": "70",
+      "kind": "GO_CPU",
+      "options": {},
+      "total_weight": 130000000,
+      "node_count": 27,
+      "summary": {
+        "unit": "nanoseconds",
+        "source": "go-pprof",
+        "profile_source": "go-pprof",
+        "input_format": "pprof",
+        "duration_seconds": 3.002874867,
+        "frequency_hz": null
+      }
+    },
+    {
+      "task_id": "71",
+      "kind": "GO_HEAP",
+      "options": {
+        "sample_type": "inuse_space"
+      },
+      "total_weight": 4802021,
+      "node_count": 3,
+      "summary": {
+        "unit": "bytes",
+        "source": "go-pprof",
+        "profile_source": "go-pprof",
+        "input_format": "pprof",
+        "duration_seconds": 1,
+        "frequency_hz": null
+      }
+    },
+    {
+      "task_id": "72",
+      "kind": "JAVA_CPU",
+      "options": {
+        "event": "cpu"
+      },
+      "total_weight": 101,
+      "node_count": 70,
+      "summary": {
+        "unit": "samples",
+        "source": "async-profiler",
+        "profile_source": "async-profiler",
+        "input_format": "folded",
+        "duration_seconds": 3,
+        "frequency_hz": null
+      }
+    },
+    {
+      "task_id": "73",
+      "kind": "JAVA_CPU",
+      "options": {
+        "event": "alloc"
+      },
+      "total_weight": 299,
+      "node_count": 4,
+      "summary": {
+        "unit": "samples",
+        "source": "async-profiler",
+        "profile_source": "async-profiler",
+        "input_format": "folded",
+        "duration_seconds": 3,
+        "frequency_hz": null
+      }
+    },
+    {
+      "task_id": "74",
+      "kind": "JAVA_CPU",
+      "options": {
+        "event": "lock"
+      },
+      "total_weight": 140,
+      "node_count": 7,
+      "summary": {
+        "unit": "samples",
+        "source": "async-profiler",
+        "profile_source": "async-profiler",
+        "input_format": "folded",
+        "duration_seconds": 3,
+        "frequency_hz": null
+      }
+    },
+    {
+      "task_id": "75",
+      "kind": "JAVA_HEAP",
+      "options": {
+        "live": true
+      },
+      "total_weight": 5098402,
+      "node_count": 202,
+      "summary": {
+        "unit": "bytes",
+        "source": "hotspot-hprof",
+        "profile_source": "hotspot-hprof",
+        "input_format": "hprof",
+        "duration_seconds": 1,
+        "frequency_hz": null
+      }
+    },
+    {
+      "task_id": "76",
+      "kind": "GPERF_CPU",
+      "options": {},
+      "total_weight": 43,
+      "node_count": 29,
+      "summary": {
+        "unit": "samples",
+        "source": "gperftools",
+        "profile_source": "gperftools",
+        "input_format": "gperf_cpu",
+        "duration_seconds": 3,
+        "frequency_hz": null
+      }
+    },
+    {
+      "task_id": "77",
+      "kind": "GPERF_HEAP",
+      "options": {},
+      "total_weight": 15830598,
+      "node_count": 28,
+      "summary": {
+        "unit": "bytes",
+        "source": "gperftools",
+        "profile_source": "gperftools",
+        "input_format": "gperf_heap",
+        "duration_seconds": 3,
+        "frequency_hz": null
+      }
+    },
+    {
+      "task_id": "78",
+      "kind": "JEPROF_HEAP",
+      "options": {},
+      "total_weight": 13857360,
+      "node_count": 59,
+      "summary": {
+        "unit": "bytes",
+        "source": "jemalloc",
+        "profile_source": "jemalloc",
+        "input_format": "jeprof_heap",
+        "duration_seconds": 3,
+        "frequency_hz": null
+      }
+    },
+    {
+      "task_id": "79",
+      "kind": "RESOURCE_SNAPSHOT",
+      "options": {},
+      "total_weight": 0,
+      "node_count": 1,
+      "summary": {
+        "unit": "bytes",
+        "source": "procfs",
+        "profile_source": "procfs",
+        "input_format": "json",
+        "duration_seconds": 2,
+        "frequency_hz": null
+      }
+    },
+    {
+      "task_id": "80",
+      "kind": "SCRIPT",
+      "options": {
+        "template_id": "process_status"
+      },
+      "total_weight": 0,
+      "node_count": 1,
+      "summary": {
+        "unit": "operations",
+        "source": "fixed-template",
+        "profile_source": "fixed-template",
+        "input_format": "json",
+        "duration_seconds": 1,
+        "frequency_hz": null
+      }
+    },
+    {
+      "task_id": "81",
+      "kind": "BOLT_PROFILE",
+      "options": {},
+      "total_weight": 161,
+      "node_count": 3,
+      "summary": {
+        "unit": "samples",
+        "source": "llvm-bolt",
+        "profile_source": "llvm-bolt",
+        "input_format": "bolt_fdata",
+        "duration_seconds": 20,
+        "frequency_hz": null
+      }
+    }
+  ],
+  "target_after": [
+    {
+      "container": "txdrop-demo-go-1",
+      "apparmor_profile": "drop-diagnostic-target",
+      "state": "S",
+      "tracer_pid": 0,
+      "restored": true
+    },
+    {
+      "container": "txdrop-demo-java-1",
+      "apparmor_profile": "drop-diagnostic-target",
+      "state": "S",
+      "tracer_pid": 0,
+      "restored": true
+    },
+    {
+      "container": "txdrop-demo-python-1",
+      "apparmor_profile": "drop-diagnostic-target",
+      "state": "R",
+      "tracer_pid": 0,
+      "restored": true
+    },
+    {
+      "container": "txdrop-demo-io-1",
+      "apparmor_profile": "drop-diagnostic-target",
+      "state": "S",
+      "tracer_pid": 0,
+      "restored": true
+    },
+    {
+      "container": "txdrop-demo-gperf-cpu-1",
+      "apparmor_profile": "drop-diagnostic-target",
+      "state": "R",
+      "tracer_pid": 0,
+      "restored": true
+    },
+    {
+      "container": "txdrop-demo-gperf-heap-1",
+      "apparmor_profile": "drop-diagnostic-target",
+      "state": "R",
+      "tracer_pid": 0,
+      "restored": true
+    },
+    {
+      "container": "txdrop-demo-jemalloc-1",
+      "apparmor_profile": "drop-diagnostic-target",
+      "state": "R",
+      "tracer_pid": 0,
+      "restored": true
+    },
+    {
+      "container": "txdrop-demo-bolt-1",
+      "apparmor_profile": "drop-diagnostic-target",
+      "state": "R",
+      "tracer_pid": 0,
+      "restored": true
+    },
+    {
+      "container": "txdrop-crm-workload-1",
+      "apparmor_profile": "drop-diagnostic-target",
+      "state": "R",
+      "tracer_pid": 0,
+      "restored": true
+    },
+    {
+      "container": "txdrop-saber-workload-1",
+      "apparmor_profile": "drop-diagnostic-target",
+      "state": "R",
+      "tracer_pid": 0,
+      "restored": true
+    }
+  ],
+  "passed": true
+}

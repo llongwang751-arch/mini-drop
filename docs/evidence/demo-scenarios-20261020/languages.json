@@ -1,0 +1,532 @@
+{
+  "source": "fresh live profilers against explicitly synthetic UID10001 demo containers; no imported profiles",
+  "targets": {
+    "go": {
+      "container": "txdrop-demo-go-1",
+      "pid": 19073,
+      "uid": 10001,
+      "image_id": "sha256:8ebd8552970a1441231ce2a0fc5d07e954ea985b703144841996f91f65f3355c"
+    },
+    "java": {
+      "container": "txdrop-demo-java-1",
+      "pid": 19080,
+      "uid": 10001,
+      "image_id": "sha256:8ebd8552970a1441231ce2a0fc5d07e954ea985b703144841996f91f65f3355c"
+    },
+    "python": {
+      "container": "txdrop-demo-python-1",
+      "pid": 19055,
+      "uid": 10001,
+      "image_id": "sha256:8ebd8552970a1441231ce2a0fc5d07e954ea985b703144841996f91f65f3355c"
+    },
+    "io": {
+      "container": "txdrop-demo-io-1",
+      "pid": 19062,
+      "uid": 10001,
+      "image_id": "sha256:8ebd8552970a1441231ce2a0fc5d07e954ea985b703144841996f91f65f3355c"
+    },
+    "gperf-cpu": {
+      "container": "txdrop-demo-gperf-cpu-1",
+      "pid": 19086,
+      "uid": 10001,
+      "image_id": "sha256:8ebd8552970a1441231ce2a0fc5d07e954ea985b703144841996f91f65f3355c"
+    },
+    "gperf-heap": {
+      "container": "txdrop-demo-gperf-heap-1",
+      "pid": 19061,
+      "uid": 10001,
+      "image_id": "sha256:8ebd8552970a1441231ce2a0fc5d07e954ea985b703144841996f91f65f3355c"
+    },
+    "jemalloc": {
+      "container": "txdrop-demo-jemalloc-1",
+      "pid": 19049,
+      "uid": 10001,
+      "image_id": "sha256:8ebd8552970a1441231ce2a0fc5d07e954ea985b703144841996f91f65f3355c"
+    }
+  },
+  "cases": [
+    {
+      "kind": "GO_CPU",
+      "target": "go",
+      "options": {},
+      "task_id": "23",
+      "total_samples": 270000000,
+      "node_count": 35,
+      "summary_keys": [
+        "kind",
+        "summary",
+        "metadata",
+        "sections",
+        "max_depth",
+        "flamegraph",
+        "node_count",
+        "suggestions",
+        "top_functions",
+        "total_samples",
+        "unique_stacks",
+        "schema_version"
+      ],
+      "passed": true,
+      "raw_download_verified": true,
+      "raw_size": 1729,
+      "raw_sha256": "c82470c963986a9e90e0ec9a6c6a63e6f64a4525b38370707fe4aa385f6fad49",
+      "elapsed_seconds": 8.3
+    },
+    {
+      "kind": "GO_HEAP",
+      "target": "go",
+      "options": {
+        "sample_type": "inuse_space"
+      },
+      "task_id": "24",
+      "total_samples": 4802021,
+      "node_count": 3,
+      "summary_keys": [
+        "kind",
+        "summary",
+        "metadata",
+        "sections",
+        "max_depth",
+        "flamegraph",
+        "node_count",
+        "suggestions",
+        "top_functions",
+        "total_samples",
+        "unique_stacks",
+        "schema_version"
+      ],
+      "passed": true,
+      "raw_download_verified": true,
+      "raw_size": 1140,
+      "raw_sha256": "2b33376f61d62a68b43f870c6e261f011a452c1b2c1ebf5afec1e92fb3723025",
+      "elapsed_seconds": 3.2
+    },
+    {
+      "kind": "JAVA_CPU",
+      "target": "java",
+      "options": {
+        "event": "cpu"
+      },
+      "task_id": "25",
+      "total_samples": 169,
+      "node_count": 78,
+      "summary_keys": [
+        "kind",
+        "summary",
+        "metadata",
+        "sections",
+        "max_depth",
+        "flamegraph",
+        "node_count",
+        "suggestions",
+        "top_functions",
+        "total_samples",
+        "unique_stacks",
+        "schema_version"
+      ],
+      "passed": true,
+      "raw_download_verified": true,
+      "raw_size": 4458,
+      "raw_sha256": "fe17929b02e8eae7e19dc17a2fa28078ad93e2034cc7fe65aacc6075e7f21f99",
+      "elapsed_seconds": 7.4
+    },
+    {
+      "kind": "JAVA_CPU",
+      "target": "java",
+      "options": {
+        "event": "alloc"
+      },
+      "task_id": "26",
+      "total_samples": 448,
+      "node_count": 4,
+      "summary_keys": [
+        "kind",
+        "summary",
+        "metadata",
+        "sections",
+        "max_depth",
+        "flamegraph",
+        "node_count",
+        "suggestions",
+        "top_functions",
+        "total_samples",
+        "unique_stacks",
+        "schema_version"
+      ],
+      "passed": true,
+      "raw_download_verified": true,
+      "raw_size": 59,
+      "raw_sha256": "cbe390c687e6c8a143a53579fefae2f425f630bab4ca521c28675e49fe49ab45",
+      "elapsed_seconds": 9.4
+    },
+    {
+      "kind": "JAVA_CPU",
+      "target": "java",
+      "options": {
+        "event": "lock"
+      },
+      "task_id": "27",
+      "total_samples": 238,
+      "node_count": 7,
+      "summary_keys": [
+        "kind",
+        "summary",
+        "metadata",
+        "sections",
+        "max_depth",
+        "flamegraph",
+        "node_count",
+        "suggestions",
+        "top_functions",
+        "total_samples",
+        "unique_stacks",
+        "schema_version"
+      ],
+      "passed": true,
+      "raw_download_verified": true,
+      "raw_size": 167,
+      "raw_sha256": "874219870573a6027e7bca317cf2a1ccea8ef3200b3cda3803ab837f867dde0f",
+      "elapsed_seconds": 9.4
+    },
+    {
+      "kind": "JAVA_HEAP",
+      "target": "java",
+      "options": {
+        "live": true
+      },
+      "task_id": "28",
+      "total_samples": 4230578,
+      "node_count": 202,
+      "summary_keys": [
+        "kind",
+        "summary",
+        "metadata",
+        "sections",
+        "max_depth",
+        "flamegraph",
+        "node_count",
+        "suggestions",
+        "top_functions",
+        "total_samples",
+        "unique_stacks",
+        "schema_version"
+      ],
+      "passed": true,
+      "raw_download_verified": true,
+      "raw_size": 6505884,
+      "raw_sha256": "3cfb18ec9c163eebc8f426a0bd654b16ffeb449ee38a107c87dd9704d979cd5a",
+      "elapsed_seconds": 6.7
+    },
+    {
+      "kind": "PYTHON_CPU",
+      "target": "python",
+      "options": {
+        "native": false
+      },
+      "task_id": "29",
+      "total_samples": 484,
+      "node_count": 5,
+      "summary_keys": [
+        "kind",
+        "summary",
+        "metadata",
+        "sections",
+        "max_depth",
+        "flamegraph",
+        "node_count",
+        "suggestions",
+        "top_functions",
+        "total_samples",
+        "unique_stacks",
+        "schema_version"
+      ],
+      "passed": true,
+      "raw_download_verified": true,
+      "raw_size": 201,
+      "raw_sha256": "05b8d3f08a5b976df492d7b2f27bc8b0f18c7cc2e9efc62d80671ef6d2c2bdc6",
+      "elapsed_seconds": 10.4
+    },
+    {
+      "kind": "PYTHON_MEMORY",
+      "target": "python",
+      "options": {
+        "native": false
+      },
+      "task_id": "30",
+      "total_samples": 2116096,
+      "node_count": 19,
+      "summary_keys": [
+        "kind",
+        "summary",
+        "metadata",
+        "sections",
+        "max_depth",
+        "flamegraph",
+        "node_count",
+        "suggestions",
+        "top_functions",
+        "total_samples",
+        "unique_stacks",
+        "schema_version"
+      ],
+      "passed": true,
+      "raw_download_verified": true,
+      "raw_size": 4042,
+      "raw_sha256": "061b242949776ed313f96a2dc14baa319892775d69a6bbf03a769ead8f33ad0f",
+      "elapsed_seconds": 11.4
+    },
+    {
+      "kind": "IO_TRACE",
+      "target": "io",
+      "options": {
+        "category": "syscalls"
+      },
+      "task_id": "31",
+      "total_samples": 2023424,
+      "node_count": 9,
+      "summary_keys": [
+        "kind",
+        "summary",
+        "metadata",
+        "sections",
+        "max_depth",
+        "flamegraph",
+        "node_count",
+        "suggestions",
+        "top_functions",
+        "total_samples",
+        "unique_stacks",
+        "schema_version"
+      ],
+      "passed": true,
+      "raw_download_verified": true,
+      "raw_size": 169226,
+      "raw_sha256": "df79dc95df56347a3ac84908f78fe9c019e2d92104fb82d82ed5ff5414055441",
+      "elapsed_seconds": 11.4
+    },
+    {
+      "kind": "IO_TRACE",
+      "target": "io",
+      "options": {
+        "category": "vfs"
+      },
+      "task_id": "33",
+      "total_samples": 2007040,
+      "node_count": 9,
+      "summary_keys": [
+        "kind",
+        "summary",
+        "metadata",
+        "sections",
+        "max_depth",
+        "flamegraph",
+        "node_count",
+        "suggestions",
+        "top_functions",
+        "total_samples",
+        "unique_stacks",
+        "schema_version"
+      ],
+      "passed": true,
+      "raw_download_verified": true,
+      "raw_size": 189486,
+      "raw_sha256": "9a6fd2de44444dd16dbf9198d1ac91efaf968b82c758b43c760dd68f22080a3a",
+      "elapsed_seconds": 17.7
+    },
+    {
+      "kind": "IO_TRACE",
+      "target": "io",
+      "options": {
+        "category": "block"
+      },
+      "task_id": "34",
+      "passed": false,
+      "error": "COLLECTION_OR_ANALYSIS_FAILED",
+      "task_state": {
+        "collection_status": "FAILED",
+        "analysis_status": "FAILED",
+        "error_code": "RUNNER_FAILED",
+        "error_message": "Local collector helper refused or interrupted the bounded operation"
+      },
+      "elapsed_seconds": 7.2
+    },
+    {
+      "kind": "MEMORY_TRACE",
+      "target": "io",
+      "options": {
+        "category": "pagefault"
+      },
+      "task_id": "35",
+      "total_samples": 0,
+      "node_count": 1,
+      "summary_keys": [
+        "kind",
+        "summary",
+        "metadata",
+        "sections",
+        "max_depth",
+        "flamegraph",
+        "node_count",
+        "suggestions",
+        "top_functions",
+        "total_samples",
+        "unique_stacks",
+        "schema_version"
+      ],
+      "passed": false,
+      "error": "EMPTY_MEASURED_PROFILE",
+      "task_state": {
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "error_code": null,
+        "error_message": null
+      },
+      "elapsed_seconds": 10.5
+    },
+    {
+      "kind": "MEMORY_TRACE",
+      "target": "io",
+      "options": {
+        "category": "mmap"
+      },
+      "task_id": "37",
+      "total_samples": 16121856,
+      "node_count": 6,
+      "summary_keys": [
+        "kind",
+        "summary",
+        "metadata",
+        "sections",
+        "max_depth",
+        "flamegraph",
+        "node_count",
+        "suggestions",
+        "top_functions",
+        "total_samples",
+        "unique_stacks",
+        "schema_version"
+      ],
+      "passed": true,
+      "raw_download_verified": true,
+      "raw_size": 159408,
+      "raw_sha256": "fdc570e1dcd4ff8bb8765820c4c289fba884b10fc6cf38b8b3127cdb2e3e0fc5",
+      "elapsed_seconds": 9.4
+    },
+    {
+      "kind": "MEMORY_TRACE",
+      "target": "io",
+      "options": {
+        "category": "alloc"
+      },
+      "task_id": "38",
+      "passed": false,
+      "error": "COLLECTION_OR_ANALYSIS_FAILED",
+      "task_state": {
+        "collection_status": "FAILED",
+        "analysis_status": "FAILED",
+        "error_code": "TRACE_ATTACH_UNAVAILABLE",
+        "error_message": "Local collector helper refused or interrupted the bounded operation"
+      },
+      "elapsed_seconds": 1.1
+    },
+    {
+      "kind": "GPERF_CPU",
+      "target": "gperf-cpu",
+      "options": {},
+      "task_id": "39",
+      "total_samples": 70,
+      "node_count": 37,
+      "summary_keys": [
+        "kind",
+        "summary",
+        "metadata",
+        "sections",
+        "max_depth",
+        "flamegraph",
+        "node_count",
+        "suggestions",
+        "top_functions",
+        "total_samples",
+        "unique_stacks",
+        "schema_version"
+      ],
+      "passed": true,
+      "raw_download_verified": true,
+      "raw_size": 9235,
+      "raw_sha256": "84522b552cbbedbe69d97e05d7e6697c0fe0043c1e7e82bd0345d335b57635e2",
+      "elapsed_seconds": 8.4
+    },
+    {
+      "kind": "GPERF_HEAP",
+      "target": "gperf-heap",
+      "options": {},
+      "task_id": "40",
+      "total_samples": 21378630,
+      "node_count": 28,
+      "summary_keys": [
+        "kind",
+        "summary",
+        "metadata",
+        "sections",
+        "max_depth",
+        "flamegraph",
+        "node_count",
+        "suggestions",
+        "top_functions",
+        "total_samples",
+        "unique_stacks",
+        "schema_version"
+      ],
+      "passed": true,
+      "raw_download_verified": true,
+      "raw_size": 9101,
+      "raw_sha256": "fb17e6a4e6ead694756a65b66c5c28d65b4887e015845728e65b29a4799f66df",
+      "elapsed_seconds": 8.3
+    },
+    {
+      "kind": "JEPROF_HEAP",
+      "target": "jemalloc",
+      "options": {},
+      "task_id": "42",
+      "total_samples": 25078352,
+      "node_count": 59,
+      "summary_keys": [
+        "kind",
+        "summary",
+        "metadata",
+        "sections",
+        "max_depth",
+        "flamegraph",
+        "node_count",
+        "suggestions",
+        "top_functions",
+        "total_samples",
+        "unique_stacks",
+        "schema_version"
+      ],
+      "passed": true,
+      "raw_download_verified": true,
+      "raw_size": 7088,
+      "raw_sha256": "26b0960a4be538a96ba533fa0bc9819e9493a876d1ffbf592fbd48ea324d1b5a",
+      "elapsed_seconds": 18.7
+    },
+    {
+      "kind": "BOLT_PROFILE",
+      "target": "io",
+      "options": {
+        "include_binary": true,
+        "optimize": false
+      },
+      "task_id": "43",
+      "passed": false,
+      "error": "COLLECTION_OR_ANALYSIS_FAILED",
+      "task_state": {
+        "collection_status": "FAILED",
+        "analysis_status": "FAILED",
+        "error_code": "RUNNER_FAILED",
+        "error_message": "Local collector helper refused or interrupted the bounded operation"
+      },
+      "elapsed_seconds": 9.3
+    }
+  ]
+}

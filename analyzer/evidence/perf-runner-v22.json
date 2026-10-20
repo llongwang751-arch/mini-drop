@@ -1,0 +1,165 @@
+{
+  "provenance": "Actual Core Runner kernel captures of its own two-thread toy, imported into isolated Analyzer. Two independent records are checked against their own manifests; sample totals need not equal one another.",
+  "analyzer_version": "0.2.2",
+  "source_tree_sha256": "36f726fdf62ee5262160ed8ea95fe8b959f61ba0e5274e02ddc44e60b92db8d9",
+  "network": "none; only loopback interface observed",
+  "imported_application_elf_executed": false,
+  "cases": [
+    {
+      "format": "perf_script",
+      "input_bytes": 56920,
+      "input_sha256": "431ccf5e0b979ee4e543968ea9965002b293f716092268c0977a543a4128cca0",
+      "manifest_sha256": "2ad43a6c28c38f31db996ab3a234a184b4e92b80c2be68e25717d7b17d349f39",
+      "total_samples": 91,
+      "threads": [
+        {
+          "pid": 12,
+          "tid": 13,
+          "comm": "fixture-alpha",
+          "root_name": "fixture-alpha [pid=12 tid=13]",
+          "sample_count": 46,
+          "first_timestamp_ns": "3558108802441017",
+          "last_timestamp_ns": "3558110665745385"
+        },
+        {
+          "pid": 12,
+          "tid": 14,
+          "comm": "fixture-beta",
+          "root_name": "fixture-beta [pid=12 tid=14]",
+          "sample_count": 45,
+          "first_timestamp_ns": "3558108722205544",
+          "last_timestamp_ns": "3558110615153039"
+        }
+      ],
+      "event_counts": {
+        "cpu-clock": 91
+      },
+      "time_range_ns": {
+        "start": "3558108722205544",
+        "end": "3558110665745385",
+        "duration": "1943539841"
+      },
+      "source": "import",
+      "symbolization": "recorded_symbols_or_raw_addresses_without_network_fetch",
+      "collector_clock": "CLOCK_MONOTONIC",
+      "collector_loss_evidence": {
+        "loss_proof": "complete_native_perf_record_scan",
+        "lost_records": 0,
+        "hardware_lost_samples": 0,
+        "lost_samples": 0
+      },
+      "native_input_scan": null,
+      "import_loss_status": "not_reported",
+      "import_lost_samples": null,
+      "resource_usage": {
+        "duration_ms": 153.885,
+        "cpu_seconds": 0.152737,
+        "subprocess_cpu_seconds": 0.0,
+        "subprocess_max_rss_bytes": 0,
+        "max_rss_bytes": 26689536,
+        "temp_disk_bytes": 12643,
+        "index_cache_bytes": 0,
+        "job_disk_bytes": 12643,
+        "index_growth_bytes": 0,
+        "temp_disk_peak_bytes": 12643,
+        "observed_peak_tree_rss_bytes": 21381120,
+        "observed_processes": 1,
+        "rss_sampling_interval_ms": 50
+      },
+      "artifact_bytes": {
+        "flamegraph.json.gz": 497,
+        "top.json": 8086,
+        "report.json": 2547,
+        "manifest.json": 1363
+      },
+      "artifact_sha256": {
+        "flamegraph.json.gz": "6530e443d6ec9abd9ff1ad6ff0f0484101e58f08f297a20bfc1b0b78d324c656",
+        "top.json": "f7c182c219643ad3869b05700925f948855baf559425aa6b8e936c1fc744ec10",
+        "report.json": "e95ee3738f3393bfe102a5984c504e665104b0534701a510a746fbc198fe2f8b",
+        "manifest.json": "987945d0395e6f77818cca2cf31f525abe0b4caf669edb0f6c715a109635d870"
+      },
+      "elapsed_seconds": 0.25699
+    },
+    {
+      "format": "perf_data",
+      "input_bytes": 16032,
+      "input_sha256": "ff88cf7716e6f281cd28403305ae4a7c163085a3f83a9e2bd584dd517db5b36c",
+      "manifest_sha256": "0eb5ff53e944def0a85d279d032a6f01f9ff7dbb3b014bf1c8e8e6a53ad2b4e3",
+      "total_samples": 93,
+      "threads": [
+        {
+          "pid": 12,
+          "tid": 13,
+          "comm": "fixture-alpha",
+          "root_name": "fixture-alpha [pid=12 tid=13]",
+          "sample_count": 46,
+          "first_timestamp_ns": "3558111911008815",
+          "last_timestamp_ns": "3558113789605137"
+        },
+        {
+          "pid": 12,
+          "tid": 14,
+          "comm": "fixture-beta",
+          "root_name": "fixture-beta [pid=12 tid=14]",
+          "sample_count": 47,
+          "first_timestamp_ns": "3558111903499642",
+          "last_timestamp_ns": "3558113801335196"
+        }
+      ],
+      "event_counts": {
+        "task-clock:ppp": 93
+      },
+      "time_range_ns": {
+        "start": "3558111903499642",
+        "end": "3558113801335196",
+        "duration": "1897835554"
+      },
+      "source": "import",
+      "symbolization": "recorded_symbols_or_raw_addresses_without_network_fetch",
+      "collector_clock": "CLOCK_MONOTONIC",
+      "collector_loss_evidence": {
+        "loss_proof": null,
+        "lost_records": null,
+        "hardware_lost_samples": null,
+        "lost_samples": null
+      },
+      "native_input_scan": {
+        "sample_count": 93,
+        "lost_records": 0,
+        "hardware_lost_samples": 0,
+        "lost_samples": 0,
+        "loss_proof": "complete_native_perf_record_scan"
+      },
+      "import_loss_status": "complete_native_perf_record_scan",
+      "import_lost_samples": 0,
+      "resource_usage": {
+        "duration_ms": 181.338,
+        "cpu_seconds": 0.163137,
+        "subprocess_cpu_seconds": 0.014374,
+        "subprocess_max_rss_bytes": 26222592,
+        "max_rss_bytes": 26689536,
+        "temp_disk_bytes": 56017,
+        "index_cache_bytes": 0,
+        "job_disk_bytes": 56017,
+        "index_growth_bytes": 0,
+        "temp_disk_peak_bytes": 56017,
+        "observed_peak_tree_rss_bytes": 26222592,
+        "observed_processes": 2,
+        "rss_sampling_interval_ms": 50
+      },
+      "artifact_bytes": {
+        "flamegraph.json.gz": 445,
+        "top.json": 8475,
+        "report.json": 2576,
+        "manifest.json": 1358
+      },
+      "artifact_sha256": {
+        "flamegraph.json.gz": "854d661ca86a46a1fe7b8358e6ab60ef85702d746adb4ed41a6598b213766f9e",
+        "top.json": "05ec01d16925d2751c94fdf80bc402fa2c08ad6242b87c2b3785d3b773e3b973",
+        "report.json": "cdac3d56976c8405c66c59992a2084ff04a817851f34498258a6f74adabdb840",
+        "manifest.json": "052a340924f302675d1f053814f8453679cf81eeaaa50cecd27659348afcafd7"
+      },
+      "elapsed_seconds": 0.306636
+    }
+  ]
+}

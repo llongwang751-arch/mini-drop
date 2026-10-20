@@ -1,0 +1,191 @@
+{
+  "recorded_at": "2026-10-16T15:06:05.487901+00:00",
+  "tool": "yannh/kubeconform v0.7.0",
+  "official_archive_sha256": "9cb75551d81c909c2241ab383ced2be68363b5bfb15fd989badcc5a63bea5d7e",
+  "strict": true,
+  "schema_target": "Kubernetes1.34.1",
+  "exit_code": 0,
+  "results": {
+    "resources": [
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\resources.json",
+        "kind": "Namespace",
+        "name": "drop",
+        "version": "v1",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\resources.json",
+        "kind": "ConfigMap",
+        "name": "drop-config",
+        "version": "v1",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\resources.json",
+        "kind": "Service",
+        "name": "drop-server",
+        "version": "v1",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\resources.json",
+        "kind": "Service",
+        "name": "api",
+        "version": "v1",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\resources.json",
+        "kind": "PodDisruptionBudget",
+        "name": "drop-server",
+        "version": "policy/v1",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\resources.json",
+        "kind": "Deployment",
+        "name": "drop-server",
+        "version": "apps/v1",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\resources.json",
+        "kind": "Service",
+        "name": "web",
+        "version": "v1",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\resources.json",
+        "kind": "PodDisruptionBudget",
+        "name": "web",
+        "version": "policy/v1",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\resources.json",
+        "kind": "Deployment",
+        "name": "analyzer",
+        "version": "apps/v1",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\resources.json",
+        "kind": "PodDisruptionBudget",
+        "name": "analyzer",
+        "version": "policy/v1",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\resources.json",
+        "kind": "Deployment",
+        "name": "analyzer-heap",
+        "version": "apps/v1",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\resources.json",
+        "kind": "Deployment",
+        "name": "maintenance",
+        "version": "apps/v1",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\resources.json",
+        "kind": "PodDisruptionBudget",
+        "name": "api",
+        "version": "policy/v1",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\resources.json",
+        "kind": "Deployment",
+        "name": "api",
+        "version": "apps/v1",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\resources.json",
+        "kind": "HorizontalPodAutoscaler",
+        "name": "api",
+        "version": "autoscaling/v2",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\resources.json",
+        "kind": "Deployment",
+        "name": "web",
+        "version": "apps/v1",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\agent-daemonset.yaml",
+        "kind": "Namespace",
+        "name": "drop-agents",
+        "version": "v1",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\resources.json",
+        "kind": "NetworkPolicy",
+        "name": "default-deny-ingress",
+        "version": "networking.k8s.io/v1",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\resources.json",
+        "kind": "NetworkPolicy",
+        "name": "control-plane",
+        "version": "networking.k8s.io/v1",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\resources.json",
+        "kind": "NetworkPolicy",
+        "name": "public-web",
+        "version": "networking.k8s.io/v1",
+        "status": "statusValid",
+        "msg": ""
+      },
+      {
+        "filename": "E:\\tx-drop\\deploy\\kubernetes\\agent-daemonset.yaml",
+        "kind": "DaemonSet",
+        "name": "drop-agent",
+        "version": "apps/v1",
+        "status": "statusValid",
+        "msg": ""
+      }
+    ],
+    "summary": {
+      "valid": 21,
+      "invalid": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "files": {
+    "deploy/kubernetes/resources.json": "2d35b3312e98e62b32e5f6c3b484bac8a882246cab7e8c2f4e6ff2312b34f131",
+    "deploy/kubernetes/agent-daemonset.yaml": "667afaa2290e9b3019038a81d4f460eaa0b6f0eab35af2ad3ceec8ed4e64db6d"
+  },
+  "limitations": "Static official Kubernetes JSON Schema validation only; no cluster, scheduling, external dependencies, HA/failover or rollout is asserted."
+}

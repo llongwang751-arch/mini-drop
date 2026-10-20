@@ -1,0 +1,54 @@
+{
+  "recorded_at": "2026-10-18T06:29:10.972599+00:00",
+  "scope": "Local actual Git Bash transaction execution using imported certificates and fake Docker/OpenSSL/curl/flock; no server access",
+  "python": "3.14.0",
+  "tests": 12,
+  "seconds": 24.589,
+  "passed": true,
+  "skipped": 0,
+  "ruff_check_passed": true,
+  "ruff_format_check_passed": true,
+  "python_compile_passed": true,
+  "shell_syntax_report": "docs/evidence/full/tls-shell-syntax-2026-10-18.json",
+  "shell_scripts_checked": 5,
+  "source_files": {
+    "deploy/tls/public-state.sh": "849eb03e83fe6cd8984647ac835f605678deda186133539dbe8aab2b3413e599",
+    "deploy/tls/issue-public.sh": "13fd34bbfcefc6d0925984cca46960a5a33aa18dbc9482183d4f1927b81351a2",
+    "deploy/tls/renew-public.sh": "947c2faaacc5a0fb9ca8d581e9e8ec3e18e553c318ac8a419a254c8b7b7f4974",
+    "deploy/tls/edge-http.conf": "c033057d1cd09040b7180e429924a3c6f33eec1845fafea080b495433554f089",
+    "deploy/tls/edge-tls.conf": "efaabdf243cafe8c7d165f6cde9ca8a4fb5b1fc5038d62de727b45497f415eb6",
+    "deploy/tls/README.md": "ddcb536f4c8f2bf1a0e5d6dd0a03232a86e0441024dd9c598290fb9e62db47b0",
+    "deploy/rotate-internal-certs.sh": "200aa063bdb6222d55e52eece54126010530d07f98df4d5fc1fd49275f6a3b28",
+    "deploy/monitoring-status.sh": "1b945ca0aac6f5f43af3f37192e20049e3c94ceaf2a96a0b7a242839507b4387",
+    "deploy/tests/test_tls_publication.py": "583bff9e8baad687bdc8af436faf2f3fabbc5093b17ca8c7781235041cb0924e"
+  },
+  "test_log": "docs/evidence/full/tls-publication-offline-2026-10-18.txt",
+  "test_log_sha256": "59bc904460e24d07b3ab1e93fc7c6898bd1ce07cdcca8fd6455ebb1ba53e3f22",
+  "cases": [
+    "Commit never rolled back by success EXIT trap",
+    "Current/edge atomic rename failures",
+    "nginx config/reload and HTTPS probe failure restore old pair/config",
+    "First-issue failure restores HTTP",
+    "Invalid certificate and mismatched pair refuse publication",
+    "Unchanged renewal creates no duplicate bundle",
+    "Rollback failure preserves recovery files",
+    "Unknown relative pointer refusal",
+    "Named service recreation/no-build/no-pull",
+    "Current-bundle monitoring and crit error logging"
+  ],
+  "windows_link_operations": "ln/readlink emulated using tagged files because native symlink permission unavailable; real mv/install/cmp/EXIT traps executed",
+  "remaining_acceptance": [
+    "Linux native symlink and UID101 bind-mount readability",
+    "Actual internal forced rotation, Agent re-registration and helper PERF capture",
+    "Real Nginx publication/rollback and trusted IP certificate issuance/renewal",
+    "Production timer/expiry metric and Secure Cookie verification"
+  ],
+  "runtime_API_Web_changed": false,
+  "server_accessed": false,
+  "actual_TLS_issued": false,
+  "official_references": [
+    "https://docs.docker.com/reference/cli/docker/compose/up/",
+    "https://docs.docker.com/reference/cli/docker/container/run/",
+    "https://letsencrypt.org/2026/03/11/shorter-certs-certbot"
+  ]
+}

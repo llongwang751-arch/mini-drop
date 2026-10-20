@@ -1,0 +1,40 @@
+[Unit]
+Description=Drop isolated collection helper
+After=network-online.target drop-helper-spool.service
+Wants=network-online.target
+Requires=drop-helper-spool.service
+StartLimitIntervalSec=120
+StartLimitBurst=6
+[Service]
+Type=simple
+User=root
+Group=drop
+EnvironmentFile=/etc/drop/collector-helper.env
+ExecStart=/usr/local/bin/drop_collector_helper
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=90
+KillMode=mixed
+RuntimeDirectory=drop-helper
+RuntimeDirectoryMode=0750
+WorkingDirectory=/opt/drop-runtime/helper-spool/cache
+UMask=0077
+CapabilityBoundingSet=CAP_PERFMON CAP_SYS_PTRACE CAP_DAC_READ_SEARCH CAP_BPF
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+LockPersonality=true
+ReadWritePaths=/opt/drop-runtime/helper-spool/cache /opt/drop-runtime/helper-spool/incoming /run/drop-helper
+MemoryMax=512M
+CPUQuota=65%
+TasksMax=96
+LimitNOFILE=4096
+LimitMEMLOCK=134217728
+[Install]
+WantedBy=multi-user.target

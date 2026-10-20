@@ -1,0 +1,100 @@
+{
+  "date": "2026-10-18",
+  "provenance": "Actual serialized x86_64 isolated Linux candidate validation. No production database, profile, data volume or service changed. Named previous releases retained.",
+  "analyzer_version": "0.2.3",
+  "image": "sha256:55ae36b4e68dec8700ea722d30fc94e8eda665a756c038587f59279597e228ed",
+  "image_tags": [
+    "drop-analyzer:v23-20261018-config",
+    "drop-analyzer:20261018.1-rc2"
+  ],
+  "architecture": "amd64",
+  "uid": 10001,
+  "source_file_count": 26,
+  "source_tree_sha256": "086561892d7fb844617c055e990ab0a1c2a5f5cace747a0a93f15e41239f583e",
+  "runtime_files": {
+    "__init__.py": "ac8737da1a1398d9533f6b6d8a2dedbb25fa0cd9608b6f90a8ea68c80186fea9",
+    "__main__.py": "e3b9aca37ef7aa673c0d11dee5d3a73123d03865eeb9422fdae4574df8e23b4e",
+    "child.py": "d766fcb849bfd2d238cbdf14ba8f817234e3e86f724d05441dfcf2f3b3c46fc1",
+    "config.py": "1ac313f630479fce6caa8f8075c3409a02fad471fd76d0900e4f54805ee13701",
+    "disk.py": "457c901528756fbf06a66bb3efe1429987f526f5475f93140232c8cbe17698b2",
+    "errors.py": "596bd2bfd1c722d1730aae3496c841877d2cb7a12b809c70995bb2304240211f",
+    "events.py": "d4f65475fb6b245463f935e505a4247c73014a0b03a8eec61b0dd8aeb6eed727",
+    "external.py": "3628e1e5558b5f855cc47450a77c06a08222dc6c96173941ae0ace14d6ed490a",
+    "folded.py": "a41ce29c00b5ead3750e21a67d26495fb4b78cf3df07167f82b6888ee2a4a67a",
+    "health.py": "ae8f6eb469f02a10a7c8fb0c8189a0023453aa41139ded4f6db2c9a34413e047",
+    "hprof.py": "2db0bfc46b4270484cde0283277b8da8a9460b97cc69901188309101ac10d487",
+    "isolate.py": "eec4db46aed3e46133f2db54c1afa82be67e3aff29c3b0668570094414cb383a",
+    "native.py": "f30caa77fc590b3b121187af355b9d708bdd92a30f0d684f7d8b658d0c4fff9d",
+    "perf.py": "3155881a8a8f419ca5ccb2728245f3f00d7e9b91c6cce6a6eb3e0d6d6e478ccb",
+    "pipeline.py": "a9bee18dc95dec150b0bafc8dd67609ef1dd4bfebe9e8354a6f5d54c017d55fd",
+    "pprof.py": "82a61762379e81bcd9aaccc94b99c4fb57d7731669ee0147b1c12b9967b38855",
+    "progress.py": "31aa74690b37cee5b804fc2868fde780d4ab2b1e4d5c9ef64be5553ab274dcde",
+    "registry.py": "59c268b51230f2fdaf06129fd9db6015a93cc02046716267e9e5a25246810d66",
+    "repository.py": "9c4e04c7c9fdb9015eaab109ec7104263173c1afea13859a8181f6f9d47a13e5",
+    "result.py": "dde4c207a8d73846d5077e1b3a161f94688c47ec8be5ebb941028adad351efb7",
+    "rules.py": "5d3e680ce00864898ac27d5ce1445c4415e7e89fd3b2e46b73ae0c94c2be5734",
+    "runtime.py": "f364038663f32ccaaa5d2aac49fbd94bcf8680e582c1d09c2790a9ca7404e6d2",
+    "stacks.py": "38217a51377b4026cf6883a74c70d3cd39d7c6cf1561091e42afd981133105d0",
+    "storage.py": "26228e30e0b4233ec28ec6e316bbb049b8ee0ce9271531599b6725600284991d",
+    "telemetry.py": "47b920d1c4145a69bf2d32866d010da834649e5993eae018d5cc8ff3b4ce8200",
+    "worker.py": "5649fa909de05c911efecdbfe748a09516b13a568495ca5db7d44bae3b051b40"
+  },
+  "build": {
+    "type": "Reviewed Python-only runtime overlay on retained validated dependency image; no dependency resolution.",
+    "base_image": "sha256:326427a3996a4b2b383e4ee25d9218e6cb728bb72a49066e5836d0672ff01e31",
+    "recipe": "Dockerfile.v23-runtime",
+    "recipe_sha256": "9e5ef10c300af9418fbbc6ce7d5887b51d69859d1a160def68b54a991d414e73",
+    "source_archive_sha256": "4bcc8340743e3811531252a63ade95abc6fa67ecce4ed4b227348970bafee512",
+    "inputs": {
+      "analyzer/Dockerfile": "e1611cf7a8dcdc1142ecbfc0d4df8a9280336607cb9e13495248b37902dc3b42",
+      "analyzer/requirements.txt": "7d198bf17e35eae9069b4ccaa0ccaa2d3948eeb3c556694cca9f3fffce1c69c3",
+      "analyzer/requirements.lock": "45b64eebddd9577159771076e70f6c79bbd04b9d9be232cb3b4f229286515128"
+    }
+  },
+  "evidence": {
+    "preflight-v23-config.json": "d8b6a6a18c58109ead93194589f2331d8210f5d8672f23b0b04b4a3601a17071",
+    "integration-v23-local-final.log": "eb3a9881adc2c343461962fb90aedb82b88eae8c100121739e8abb43cd8c383e",
+    "integration-v23-linux.json": "a258b6e0bb43c0d4994c922be6d0d2b0476493b5874286c7c6c642909076c800",
+    "integration-v23-linux.log": "6017a017f965c7be7badccb0a02171c8eb86f203f8b2c58f758bbdd8c66be688",
+    "release-source-fingerprint-v23.json": "9f4c81e1683e46c0138afad5d9e68aad83b862dcaaf9dea33b941f9509cc47ed",
+    "perf-runner-v23.json": "1b0f58e2d8b100f69ee2aec723bb7f66ba4527d7eb0af632929b5602b944bdb0",
+    "perf-runner-v23.log": "9729a9a8d99e89271ae4c8aa8edda9d0545760840c427630146922bf49e23337",
+    "perf-container-v23-hostconfig.json": "a9231d0b6e9208c145a4bbb5b81d3768c3bf52d3d2784824c5d0f7507050c778",
+    "perf-container-v23-state.json": "ff5e7409252ae2ac36f649f4688e79f3cd30b47f9c5cf8e1d60d585e24f13682",
+    "perf-fixture-copy-v23.json": "bff24b48a8cfef9dc80444ee37bbdfc17f3fe778d0df0a4922a1b63dfb114434",
+    "tool-inventory-v23.json": "a1fbd0143667e84fb91fd10e067cf239cf8750ad550b0309bfbe8bc798df721f",
+    "Dockerfile.v23-runtime": "9e5ef10c300af9418fbbc6ce7d5887b51d69859d1a160def68b54a991d414e73",
+    "build-v23.log": "c67bf8e7906b2d5dc8717c69b52e24a5ac9596b9c38f386dc22b66e09bb9d3f0",
+    "config-v23-before-snapshot-fix.log": "f9f7cb2a6076c9624f62561a44a822bf73ce819a3aa1319411246df4db3f70ca"
+  },
+  "test_summary": {
+    "tests_run": 101,
+    "passed": 101,
+    "skipped": 0,
+    "failed": 0,
+    "duration_seconds": 59.168
+  },
+  "perf_capture_samples": {
+    "perf_script": 91,
+    "perf_data": 93
+  },
+  "perf_container": {
+    "whole_container_memory_bytes": 536870912,
+    "memory_swap_combined_bytes": 536870912,
+    "additional_swap_bytes": 0,
+    "network": "none",
+    "exit_code": 0,
+    "oom_killed": false
+  },
+  "unchanged_pipeline_baseline": {
+    "report": "release-v22-freeze.json",
+    "sha256": "87164c34bbb1b04aed2cd31045ad63b911de2666fb0d854f8f01e291252ac781",
+    "scope": "Prior 0.2.2 whole-container 512MiB/no-swap 10k/50k/100k/100001 baseline; not rerun or relabelled as a 0.2.3 performance measurement. Parser/pipeline/resource-budget implementation unchanged."
+  },
+  "limitations": [
+    "No ARM64 execution is claimed.",
+    "Actual perf captures are separate imported two-thread toy records, not business performance evidence.",
+    "Short-lived perf verifier overrides the worker command, so inherited Docker worker health state is not its acceptance criterion; exit code, OOM status and verifier assertions are recorded.",
+    "Stage/production rollout, renewed Ops integration and production historical-object encryption migration are separate steps."
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "source": "actual public browser operation, fresh investigation and real model",
+  "started_at": "2026-10-20T04:48:28.292Z",
+  "milestones": [
+    {
+      "state": "submit_from_browser",
+      "elapsed_seconds": 1.7
+    },
+    {
+      "state": "planning",
+      "elapsed_seconds": 4
+    },
+    {
+      "state": "awaiting_confirmation",
+      "elapsed_seconds": 6.1
+    },
+    {
+      "state": "plan_confirmed_from_browser",
+      "elapsed_seconds": 6.2
+    },
+    {
+      "state": "collecting",
+      "elapsed_seconds": 8.3
+    },
+    {
+      "state": "diagnosing",
+      "elapsed_seconds": 20.8
+    },
+    {
+      "state": "verifying",
+      "elapsed_seconds": 31.2
+    },
+    {
+      "state": "source_pending_steps_0",
+      "elapsed_seconds": 56.1
+    },
+    {
+      "state": "source_running_steps_0",
+      "elapsed_seconds": 58.2
+    },
+    {
+      "state": "source_running_steps_1",
+      "elapsed_seconds": 60.3
+    },
+    {
+      "state": "source_running_steps_4",
+      "elapsed_seconds": 62.5
+    },
+    {
+      "state": "source_running_steps_5",
+      "elapsed_seconds": 77.3
+    },
+    {
+      "state": "success",
+      "elapsed_seconds": 79.3
+    },
+    {
+      "state": "source_success_steps_5",
+      "elapsed_seconds": 79.4
+    }
+  ],
+  "passed": true,
+  "goal": "面试现场彩排：定位Python CRM品牌配色预览的CPU热点，选择Python调用栈采集10秒99Hz并关闭native扩展，聚焦Python函数；自动复测，再定位绑定源码，生成保持Python返回类型和可变对象隔离的最小优化补丁，执行原功能回归与多组CPU对照。 2026-10-20T04:48:29.884Z",
+  "investigation_id": "6",
+  "plan": {
+    "kind": "PYTHON_CPU",
+    "options": {
+      "native": false
+    },
+    "rationale": "按需求用PYTHON_CPU采集10秒、99Hz，options.native=false关闭native扩展采样，使样本聚焦Python函数调用栈，用于定位品牌配色预览的CPU热点。局限：仅覆盖Python层，C扩展/内核态热点会被忽略；单次10秒样本量有限，需复测确认稳定性。目标已绑定为process，无需也不提供PID等标识。",
+    "frequency_hz": 99,
+    "duration_seconds": 10
+  },
+  "baseline_task_id": "15",
+  "repair_id": "5",
+  "candidate_task_id": "16",
+  "elapsed_seconds": 79.7,
+  "completed_at": "2026-10-20T04:49:47.945Z",
+  "fresh_measurements": [
+    {
+      "tool": "profile_business_flow",
+      "cache_hit": false,
+      "job_key": "1432aa2f56ef606cdefd1210b4a2ede94a05f2b2b2747168096eb0d33fe96335"
+    },
+    {
+      "tool": "test_patch",
+      "cache_hit": false,
+      "job_key": "c2e084699910b06a7082f5c4659bd4cb9d14f7700bbdbed9de15ab79bc7a0191"
+    }
+  ],
+  "cpu_speedup": 4.430121576601776,
+  "output_parity_cases": 384,
+  "improved_pairs": 6
+}

@@ -1,0 +1,418 @@
+[WebServer] (node:27712) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 1 worker
+
+(node:22292) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   1 e2e\profile-artifact.spec.ts:286:3 › imported authorized gzip artifact lifecycle › loads all 100k nodes from gzip in a native Worker with accessible responsive UI (5.1s)
+(node:38372) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   2 e2e\profile-artifact.spec.ts:349:5 › imported authorized gzip artifact lifecycle › expiry refreshes authorization once (851ms)
+(node:39300) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   3 e2e\profile-artifact.spec.ts:349:5 › imported authorized gzip artifact lifecycle › expired-grant refreshes authorization once (815ms)
+(node:40320) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   4 e2e\profile-artifact.spec.ts:360:3 › imported authorized gzip artifact lifecycle › repeated expiry stops after exactly one refresh and retains inline evidence (879ms)
+(node:1824) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   5 e2e\profile-artifact.spec.ts:372:5 › imported authorized gzip artifact lifecycle › forbidden is specific and never automatically refreshed (1.3s)
+(node:24336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   6 e2e\profile-artifact.spec.ts:372:5 › imported authorized gzip artifact lifecycle › gone is specific and never automatically refreshed (1.4s)
+(node:35004) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   7 e2e\profile-artifact.spec.ts:390:3 › imported authorized gzip artifact lifecycle › invalid gzip surfaces a parse error while preserving the inline tree (1.5s)
+(node:33256) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   8 e2e\profile-artifact.spec.ts:407:3 › imported authorized gzip artifact lifecycle › foreign signed origins are refused before any object request (1.1s)
+(node:25724) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   9 e2e\profile-artifact.spec.ts:418:3 › imported authorized gzip artifact lifecycle › route exit terminates a pending artifact Worker without a duplicate grant (1.2s)
+(node:6684) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  10 e2e\profile-artifact.spec.ts:459:3 › imported authorized gzip artifact lifecycle › total deadline terminates a pending download and retains the inline tree (1.6s)
+
+
+  1) e2e\profile-artifact.spec.ts:286:3 › imported authorized gzip artifact lifecycle › loads all 100k nodes from gzip in a native Worker with accessible responsive UI 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "Unhandled fixture endpoint: /tasks/7/suggestions/requests",
+    + ]
+
+      326 |     }
+      327 |     expect(f.counts).toEqual({ grants: 1, objects: 1 });
+    > 328 |     expect(f.errors).toEqual([]);
+          |                      ^
+      329 |     expect(
+      330 |       await page.evaluate(
+      331 |         () =>
+        at E:\tx-drop\web\e2e\profile-artifact.spec.ts:328:22
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--356ec-th-accessible-responsive-UI\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\profile-artifact-imported--356ec-th-accessible-responsive-UI\error-context.md
+
+    Error Context: test-results\profile-artifact-imported--356ec-th-accessible-responsive-UI\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--356ec-th-accessible-responsive-UI\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\profile-artifact-imported--356ec-th-accessible-responsive-UI\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) e2e\profile-artifact.spec.ts:349:5 › imported authorized gzip artifact lifecycle › expiry refreshes authorization once 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "Unhandled fixture endpoint: /tasks/7/suggestions/requests",
+    + ]
+
+      355 |         objects: mode === "expiry" ? 2 : 1,
+      356 |       });
+    > 357 |       expect(f.errors).toEqual([]);
+          |                        ^
+      358 |       checks.push({ name: mode, counts: f.counts });
+      359 |     });
+      360 |   test("repeated expiry stops after exactly one refresh and retains inline evidence", async ({
+        at E:\tx-drop\web\e2e\profile-artifact.spec.ts:357:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--1519b-efreshes-authorization-once\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\profile-artifact-imported--1519b-efreshes-authorization-once\error-context.md
+
+    Error Context: test-results\profile-artifact-imported--1519b-efreshes-authorization-once\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--1519b-efreshes-authorization-once\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\profile-artifact-imported--1519b-efreshes-authorization-once\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) e2e\profile-artifact.spec.ts:349:5 › imported authorized gzip artifact lifecycle › expired-grant refreshes authorization once 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "Unhandled fixture endpoint: /tasks/7/suggestions/requests",
+    + ]
+
+      355 |         objects: mode === "expiry" ? 2 : 1,
+      356 |       });
+    > 357 |       expect(f.errors).toEqual([]);
+          |                        ^
+      358 |       checks.push({ name: mode, counts: f.counts });
+      359 |     });
+      360 |   test("repeated expiry stops after exactly one refresh and retains inline evidence", async ({
+        at E:\tx-drop\web\e2e\profile-artifact.spec.ts:357:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--68da9-efreshes-authorization-once\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\profile-artifact-imported--68da9-efreshes-authorization-once\error-context.md
+
+    Error Context: test-results\profile-artifact-imported--68da9-efreshes-authorization-once\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--68da9-efreshes-authorization-once\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\profile-artifact-imported--68da9-efreshes-authorization-once\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) e2e\profile-artifact.spec.ts:360:3 › imported authorized gzip artifact lifecycle › repeated expiry stops after exactly one refresh and retains inline evidence 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "Unhandled fixture endpoint: /tasks/7/suggestions/requests",
+    + ]
+
+      366 |     await expect(page.getByRole("alert")).toContainText("刷新后仍已过期");
+      367 |     expect(f.counts).toEqual({ grants: 2, objects: 2 });
+    > 368 |     expect(f.errors).toEqual([]);
+          |                      ^
+      369 |     checks.push({ name: "expiry-bound", counts: f.counts });
+      370 |   });
+      371 |   for (const mode of ["forbidden", "gone"] as const)
+        at E:\tx-drop\web\e2e\profile-artifact.spec.ts:368:22
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--ad9f8-and-retains-inline-evidence\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\profile-artifact-imported--ad9f8-and-retains-inline-evidence\error-context.md
+
+    Error Context: test-results\profile-artifact-imported--ad9f8-and-retains-inline-evidence\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--ad9f8-and-retains-inline-evidence\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\profile-artifact-imported--ad9f8-and-retains-inline-evidence\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) e2e\profile-artifact.spec.ts:372:5 › imported authorized gzip artifact lifecycle › forbidden is specific and never automatically refreshed 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "Unhandled fixture endpoint: /tasks/7/suggestions/requests",
+    + ]
+
+      384 |         await page.waitForTimeout(400);
+      385 |         expect(f.counts).toEqual({ grants: 1, objects: 1 });
+    > 386 |         expect(f.errors).toEqual([]);
+          |                          ^
+      387 |         checks.push({ name: mode, counts: f.counts, no_automatic_retry: true });
+      388 |       },
+      389 |     );
+        at E:\tx-drop\web\e2e\profile-artifact.spec.ts:386:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--d5a75-ver-automatically-refreshed\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\profile-artifact-imported--d5a75-ver-automatically-refreshed\error-context.md
+
+    Error Context: test-results\profile-artifact-imported--d5a75-ver-automatically-refreshed\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--d5a75-ver-automatically-refreshed\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\profile-artifact-imported--d5a75-ver-automatically-refreshed\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) e2e\profile-artifact.spec.ts:372:5 › imported authorized gzip artifact lifecycle › gone is specific and never automatically refreshed 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "Unhandled fixture endpoint: /tasks/7/suggestions/requests",
+    + ]
+
+      384 |         await page.waitForTimeout(400);
+      385 |         expect(f.counts).toEqual({ grants: 1, objects: 1 });
+    > 386 |         expect(f.errors).toEqual([]);
+          |                          ^
+      387 |         checks.push({ name: mode, counts: f.counts, no_automatic_retry: true });
+      388 |       },
+      389 |     );
+        at E:\tx-drop\web\e2e\profile-artifact.spec.ts:386:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--59f05-ver-automatically-refreshed\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\profile-artifact-imported--59f05-ver-automatically-refreshed\error-context.md
+
+    Error Context: test-results\profile-artifact-imported--59f05-ver-automatically-refreshed\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--59f05-ver-automatically-refreshed\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\profile-artifact-imported--59f05-ver-automatically-refreshed\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) e2e\profile-artifact.spec.ts:390:3 › imported authorized gzip artifact lifecycle › invalid gzip surfaces a parse error while preserving the inline tree 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "Unhandled fixture endpoint: /tasks/7/suggestions/requests",
+    + ]
+
+      398 |       "INLINE_WORKER_PARSE_SENTINEL",
+      399 |     );
+    > 400 |     expect(f.errors).toEqual([]);
+          |                      ^
+      401 |     checks.push({
+      402 |       name: "corrupt-gzip",
+      403 |       counts: f.counts,
+        at E:\tx-drop\web\e2e\profile-artifact.spec.ts:400:22
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--c2e83--preserving-the-inline-tree\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\profile-artifact-imported--c2e83--preserving-the-inline-tree\error-context.md
+
+    Error Context: test-results\profile-artifact-imported--c2e83--preserving-the-inline-tree\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--c2e83--preserving-the-inline-tree\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\profile-artifact-imported--c2e83--preserving-the-inline-tree\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) e2e\profile-artifact.spec.ts:407:3 › imported authorized gzip artifact lifecycle › foreign signed origins are refused before any object request 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "Unhandled fixture endpoint: /tasks/7/suggestions/requests",
+    + ]
+
+      413 |     await expect(page.getByRole("alert")).toContainText("来源或路径无效");
+      414 |     expect(f.counts).toEqual({ grants: 1, objects: 0 });
+    > 415 |     expect(f.errors).toEqual([]);
+          |                      ^
+      416 |     checks.push({ name: "foreign-origin", counts: f.counts });
+      417 |   });
+      418 |   test("route exit terminates a pending artifact Worker without a duplicate grant", async ({
+        at E:\tx-drop\web\e2e\profile-artifact.spec.ts:415:22
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--82c51-d-before-any-object-request\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\profile-artifact-imported--82c51-d-before-any-object-request\error-context.md
+
+    Error Context: test-results\profile-artifact-imported--82c51-d-before-any-object-request\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--82c51-d-before-any-object-request\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\profile-artifact-imported--82c51-d-before-any-object-request\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) e2e\profile-artifact.spec.ts:418:3 › imported authorized gzip artifact lifecycle › route exit terminates a pending artifact Worker without a duplicate grant 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "Unhandled fixture endpoint: /tasks/7/suggestions/requests",
+    + ]
+
+      447 |         .toBe(true);
+      448 |       expect(f.counts.grants).toBe(1);
+    > 449 |       expect(f.errors).toEqual([]);
+          |                        ^
+      450 |       checks.push({
+      451 |         name: "route-abort",
+      452 |         counts: f.counts,
+        at E:\tx-drop\web\e2e\profile-artifact.spec.ts:449:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--cff6d-r-without-a-duplicate-grant\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\profile-artifact-imported--cff6d-r-without-a-duplicate-grant\error-context.md
+
+    Error Context: test-results\profile-artifact-imported--cff6d-r-without-a-duplicate-grant\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--cff6d-r-without-a-duplicate-grant\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\profile-artifact-imported--cff6d-r-without-a-duplicate-grant\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) e2e\profile-artifact.spec.ts:459:3 › imported authorized gzip artifact lifecycle › total deadline terminates a pending download and retains the inline tree 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "Unhandled fixture endpoint: /tasks/7/suggestions/requests",
+    + ]
+
+      474 |       await expect(page.getByRole("alert")).toContainText("载入超时");
+      475 |       expect(f.counts.grants).toBe(1);
+    > 476 |       expect(f.errors).toEqual([]);
+          |                        ^
+      477 |       checks.push({
+      478 |         name: "deadline",
+      479 |         counts: f.counts,
+        at E:\tx-drop\web\e2e\profile-artifact.spec.ts:476:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--88184-and-retains-the-inline-tree\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\profile-artifact-imported--88184-and-retains-the-inline-tree\error-context.md
+
+    Error Context: test-results\profile-artifact-imported--88184-and-retains-the-inline-tree\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\profile-artifact-imported--88184-and-retains-the-inline-tree\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\profile-artifact-imported--88184-and-retains-the-inline-tree\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10 failed
+    e2e\profile-artifact.spec.ts:286:3 › imported authorized gzip artifact lifecycle › loads all 100k nodes from gzip in a native Worker with accessible responsive UI 
+    e2e\profile-artifact.spec.ts:349:5 › imported authorized gzip artifact lifecycle › expiry refreshes authorization once 
+    e2e\profile-artifact.spec.ts:349:5 › imported authorized gzip artifact lifecycle › expired-grant refreshes authorization once 
+    e2e\profile-artifact.spec.ts:360:3 › imported authorized gzip artifact lifecycle › repeated expiry stops after exactly one refresh and retains inline evidence 
+    e2e\profile-artifact.spec.ts:372:5 › imported authorized gzip artifact lifecycle › forbidden is specific and never automatically refreshed 
+    e2e\profile-artifact.spec.ts:372:5 › imported authorized gzip artifact lifecycle › gone is specific and never automatically refreshed 
+    e2e\profile-artifact.spec.ts:390:3 › imported authorized gzip artifact lifecycle › invalid gzip surfaces a parse error while preserving the inline tree 
+    e2e\profile-artifact.spec.ts:407:3 › imported authorized gzip artifact lifecycle › foreign signed origins are refused before any object request 
+    e2e\profile-artifact.spec.ts:418:3 › imported authorized gzip artifact lifecycle › route exit terminates a pending artifact Worker without a duplicate grant 
+    e2e\profile-artifact.spec.ts:459:3 › imported authorized gzip artifact lifecycle › total deadline terminates a pending download and retains the inline tree 

@@ -1,0 +1,45 @@
+{
+  "scope": "owned isolated stage BOLT fixture; exact same frozen Core5 image, no imported profile or uploaded ELF execution",
+  "records": [
+    {
+      "task_id": 31,
+      "kind": "BOLT_PROFILE",
+      "collection_status": "FAILED",
+      "analysis_status": "FAILED",
+      "parameters": {
+        "pid": 110,
+        "scope": "process",
+        "target": {
+          "pid": 110,
+          "type": "process",
+          "check_uid": true,
+          "expected_uid": 10001,
+          "start_time_ticks": 371032187
+        },
+        "frequency_hz": 10,
+        "duration_seconds": 2
+      }
+    },
+    {
+      "task_id": 32,
+      "kind": "BOLT_PROFILE",
+      "collection_status": "COLLECTED",
+      "analysis_status": "SUCCESS",
+      "parameters": {
+        "pid": 64,
+        "scope": "process",
+        "target": {
+          "pid": 64,
+          "type": "process",
+          "check_uid": true,
+          "expected_uid": 10001,
+          "start_time_ticks": 371055469
+        },
+        "frequency_hz": 99,
+        "duration_seconds": 5
+      }
+    }
+  ],
+  "build_id_validation_preserved": true,
+  "ignore_build_id_option_used": false
+}

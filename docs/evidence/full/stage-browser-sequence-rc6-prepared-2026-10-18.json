@@ -1,0 +1,86 @@
+{
+  "recorded_at": "2026-10-18T08:35:20.692512+00:00",
+  "scope": "Local runner preparation with imported metadata and fake subprocesses only",
+  "candidate": "20261018.1-rc6",
+  "source_manifest_sha256": "e945fc390166fabc0e96b01adde10ea2034541a6883d8487eb20fc3434e4a8e6",
+  "bundle_manifest_sha256": "d73b79da367c1a536204f46c3ab979fd0ee7b501ce7b0c8d8a6fa2ba9808224e",
+  "web_freeze_sha256": "f5ef8cb7b15ab4abf5ebed573d75573e0732686a1d2472688b19a3b5d1c97b9b",
+  "source_files_verified": 105,
+  "built_files_verified": 14,
+  "pure_tests_passed": 10,
+  "checks": [
+    {
+      "command": [
+        "D:\\\u6d1b\u4f26\u5179\u529b\u4e0d\u505a\u529f\\Desktop\\1\\python.exe",
+        "-m",
+        "unittest",
+        "-v",
+        "test_stage_sequence.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "D:\\\u6d1b\u4f26\u5179\u529b\u4e0d\u505a\u529f\\Desktop\\1\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        ".local/run_stage_sequence.py",
+        ".local/test_stage_sequence.py",
+        ".local/run_stage_browser_rc2.py",
+        ".local/run_stage_flame_rc2.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "D:\\\u6d1b\u4f26\u5179\u529b\u4e0d\u505a\u529f\\Desktop\\1\\python.exe",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        ".local/run_stage_sequence.py",
+        ".local/test_stage_sequence.py",
+        ".local/run_stage_browser_rc2.py",
+        ".local/run_stage_flame_rc2.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "D:\\\u6d1b\u4f26\u5179\u529b\u4e0d\u505a\u529f\\Desktop\\1\\python.exe",
+        "-m",
+        "py_compile",
+        ".local/run_stage_sequence.py",
+        ".local/test_stage_sequence.py",
+        ".local/run_stage_browser_rc2.py",
+        ".local/run_stage_flame_rc2.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "C:\\Program Files\\nodejs\\node.EXE",
+        "--check",
+        "scripts/validation/browser_ce_gzip.mjs"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "helpers": {
+    ".local/run_stage_sequence.py": "2c6715ce36dabfb3dde4b655af0a1897e7e77a87f210c8829c187d5a488d802d",
+    ".local/test_stage_sequence.py": "8b5457e3acd3c869af64792a738057fb2d9a50bd490ff32ba55e9bb2cd2ff700",
+    ".local/run_stage_browser_rc2.py": "a9a506d00f5388fc448565e728b84a82a84fbb2cc08852a88dec28ae10419b99",
+    ".local/run_stage_flame_rc2.py": "f0913ef9cc40d4508f4afcf96f1a76e43199f75e3f9c383fb6fdbcd3fa2cb66a"
+  },
+  "ce_browser_script_sha256": "b31f72fc1e0f6e735b4d2a43e0396fc8688b879c8acde049e60e2efbcbe62258",
+  "image_pins_complete": false,
+  "unbuilt_image_preflight_code": "STAGE_IMAGE_ID_NOT_FROZEN",
+  "test_image_ids_are_synthetic": true,
+  "test_writes_only_temporary_directories": true,
+  "actual_stage_browser_executed": false,
+  "credentials_opened": false,
+  "servers_started": false,
+  "production_changed": false,
+  "runtime_or_bundle_changed": false
+}

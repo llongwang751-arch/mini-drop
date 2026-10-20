@@ -1,0 +1,21 @@
+# Isolated integration project only: always use -p dropfullstage and independent
+# secrets/data. Public access remains production; stage uses SSH tunnels.
+services:
+  web:
+    ports: !override ['127.0.0.1:18080:8080']
+  api:
+    environment:
+      PUBLIC_URL: http://127.0.0.1:18080
+  agent:
+    environment:
+      AGENT_HOSTNAME: aliyun-stage-full
+  maintenance:
+    volumes: !override ['/opt/drop-stage-full/monitoring:/var/drop-monitoring:ro']
+  prometheus:
+    ports: !override ['127.0.0.1:19090:9090']
+  alertmanager:
+    ports: !override ['127.0.0.1:19093:9093']
+  grafana:
+    ports: !override ['127.0.0.1:13000:3000']
+  tempo:
+    ports: !override ['127.0.0.1:13200:3200']

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "status": "prepared_only_not_image_execution",
+  "candidate": "20261018.1-rc7",
+  "expected_image_id": "sha256:f42925a097c8805d817efd8145b0ca95f2530020cf170d34602226ab251bfc41",
+  "context_sha256": "3e8f0c1244f99f8926e9a05367ee8498322a4eae8da1619595759446e59f777a",
+  "validator_path": ".local/validate_web_rc7.py",
+  "validator_sha256": "ef1a080514f121db618e58ee981a9307cb85669b6279c2dc88baff2acd3ecc97",
+  "tests_path": ".local/test_validate_web_rc7.py",
+  "tests_sha256": "158268eafd0f71ef98355b6be696942de17a05743b02c9f8ad6e54610e76eb00",
+  "actual_local_checks": {
+    "pure_tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.003,
+    "python_compile_exit_code": 0,
+    "ruff_check_exit_code": 0,
+    "frozen_bundle_files_hash_verified": 14,
+    "permissions_only_archive_verified": true
+  },
+  "prepared_image_checks": {
+    "image_id_and_tag_match": true,
+    "user": 101,
+    "linux_amd64": true,
+    "network": "none",
+    "local_api_and_minio_host_aliases": "127.0.0.1 for Nginx configuration name resolution only",
+    "readonly": true,
+    "capabilities": [],
+    "no_new_privileges": true,
+    "memory_bytes": 33554432,
+    "swap_bytes": 0,
+    "cpu_limit": 0.25,
+    "maximum_docker_run_seconds": 60,
+    "directory_modes_required": "0755",
+    "file_modes_required": "0644",
+    "symlinks_rejected": true,
+    "http_file_count": 14,
+    "http_body_logged": false,
+    "http_bytes_sha256_must_match_rc6_frozen_bundle": true,
+    "production_nonempty_container_ids_unchanged": true,
+    "timeout_cleanup": "Only this invocation's exact container name, unique label, container ID and image identity"
+  },
+  "actual_safety": {
+    "docker_accessed": false,
+    "remote_accessed": false,
+    "image_started": false,
+    "runtime_http_checked": false,
+    "credentials_opened": false,
+    "runtime_bundle_changed": false
+  },
+  "limitation": "The actual image-local UID101 and HTTP verification must be executed and recorded by the release coordinator. Pure local preparation tests do not substitute for that result."
+}

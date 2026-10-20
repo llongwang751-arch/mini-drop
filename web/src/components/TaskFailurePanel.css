@@ -1,0 +1,206 @@
+@layer reset, base, components, responsive, workspace;
+@layer workspace {
+  .task-progress {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .task-progress .live-indicator {
+    grid-column: 1 / -1;
+    border-left: 0;
+    padding: 7px 0 0;
+    border-top: 1px solid var(--border);
+  }
+  .progress-stage {
+    min-width: 0;
+    gap: 7px;
+  }
+  .progress-stage > strong {
+    white-space: normal;
+    line-height: 1.6;
+  }
+  .progress-stage > svg {
+    display: none;
+  }
+  .progress-stage.failed {
+    color: var(--red, #a9443b);
+  }
+  .progress-stage.failed > span {
+    border-color: currentColor;
+    background: #a9443b08;
+  }
+  .progress-stage.canceled {
+    color: var(--muted);
+  }
+  .task-failure-panel {
+    margin-bottom: 24px;
+    border-top: 2px solid #b66850;
+    padding: 20px 24px;
+  }
+  .failure-heading {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .failure-heading > svg {
+    color: #a85d46;
+    flex-shrink: 0;
+  }
+  .failure-heading h2 {
+    margin: 0 0 8px;
+    font-size: 17px;
+    font-weight: 550;
+  }
+  .failure-heading p {
+    margin: 0;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+  .failure-evidence {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px 16px;
+    margin: 24px 0;
+  }
+  .failure-evidence > div {
+    min-width: 0;
+  }
+  .failure-evidence dt {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 7px;
+  }
+  .failure-evidence dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .failure-request {
+    grid-column: span 2;
+  }
+  .failure-next-step {
+    line-height: 1.8;
+    font-size: 14px;
+    margin: 0 0 16px;
+  }
+  .failure-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .task-failure-panel button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .failure-saved {
+    border-top: 1px solid var(--border);
+    margin-top: 24px;
+    padding-top: 22px;
+  }
+  .failure-saved h3 {
+    font-size: 14px;
+    font-weight: 550;
+    margin: 0 0 8px;
+  }
+  .failure-saved > p {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.8;
+    margin: 0 0 15px;
+  }
+  .failure-saved ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .failure-saved li {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .failure-saved li:last-child {
+    border-bottom: 0;
+  }
+  .failure-saved li > div {
+    min-width: 0;
+  }
+  .failure-saved strong,
+  .failure-saved small {
+    display: block;
+    overflow-wrap: anywhere;
+  }
+  .failure-saved strong {
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .failure-saved small {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .failure-saved .failure-no-artifacts {
+    margin-bottom: 0;
+  }
+  .task-detail .result-pending.failed-result-summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-height: 0;
+    align-items: center;
+    gap: 8px 20px;
+    padding: 22px 26px;
+    text-align: left;
+  }
+  .task-detail .result-pending.failed-result-summary > .empty-icon {
+    display: none;
+  }
+  .task-detail .result-pending.failed-result-summary h2 {
+    font-size: 14px;
+    margin: 0;
+  }
+  .task-detail .result-pending.failed-result-summary p {
+    margin: 0;
+    max-width: none;
+  }
+  .task-detail .result-pending.failed-result-summary > button {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+  @media (max-width: 1000px) {
+    .task-progress {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 600px) {
+    .task-failure-panel {
+      padding: 20px 16px;
+    }
+    .task-detail .result-pending.failed-result-summary {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 18px;
+    }
+    .task-detail .result-pending.failed-result-summary > button {
+      grid-column: 1;
+      grid-row: auto;
+      justify-self: start;
+      margin-top: 8px;
+    }
+    .task-progress {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .failure-evidence {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px 14px;
+    }
+    .failure-retry,
+    .failure-request {
+      grid-column: 1 / -1;
+    }
+    .failure-heading h2 {
+      font-size: 16px;
+    }
+  }
+}

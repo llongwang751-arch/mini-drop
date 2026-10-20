@@ -1,0 +1,17 @@
+[Unit]
+Description=Prepare the persistent 2 GiB Drop collector helper filesystem
+After=local-fs.target
+Before=docker.service drop-collector-helper.service drop-agent.service
+RequiresMountsFor=/opt/drop-runtime
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+UMask=0077
+ExecStart=/bin/sh /opt/drop/deploy/prepare-helper-spool.sh --root /opt/drop-runtime
+RemainAfterExit=yes
+TimeoutStartSec=120
+
+[Install]
+WantedBy=multi-user.target

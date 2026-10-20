@@ -1,0 +1,211 @@
+{
+  "core_source_sha256": "ff286e41e3927f6d6ddb8cd5e910a60b9c747b5b57d2885b85163d94ce4cd8d8",
+  "strict_ctest_16_passed": true,
+  "advanced_capture_results": [
+    {
+      "kind": "BOLT_PROFILE",
+      "category": null,
+      "ok": true,
+      "size": 57,
+      "sha256": "2f97422623bd64f100a4e20a7a43c9851066d7bb2781b33b328d54d7fd8b4685",
+      "acknowledged": true,
+      "fixture_target": {
+        "running": true,
+        "oom_killed": false,
+        "exit_code": 0,
+        "memory_limit_bytes": 100663296
+      }
+    },
+    {
+      "kind": "IO_TRACE",
+      "category": "syscalls",
+      "ok": true,
+      "size": 58588,
+      "sha256": "a7da76b611f07d7e03eadf77ae87bd632138f844b8cd4bb65108be87f4e1c89e",
+      "acknowledged": true,
+      "fixture_target": {
+        "running": true,
+        "oom_killed": false,
+        "exit_code": 0,
+        "memory_limit_bytes": 100663296
+      }
+    },
+    {
+      "kind": "IO_TRACE",
+      "category": "vfs",
+      "ok": true,
+      "size": 67082,
+      "sha256": "56117d2a5a5923108b02420e9354eda7956aecb303db79f02b4164ddd0ebf24c",
+      "acknowledged": true,
+      "fixture_target": {
+        "running": true,
+        "oom_killed": false,
+        "exit_code": 0,
+        "memory_limit_bytes": 100663296
+      }
+    },
+    {
+      "kind": "IO_TRACE",
+      "category": "block",
+      "ok": true,
+      "size": 54669,
+      "sha256": "565b810db092488f5aaaf4d1fa0c3dcd2563e1eb5c48cfa73b19300af78807f3",
+      "acknowledged": true,
+      "fixture_target": {
+        "running": true,
+        "oom_killed": false,
+        "exit_code": 0,
+        "memory_limit_bytes": 100663296
+      }
+    },
+    {
+      "kind": "MEMORY_TRACE",
+      "category": "pagefault",
+      "ok": true,
+      "size": 363264,
+      "sha256": "240fae1c3f153e37400af88971fface95a92f1f583d7ebad7e432906f437b2ae",
+      "acknowledged": true,
+      "fixture_target": {
+        "running": true,
+        "oom_killed": false,
+        "exit_code": 0,
+        "memory_limit_bytes": 100663296
+      }
+    },
+    {
+      "kind": "MEMORY_TRACE",
+      "category": "alloc",
+      "ok": true,
+      "size": 49470,
+      "sha256": "b79fb9d029282855e0c21d436190cf8618351f80bffcd0261212ddf1ba755b56",
+      "acknowledged": true,
+      "fixture_target": {
+        "running": true,
+        "oom_killed": false,
+        "exit_code": 0,
+        "memory_limit_bytes": 100663296
+      }
+    },
+    {
+      "kind": "MEMORY_TRACE",
+      "category": "mmap",
+      "ok": true,
+      "size": 55040,
+      "sha256": "5f27d81115944aa56f677a2b7e6f3338b579be9390cf51ff82f1905b599876d7",
+      "acknowledged": true,
+      "fixture_target": {
+        "running": true,
+        "oom_killed": false,
+        "exit_code": 0,
+        "memory_limit_bytes": 100663296
+      }
+    },
+    {
+      "kind": "PYTHON_CPU",
+      "category": null,
+      "ok": true,
+      "size": 165,
+      "sha256": "794fc752514438582aa734629fff50412cfdfb98c3659d4720db0d61ceebb03b",
+      "acknowledged": true,
+      "fixture_target": {
+        "running": true,
+        "oom_killed": false,
+        "exit_code": 0,
+        "memory_limit_bytes": 201326592
+      }
+    }
+  ],
+  "allocator_resumption": [
+    {
+      "kind": "MEMORY_TRACE",
+      "category": "alloc",
+      "ok": true,
+      "target_resumption": {
+        "state": "S",
+        "cpu_ticks_before": 5,
+        "cpu_ticks_after": 5,
+        "write_calls_before": 232,
+        "write_calls_after": 275
+      },
+      "acknowledged": true
+    }
+  ],
+  "upload_recovery": [
+    {
+      "case": "mixed",
+      "kind": "PROC_CPU",
+      "success": true,
+      "raw_attempts": 3,
+      "log_attempts": 1,
+      "manifest_attempts": 1
+    },
+    {
+      "case": "permanent",
+      "kind": "PROC_CPU",
+      "success": true,
+      "raw_attempts": 1,
+      "log_attempts": 1,
+      "manifest_attempts": 0
+    },
+    {
+      "case": "restart",
+      "kind": "PROC_CPU",
+      "success": true,
+      "raw_attempts": 3,
+      "log_attempts": 1,
+      "manifest_attempts": 1
+    },
+    {
+      "case": "late_log",
+      "kind": "PROC_CPU",
+      "success": true,
+      "raw_attempts": 1,
+      "log_attempts": 4,
+      "manifest_attempts": 1
+    },
+    {
+      "case": "manifest_retry",
+      "kind": "PROC_CPU",
+      "success": true,
+      "raw_attempts": 1,
+      "log_attempts": 1,
+      "manifest_attempts": 2
+    },
+    {
+      "case": "manifest_restart",
+      "kind": "PROC_CPU",
+      "success": true,
+      "raw_attempts": 1,
+      "log_attempts": 1,
+      "manifest_attempts": 3
+    }
+  ],
+  "rpc_passed": true,
+  "bolt_toy": {
+    "alternating_runs": 6,
+    "equivalence_completed": true,
+    "exit_code": 0,
+    "fixed_error_classification": "NONE",
+    "phase": "equivalence_completed",
+    "private_report_sha256": "83711950b18f28fd883b4180cbe30c386ff0638f1105b9b6381f6e5975ee492a",
+    "raw_diagnostics_publicly_exported": false,
+    "schema_version": 1,
+    "status": "BOLT_DIAGNOSTIC_EQUIVALENCE_COMPLETE_NOT_SECURITY_CLEARANCE"
+  },
+  "bootstrap_regression": {
+    "fresh_and_repeated_symlink_bootstrap": "passed",
+    "uid10001_kms_read": "passed",
+    "persistent_identity_preserved": true,
+    "production_access": false
+  },
+  "python_memory_lldb_comparison": {
+    "validation_mode": "fixture_only_lldb_comparison_not_production_capture",
+    "returncode": null,
+    "timed_out": true,
+    "wall_seconds": 30.081,
+    "target_identity_unchanged": true,
+    "lldb_sha256": "5a8f5550a84778189d65e3e6dd8997a223bc82d2b4f99d81636c9c3c8bc4726c",
+    "raw_bytes": 0,
+    "fixed_tool_diagnostics": []
+  }
+}

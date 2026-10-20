@@ -1,0 +1,4524 @@
+{
+  "project": {
+    "id": "saber-python",
+    "label": "Python Saber · 知识库 FTS5 查询",
+    "source_revision": "9245ce09fa2e2adceafebb669ee4605f94a2bb05153d5844d24888fb61d4f402",
+    "editable_files": [
+      "internal/rag/fts5_index.py"
+    ],
+    "readable_files": [
+      "internal/rag/fts5_index.py",
+      "tests/test_fts5_index.py"
+    ],
+    "test_preset": "saber-fts5-v1",
+    "workload": "real Saber FTS5 query helpers and SQLite retrieval with synthetic 1K-8K queries and tenant-scoped documents; only fts_tokenize/build_fts_query may change, SQL class and tests frozen; not full app startup",
+    "runtime": {
+      "agent_id": "tencent-local",
+      "pid": 82,
+      "uid": 10001,
+      "start_time_ticks": 9040395,
+      "source_revision": "9245ce09fa2e2adceafebb669ee4605f94a2bb05153d5844d24888fb61d4f402"
+    }
+  },
+  "investigation": {
+    "id": "10",
+    "requested_by": "77f0de20-54bb-4142-9cfc-474d9c7df79e",
+    "agent_id": "tencent-local",
+    "goal": "面试实时演示：调查Python Saber知识库FTS5长查询的CPU开销。根据节点实际能力选择Python CPU调用栈采集10秒、99Hz，关闭native扩展（native=false），检查热点、调用上下文及采集质量；自动复测并再次诊断。继续使用绑定版本的真实源码定位、生成最小优化补丁，在隔离副本运行原功能回归、冻结语义与用户隔离检查、严格输出比较及多组交替CPU对照。只依据实际证据判断，不把重复采样当根因确认。 2026-10-20T10:52:44.578Z",
+    "parameters": {
+      "pid": 82,
+      "scope": "process",
+      "target": {
+        "pid": 82,
+        "type": "process",
+        "check_uid": true,
+        "expected_uid": 10001,
+        "start_time_ticks": 9040395
+      }
+    },
+    "consent": true,
+    "input_digest": "9c7b3b30b22b6cc7ccb7a0b6083597cd1325b00bbdf645edd77dd141116b45ea",
+    "status": "failed",
+    "plan": {
+      "kind": "PYTHON_CPU",
+      "options": {
+        "native": false
+      },
+      "rationale": "按用户指定参数对绑定 Python 进程做首轮 Python CPU 调用栈采样：10 秒、99Hz、native=false（仅 Python 层帧，避免 native 扩展符号开销与干扰）。目的：在 FTS5 长查询负载下获取 Python 层热点函数与调用上下文，并评估采样质量（样本量、丢失/截断、栈深度）。局限：native=false 看不到 SQLite/FTS5 的 C 层耗时，若热点落在扩展内部，Python 帧只能显示调用点而非真实消耗点；10 秒窗口对偶发长查询可能样本不足，故后续需复测与对照，重复采样本身不构成根因确认。",
+      "frequency_hz": 99,
+      "duration_seconds": 10
+    },
+    "trace": [
+      {
+        "tool": "list_collectors",
+        "evidence_id": "P1",
+        "observation": {
+          "collectors": [
+            {
+              "kind": "BOLT_PROFILE",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "optimize": {
+                        "type": "boolean"
+                      },
+                      "include_binary": {
+                        "enum": [
+                          true
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "GO_CPU",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "gc": {
+                        "type": "boolean"
+                      },
+                      "path": {
+                        "enum": [
+                          "/debug/pprof/profile"
+                        ]
+                      },
+                      "port": {
+                        "type": "integer",
+                        "maximum": 65535,
+                        "minimum": 1
+                      },
+                      "debug": {
+                        "enum": [
+                          0
+                        ]
+                      },
+                      "exclude": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "include": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "sample_type": {
+                        "enum": [
+                          "cpu",
+                          "samples"
+                        ],
+                        "type": "string"
+                      },
+                      "label_filter": {
+                        "type": "object",
+                        "maxProperties": 32,
+                        "additionalProperties": {
+                          "type": "string",
+                          "maxLength": 256
+                        }
+                      },
+                      "profile_type": {
+                        "enum": [
+                          "cpu"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "GO_HEAP",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "gc": {
+                        "type": "boolean"
+                      },
+                      "path": {
+                        "enum": [
+                          "/debug/pprof/heap"
+                        ]
+                      },
+                      "port": {
+                        "type": "integer",
+                        "maximum": 65535,
+                        "minimum": 1
+                      },
+                      "debug": {
+                        "enum": [
+                          0
+                        ]
+                      },
+                      "exclude": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "include": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "sample_type": {
+                        "enum": [
+                          "alloc_space",
+                          "alloc_objects",
+                          "inuse_space",
+                          "inuse_objects"
+                        ],
+                        "type": "string"
+                      },
+                      "label_filter": {
+                        "type": "object",
+                        "maxProperties": 32,
+                        "additionalProperties": {
+                          "type": "string",
+                          "maxLength": 256
+                        }
+                      },
+                      "profile_type": {
+                        "enum": [
+                          "heap"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "GPERF_CPU",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "mode": {
+                        "enum": [
+                          "cpu"
+                        ]
+                      },
+                      "include_binary": {
+                        "type": "boolean"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "GPERF_HEAP",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "mode": {
+                        "enum": [
+                          "heap"
+                        ]
+                      },
+                      "include_binary": {
+                        "type": "boolean"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "IO_TRACE",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "category": {
+                        "enum": [
+                          "syscalls",
+                          "vfs",
+                          "block"
+                        ]
+                      },
+                      "max_events": {
+                        "type": "integer",
+                        "maximum": 100000,
+                        "minimum": 1
+                      },
+                      "stack_depth": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "min_duration_us": {
+                        "type": "integer",
+                        "maximum": 10000000,
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "JAVA_CPU",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "event": {
+                        "enum": [
+                          "cpu",
+                          "alloc",
+                          "lock"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "JAVA_HEAP",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "live": {
+                        "type": "boolean"
+                      },
+                      "format": {
+                        "enum": [
+                          "hprof"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "JEPROF_HEAP",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "mode": {
+                        "enum": [
+                          "jemalloc"
+                        ]
+                      },
+                      "include_binary": {
+                        "type": "boolean"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "MEMORY_TRACE",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "category": {
+                        "enum": [
+                          "pagefault",
+                          "alloc",
+                          "mmap"
+                        ]
+                      },
+                      "max_events": {
+                        "type": "integer",
+                        "maximum": 100000,
+                        "minimum": 1
+                      },
+                      "stack_depth": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "PERF_CPU",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "event": {
+                        "enum": [
+                          "cpu-clock",
+                          "cycles",
+                          "instructions"
+                        ]
+                      },
+                      "call_graph": {
+                        "enum": [
+                          "fp",
+                          "dwarf"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "PROC_CPU",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 10,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "PYTHON_CPU",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "native": {
+                        "type": "boolean"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "PYTHON_MEMORY",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "native": {
+                        "type": "boolean"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "RESOURCE_SNAPSHOT",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 2,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "SCRIPT",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "template_id": {
+                        "enum": [
+                          "process_status",
+                          "process_limits",
+                          "open_files",
+                          "mapped_libraries",
+                          "network_counters"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            }
+          ]
+        }
+      },
+      {
+        "tool": "propose_collection",
+        "evidence_id": "P2",
+        "observation": {
+          "plan": {
+            "kind": "PYTHON_CPU",
+            "options": {
+              "native": false
+            },
+            "rationale": "按用户指定参数对绑定 Python 进程做首轮 Python CPU 调用栈采样：10 秒、99Hz、native=false（仅 Python 层帧，避免 native 扩展符号开销与干扰）。目的：在 FTS5 长查询负载下获取 Python 层热点函数与调用上下文，并评估采样质量（样本量、丢失/截断、栈深度）。局限：native=false 看不到 SQLite/FTS5 的 C 层耗时，若热点落在扩展内部，Python 帧只能显示调用点而非真实消耗点；10 秒窗口对偶发长查询可能样本不足，故后续需复测与对照，重复采样本身不构成根因确认。",
+            "frequency_hz": 99,
+            "duration_seconds": 10
+          },
+          "validated": true
+        }
+      },
+      {
+        "tool": "agent_runtime",
+        "evidence_id": "P3",
+        "observation": {
+          "usage": {
+            "input_tokens": 23264,
+            "output_tokens": 348
+          },
+          "run_id": "04844c27-7fd8-49df-bc71-84edb2a019cb",
+          "framework": "agentscope",
+          "elapsed_ms": 4170,
+          "tool_calls": 2,
+          "agent_class": "agentscope.agent.Agent",
+          "model_calls": 2,
+          "framework_version": "2.0.10"
+        }
+      }
+    ],
+    "report": null,
+    "baseline_task_id": "84",
+    "diagnosis_id": "27",
+    "verification_id": "13",
+    "code_project_id": "saber-python",
+    "code_source_revision": "9245ce09fa2e2adceafebb669ee4605f94a2bb05153d5844d24888fb61d4f402",
+    "code_repair_id": "8",
+    "error_code": "CODE_REPAIR_FAILED",
+    "created_at": "2026-10-20T10:52:44.88549Z",
+    "updated_at": "2026-10-20T10:54:13.059992Z"
+  },
+  "repair": {
+    "id": "8",
+    "requested_by": "77f0de20-54bb-4142-9cfc-474d9c7df79e",
+    "project_id": "saber-python",
+    "source_revision": "9245ce09fa2e2adceafebb669ee4605f94a2bb05153d5844d24888fb61d4f402",
+    "goal": "面试实时演示：调查Python Saber知识库FTS5长查询的CPU开销。根据节点实际能力选择Python CPU调用栈采集10秒、99Hz，关闭native扩展（native=false），检查热点、调用上下文及采集质量；自动复测并再次诊断。继续使用绑定版本的真实源码定位、生成最小优化补丁，在隔离副本运行原功能回归、冻结语义与用户隔离检查、严格输出比较及多组交替CPU对照。只依据实际证据判断，不把重复采样当根因确认。 2026-10-20T10:52:44.578Z\n针对绑定项目的登记业务函数定位源码热点、生成优化补丁并运行原功能回归和交替CPU对照；明确结论的受控基准范围。",
+    "input_digest": "6f4a67474db5dd9cc821b51302cb49e9e099ca53e5b13b2815b4d9e0b646d78e",
+    "status": "failed",
+    "trace": [
+      {
+        "tool": "profile_business_flow",
+        "evidence_id": "S1",
+        "observation": {
+          "uid": 10001,
+          "cases": 64,
+          "scope": "actual Saber SQLite FTS5 component, 64 synthetic queries and 64 indexed synthetic chunks; excludes index construction, not full Saber startup or production request latency",
+          "cpu_ns": 189016704,
+          "job_key": "0a1aa92e09aae4c8ad64f5f967d0e47f33fa35d9e87e9cef58acdba8024aa08b",
+          "network": "none",
+          "success": true,
+          "hotspots": [
+            {
+              "line": 35,
+              "path": "internal/rag/fts5_index.py",
+              "calls": 64,
+              "function": "build_fts_query",
+              "self_seconds": 0.031917293,
+              "total_seconds": 0.14812006
+            },
+            {
+              "line": 42,
+              "path": "internal/rag/fts5_index.py",
+              "calls": 21902,
+              "function": "<genexpr>",
+              "self_seconds": 0.0054207330000000005,
+              "total_seconds": 0.0054207330000000005
+            },
+            {
+              "line": 140,
+              "path": "internal/rag/fts5_index.py",
+              "calls": 64,
+              "function": "search",
+              "self_seconds": 0.00394067,
+              "total_seconds": 0.26074594
+            }
+          ],
+          "cache_hit": false,
+          "elapsed_ns": 261295336,
+          "project_id": "saber-python",
+          "p95_case_ns": 8590515,
+          "profile_unit": "seconds",
+          "output_sha256": "45e97d466069d244a2242f803f00ea352ac77435efe6166f6612e0f055938281",
+          "source_sha256": "c0b47884db29620a743250f37f0b8305a2c5c23ede897cd914dce5b5382357df",
+          "median_case_ns": 3138660.5,
+          "profile_source": "actual cProfile execution of the enrolled real file with exact SHA; synthetic in-memory SQLite corpus",
+          "sample_results": [
+            {
+              "hits": [
+                {
+                  "pg_id": 2,
+                  "score": 0.0000020161684417951632,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 4,
+                  "score": 0.0000020161684417951632,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 6,
+                  "score": 0.0000020161684417951632,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 8,
+                  "score": 0.0000020161684417951632,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 10,
+                  "score": 0.0000020161684417951632,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 12,
+                  "score": 0.0000020161684417951632,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 14,
+                  "score": 0.0000020161684417951632,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 16,
+                  "score": 0.0000020161684417951632,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 18,
+                  "score": 0.0000020161684417951632,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 20,
+                  "score": 0.0000020161684417951632,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 22,
+                  "score": 0.0000020161684417951632,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 24,
+                  "score": 0.0000020161684417951632,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 26,
+                  "score": 0.0000020161684417951632,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 28,
+                  "score": 0.0000020161684417951632,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 30,
+                  "score": 0.0000020161684417951632,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 32,
+                  "score": 0.0000020161684417951632,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 1,
+                  "score": 0.0000019840809440516018,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 3,
+                  "score": 0.0000019840809440516018,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 5,
+                  "score": 0.0000019840809440516018,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 7,
+                  "score": 0.0000019840809440516018,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 9,
+                  "score": 0.0000019840809440516018,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 11,
+                  "score": 0.0000019840809440516018,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 13,
+                  "score": 0.0000019840809440516018,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 15,
+                  "score": 0.0000019840809440516018,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 17,
+                  "score": 0.0000019840809440516018,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 19,
+                  "score": 0.0000019840809440516018,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 21,
+                  "score": 0.0000019840809440516018,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 23,
+                  "score": 0.0000019840809440516018,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 25,
+                  "score": 0.0000019840809440516018,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 27,
+                  "score": 0.0000019840809440516018,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 29,
+                  "score": 0.0000019840809440516018,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 31,
+                  "score": 0.0000019840809440516018,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                }
+              ],
+              "query_sha256": "af9f716082cc8c1ad6842b87083ccbd112162adb69f1ffee6a4f076a58fe2dec",
+              "executed_query": {
+                "limit": 100,
+                "match": "search_text : (\"rag\" OR \"performance\")",
+                "user_id": "user_a"
+              },
+              "query_characters": 15
+            },
+            {
+              "hits": [
+                {
+                  "pg_id": 1002,
+                  "score": 0.0000010080852371324025,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                }
+              ],
+              "query_sha256": "7dee7ea6247ec8e6031f0ff49b449b52f11247eca2103414f964496d7733d6f3",
+              "executed_query": {
+                "limit": 1,
+                "match": "search_text : (\"sqlite\" OR \"or\" OR \"not\" OR \"near\")",
+                "user_id": "user_b"
+              },
+              "query_characters": 22
+            },
+            {
+              "hits": [
+                {
+                  "pg_id": 2,
+                  "score": 0.7644237179945427,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 6,
+                  "score": 0.7644237179945427,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 8,
+                  "score": 0.7644237179945427,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 10,
+                  "score": 0.7644237179945427,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 32,
+                  "score": 0.7644237179945427,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 1,
+                  "score": 0.7615224249240189,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 23,
+                  "score": 0.7615224249240189,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 25,
+                  "score": 0.7615224249240189,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 29,
+                  "score": 0.7615224249240189,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 31,
+                  "score": 0.7615224249240189,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 4,
+                  "score": 0.000005040405861027062,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 12,
+                  "score": 0.000005040405861027062,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 14,
+                  "score": 0.000005040405861027062,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 16,
+                  "score": 0.000005040405861027062,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 18,
+                  "score": 0.000005040405861027062,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 20,
+                  "score": 0.000005040405861027062,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 22,
+                  "score": 0.000005040405861027062,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 24,
+                  "score": 0.000005040405861027062,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 26,
+                  "score": 0.000005040405861027062,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 28,
+                  "score": 0.000005040405861027062,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 30,
+                  "score": 0.000005040405861027062,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 3,
+                  "score": 0.000004960187598008466,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 5,
+                  "score": 0.000004960187598008466,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 7,
+                  "score": 0.000004960187598008466,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 9,
+                  "score": 0.000004960187598008466,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 11,
+                  "score": 0.000004960187598008466,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 13,
+                  "score": 0.000004960187598008466,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 15,
+                  "score": 0.000004960187598008466,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 17,
+                  "score": 0.000004960187598008466,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 19,
+                  "score": 0.000004960187598008466,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 21,
+                  "score": 0.000004960187598008466,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                },
+                {
+                  "pg_id": 27,
+                  "score": 0.000004960187598008466,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                }
+              ],
+              "query_sha256": "21c86c8be17c64cf47599c44772fa0e9825c57b7286df9aaa791cd812e89f9c2",
+              "executed_query": {
+                "limit": 100,
+                "match": "search_text : (\"rag\" OR \"performance\" OR \"sqlite\" OR \"知 识\" OR \"识 库\" OR \"term122\" OR \"term107\" OR \"term101\" OR \"term213\" OR \"term192\" OR \"term024\" OR \"term130\" OR \"term063\" OR \"term188\" OR \"term201\" OR \"term033\" OR \"term238\" OR \"term202\" OR \"term037\" OR \"term131\" OR \"term233\" OR \"term197\" OR \"term086\" OR \"term231\" OR \"term200\" OR \"term000\" OR \"term219\" OR \"term177\" OR \"term154\" OR \"term156\" OR \"term009\" OR \"term178\" OR \"term247\" OR \"term030\" OR \"term152\" OR \"term173\" OR \"term171\" OR \"term191\" OR \"term182\" OR \"term120\" OR \"term155\" OR \"term126\" OR \"term150\" OR \"term099\" OR \"term080\" OR \"term028\" OR \"term092\" OR \"term224\" OR \"term208\" OR \"term222\" OR \"term172\" OR \"term235\" OR \"term087\" OR \"term184\" OR \"term124\" OR \"term209\" OR \"term097\" OR \"term096\" OR \"term007\" OR \"term085\" OR \"term158\" OR \"term054\" OR \"term236\" OR \"term226\")",
+                "user_id": "user_a"
+              },
+              "query_characters": 6285
+            },
+            {
+              "hits": [
+                {
+                  "pg_id": 1016,
+                  "score": 0.866485335614658,
+                  "engine": "fts5",
+                  "source": "local_keyword"
+                }
+              ],
+              "query_sha256": "7a1534f575f87c804e308eae0bd6246ffe7769e60f4f79dcb75a3edd7bdb5c6d",
+              "executed_query": {
+                "limit": 1,
+                "match": "search_text : (\"rag\" OR \"performance\" OR \"sqlite\" OR \"知 识\" OR \"识 库\" OR \"term194\" OR \"term075\" OR \"term105\" OR \"term074\" OR \"term152\" OR \"term032\" OR \"term226\" OR \"term196\" OR \"term247\" OR \"term248\" OR \"term174\" OR \"term127\" OR \"term133\" OR \"term049\" OR \"term207\" OR \"term218\" OR \"term158\" OR \"term014\" OR \"term244\" OR \"term085\" OR \"term106\" OR \"term064\" OR \"term199\" OR \"term145\" OR \"term172\" OR \"term235\" OR \"term017\" OR \"term239\" OR \"term052\" OR \"term024\" OR \"term082\" OR \"term200\" OR \"term047\" OR \"term245\" OR \"term211\" OR \"term156\" OR \"term035\" OR \"term088\" OR \"term201\" OR \"term030\" OR \"term093\" OR \"term153\" OR \"term113\" OR \"term008\" OR \"term089\" OR \"term054\" OR \"term110\" OR \"term005\" OR \"term162\" OR \"term229\" OR \"term184\" OR \"term132\" OR \"term069\" OR \"term015\" OR \"term216\" OR \"term060\" OR \"term091\" OR \"term076\" OR \"term121\")",
+                "user_id": "user_b"
+              },
+              "query_characters": 3638
+            }
+          ],
+          "elapsed_seconds": 0.472,
+          "runner_image_id": "sha256:88049fe37ad3146a2f3ede5adcefccc761fbf64d6928a83a07e28519611e6779",
+          "source_revision": "9245ce09fa2e2adceafebb669ee4605f94a2bb05153d5844d24888fb61d4f402",
+          "query_length_max": 6311,
+          "query_length_min": 0,
+          "executor_contract": 3,
+          "output_comparison": "recursive exact Python types and values: actual MATCH parameters, tenant, hit IDs/content and BM25 scores",
+          "credentials_mounted": false,
+          "executed_sql_queries": 62
+        }
+      },
+      {
+        "tool": "read_source",
+        "evidence_id": "S2",
+        "observation": {
+          "path": "internal/rag/fts5_index.py",
+          "sha256": "c0b47884db29620a743250f37f0b8305a2c5c23ede897cd914dce5b5382357df",
+          "content": "# SQLite FTS5 全文索引：中文分词后做 BM25 检索；这是关键词召回，不能冒充 embedding 或交叉编码器。\n\"\"\"基于 SQLite FTS5 的本地全文检索。\n文本写入倒排索引后按 BM25 召回，可用于未部署 Elasticsearch 的环境。查询耗时随语料规模、查询结构和硬件变化，不能只由索引类型推定。\"\"\"\n\nfrom __future__ import annotations\n\nimport re\nimport sqlite3\nfrom typing import Any, Dict, List\n\n\ndef fts_tokenize(text: str) -> str:\n    \"\"\"将中英文文本分成 FTS5 unicode61 可用的词元。\n    中文逐字分隔，字母和数字保留为连续词；查询端再组合相邻中文字符，减少仅命中单字造成的无关召回。\"\"\"\n    if not text:\n        return \"\"\n    tokens: List[str] = []\n    ascii_buf = \"\"\n    for char in text.casefold():\n        if \"\\u4e00\" <= char <= \"\\u9fff\":\n            if ascii_buf:\n                tokens.append(ascii_buf)\n                ascii_buf = \"\"\n            tokens.append(char)\n        elif char.isalnum():\n            ascii_buf += char\n        elif ascii_buf:\n            tokens.append(ascii_buf)\n            ascii_buf = \"\"\n    if ascii_buf:\n        tokens.append(ascii_buf)\n    return \" \".join(tokens)\n\n\ndef build_fts_query(query: str) -> str:\n    \"\"\"从用户查询构造带引号的 FTS5 MATCH 表达式，并限制词元数量。\"\"\"\n    # 沿用逐字建立的中文索引，但查询时把相邻字符组成短语。\n    # 只共享一个汉字不能视为整个词被命中，短语用于减少这种误召回。\n    tokens = []\n    for part in re.findall(r\"[\\u4e00-\\u9fff]+|[^\\W_]+\", query.casefold()):\n        if re.fullmatch(r\"[\\u4e00-\\u9fff]+\", part) and len(part) > 1:\n            tokens.extend(part[i] + \" \" + part[i + 1] for i in range(len(part) - 1))\n        else:\n            tokens.append(part)\n    tokens = list(dict.fromkeys(tokens))[:64]\n    if not tokens:\n        return \"\"\n    # 将词元加引号并过滤保留关键字，避免输入被当作 FTS5 查询语法。\n    safe_tokens = [f'\"{t}\"' for t in tokens if t not in {'AND', 'OR', 'NOT', 'NEAR', '*'}]\n    if not safe_tokens:\n        return \"\"\n    # 各短语以 OR 连接，允许任一短语命中；这里不生成 NEAR 表达式。\n    return \" OR \".join(safe_tokens)\n\n\nclass FTS5IndexManager:\n    \"\"\"管理知识块的 FTS5 虚拟表，提供用户范围内的写入、删除和 BM25 查询。\"\"\"\n\n    TABLE_NAME = \"agent_rag_chunks_fts\"\n\n    @classmethod\n    def ensure_table(cls, conn: sqlite3.Connection) -> bool:\n        \"\"\"首次使用时创建 FTS5 虚拟表；后续调用复用已有表。\"\"\"\n        try:\n            conn.execute(f\"\"\"\n                CREATE VIRTUAL TABLE IF NOT EXISTS {cls.TABLE_NAME} USING fts5(\n                    pg_id UNINDEXED,\n                    user_id UNINDEXED,\n                    doc_hash UNINDEXED,\n                    content UNINDEXED,\n                    parent_content UNINDEXED,\n                    search_text,\n                    tokenize = 'unicode61'\n                );\n            \"\"\")\n            conn.commit()\n            return True\n        except Exception:\n            return False\n\n    @classmethod\n    def index_chunk(\n        cls,\n        conn: sqlite3.Connection,\n        pg_id: int,\n        user_id: str,\n        doc_hash: str,\n        content: str,\n        parent_content: str = \"\",\n    ) -> bool:\n        \"\"\"按知识块主键替换已有索引项，再写入本次文本及用户归属。\"\"\"\n        try:\n            cls.ensure_table(conn)\n            conn.execute(\n                f\"DELETE FROM {cls.TABLE_NAME} WHERE pg_id = ? AND user_id = ?\",\n                (str(pg_id), str(user_id)),\n            )\n\n            tokenized_search = fts_tokenize(f\"{content}\\n{parent_content}\")\n\n            conn.execute(\n                f\"\"\"\n                INSERT INTO {cls.TABLE_NAME} (pg_id, user_id, doc_hash, content, parent_content, search_text)\n                VALUES (?, ?, ?, ?, ?, ?)\n                \"\"\",\n                (str(pg_id), str(user_id), str(doc_hash), content, parent_content, tokenized_search),\n            )\n            conn.commit()\n            return True\n        except Exception:\n            return False\n\n    @classmethod\n    def delete_by_pg_ids(cls, conn: sqlite3.Connection, pg_ids: List[int]) -> None:\n        \"\"\"删除给定知识块主键对应的索引项，避免已删块继续参与召回。\"\"\"\n        if not pg_ids:\n            return\n        try:\n            placeholders = \",\".join(\"?\" for _ in pg_ids)\n            conn.execute(\n                f\"DELETE FROM {cls.TABLE_NAME} WHERE pg_id IN ({placeholders})\",\n                [str(pid) for pid in pg_ids],\n            )\n            conn.commit()\n        except Exception:\n            pass\n\n    @classmethod\n    def delete_by_doc_hash(cls, conn: sqlite3.Connection, doc_hash: str, user_id: str) -> None:\n        \"\"\"按文档摘要与用户归属删除索引，不影响其他用户的同名文档。\"\"\"\n        try:\n            conn.execute(\n                f\"DELETE FROM {cls.TABLE_NAME} WHERE doc_hash = ? AND user_id = ?\",\n                (str(doc_hash), str(user_id)),\n            )\n            conn.commit()\n        except Exception:\n            pass\n\n    @classmethod\n    def search(\n        cls,\n        conn: sqlite3.Connection,\n        query: str,\n        top_k: int = 5,\n        user_id: str = \"default_user\",\n    ) -> List[Dict[str, Any]]:\n        \"\"\"在指定用户范围执行 BM25 查询，返回知识块标识与检索分数。\"\"\"\n        fts_query = build_fts_query(query)\n        if not fts_query:\n            return []\n\n        limit = max(1, min(int(top_k), 100))\n        try:\n            cursor = conn.execute(\n                f\"\"\"\n                SELECT pg_id, content, parent_content, bm25({cls.TABLE_NAME}) as rank\n                FROM {cls.TABLE_NAME}\n                WHERE {cls.TABLE_NAME} MATCH ? AND user_id = ?\n                ORDER BY rank ASC\n",
+          "end_line": 160,
+          "start_line": 1,
+          "total_lines": 181,
+          "source_revision": "9245ce09fa2e2adceafebb669ee4605f94a2bb05153d5844d24888fb61d4f402"
+        }
+      },
+      {
+        "tool": "read_source",
+        "evidence_id": "S3",
+        "observation": {
+          "path": "internal/rag/fts5_index.py",
+          "sha256": "c0b47884db29620a743250f37f0b8305a2c5c23ede897cd914dce5b5382357df",
+          "content": "                ORDER BY rank ASC\n                LIMIT ?\n                \"\"\",\n                (f\"search_text : ({fts_query})\", str(user_id), limit),\n            )\n            rows = cursor.fetchall()\n            results = []\n            for row in rows:\n                pg_id_str, raw_content, raw_parent, rank = row\n                strength = max(0.0, -float(rank)) if rank is not None else 0.0\n                score = strength / (1.0 + strength)\n                results.append({\n                    \"pg_id\": int(pg_id_str),\n                    \"content\": raw_content,\n                    \"parent_content\": raw_parent,\n                    \"score\": score,\n                    \"source\": \"local_keyword\",\n                    \"engine\": \"fts5\",\n                })\n            return results\n        except Exception:\n            return []\n",
+          "end_line": 181,
+          "start_line": 160,
+          "total_lines": 181,
+          "source_revision": "9245ce09fa2e2adceafebb669ee4605f94a2bb05153d5844d24888fb61d4f402"
+        }
+      },
+      {
+        "tool": "read_source",
+        "evidence_id": "S4",
+        "observation": {
+          "path": "tests/test_fts5_index.py",
+          "sha256": "ee955d4b795ca8824217ee536c4e69bb5bcd7b5895d3138d4910c9a8bcc5c71c",
+          "content": "# 回归范围：中文 token 化、全文索引增删查和 BM25 命中。\nimport sqlite3\nfrom internal.rag.fts5_index import FTS5IndexManager, fts_tokenize\n\n\ndef test_fts_tokenize():\n    # 混合语言样本同时检查英文规范化与中文字粒度，避免只在纯英文语料上验证分词。\n    text = \"RAG知识库检索与Tencent WeKnora对比\"\n    tokenized = fts_tokenize(text)\n    # 中文字符被空格分开，英文字词保持完整\n    assert \"rag\" in tokenized\n    assert \"知 识 库\" in tokenized\n    assert \"tencent\" in tokenized\n    assert \"weknora\" in tokenized\n\n\ndef test_fts5_crud_and_search():\n    conn = sqlite3.connect(\":memory:\")\n    assert FTS5IndexManager.ensure_table(conn) is True\n\n    # 插入几条记录\n    FTS5IndexManager.index_chunk(\n        conn,\n        pg_id=1,\n        user_id=\"user_a\",\n        doc_hash=\"doc_1\",\n        content=\"企业级知识库与混合检索方案\",\n        parent_content=\"章节一：引言\",\n    )\n    FTS5IndexManager.index_chunk(\n        conn,\n        pg_id=2,\n        user_id=\"user_a\",\n        doc_hash=\"doc_1\",\n        content=\"大语言模型微调与量化技术\",\n        parent_content=\"章节二：模型\",\n    )\n    FTS5IndexManager.index_chunk(\n        conn,\n        pg_id=3,\n        user_id=\"user_b\",\n        doc_hash=\"doc_2\",\n        content=\"企业级知识库管理系统\",\n        parent_content=\"权限隔离测试\",\n    )\n\n    # 1. 搜索“知识库” (user_a)\n    hits_a = FTS5IndexManager.search(conn, query=\"知识库\", top_k=5, user_id=\"user_a\")\n    assert len(hits_a) == 1\n    assert hits_a[0][\"pg_id\"] == 1\n    assert hits_a[0][\"score\"] > 0\n    assert hits_a[0][\"source\"] == \"local_keyword\"\n    assert hits_a[0][\"engine\"] == \"fts5\"\n\n    # 2. 租户隔离校验：user_b 搜索“知识库”只能搜到 pg_id=3\n    hits_b = FTS5IndexManager.search(conn, query=\"知识库\", top_k=5, user_id=\"user_b\")\n    assert len(hits_b) == 1\n    assert hits_b[0][\"pg_id\"] == 3\n\n    # 3. 删除验证\n    FTS5IndexManager.delete_by_doc_hash(conn, doc_hash=\"doc_1\", user_id=\"user_a\")\n    hits_a_after = FTS5IndexManager.search(conn, query=\"知识库\", top_k=5, user_id=\"user_a\")\n    assert len(hits_a_after) == 0\n\n    conn.close()\n",
+          "end_line": 65,
+          "start_line": 1,
+          "total_lines": 65,
+          "source_revision": "9245ce09fa2e2adceafebb669ee4605f94a2bb05153d5844d24888fb61d4f402"
+        }
+      },
+      {
+        "tool": "read_source",
+        "evidence_id": "S5",
+        "observation": {
+          "path": "tests/test_fts5_index.py",
+          "sha256": "ee955d4b795ca8824217ee536c4e69bb5bcd7b5895d3138d4910c9a8bcc5c71c",
+          "content": "    # 3. 删除验证\n    FTS5IndexManager.delete_by_doc_hash(conn, doc_hash=\"doc_1\", user_id=\"user_a\")\n    hits_a_after = FTS5IndexManager.search(conn, query=\"知识库\", top_k=5, user_id=\"user_a\")\n    assert len(hits_a_after) == 0\n\n    conn.close()\n",
+          "end_line": 65,
+          "start_line": 60,
+          "total_lines": 65,
+          "source_revision": "9245ce09fa2e2adceafebb669ee4605f94a2bb05153d5844d24888fb61d4f402"
+        }
+      },
+      {
+        "tool": "test_patch",
+        "evidence_id": "S6",
+        "observation": {
+          "uid": 10001,
+          "gate": {
+            "minimum_median_speedup": 1.1,
+            "total_alternating_pairs": 6,
+            "minimum_pairs_above_1_05": 5
+          },
+          "pairs": [
+            {
+              "cases": 64,
+              "baseline_ns": 145773085,
+              "candidate_ns": 179546616,
+              "output_sha256": "65a865e97a6a23f65e9a539ead2936eadc31323121f5a0927a3fe06c897ffe56",
+              "baseline_cpu_ns": 131441110,
+              "candidate_cpu_ns": 94379328,
+              "executed_sql_queries_per_side": 62
+            },
+            {
+              "cases": 64,
+              "baseline_ns": 153346904,
+              "candidate_ns": 98576193,
+              "output_sha256": "a2d30e673b76460b87f6ad05d58ac498d8c26ffc570850a9ba7d539498510d12",
+              "baseline_cpu_ns": 121270527,
+              "candidate_cpu_ns": 77316561,
+              "executed_sql_queries_per_side": 62
+            },
+            {
+              "cases": 64,
+              "baseline_ns": 189801961,
+              "candidate_ns": 101610688,
+              "output_sha256": "84c40419085179033bba07b0d3996e691e6b6b58eecda412b9372d2fca7a8901",
+              "baseline_cpu_ns": 145628729,
+              "candidate_cpu_ns": 73558342,
+              "executed_sql_queries_per_side": 62
+            },
+            {
+              "cases": 64,
+              "baseline_ns": 216155165,
+              "candidate_ns": 102995010,
+              "output_sha256": "ce68fc4aa1cf69697e55805668d178cf683e5d144429d992eb4e9e6e6e38a814",
+              "baseline_cpu_ns": 142177784,
+              "candidate_cpu_ns": 85184451,
+              "executed_sql_queries_per_side": 62
+            },
+            {
+              "cases": 64,
+              "baseline_ns": 194504723,
+              "candidate_ns": 117746455,
+              "output_sha256": "8b851125e623a70bcf51099bf01fa1e37fe98c3bdc857c88357a0d7a5239bba1",
+              "baseline_cpu_ns": 120946344,
+              "candidate_cpu_ns": 96339149,
+              "executed_sql_queries_per_side": 62
+            },
+            {
+              "cases": 64,
+              "baseline_ns": 221652955,
+              "candidate_ns": 169937670,
+              "output_sha256": "9af3ed861f1256eb3cf39ec13fd7dbe01eabe79ab17a5daf2b5b3ed2032d0c74",
+              "baseline_cpu_ns": 145698931,
+              "candidate_cpu_ns": 89165043,
+              "executed_sql_queries_per_side": 62
+            }
+          ],
+          "patch": [
+            {
+              "new": "    tokens = []\n    seen = set()\n    for part in re.findall(r\"[\\u4e00-\\u9fff]+|[^\\W_]+\", query.casefold()):\n        if len(part) > 1 and \"\\u4e00\" <= part[0] <= \"\\u9fff\":\n            # 该分支的 part 全部为汉字，无需再做整串正则匹配。\n            for i in range(len(part) - 1):\n                token = part[i] + \" \" + part[i + 1]\n                if token not in seen:\n                    seen.add(token)\n                    tokens.append(token)\n        elif part not in seen:\n            seen.add(part)\n            tokens.append(part)\n        if len(tokens) >= 64:\n            break\n    tokens = tokens[:64]\n    if not tokens:\n        return \"\"\n    # 将词元加引号并过滤保留关键字，避免输入被当作 FTS5 查询语法。\n    safe_tokens = [f'\"{t}\"' for t in tokens if t not in {'AND', 'OR', 'NOT', 'NEAR', '*'}]",
+              "old": "    tokens = []\n    for part in re.findall(r\"[\\u4e00-\\u9fff]+|[^\\W_]+\", query.casefold()):\n        if re.fullmatch(r\"[\\u4e00-\\u9fff]+\", part) and len(part) > 1:\n            tokens.extend(part[i] + \" \" + part[i + 1] for i in range(len(part) - 1))\n        else:\n            tokens.append(part)\n    tokens = list(dict.fromkeys(tokens))[:64]\n    if not tokens:\n        return \"\"\n    # 将词元加引号并过滤保留关键字，避免输入被当作 FTS5 查询语法。\n    safe_tokens = [f'\"{t}\"' for t in tokens if t not in {'AND', 'OR', 'NOT', 'NEAR', '*'}]",
+              "path": "internal/rag/fts5_index.py",
+              "sha256": "c0b47884db29620a743250f37f0b8305a2c5c23ede897cd914dce5b5382357df"
+            }
+          ],
+          "scope": "Saber FTS5 component on synthetic 1K-8K long queries plus edge cases and real in-memory SQLite searches; excludes index construction and full app, not production P95/P99 or all Saber functions",
+          "job_key": "0aece1133a5c9b974555a881cd68fafa395386ff6c41c26ce8c432a685eb2ada",
+          "network": "none",
+          "success": true,
+          "accepted": true,
+          "cache_hit": false,
+          "project_id": "saber-python",
+          "improved_pairs": 6,
+          "original_tests": 2,
+          "candidate_files": {
+            "internal/rag/fts5_index.py": "6b6f38ab985127020db3a98b3bda7746564e629c2f64012ac7ab3b5deace78ae"
+          },
+          "elapsed_seconds": 4.961,
+          "runner_image_id": "sha256:88049fe37ad3146a2f3ede5adcefccc761fbf64d6928a83a07e28519611e6779",
+          "source_revision": "9245ce09fa2e2adceafebb669ee4605f94a2bb05153d5844d24888fb61d4f402",
+          "candidate_profile": {
+            "cases": 64,
+            "scope": "actual Saber SQLite FTS5 component, 64 synthetic queries and 64 indexed synthetic chunks; excludes index construction, not full Saber startup or production request latency",
+            "cpu_ns": 92619002,
+            "hotspots": [
+              {
+                "line": 35,
+                "path": "internal/rag/fts5_index.py",
+                "calls": 64,
+                "function": "build_fts_query",
+                "self_seconds": 0.00426444,
+                "total_seconds": 0.070556799
+              },
+              {
+                "line": 149,
+                "path": "internal/rag/fts5_index.py",
+                "calls": 64,
+                "function": "search",
+                "self_seconds": 0.0010924560000000001,
+                "total_seconds": 0.18093662100000002
+              }
+            ],
+            "elapsed_ns": 181495963,
+            "p95_case_ns": 2677470,
+            "profile_unit": "seconds",
+            "output_sha256": "65a865e97a6a23f65e9a539ead2936eadc31323121f5a0927a3fe06c897ffe56",
+            "source_sha256": "6b6f38ab985127020db3a98b3bda7746564e629c2f64012ac7ab3b5deace78ae",
+            "median_case_ns": 1367335,
+            "profile_source": "actual cProfile execution of the enrolled real file with exact SHA; synthetic in-memory SQLite corpus",
+            "sample_results": [
+              {
+                "hits": [
+                  {
+                    "pg_id": 2,
+                    "score": 0.0000020161684417951632,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 4,
+                    "score": 0.0000020161684417951632,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 6,
+                    "score": 0.0000020161684417951632,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 8,
+                    "score": 0.0000020161684417951632,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 10,
+                    "score": 0.0000020161684417951632,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 12,
+                    "score": 0.0000020161684417951632,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 14,
+                    "score": 0.0000020161684417951632,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 16,
+                    "score": 0.0000020161684417951632,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 18,
+                    "score": 0.0000020161684417951632,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 20,
+                    "score": 0.0000020161684417951632,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 22,
+                    "score": 0.0000020161684417951632,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 24,
+                    "score": 0.0000020161684417951632,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 26,
+                    "score": 0.0000020161684417951632,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 28,
+                    "score": 0.0000020161684417951632,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 30,
+                    "score": 0.0000020161684417951632,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 32,
+                    "score": 0.0000020161684417951632,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 1,
+                    "score": 0.0000019840809440516018,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 3,
+                    "score": 0.0000019840809440516018,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 5,
+                    "score": 0.0000019840809440516018,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 7,
+                    "score": 0.0000019840809440516018,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 9,
+                    "score": 0.0000019840809440516018,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 11,
+                    "score": 0.0000019840809440516018,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 13,
+                    "score": 0.0000019840809440516018,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 15,
+                    "score": 0.0000019840809440516018,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 17,
+                    "score": 0.0000019840809440516018,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 19,
+                    "score": 0.0000019840809440516018,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 21,
+                    "score": 0.0000019840809440516018,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 23,
+                    "score": 0.0000019840809440516018,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 25,
+                    "score": 0.0000019840809440516018,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 27,
+                    "score": 0.0000019840809440516018,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 29,
+                    "score": 0.0000019840809440516018,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 31,
+                    "score": 0.0000019840809440516018,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  }
+                ],
+                "query_sha256": "af9f716082cc8c1ad6842b87083ccbd112162adb69f1ffee6a4f076a58fe2dec",
+                "executed_query": {
+                  "limit": 100,
+                  "match": "search_text : (\"rag\" OR \"performance\")",
+                  "user_id": "user_a"
+                },
+                "query_characters": 15
+              },
+              {
+                "hits": [
+                  {
+                    "pg_id": 1002,
+                    "score": 0.0000010080852371324025,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  }
+                ],
+                "query_sha256": "7dee7ea6247ec8e6031f0ff49b449b52f11247eca2103414f964496d7733d6f3",
+                "executed_query": {
+                  "limit": 1,
+                  "match": "search_text : (\"sqlite\" OR \"or\" OR \"not\" OR \"near\")",
+                  "user_id": "user_b"
+                },
+                "query_characters": 22
+              },
+              {
+                "hits": [
+                  {
+                    "pg_id": 18,
+                    "score": 0.866485335614658,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 2,
+                    "score": 0.7644237179945427,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 16,
+                    "score": 0.7644237179945427,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 22,
+                    "score": 0.7644237179945427,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 24,
+                    "score": 0.7644237179945427,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 3,
+                    "score": 0.7615224249240189,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 7,
+                    "score": 0.7615224249240189,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 11,
+                    "score": 0.7615224249240189,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 17,
+                    "score": 0.7615224249240189,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 21,
+                    "score": 0.7615224249240189,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 4,
+                    "score": 0.000005040405861027062,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 6,
+                    "score": 0.000005040405861027062,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 8,
+                    "score": 0.000005040405861027062,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 10,
+                    "score": 0.000005040405861027062,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 12,
+                    "score": 0.000005040405861027062,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 14,
+                    "score": 0.000005040405861027062,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 20,
+                    "score": 0.000005040405861027062,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 26,
+                    "score": 0.000005040405861027062,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 28,
+                    "score": 0.000005040405861027062,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 30,
+                    "score": 0.000005040405861027062,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 32,
+                    "score": 0.000005040405861027062,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 1,
+                    "score": 0.000004960187598008466,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 5,
+                    "score": 0.000004960187598008466,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 9,
+                    "score": 0.000004960187598008466,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 13,
+                    "score": 0.000004960187598008466,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 15,
+                    "score": 0.000004960187598008466,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 19,
+                    "score": 0.000004960187598008466,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 23,
+                    "score": 0.000004960187598008466,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 25,
+                    "score": 0.000004960187598008466,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 27,
+                    "score": 0.000004960187598008466,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 29,
+                    "score": 0.000004960187598008466,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  },
+                  {
+                    "pg_id": 31,
+                    "score": 0.000004960187598008466,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  }
+                ],
+                "query_sha256": "d79a877892c3e4c140c7220ea5bfcbc6015bc5f8e9ade2e61f18ab74b506e587",
+                "executed_query": {
+                  "limit": 100,
+                  "match": "search_text : (\"rag\" OR \"performance\" OR \"sqlite\" OR \"知 识\" OR \"识 库\" OR \"term251\" OR \"term164\" OR \"term200\" OR \"term096\" OR \"term212\" OR \"term147\" OR \"term218\" OR \"term092\" OR \"term001\" OR \"term144\" OR \"term208\" OR \"term169\" OR \"term016\" OR \"term120\" OR \"term220\" OR \"term173\" OR \"term215\" OR \"term209\" OR \"term091\" OR \"term034\" OR \"term232\" OR \"term231\" OR \"term020\" OR \"term136\" OR \"term094\" OR \"term184\" OR \"term178\" OR \"term226\" OR \"term102\" OR \"term130\" OR \"term238\" OR \"term151\" OR \"term118\" OR \"term077\" OR \"term248\" OR \"term158\" OR \"term249\" OR \"term093\" OR \"term017\" OR \"term197\" OR \"term038\" OR \"term081\" OR \"term100\" OR \"term163\" OR \"term129\" OR \"term202\" OR \"term207\" OR \"term021\" OR \"term211\" OR \"term154\" OR \"term047\" OR \"term159\" OR \"term055\" OR \"term201\" OR \"term049\" OR \"term083\" OR \"term176\" OR \"term233\" OR \"term010\")",
+                  "user_id": "user_a"
+                },
+                "query_characters": 2110
+              },
+              {
+                "hits": [
+                  {
+                    "pg_id": 1017,
+                    "score": 0.8646183938140412,
+                    "engine": "fts5",
+                    "source": "local_keyword"
+                  }
+                ],
+                "query_sha256": "ce331182d5a90160a356c1a31d01e8d7c4b4a71f52678fef550557704d7efbca",
+                "executed_query": {
+                  "limit": 1,
+                  "match": "search_text : (\"rag\" OR \"performance\" OR \"sqlite\" OR \"知 识\" OR \"识 库\" OR \"term182\" OR \"term188\" OR \"term153\" OR \"term203\" OR \"term112\" OR \"term088\" OR \"term023\" OR \"term225\" OR \"term152\" OR \"term191\" OR \"term197\" OR \"term016\" OR \"term035\" OR \"term048\" OR \"term142\" OR \"term223\" OR \"term067\" OR \"term194\" OR \"term239\" OR \"term017\" OR \"term099\" OR \"term222\" OR \"term244\" OR \"term134\" OR \"term051\" OR \"term063\" OR \"term177\" OR \"term250\" OR \"term114\" OR \"term179\" OR \"term210\" OR \"term170\" OR \"term253\" OR \"term190\" OR \"term171\" OR \"term062\" OR \"term211\" OR \"term097\" OR \"term245\" OR \"term234\" OR \"term176\" OR \"term052\" OR \"term013\" OR \"term149\" OR \"term113\" OR \"term249\" OR \"term174\" OR \"term251\" OR \"term002\" OR \"term044\" OR \"term078\" OR \"term039\" OR \"term022\" OR \"term230\" OR \"term231\" OR \"term083\" OR \"term008\" OR \"term103\" OR \"term060\")",
+                  "user_id": "user_b"
+                },
+                "query_characters": 6290
+              }
+            ],
+            "query_length_max": 6307,
+            "query_length_min": 0,
+            "output_comparison": "recursive exact Python types and values: actual MATCH parameters, tenant, hit IDs/content and BM25 scores",
+            "executed_sql_queries": 62
+          },
+          "executor_contract": 3,
+          "root_cause_status": "validated_in_controlled_saber_benchmark",
+          "median_cpu_speedup": 1.6012650022387165,
+          "credentials_mounted": false,
+          "output_parity_cases": 384,
+          "frozen_contract_tests": 6,
+          "functional_regression": "passed"
+        }
+      }
+    ],
+    "report": null,
+    "error_code": "AGENT_RUNTIME_ERROR",
+    "created_at": "2026-10-20T10:53:47.203987Z",
+    "updated_at": "2026-10-20T10:54:12.947345Z"
+  },
+  "verification": {
+    "id": "13",
+    "diagnosis_id": "27",
+    "baseline_task_id": "84",
+    "candidate_task_id": "85",
+    "requested_by": "77f0de20-54bb-4142-9cfc-474d9c7df79e",
+    "candidate_diagnosis_id": "28",
+    "status": "success",
+    "report": {
+      "comparison": {
+        "kind": "PYTHON_CPU",
+        "unit": "samples",
+        "outcome": "insufficient_evidence",
+        "comparable": true,
+        "differences": [
+          {
+            "symbol": "symbol_e178bfa9b96b",
+            "baseline_self_percent": 40.3438,
+            "candidate_self_percent": 45.8038,
+            "delta_percentage_points": 5.460000000000001
+          },
+          {
+            "symbol": "symbol_41c6f3fd3b5c",
+            "baseline_self_percent": 7.2801,
+            "candidate_self_percent": 3.7412,
+            "delta_percentage_points": -3.5389
+          },
+          {
+            "symbol": "symbol_c2241b6ce2a0",
+            "baseline_self_percent": 6.3701,
+            "candidate_self_percent": 9.7068,
+            "delta_percentage_points": 3.3366999999999996
+          },
+          {
+            "symbol": "symbol_691ec80045b1",
+            "baseline_self_percent": 3.7412,
+            "candidate_self_percent": 1.4156,
+            "delta_percentage_points": -2.3256
+          },
+          {
+            "symbol": "symbol_46af1547c081",
+            "baseline_self_percent": 2.5278,
+            "candidate_self_percent": 0.5056,
+            "delta_percentage_points": -2.0221999999999998
+          },
+          {
+            "symbol": "symbol_2f918a10ad9f",
+            "baseline_self_percent": 2.5278,
+            "candidate_self_percent": 3.8423,
+            "delta_percentage_points": 1.3144999999999998
+          },
+          {
+            "symbol": "symbol_6146a4b23f09",
+            "baseline_self_percent": 3.3367,
+            "candidate_self_percent": 2.2245,
+            "delta_percentage_points": -1.1122
+          },
+          {
+            "symbol": "symbol_65efb24f8eb5",
+            "baseline_self_percent": 0.91,
+            "candidate_self_percent": 2.0222,
+            "delta_percentage_points": 1.1122
+          },
+          {
+            "symbol": "symbol_8b2c86b63aa6",
+            "baseline_self_percent": 0.8089,
+            "candidate_self_percent": 0,
+            "delta_percentage_points": -0.8089
+          },
+          {
+            "symbol": "symbol_09992547d0ee",
+            "baseline_self_percent": 0.7078,
+            "candidate_self_percent": 0,
+            "delta_percentage_points": -0.7078
+          }
+        ],
+        "limitations": [
+          "重复采样只检验现象复现；未实施受控代码或配置干预，不能确认因果根因。",
+          "百分比差值不是请求延迟或CPU利用率变化；需同一负载并记录业务指标。",
+          "样本数不足1000或单位不是采样计数；只展示描述差异，不给统计显著性结论。",
+          "Top表未出现的符号按0显示仅指已返回热点表，不证明实际没有执行。"
+        ],
+        "baseline_weight": 989,
+        "candidate_weight": 989,
+        "root_cause_status": "not_tested"
+      },
+      "candidate_report": {
+        "plan": {
+          "kind": "PYTHON_CPU",
+          "reason": "相同目标、稳定负载下复测，使用结果对比检查热点分布；请同时记录业务P95/P99、吞吐、错误率及采集开销。",
+          "frequency_hz": 199,
+          "duration_seconds": 30
+        },
+        "model": "deepseek-flash",
+        "engine": "model",
+        "summary": "原采集与复测均为PYTHON_CPU、单位samples、总权重989，compare_profiles判定comparable=true，但outcome=insufficient_evidence、root_cause_status=not_tested。现象层面：rank1 symbol_e178bfa9b96b 的self占比从40.34%升至45.80%（+5.46pp），仍为最大叶帧热点，且调用链显示它是单一出现位置的纯叶帧（self=inclusive=453，无callee），说明该热点分布形态在两次采集中复现；rank3 symbol_c2241b6ce2a0 从6.37%升至9.71%（+3.34pp），其调用链显示有子调用（callees_truncated=true，已省略部分被调用者上下文），因此不能把它的self权重归因于任何具体子路径。同时rank5 symbol_41c6f3fd3b5c（-3.54pp）、symbol_691ec80045b1（-2.33pp）、symbol_46af1547c081（-2.02pp）下降。这些百分比点差异可能来自采样随机性、负载或行为变化，不能当作请求延迟、CPU利用率或回退幅度，也不能据此确认因果根因；未做受控干预，因果未验证。采集质量：10s/99Hz，issues为空，但未关联业务延迟/吞吐/错误率，未记录丢样率与符号映射。",
+        "hypotheses": [
+          {
+            "claim": "rank1 symbol_e178bfa9b96b 是稳定复现的主要CPU采样权重集中点：两次采集均为最大self热点（40.34%→45.80%，+5.46pp），且调用树中为单一出现位置的纯叶帧（self=inclusive=453，无被调用者），形态一致。该假设只主张现象复现，不主张其为性能回退根因。",
+            "evidence_ids": [
+              "E1",
+              "E2",
+              "E4",
+              "E6"
+            ],
+            "verification": "在相同目标、稳定负载下用E7草案（30s、199Hz）重复采集2-3次，并在平台按哈希symbol_e178bfa9b96b查原符号确认其业务语义；验收指标：该符号self占比在多次采集中持续位居第一且区间不跨越其他热点，同时记录业务P95/P99、吞吐、错误率以判断是否与用户可感知指标相关。百分比容差需与团队协商后确定，此处不预设阈值。"
+          },
+          {
+            "claim": "rank3 symbol_c2241b6ce2a0 的self权重上升（6.37%→9.71%，+3.34pp）可能与其子调用结构有关，但本次调用链callees_truncated=true，被调用者上下文已省略，无法判定权重来自哪个子路径，因此该上升不能归因于具体子函数或锁/IO等待。",
+            "evidence_ids": [
+              "E2",
+              "E5",
+              "E6"
+            ],
+            "verification": "复测时提高采样频率与时长（E7：30s、199Hz）以增加该符号的样本量，并重新调用调用链检查其callees是否仍被截断；若仍截断，需在平台侧按哈希symbol_c2241b6ce2a0与symbol_6cc69e6fc487、symbol_6800ec748d6b查原符号并展开完整子树。验收：能列出该符号全部被调用者及其self权重分布，且多次采集中子路径排序稳定，才可提出下一层假设。"
+          },
+          {
+            "claim": "两次采集间的热点占比漂移（rank1 +5.46pp、rank5 -3.54pp等）可能仅由采样随机性造成，而非行为变化；当前样本量（总权重989，低于1000）不足以支持统计显著性结论。",
+            "evidence_ids": [
+              "E3",
+              "E6"
+            ],
+            "verification": "用E7草案延长采集时长至30s、频率199Hz以提升样本量，连续采集3次以上，比较各热点self占比的分布区间是否重叠；同时保持同一负载脚本与同一目标身份。验收：若主要热点排序与占比区间在多次采集中稳定重叠，则支持“漂移属采样波动”；若某符号占比单调偏移且伴随业务指标变化，则需另立行为变化假设。容差为待协商示例，不作为已验证阈值。"
+          },
+          {
+            "claim": "当前证据无法区分“现象复现”与“因果根因”：未实施任何受控代码或配置干预，且未关联业务请求延迟、吞吐与错误率，因此不能声称任何热点导致性能回退或优化可带来收益。",
+            "evidence_ids": [
+              "E3",
+              "E6",
+              "E7"
+            ],
+            "verification": "设计受控对照：在相同负载下对候选热点（如symbol_e178bfa9b96b对应原符号）做单点干预（如替换实现或降级调用），对比干预前后同一采集器的热点分布与业务P95/P99、吞吐、错误率；同时保留未干预对照组。验收：干预组与对照组在业务指标上出现可重复差异且热点权重相应变化，才可提出因果结论；否则仅保留相关性描述。"
+          }
+        ],
+        "limitations": [
+          "compare_profiles判定outcome=insufficient_evidence、root_cause_status=not_tested，样本量（总权重989）不足以给出统计显著性。",
+          "symbol_hint全部为unknown，且原符号名被脱敏，无法从证据判断热点函数的业务语义或是否涉及锁、IO、内存分配。",
+          "rank3调用链callees_truncated=true，被调用者上下文已省略，不能推断其子路径权重来源；tree_truncated与occurrences_truncated为false，仅代表本次采集树。",
+          "未采集业务请求延迟、吞吐、错误率，也未记录丢样率与符号地址映射，无法把采样权重换算为任何用户可感知指标。",
+          "仅单次原采集与单次复测，未做受控干预，无法验证因果；百分比点差异可能来自采样随机性、负载或环境变化。",
+          "PROC_CPU类证据不适用；本任务无进程/线程CPU tick与函数栈对应信息，不能做线程级定位。",
+          "模型结论为待验证假设，不代表已确认缺陷；不提供未经符号映射验证的源码行号。",
+          "原始profile、原符号、主机、PID、路径和凭据不发送模型；问题文本会发送，请勿填入敏感信息。"
+        ],
+        "agent_runtime": {
+          "usage": {
+            "input_tokens": 12843,
+            "output_tokens": 1532
+          },
+          "run_id": "da9572ea-e313-438d-b0a0-52d10abdaa5f",
+          "framework": "agentscope",
+          "elapsed_ms": 11200,
+          "tool_calls": 6,
+          "agent_class": "agentscope.agent.Agent",
+          "model_calls": 4,
+          "framework_version": "2.0.10"
+        }
+      },
+      "baseline_diagnosis_id": "27",
+      "candidate_diagnosis_id": "28"
+    },
+    "created_at": "2026-10-20T10:53:20.06757Z",
+    "updated_at": "2026-10-20T10:53:47.068892Z"
+  },
+  "baseline_diagnosis": {
+    "id": "27",
+    "task_id": "84",
+    "attempt_id": "85",
+    "analysis_job_id": "77",
+    "analysis_run": 1,
+    "requested_by": "77f0de20-54bb-4142-9cfc-474d9c7df79e",
+    "goal": "面试实时演示：调查Python Saber知识库FTS5长查询的CPU开销。根据节点实际能力选择Python CPU调用栈采集10秒、99Hz，关闭native扩展（native=false），检查热点、调用上下文及采集质量；自动复测并再次诊断。继续使用绑定版本的真实源码定位、生成最小优化补丁，在隔离副本运行原功能回归、冻结语义与用户隔离检查、严格输出比较及多组交替CPU对照。只依据实际证据判断，不把重复采样当根因确认。 2026-10-20T10:52:44.578Z",
+    "mode": "model",
+    "input_digest": "6cb058762c6edb1eabfcd4a6f2193df73c13dc8086603a1541b0fa3a3443f7d4",
+    "status": "success",
+    "trace": [
+      {
+        "tool": "read_profile_summary",
+        "evidence_id": "E1",
+        "observation": {
+          "kind": "PYTHON_CPU",
+          "node_count": 55,
+          "limitations": [
+            "Sample weights are not request latency; no root cause or improvement is proven.",
+            "Raw profiles and symbol names are excluded. Symbol hashes are pseudonyms, not a guarantee of anonymization."
+          ],
+          "stack_scope": "profile_dependent",
+          "total_weight": 989,
+          "top_functions": [
+            {
+              "symbol": "symbol_e178bfa9b96b",
+              "self_percent": 40.3438,
+              "total_percent": 40.3438
+            },
+            {
+              "symbol": "symbol_ac8045fef03c",
+              "self_percent": 10.5157,
+              "total_percent": 10.5157
+            },
+            {
+              "symbol": "symbol_41c6f3fd3b5c",
+              "self_percent": 7.2801,
+              "total_percent": 15.9757
+            },
+            {
+              "symbol": "symbol_c2241b6ce2a0",
+              "self_percent": 6.3701,
+              "total_percent": 13.3468
+            },
+            {
+              "symbol": "symbol_6cc69e6fc487",
+              "self_percent": 3.8423,
+              "total_percent": 3.8423
+            },
+            {
+              "symbol": "symbol_691ec80045b1",
+              "self_percent": 3.7412,
+              "total_percent": 7.2801
+            },
+            {
+              "symbol": "symbol_6146a4b23f09",
+              "self_percent": 3.3367,
+              "total_percent": 5.5612
+            },
+            {
+              "symbol": "symbol_a55d6fb8e5ef",
+              "self_percent": 3.2356,
+              "total_percent": 3.2356
+            },
+            {
+              "symbol": "symbol_2f918a10ad9f",
+              "self_percent": 2.5278,
+              "total_percent": 2.5278
+            },
+            {
+              "symbol": "symbol_46af1547c081",
+              "self_percent": 2.5278,
+              "total_percent": 16.178
+            },
+            {
+              "symbol": "symbol_38c80004b353",
+              "self_percent": 2.2245,
+              "total_percent": 2.2245
+            },
+            {
+              "symbol": "symbol_6800ec748d6b",
+              "self_percent": 1.82,
+              "total_percent": 1.82
+            },
+            {
+              "symbol": "symbol_525a28e533ef",
+              "self_percent": 1.2133,
+              "total_percent": 11.729
+            },
+            {
+              "symbol": "symbol_65efb24f8eb5",
+              "self_percent": 0.91,
+              "total_percent": 0.91
+            },
+            {
+              "symbol": "symbol_75f989394ea6",
+              "self_percent": 0.8089,
+              "total_percent": 0.8089
+            },
+            {
+              "symbol": "symbol_8b2c86b63aa6",
+              "self_percent": 0.8089,
+              "total_percent": 0.8089
+            },
+            {
+              "symbol": "symbol_a8dbefb54b11",
+              "self_percent": 0.7078,
+              "total_percent": 0.7078
+            },
+            {
+              "symbol": "symbol_09992547d0ee",
+              "self_percent": 0.7078,
+              "total_percent": 0.7078
+            },
+            {
+              "symbol": "symbol_152f7845873a",
+              "self_percent": 0.5056,
+              "total_percent": 0.5056
+            },
+            {
+              "symbol": "symbol_87728680e2d1",
+              "self_percent": 0.5056,
+              "total_percent": 0.5056
+            }
+          ],
+          "schema_version": 1,
+          "measurement_unit": "samples",
+          "verification_available": false
+        }
+      },
+      {
+        "tool": "inspect_hotspots",
+        "evidence_id": "E2",
+        "observation": {
+          "hint_source": "local_symbol_heuristic_v1",
+          "top_functions": [
+            {
+              "rank": 1,
+              "symbol": "symbol_e178bfa9b96b",
+              "symbol_hint": "unknown",
+              "self_percent": 40.3438,
+              "total_percent": 40.3438
+            },
+            {
+              "rank": 2,
+              "symbol": "symbol_ac8045fef03c",
+              "symbol_hint": "unknown",
+              "self_percent": 10.5157,
+              "total_percent": 10.5157
+            },
+            {
+              "rank": 3,
+              "symbol": "symbol_41c6f3fd3b5c",
+              "symbol_hint": "unknown",
+              "self_percent": 7.2801,
+              "total_percent": 15.9757
+            },
+            {
+              "rank": 4,
+              "symbol": "symbol_c2241b6ce2a0",
+              "symbol_hint": "unknown",
+              "self_percent": 6.3701,
+              "total_percent": 13.3468
+            },
+            {
+              "rank": 5,
+              "symbol": "symbol_6cc69e6fc487",
+              "symbol_hint": "unknown",
+              "self_percent": 3.8423,
+              "total_percent": 3.8423
+            },
+            {
+              "rank": 6,
+              "symbol": "symbol_691ec80045b1",
+              "symbol_hint": "unknown",
+              "self_percent": 3.7412,
+              "total_percent": 7.2801
+            },
+            {
+              "rank": 7,
+              "symbol": "symbol_6146a4b23f09",
+              "symbol_hint": "unknown",
+              "self_percent": 3.3367,
+              "total_percent": 5.5612
+            },
+            {
+              "rank": 8,
+              "symbol": "symbol_a55d6fb8e5ef",
+              "symbol_hint": "unknown",
+              "self_percent": 3.2356,
+              "total_percent": 3.2356
+            },
+            {
+              "rank": 9,
+              "symbol": "symbol_2f918a10ad9f",
+              "symbol_hint": "unknown",
+              "self_percent": 2.5278,
+              "total_percent": 2.5278
+            },
+            {
+              "rank": 10,
+              "symbol": "symbol_46af1547c081",
+              "symbol_hint": "unknown",
+              "self_percent": 2.5278,
+              "total_percent": 16.178
+            }
+          ],
+          "interpretation": "self为叶帧权重，total为包含子调用权重；symbol_hint为本地符号词形分类，仅作线索，不能证明锁等待或根因。比例不证明请求延迟或因果。原符号仅保留在授权结果页面。"
+        }
+      },
+      {
+        "tool": "check_collection_quality",
+        "evidence_id": "E3",
+        "observation": {
+          "kind": "PYTHON_CPU",
+          "issues": [],
+          "unknowns": [
+            "未关联业务请求延迟、吞吐和错误率",
+            "单次快照不能证明性能回退或修复收益",
+            "未采集源码、符号地址映射及丢样率，不输出文件行号"
+          ],
+          "frequency_hz": 99,
+          "duration_seconds": 10
+        }
+      },
+      {
+        "tool": "inspect_call_paths",
+        "evidence_id": "E4",
+        "observation": {
+          "limits": {
+            "depth": 64,
+            "nodes": 4096,
+            "callees": 3,
+            "ancestors": 6,
+            "occurrences": 5
+          },
+          "symbol": "symbol_e178bfa9b96b",
+          "available": true,
+          "truncated": false,
+          "occurrences": [
+            {
+              "selected": {
+                "symbol": "symbol_e178bfa9b96b",
+                "symbol_hint": "unknown"
+              },
+              "ancestors": [
+                {
+                  "symbol": "symbol_5ef5ef0364b6",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_100271d259f4",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_f20eca9227e7",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_c18a7099073d",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_cf7ce62a8025",
+                  "symbol_hint": "unknown"
+                }
+              ],
+              "self_weight": 399,
+              "top_callees": [],
+              "inclusive_weight": 399,
+              "callees_truncated": false,
+              "ancestors_truncated": false
+            }
+          ],
+          "examined_nodes": 55,
+          "interpretation": "每项是调用树中的独立出现位置；递归inclusive不可相加。权重单位沿用原profile，不能当作请求延迟。tree_truncated表示遍历预算耗尽；ancestors_truncated/callees_truncated/occurrences_truncated分别表示返回上下文省略。matched_occurrences只统计已遍历树。单次采集不证明其他时段或负载没有其他路径。",
+          "tree_truncated": false,
+          "matched_occurrences": 1,
+          "occurrences_truncated": false
+        }
+      },
+      {
+        "tool": "inspect_call_paths",
+        "evidence_id": "E5",
+        "observation": {
+          "limits": {
+            "depth": 64,
+            "nodes": 4096,
+            "callees": 3,
+            "ancestors": 6,
+            "occurrences": 5
+          },
+          "symbol": "symbol_41c6f3fd3b5c",
+          "available": true,
+          "truncated": true,
+          "occurrences": [
+            {
+              "selected": {
+                "symbol": "symbol_41c6f3fd3b5c",
+                "symbol_hint": "unknown"
+              },
+              "ancestors": [
+                {
+                  "symbol": "symbol_5ef5ef0364b6",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_100271d259f4",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_0fec8384be48",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_e88f36c293c1",
+                  "symbol_hint": "unknown"
+                }
+              ],
+              "self_weight": 72,
+              "top_callees": [
+                {
+                  "symbol": "symbol_691ec80045b1",
+                  "self_weight": 37,
+                  "symbol_hint": "unknown",
+                  "inclusive_weight": 72
+                },
+                {
+                  "symbol": "symbol_87728680e2d1",
+                  "self_weight": 5,
+                  "symbol_hint": "unknown",
+                  "inclusive_weight": 5
+                },
+                {
+                  "symbol": "symbol_edff0aa79300",
+                  "self_weight": 4,
+                  "symbol_hint": "unknown",
+                  "inclusive_weight": 4
+                }
+              ],
+              "inclusive_weight": 158,
+              "callees_truncated": true,
+              "ancestors_truncated": false
+            }
+          ],
+          "examined_nodes": 55,
+          "interpretation": "每项是调用树中的独立出现位置；递归inclusive不可相加。权重单位沿用原profile，不能当作请求延迟。tree_truncated表示遍历预算耗尽；ancestors_truncated/callees_truncated/occurrences_truncated分别表示返回上下文省略。matched_occurrences只统计已遍历树。单次采集不证明其他时段或负载没有其他路径。",
+          "tree_truncated": false,
+          "matched_occurrences": 1,
+          "occurrences_truncated": false
+        }
+      },
+      {
+        "tool": "inspect_call_paths",
+        "evidence_id": "E6",
+        "observation": {
+          "limits": {
+            "depth": 64,
+            "nodes": 4096,
+            "callees": 3,
+            "ancestors": 6,
+            "occurrences": 5
+          },
+          "symbol": "symbol_ac8045fef03c",
+          "available": true,
+          "truncated": false,
+          "occurrences": [
+            {
+              "selected": {
+                "symbol": "symbol_ac8045fef03c",
+                "symbol_hint": "unknown"
+              },
+              "ancestors": [
+                {
+                  "symbol": "symbol_5ef5ef0364b6",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_100271d259f4",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_f20eca9227e7",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_c18a7099073d",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_24bcec6459b7",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_525a28e533ef",
+                  "symbol_hint": "unknown"
+                }
+              ],
+              "self_weight": 104,
+              "top_callees": [],
+              "inclusive_weight": 104,
+              "callees_truncated": false,
+              "ancestors_truncated": false
+            }
+          ],
+          "examined_nodes": 55,
+          "interpretation": "每项是调用树中的独立出现位置；递归inclusive不可相加。权重单位沿用原profile，不能当作请求延迟。tree_truncated表示遍历预算耗尽；ancestors_truncated/callees_truncated/occurrences_truncated分别表示返回上下文省略。matched_occurrences只统计已遍历树。单次采集不证明其他时段或负载没有其他路径。",
+          "tree_truncated": false,
+          "matched_occurrences": 1,
+          "occurrences_truncated": false
+        }
+      },
+      {
+        "tool": "propose_verification",
+        "evidence_id": "E7",
+        "observation": {
+          "kind": "PYTHON_CPU",
+          "reason": "相同目标、稳定负载下复测，使用结果对比检查热点分布；请同时记录业务P95/P99、吞吐、错误率及采集开销。",
+          "frequency_hz": 99,
+          "duration_seconds": 10
+        }
+      }
+    ],
+    "report": {
+      "plan": {
+        "kind": "PYTHON_CPU",
+        "reason": "相同目标、稳定负载下复测，使用结果对比检查热点分布；请同时记录业务P95/P99、吞吐、错误率及采集开销。",
+        "frequency_hz": 99,
+        "duration_seconds": 10
+      },
+      "model": "deepseek-flash",
+      "engine": "model",
+      "summary": "本次为PYTHON_CPU单次快照（10s、99Hz、native=false，E3无采集问题），总权重989 samples，55个节点。rank1 symbol_e178bfa9b96b 自身权重40.34%（399 samples），在调用树中仅1处出现、无子调用（叶帧），其5层祖先均为unknown词形（E4）；rank2 symbol_ac8045fef03c 自身10.52%（104 samples），同样为叶帧，祖先链含 symbol_525a28e533ef（E6）；rank3 symbol_41c6f3fd3b5c 自身7.28%、总15.98%，其被调用者 symbol_691ec80045b1 自身3.74%、总7.28%，且该处 callees_truncated=true（E5），说明该分支的子上下文有省略。symbol_hint 全为 unknown，无法从词形判断是否与FTS5查询解析、分词或SQLite绑定相关；权重是采样权重，不是耗时、CPU时间或调用次数，也不能换算为请求延迟。E1 verification_available=false，因此未调用 compare_profiles，无法给出复测前后差异。用户要求的源码定位、最小补丁、隔离副本回归、冻结语义与用户隔离检查、严格输出比较、多组交替CPU对照均未执行，也无相应证据；这些属于后续受控实验，不能由本快照推断。",
+      "hypotheses": [
+        {
+          "claim": "长查询的CPU权重集中在少数叶帧函数上：rank1 symbol_e178bfa9b96b（40.34%自身权重，399 samples）与rank2 symbol_ac8045fef03c（10.52%，104 samples）在调用树中均为无子调用的叶帧，合计约50.9%自身权重，提示开销可能位于不向下调用的紧循环或内建/扩展层代码，而非Python层多级调用链。",
+          "evidence_ids": [
+            "E1",
+            "E2",
+            "E4",
+            "E6"
+          ],
+          "verification": "在相同目标与稳定负载下用同种PYTHON_CPU采集器复测（10s、99Hz、native=false，E7草案），并在平台按哈希查原符号确认其所属模块；同时记录业务P95/P99、吞吐与错误率。验收指标（待协商示例，非已验证阈值）：rank1+rank2自身权重占比变化在±10个百分点内视为分布稳定；若原符号确认为FTS5/SQLite相关路径，再设计受控干预（如缩短查询词数或调整查询构造）做功能与性能对照。"
+        },
+        {
+          "claim": "rank3 symbol_41c6f3fd3b5c（自身7.28%、总15.98%）是唯一观察到有子调用的热点，其主要子调用为 symbol_691ec80045b1（自身3.74%、总7.28%），该分支的callees_truncated=true，说明本次采集对该分支的子上下文有省略，不能据此判断其内部构成。",
+          "evidence_ids": [
+            "E1",
+            "E2",
+            "E5"
+          ],
+          "verification": "复测后对同一rank重新调用调用链检查，确认callees_truncated是否仍为true；若仍截断，需在平台侧查看完整调用树或提高遍历预算后再判断。验收指标（待协商示例）：该分支子调用权重之和与其inclusive权重差额可解释比例≥90%，否则视为上下文不足、不下结论。"
+        },
+        {
+          "claim": "当前证据不足以把任何热点归因于FTS5长查询的特定实现缺陷：symbol_hint全为unknown，且未采集源码、符号地址映射与丢样率，无法区分查询解析、分词、索引扫描或结果处理等阶段。",
+          "evidence_ids": [
+            "E2",
+            "E3",
+            "E4",
+            "E5",
+            "E6"
+          ],
+          "verification": "在平台按哈希映射原符号并关联绑定版本源码后，对候选函数做受控干预实验：保持同一查询集与数据规模，仅改变单一变量（如查询长度、是否启用FTS5、是否走缓存），多组交替运行并采集CPU对照，同时校验功能输出一致性与用户隔离。验收指标（待协商示例）：交替组间热点分布差异需与功能输出一致性同时满足，才可提出优化方向；不以重复采样稳定作为根因确认。"
+        }
+      ],
+      "limitations": [
+        "E1 verification_available=false，未执行compare_profiles，无复测前后可比性、样本量与差异数据。",
+        "symbol_hint全为unknown，且未采集源码、符号地址映射与丢样率，无法定位到具体函数或源码位置。",
+        "rank3分支callees_truncated=true，该分支子上下文有省略；其余调用链未见tree_truncated或ancestors_truncated。",
+        "未关联业务请求延迟、吞吐、错误率，采样权重不能换算为耗时或调用次数。",
+        "未执行源码定位、最小补丁、隔离副本回归、冻结语义与用户隔离检查、严格输出比较及多组交替CPU对照，均无证据。",
+        "单次10s快照不能代表其他时段或负载下的热点分布。",
+        "模型结论为待验证假设，不代表已确认缺陷；不提供未经符号映射验证的源码行号。",
+        "原始profile、原符号、主机、PID、路径和凭据不发送模型；问题文本会发送，请勿填入敏感信息。"
+      ],
+      "agent_runtime": {
+        "usage": {
+          "input_tokens": 12822,
+          "output_tokens": 1313
+        },
+        "run_id": "cd693f7d-6ee8-4240-b876-f320d89b0cf2",
+        "framework": "agentscope",
+        "elapsed_ms": 10136,
+        "tool_calls": 6,
+        "agent_class": "agentscope.agent.Agent",
+        "model_calls": 4,
+        "framework_version": "2.0.10"
+      }
+    },
+    "created_at": "2026-10-20T10:53:08.095561Z",
+    "updated_at": "2026-10-20T10:53:19.339447Z"
+  },
+  "candidate_diagnosis": {
+    "id": "28",
+    "task_id": "85",
+    "attempt_id": "86",
+    "analysis_job_id": "78",
+    "analysis_run": 1,
+    "requested_by": "77f0de20-54bb-4142-9cfc-474d9c7df79e",
+    "goal": "复测后重新检查热点和质量，调用compare_profiles对比原采集，评估原假设是否仍受支持；区分现象复现和因果根因。",
+    "mode": "model",
+    "input_digest": "d76187fcbc8907866cfa9e44e320f2019bed6290e96a9c06e975e13229de7712",
+    "status": "success",
+    "trace": [
+      {
+        "tool": "read_profile_summary",
+        "evidence_id": "E1",
+        "observation": {
+          "kind": "PYTHON_CPU",
+          "node_count": 45,
+          "limitations": [
+            "Sample weights are not request latency; no root cause or improvement is proven.",
+            "Raw profiles and symbol names are excluded. Symbol hashes are pseudonyms, not a guarantee of anonymization."
+          ],
+          "stack_scope": "profile_dependent",
+          "total_weight": 989,
+          "top_functions": [
+            {
+              "symbol": "symbol_e178bfa9b96b",
+              "self_percent": 45.8038,
+              "total_percent": 45.8038
+            },
+            {
+              "symbol": "symbol_ac8045fef03c",
+              "self_percent": 10.5157,
+              "total_percent": 10.5157
+            },
+            {
+              "symbol": "symbol_c2241b6ce2a0",
+              "self_percent": 9.7068,
+              "total_percent": 15.5713
+            },
+            {
+              "symbol": "symbol_2f918a10ad9f",
+              "self_percent": 3.8423,
+              "total_percent": 3.8423
+            },
+            {
+              "symbol": "symbol_41c6f3fd3b5c",
+              "self_percent": 3.7412,
+              "total_percent": 11.5268
+            },
+            {
+              "symbol": "symbol_6cc69e6fc487",
+              "self_percent": 3.2356,
+              "total_percent": 3.2356
+            },
+            {
+              "symbol": "symbol_a55d6fb8e5ef",
+              "self_percent": 2.8311,
+              "total_percent": 2.8311
+            },
+            {
+              "symbol": "symbol_38c80004b353",
+              "self_percent": 2.5278,
+              "total_percent": 2.5278
+            },
+            {
+              "symbol": "symbol_6146a4b23f09",
+              "self_percent": 2.2245,
+              "total_percent": 4.7523
+            },
+            {
+              "symbol": "symbol_6800ec748d6b",
+              "self_percent": 2.0222,
+              "total_percent": 2.0222
+            },
+            {
+              "symbol": "symbol_65efb24f8eb5",
+              "self_percent": 2.0222,
+              "total_percent": 2.0222
+            },
+            {
+              "symbol": "symbol_525a28e533ef",
+              "self_percent": 1.4156,
+              "total_percent": 11.9312
+            },
+            {
+              "symbol": "symbol_691ec80045b1",
+              "self_percent": 1.4156,
+              "total_percent": 6.1678
+            },
+            {
+              "symbol": "symbol_7e50bc405cea",
+              "self_percent": 0.91,
+              "total_percent": 0.91
+            },
+            {
+              "symbol": "symbol_9b19e057b0b0",
+              "self_percent": 0.7078,
+              "total_percent": 0.7078
+            },
+            {
+              "symbol": "symbol_43c7def6ea4a",
+              "self_percent": 0.6067,
+              "total_percent": 0.6067
+            },
+            {
+              "symbol": "symbol_c7e7b8d2ba50",
+              "self_percent": 0.6067,
+              "total_percent": 0.6067
+            },
+            {
+              "symbol": "symbol_75637b6f85d0",
+              "self_percent": 0.6067,
+              "total_percent": 0.6067
+            },
+            {
+              "symbol": "symbol_24bcec6459b7",
+              "self_percent": 0.6067,
+              "total_percent": 37.4115
+            },
+            {
+              "symbol": "symbol_46af1547c081",
+              "self_percent": 0.5056,
+              "total_percent": 16.6835
+            }
+          ],
+          "schema_version": 1,
+          "measurement_unit": "samples",
+          "verification_available": true
+        }
+      },
+      {
+        "tool": "inspect_hotspots",
+        "evidence_id": "E2",
+        "observation": {
+          "hint_source": "local_symbol_heuristic_v1",
+          "top_functions": [
+            {
+              "rank": 1,
+              "symbol": "symbol_e178bfa9b96b",
+              "symbol_hint": "unknown",
+              "self_percent": 45.8038,
+              "total_percent": 45.8038
+            },
+            {
+              "rank": 2,
+              "symbol": "symbol_ac8045fef03c",
+              "symbol_hint": "unknown",
+              "self_percent": 10.5157,
+              "total_percent": 10.5157
+            },
+            {
+              "rank": 3,
+              "symbol": "symbol_c2241b6ce2a0",
+              "symbol_hint": "unknown",
+              "self_percent": 9.7068,
+              "total_percent": 15.5713
+            },
+            {
+              "rank": 4,
+              "symbol": "symbol_2f918a10ad9f",
+              "symbol_hint": "unknown",
+              "self_percent": 3.8423,
+              "total_percent": 3.8423
+            },
+            {
+              "rank": 5,
+              "symbol": "symbol_41c6f3fd3b5c",
+              "symbol_hint": "unknown",
+              "self_percent": 3.7412,
+              "total_percent": 11.5268
+            },
+            {
+              "rank": 6,
+              "symbol": "symbol_6cc69e6fc487",
+              "symbol_hint": "unknown",
+              "self_percent": 3.2356,
+              "total_percent": 3.2356
+            },
+            {
+              "rank": 7,
+              "symbol": "symbol_a55d6fb8e5ef",
+              "symbol_hint": "unknown",
+              "self_percent": 2.8311,
+              "total_percent": 2.8311
+            },
+            {
+              "rank": 8,
+              "symbol": "symbol_38c80004b353",
+              "symbol_hint": "unknown",
+              "self_percent": 2.5278,
+              "total_percent": 2.5278
+            },
+            {
+              "rank": 9,
+              "symbol": "symbol_6146a4b23f09",
+              "symbol_hint": "unknown",
+              "self_percent": 2.2245,
+              "total_percent": 4.7523
+            },
+            {
+              "rank": 10,
+              "symbol": "symbol_6800ec748d6b",
+              "symbol_hint": "unknown",
+              "self_percent": 2.0222,
+              "total_percent": 2.0222
+            }
+          ],
+          "interpretation": "self为叶帧权重，total为包含子调用权重；symbol_hint为本地符号词形分类，仅作线索，不能证明锁等待或根因。比例不证明请求延迟或因果。原符号仅保留在授权结果页面。"
+        }
+      },
+      {
+        "tool": "check_collection_quality",
+        "evidence_id": "E3",
+        "observation": {
+          "kind": "PYTHON_CPU",
+          "issues": [],
+          "unknowns": [
+            "未关联业务请求延迟、吞吐和错误率",
+            "单次快照不能证明性能回退或修复收益",
+            "未采集源码、符号地址映射及丢样率，不输出文件行号"
+          ],
+          "frequency_hz": 99,
+          "duration_seconds": 10
+        }
+      },
+      {
+        "tool": "inspect_call_paths",
+        "evidence_id": "E4",
+        "observation": {
+          "limits": {
+            "depth": 64,
+            "nodes": 4096,
+            "callees": 3,
+            "ancestors": 6,
+            "occurrences": 5
+          },
+          "symbol": "symbol_e178bfa9b96b",
+          "available": true,
+          "truncated": false,
+          "occurrences": [
+            {
+              "selected": {
+                "symbol": "symbol_e178bfa9b96b",
+                "symbol_hint": "unknown"
+              },
+              "ancestors": [
+                {
+                  "symbol": "symbol_5ef5ef0364b6",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_100271d259f4",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_f20eca9227e7",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_c18a7099073d",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_cf7ce62a8025",
+                  "symbol_hint": "unknown"
+                }
+              ],
+              "self_weight": 453,
+              "top_callees": [],
+              "inclusive_weight": 453,
+              "callees_truncated": false,
+              "ancestors_truncated": false
+            }
+          ],
+          "examined_nodes": 45,
+          "interpretation": "每项是调用树中的独立出现位置；递归inclusive不可相加。权重单位沿用原profile，不能当作请求延迟。tree_truncated表示遍历预算耗尽；ancestors_truncated/callees_truncated/occurrences_truncated分别表示返回上下文省略。matched_occurrences只统计已遍历树。单次采集不证明其他时段或负载没有其他路径。",
+          "tree_truncated": false,
+          "matched_occurrences": 1,
+          "occurrences_truncated": false
+        }
+      },
+      {
+        "tool": "inspect_call_paths",
+        "evidence_id": "E5",
+        "observation": {
+          "limits": {
+            "depth": 64,
+            "nodes": 4096,
+            "callees": 3,
+            "ancestors": 6,
+            "occurrences": 5
+          },
+          "symbol": "symbol_c2241b6ce2a0",
+          "available": true,
+          "truncated": true,
+          "occurrences": [
+            {
+              "selected": {
+                "symbol": "symbol_c2241b6ce2a0",
+                "symbol_hint": "unknown"
+              },
+              "ancestors": [
+                {
+                  "symbol": "symbol_5ef5ef0364b6",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_100271d259f4",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_f20eca9227e7",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_c18a7099073d",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_24bcec6459b7",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_46af1547c081",
+                  "symbol_hint": "unknown"
+                }
+              ],
+              "self_weight": 96,
+              "top_callees": [
+                {
+                  "symbol": "symbol_6cc69e6fc487",
+                  "self_weight": 32,
+                  "symbol_hint": "unknown",
+                  "inclusive_weight": 32
+                },
+                {
+                  "symbol": "symbol_6800ec748d6b",
+                  "self_weight": 20,
+                  "symbol_hint": "unknown",
+                  "inclusive_weight": 20
+                },
+                {
+                  "symbol": "symbol_a8dbefb54b11",
+                  "self_weight": 3,
+                  "symbol_hint": "unknown",
+                  "inclusive_weight": 3
+                }
+              ],
+              "inclusive_weight": 154,
+              "callees_truncated": true,
+              "ancestors_truncated": false
+            }
+          ],
+          "examined_nodes": 45,
+          "interpretation": "每项是调用树中的独立出现位置；递归inclusive不可相加。权重单位沿用原profile，不能当作请求延迟。tree_truncated表示遍历预算耗尽；ancestors_truncated/callees_truncated/occurrences_truncated分别表示返回上下文省略。matched_occurrences只统计已遍历树。单次采集不证明其他时段或负载没有其他路径。",
+          "tree_truncated": false,
+          "matched_occurrences": 1,
+          "occurrences_truncated": false
+        }
+      },
+      {
+        "tool": "compare_profiles",
+        "evidence_id": "E6",
+        "observation": {
+          "kind": "PYTHON_CPU",
+          "unit": "samples",
+          "outcome": "insufficient_evidence",
+          "comparable": true,
+          "differences": [
+            {
+              "symbol": "symbol_e178bfa9b96b",
+              "baseline_self_percent": 40.3438,
+              "candidate_self_percent": 45.8038,
+              "delta_percentage_points": 5.460000000000001
+            },
+            {
+              "symbol": "symbol_41c6f3fd3b5c",
+              "baseline_self_percent": 7.2801,
+              "candidate_self_percent": 3.7412,
+              "delta_percentage_points": -3.5389
+            },
+            {
+              "symbol": "symbol_c2241b6ce2a0",
+              "baseline_self_percent": 6.3701,
+              "candidate_self_percent": 9.7068,
+              "delta_percentage_points": 3.3366999999999996
+            },
+            {
+              "symbol": "symbol_691ec80045b1",
+              "baseline_self_percent": 3.7412,
+              "candidate_self_percent": 1.4156,
+              "delta_percentage_points": -2.3256
+            },
+            {
+              "symbol": "symbol_46af1547c081",
+              "baseline_self_percent": 2.5278,
+              "candidate_self_percent": 0.5056,
+              "delta_percentage_points": -2.0221999999999998
+            },
+            {
+              "symbol": "symbol_2f918a10ad9f",
+              "baseline_self_percent": 2.5278,
+              "candidate_self_percent": 3.8423,
+              "delta_percentage_points": 1.3144999999999998
+            },
+            {
+              "symbol": "symbol_6146a4b23f09",
+              "baseline_self_percent": 3.3367,
+              "candidate_self_percent": 2.2245,
+              "delta_percentage_points": -1.1122
+            },
+            {
+              "symbol": "symbol_65efb24f8eb5",
+              "baseline_self_percent": 0.91,
+              "candidate_self_percent": 2.0222,
+              "delta_percentage_points": 1.1122
+            },
+            {
+              "symbol": "symbol_8b2c86b63aa6",
+              "baseline_self_percent": 0.8089,
+              "candidate_self_percent": 0,
+              "delta_percentage_points": -0.8089
+            },
+            {
+              "symbol": "symbol_09992547d0ee",
+              "baseline_self_percent": 0.7078,
+              "candidate_self_percent": 0,
+              "delta_percentage_points": -0.7078
+            }
+          ],
+          "limitations": [
+            "重复采样只检验现象复现；未实施受控代码或配置干预，不能确认因果根因。",
+            "百分比差值不是请求延迟或CPU利用率变化；需同一负载并记录业务指标。",
+            "样本数不足1000或单位不是采样计数；只展示描述差异，不给统计显著性结论。",
+            "Top表未出现的符号按0显示仅指已返回热点表，不证明实际没有执行。"
+          ],
+          "baseline_weight": 989,
+          "candidate_weight": 989,
+          "root_cause_status": "not_tested"
+        }
+      },
+      {
+        "tool": "propose_verification",
+        "evidence_id": "E7",
+        "observation": {
+          "kind": "PYTHON_CPU",
+          "reason": "相同目标、稳定负载下复测，使用结果对比检查热点分布；请同时记录业务P95/P99、吞吐、错误率及采集开销。",
+          "frequency_hz": 199,
+          "duration_seconds": 30
+        }
+      }
+    ],
+    "report": {
+      "plan": {
+        "kind": "PYTHON_CPU",
+        "reason": "相同目标、稳定负载下复测，使用结果对比检查热点分布；请同时记录业务P95/P99、吞吐、错误率及采集开销。",
+        "frequency_hz": 199,
+        "duration_seconds": 30
+      },
+      "model": "deepseek-flash",
+      "engine": "model",
+      "summary": "原采集与复测均为PYTHON_CPU、单位samples、总权重989，compare_profiles判定comparable=true，但outcome=insufficient_evidence、root_cause_status=not_tested。现象层面：rank1 symbol_e178bfa9b96b 的self占比从40.34%升至45.80%（+5.46pp），仍为最大叶帧热点，且调用链显示它是单一出现位置的纯叶帧（self=inclusive=453，无callee），说明该热点分布形态在两次采集中复现；rank3 symbol_c2241b6ce2a0 从6.37%升至9.71%（+3.34pp），其调用链显示有子调用（callees_truncated=true，已省略部分被调用者上下文），因此不能把它的self权重归因于任何具体子路径。同时rank5 symbol_41c6f3fd3b5c（-3.54pp）、symbol_691ec80045b1（-2.33pp）、symbol_46af1547c081（-2.02pp）下降。这些百分比点差异可能来自采样随机性、负载或行为变化，不能当作请求延迟、CPU利用率或回退幅度，也不能据此确认因果根因；未做受控干预，因果未验证。采集质量：10s/99Hz，issues为空，但未关联业务延迟/吞吐/错误率，未记录丢样率与符号映射。",
+      "hypotheses": [
+        {
+          "claim": "rank1 symbol_e178bfa9b96b 是稳定复现的主要CPU采样权重集中点：两次采集均为最大self热点（40.34%→45.80%，+5.46pp），且调用树中为单一出现位置的纯叶帧（self=inclusive=453，无被调用者），形态一致。该假设只主张现象复现，不主张其为性能回退根因。",
+          "evidence_ids": [
+            "E1",
+            "E2",
+            "E4",
+            "E6"
+          ],
+          "verification": "在相同目标、稳定负载下用E7草案（30s、199Hz）重复采集2-3次，并在平台按哈希symbol_e178bfa9b96b查原符号确认其业务语义；验收指标：该符号self占比在多次采集中持续位居第一且区间不跨越其他热点，同时记录业务P95/P99、吞吐、错误率以判断是否与用户可感知指标相关。百分比容差需与团队协商后确定，此处不预设阈值。"
+        },
+        {
+          "claim": "rank3 symbol_c2241b6ce2a0 的self权重上升（6.37%→9.71%，+3.34pp）可能与其子调用结构有关，但本次调用链callees_truncated=true，被调用者上下文已省略，无法判定权重来自哪个子路径，因此该上升不能归因于具体子函数或锁/IO等待。",
+          "evidence_ids": [
+            "E2",
+            "E5",
+            "E6"
+          ],
+          "verification": "复测时提高采样频率与时长（E7：30s、199Hz）以增加该符号的样本量，并重新调用调用链检查其callees是否仍被截断；若仍截断，需在平台侧按哈希symbol_c2241b6ce2a0与symbol_6cc69e6fc487、symbol_6800ec748d6b查原符号并展开完整子树。验收：能列出该符号全部被调用者及其self权重分布，且多次采集中子路径排序稳定，才可提出下一层假设。"
+        },
+        {
+          "claim": "两次采集间的热点占比漂移（rank1 +5.46pp、rank5 -3.54pp等）可能仅由采样随机性造成，而非行为变化；当前样本量（总权重989，低于1000）不足以支持统计显著性结论。",
+          "evidence_ids": [
+            "E3",
+            "E6"
+          ],
+          "verification": "用E7草案延长采集时长至30s、频率199Hz以提升样本量，连续采集3次以上，比较各热点self占比的分布区间是否重叠；同时保持同一负载脚本与同一目标身份。验收：若主要热点排序与占比区间在多次采集中稳定重叠，则支持“漂移属采样波动”；若某符号占比单调偏移且伴随业务指标变化，则需另立行为变化假设。容差为待协商示例，不作为已验证阈值。"
+        },
+        {
+          "claim": "当前证据无法区分“现象复现”与“因果根因”：未实施任何受控代码或配置干预，且未关联业务请求延迟、吞吐与错误率，因此不能声称任何热点导致性能回退或优化可带来收益。",
+          "evidence_ids": [
+            "E3",
+            "E6",
+            "E7"
+          ],
+          "verification": "设计受控对照：在相同负载下对候选热点（如symbol_e178bfa9b96b对应原符号）做单点干预（如替换实现或降级调用），对比干预前后同一采集器的热点分布与业务P95/P99、吞吐、错误率；同时保留未干预对照组。验收：干预组与对照组在业务指标上出现可重复差异且热点权重相应变化，才可提出因果结论；否则仅保留相关性描述。"
+        }
+      ],
+      "limitations": [
+        "compare_profiles判定outcome=insufficient_evidence、root_cause_status=not_tested，样本量（总权重989）不足以给出统计显著性。",
+        "symbol_hint全部为unknown，且原符号名被脱敏，无法从证据判断热点函数的业务语义或是否涉及锁、IO、内存分配。",
+        "rank3调用链callees_truncated=true，被调用者上下文已省略，不能推断其子路径权重来源；tree_truncated与occurrences_truncated为false，仅代表本次采集树。",
+        "未采集业务请求延迟、吞吐、错误率，也未记录丢样率与符号地址映射，无法把采样权重换算为任何用户可感知指标。",
+        "仅单次原采集与单次复测，未做受控干预，无法验证因果；百分比点差异可能来自采样随机性、负载或环境变化。",
+        "PROC_CPU类证据不适用；本任务无进程/线程CPU tick与函数栈对应信息，不能做线程级定位。",
+        "模型结论为待验证假设，不代表已确认缺陷；不提供未经符号映射验证的源码行号。",
+        "原始profile、原符号、主机、PID、路径和凭据不发送模型；问题文本会发送，请勿填入敏感信息。"
+      ],
+      "agent_runtime": {
+        "usage": {
+          "input_tokens": 12843,
+          "output_tokens": 1532
+        },
+        "run_id": "da9572ea-e313-438d-b0a0-52d10abdaa5f",
+        "framework": "agentscope",
+        "elapsed_ms": 11200,
+        "tool_calls": 6,
+        "agent_class": "agentscope.agent.Agent",
+        "model_calls": 4,
+        "framework_version": "2.0.10"
+      }
+    },
+    "created_at": "2026-10-20T10:53:34.172253Z",
+    "updated_at": "2026-10-20T10:53:46.412437Z"
+  }
+}

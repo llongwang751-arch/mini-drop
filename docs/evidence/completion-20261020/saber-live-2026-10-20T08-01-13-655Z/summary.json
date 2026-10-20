@@ -1,0 +1,124 @@
+{
+  "source": "actual public UI operation, real DeepSeek and real enrolled Saber FTS5 component; all indexed documents/queries synthetic",
+  "started_at": "2026-10-20T08:01:13.657Z",
+  "attempt": "saber-live-2026-10-20T08-01-13-655Z",
+  "milestones": [
+    {
+      "state": "submit_from_browser",
+      "elapsed_seconds": 1.5
+    },
+    {
+      "state": "planning",
+      "elapsed_seconds": 3.9
+    },
+    {
+      "state": "awaiting_confirmation",
+      "elapsed_seconds": 8.2
+    },
+    {
+      "state": "plan_confirmed_from_browser",
+      "elapsed_seconds": 8.4
+    },
+    {
+      "state": "collecting",
+      "elapsed_seconds": 10.5
+    },
+    {
+      "state": "diagnosing",
+      "elapsed_seconds": 24.9
+    },
+    {
+      "state": "verifying",
+      "elapsed_seconds": 39.4
+    },
+    {
+      "state": "source_running_steps_0",
+      "elapsed_seconds": 66.3
+    },
+    {
+      "state": "source_running_steps_1",
+      "elapsed_seconds": 68.4
+    },
+    {
+      "state": "source_running_steps_3",
+      "elapsed_seconds": 70.5
+    },
+    {
+      "state": "source_running_steps_4",
+      "elapsed_seconds": 72.6
+    },
+    {
+      "state": "source_running_steps_5",
+      "elapsed_seconds": 83.2
+    },
+    {
+      "state": "success",
+      "elapsed_seconds": 87.4
+    },
+    {
+      "state": "source_success_steps_5",
+      "elapsed_seconds": 87.5
+    }
+  ],
+  "passed": true,
+  "auth": "reused private existing session",
+  "project_id": "saber-python",
+  "source_revision": "9245ce09fa2e2adceafebb669ee4605f94a2bb05153d5844d24888fb61d4f402",
+  "target": {
+    "agent_id": "tencent-local",
+    "pid": 82,
+    "uid": 10001,
+    "start_time_ticks": 9040395
+  },
+  "goal": "面试实时演示：调查Python Saber知识库FTS5长查询的CPU开销。根据节点实际能力选择Python CPU调用栈采集10秒、99Hz，关闭native扩展（native=false），检查热点、调用上下文及采集质量；自动复测并再次诊断。继续使用绑定版本的真实源码定位、生成最小优化补丁，在隔离副本运行原功能回归、冻结语义与用户隔离检查、严格输出比较及多组交替CPU对照。只依据实际证据判断，不把重复采样当根因确认。 2026-10-20T08:01:14.941Z",
+  "investigation_id": "9",
+  "plan": {
+    "kind": "PYTHON_CPU",
+    "options": {
+      "native": false
+    },
+    "rationale": "目标为已绑定的Python进程（target_scope=process），PYTHON_CPU是目录中唯一能给出Python调用栈的采集器，且其options.native可关闭native扩展，符合“native=false”的要求。按用户指定取10秒、99Hz（在schema允许的1–199Hz、1–60秒范围内），用于获取FTS5长查询期间的Python层热点与调用上下文。局限：关闭native扩展后，C扩展（如sqlite3/FTS5内部）的帧可能被折叠或缺失，因此本计划只能定位Python侧开销，不能单独确认C层根因；采样重复也不等于根因确认。本次为低成本首轮采集，复测与对照需另行提交计划。",
+    "frequency_hz": 99,
+    "duration_seconds": 10
+  },
+  "baseline_task_id": "82",
+  "repair_id": "7",
+  "candidate_task_id": "83",
+  "verification_id": "12",
+  "fresh_measurements": [
+    {
+      "tool": "profile_business_flow",
+      "cache_hit": false,
+      "job_key": "e175249e707e7388dc50af195349f8ad219cf36e5e62d3f435184e0fa2b4851e"
+    },
+    {
+      "tool": "test_patch",
+      "cache_hit": false,
+      "job_key": "35a82c47747996719fc889198aaea97e2c2392d5ea3423ce6e83e5921b8e4580"
+    }
+  ],
+  "cpu_speedup": 1.3533639366425003,
+  "output_parity_cases": 384,
+  "improved_pairs": 6,
+  "original_tests": 2,
+  "frozen_contract_tests": 6,
+  "root_cause_status": "validated_in_controlled_saber_benchmark",
+  "source_render_verified": true,
+  "no_page_reload_or_manual_repair_selection_after_link": true,
+  "actual_report_summary": "在绑定版本 9245ce09 上对登记业务函数做真实 cProfile（64 例、查询长度 0–6312 字符、62 次实际 SQLite FTS5 查询）：总 CPU 210.0ms，热点为 build_fts_query（第35行，self 45.2ms/total 183.2ms）及其第42行 genexpr（24798 次调用，6.8ms），search 自身仅 1.1ms，说明 CPU 主要耗在查询表达式构造而非 SQL 执行。根因（受控基准内验证）：build_fts_query 先为全部中文相邻字对生成短语并整体去重，再截断到 64 个词元，长查询下做了大量无用构造与去重。最小补丁仅改 build_fts_query：边生成边用 seen 集合去重、达到 64 个词元即提前停止，保持原有顺序、过滤保留字、返回 str 及空查询返回 \"\" 的语义；未改 fts_tokenize、SQL、租户隔离、测试、鉴权或限流，未引入缓存。test_patch 实际应用成功：success=true、accepted=true，原测试 2 项与冻结契约测试 6 项通过，384 例递归精确输出比较（MATCH 参数、tenant、命中 ID/content、BM25 分数）一致；6 组交替 A/B 全部改善，中位 CPU 加速 1.353x（129.9→83.7ms 等），候选 profile 中 build_fts_query total 降至 42.3ms、genexpr 调用降至 182 次。结论仅限该登记 FTS5 组件的合成 1K–8K 查询受控基准，不含索引构建、全应用启动或生产 P95/P99。",
+  "actual_validation_scope": "Saber FTS5 component on synthetic 1K-8K long queries plus edge cases and real in-memory SQLite searches; excludes index construction and full app, not production P95/P99 or all Saber functions",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "width": 375,
+      "height": 900
+    }
+  ],
+  "mobile_horizontal_overflow": false,
+  "elapsed_seconds": 88,
+  "completed_at": "2026-10-20T08:02:41.684Z",
+  "browser_errors": 0
+}

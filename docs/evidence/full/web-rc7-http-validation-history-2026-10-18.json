@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "scope": "Permissions-only Web rc7 image-local validation and correction of standalone test mounts; runtime bundle and image remained unchanged throughout these validator iterations",
+  "image_id": "sha256:f42925a097c8805d817efd8145b0ca95f2530020cf170d34602226ab251bfc41",
+  "attempts": [
+    {
+      "validator_sha256": "ef1a080514f121db618e58ee981a9307cb85669b6279c2dc88baff2acd3ecc97",
+      "result": "failed",
+      "reported_code": "WEB_RC7_HTTP_VALIDATION_FAILED",
+      "limitation": "Initial fixed-code error lacked a phase and retained diagnostics; no exact initial failure cause is asserted"
+    },
+    {
+      "validator_sha256": "dcd2e3e766bbb743e2eff7701fd794a24669b0ab5ce0dd1883195187ec24cac3",
+      "result": "failed",
+      "phase": "nginx_start",
+      "classification": "readonly_filesystem",
+      "finding": "Standalone validation omitted the /var/cache/nginx tmpfs already present in production Compose; Nginx could not create fastcgi_temp on the read-only root filesystem",
+      "raw_diagnostics": "Retained only in a new protected host directory; not copied into public evidence"
+    },
+    {
+      "validator_sha256": "04e74ebd105a5391bef5a29bff07a1806fb705fbb0836b338d6253767e90b325",
+      "result": "passed_actual_linux_image_execution",
+      "actual_proof_path": "docs/evidence/full/web-rc7-http-assets-2026-10-18.json",
+      "actual_proof_sha256": "bfab9bd2dd8c6859d71abcb1c548d16eda29091a94906195740d0dc68f37f047",
+      "http_files_verified": 14,
+      "http_bytes_match_frozen_bundle": true,
+      "directory_modes": "0755",
+      "file_modes": "0644",
+      "effective_user": 101,
+      "memory_bytes": 33554432,
+      "swap_bytes": 0,
+      "cpu_limit": 0.25,
+      "network": "none",
+      "capabilities": [],
+      "readonly": true,
+      "tmpfs": {
+        "/tmp": "rw,nosuid,nodev,noexec,size=8m,mode=1777",
+        "/var/cache/nginx": "rw,nosuid,nodev,noexec,size=8m,mode=1777"
+      },
+      "production_container_ids_unchanged": true
+    }
+  ],
+  "final_validator_pure_checks": {
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.010,
+    "compile_exit_code": 0,
+    "ruff_check_exit_code": 0,
+    "test_source_sha256": "9343d40a4a08f9921ed61d986b46905da4bdfa9eecae42ec2df6a6f6dba2923a"
+  },
+  "limitation": "This proves UID101 can traverse and serve all 14 frozen bundle files from the isolated image. Production deployment and authenticated application UI require their separate actual smoke evidence."
+}

@@ -1,0 +1,8 @@
+ARG CORE_TOOLS_IMAGE=drop-core-full-tools-base:v2
+FROM ${CORE_TOOLS_IMAGE}
+USER root
+ENV PATH=/opt/drop-tools/venv/bin:/opt/drop-tools/async-profiler/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+    ASPROF_EXECUTABLE=/opt/drop-tools/async-profiler/bin/asprof
+WORKDIR /workspace/analyzer
+ENTRYPOINT ["/opt/drop-tools/venv/bin/python"]
+CMD ["scripts/generate_real_fixtures.py"]

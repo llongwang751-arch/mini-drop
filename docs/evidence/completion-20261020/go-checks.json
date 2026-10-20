@@ -1,0 +1,21 @@
+{
+  "go_version": "go1.26.9 windows/amd64",
+  "source_scope": "current local API Go source including Saber linked-source validation; no remote deployment command",
+  "checks": [
+    {
+      "command": "go test -tags nomsgpack ./...",
+      "working_directory": "api",
+      "exit_code": 0,
+      "passed": true,
+      "scope": "all packages; cached package successes retained; no PostgreSQL DSN in this invocation, so this is not the zero-skip integration receipt"
+    },
+    {
+      "command": "go vet -tags nomsgpack ./...",
+      "working_directory": "api",
+      "exit_code": 0,
+      "passed": true
+    }
+  ],
+  "real_postgres_acceptance": "postgres-acceptance.json",
+  "real_postgres_driver": ".local/completion-20261020/run_pg_completion.py"
+}

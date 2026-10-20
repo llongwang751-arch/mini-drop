@@ -1,0 +1,138 @@
+{
+  "provenance": "Actual isolated Linux pipeline with imported synthetic benchmark fixtures; not business sampling.",
+  "analyzer_version": "0.2.2",
+  "python": "3.12.12",
+  "architecture": "x86_64",
+  "execution_environment": {
+    "visible_logical_cpus": 2,
+    "cgroup_v2": {
+      "memory.max": "536870912",
+      "memory.peak": "159076352",
+      "memory.swap.max": "0",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+      "cpu.max": "100000 100000"
+    },
+    "source_tree_sha256": "36f726fdf62ee5262160ed8ea95fe8b959f61ba0e5274e02ddc44e60b92db8d9"
+  },
+  "child_address_space_limit_bytes": 536870912,
+  "parent_max_rss_bytes": 109400064,
+  "limitations": [
+    "One run per size on a shared server; not a percentile or worst-case guarantee.",
+    "Star topology only; deeper trees and external tools have separate resource characteristics."
+  ],
+  "cases": [
+    {
+      "nodes": 10000,
+      "source": "import",
+      "topology": "synthetic root plus unique function leaves",
+      "input_bytes": 179981,
+      "input_sha256": "0d896f3ff871a67362a6fc5614830466dd5c8682bd399cc2a9edc6c2a42fe01b",
+      "pipeline_wall_seconds": 0.331639,
+      "child_metrics": {
+        "duration_ms": 194.014,
+        "cpu_seconds": 0.193746,
+        "subprocess_cpu_seconds": 0.0,
+        "subprocess_max_rss_bytes": 0,
+        "max_rss_bytes": 34996224,
+        "temp_disk_bytes": 807446,
+        "index_cache_bytes": 0,
+        "job_disk_bytes": 807446,
+        "index_growth_bytes": 0,
+        "temp_disk_peak_bytes": 807446,
+        "observed_peak_tree_rss_bytes": 29884416,
+        "observed_processes": 1,
+        "rss_sampling_interval_ms": 50
+      },
+      "public_result_bytes": 610107,
+      "artifact_bytes": {
+        "flamegraph.json.gz": 26102,
+        "top.json": 34199,
+        "report.json": 1129,
+        "manifest.json": 1130
+      },
+      "artifact_sha256": {
+        "flamegraph.json.gz": "cd84ed9cc8dd080d3da8aa499c0f94e0fd99512671e3b76df8973241b2089493",
+        "top.json": "c3e004eb79d552b2b85529276c39a008339e55e53d5bfda99150ed46869776d5",
+        "report.json": "d0f80ff6d7faecbf7f95cd68bee6f0cc4e715c47e8c9dfa8bd6dbe2e416e71d6",
+        "manifest.json": "134292691b7e43513e7e77a090c082dcc2f0f30b2ed863c12b36845ec40af372"
+      }
+    },
+    {
+      "nodes": 50000,
+      "source": "import",
+      "topology": "synthetic root plus unique function leaves",
+      "input_bytes": 899981,
+      "input_sha256": "22cfc45bc55c3f67f3d32d8732cee6383c87764bda2d62f6a36edb2f7092632d",
+      "pipeline_wall_seconds": 0.732258,
+      "child_metrics": {
+        "duration_ms": 439.636,
+        "cpu_seconds": 0.43556,
+        "subprocess_cpu_seconds": 0.0,
+        "subprocess_max_rss_bytes": 0,
+        "max_rss_bytes": 81174528,
+        "temp_disk_bytes": 3927053,
+        "index_cache_bytes": 0,
+        "job_disk_bytes": 3927053,
+        "index_growth_bytes": 0,
+        "temp_disk_peak_bytes": 3927053,
+        "observed_peak_tree_rss_bytes": 80531456,
+        "observed_processes": 1,
+        "rss_sampling_interval_ms": 50
+      },
+      "public_result_bytes": 3010314,
+      "artifact_bytes": {
+        "flamegraph.json.gz": 130156,
+        "top.json": 34000,
+        "report.json": 1133,
+        "manifest.json": 1132
+      },
+      "artifact_sha256": {
+        "flamegraph.json.gz": "176c851c473e2d35009947e381f84cf4366d76f1e1db8a13b65cda47f1f0775d",
+        "top.json": "6c3800764dbf7323490e140016e2ae3afda9fff71fe0fa29124a53e8facd2834",
+        "report.json": "2d4874306b343adb97a73c7406115c229b6caac19f3074db93f968b8dfe81308",
+        "manifest.json": "40f232b95c8bcd585069f743a180e9d7732299c4136e8a9ffba7ffebb120ada3"
+      }
+    },
+    {
+      "nodes": 100000,
+      "source": "import",
+      "topology": "synthetic root plus unique function leaves",
+      "input_bytes": 1799981,
+      "input_sha256": "5050230f1ebbeddd8719e68b126ef3dbf758b4b0029690d01e22f49f87aaded8",
+      "pipeline_wall_seconds": 1.318464,
+      "child_metrics": {
+        "duration_ms": 868.023,
+        "cpu_seconds": 0.843665,
+        "subprocess_cpu_seconds": 0.0,
+        "subprocess_max_rss_bytes": 0,
+        "max_rss_bytes": 138244096,
+        "temp_disk_bytes": 7827059,
+        "index_cache_bytes": 0,
+        "job_disk_bytes": 7827059,
+        "index_growth_bytes": 0,
+        "temp_disk_peak_bytes": 7827059,
+        "observed_peak_tree_rss_bytes": 135360512,
+        "observed_processes": 1,
+        "rss_sampling_interval_ms": 50
+      },
+      "public_result_bytes": 6010316,
+      "artifact_bytes": {
+        "flamegraph.json.gz": 260082,
+        "top.json": 34000,
+        "report.json": 1134,
+        "manifest.json": 1132
+      },
+      "artifact_sha256": {
+        "flamegraph.json.gz": "6dd3c264d18e75fbe17144daf74b369a9ca0bb40e6ba95c444f661e1ca840496",
+        "top.json": "e618c8353d921897ed74b1eef24bff9d70d9177ceb33d886d0d706e3970f96c7",
+        "report.json": "00eb5dbd4ca286835e52db3045725eb982b21c9804aea75d3f5e5f13ea985fc3",
+        "manifest.json": "98b7afee4bfb60145c89648d0b9d99a220a181d1aace555a000b1a6cffc6bd29"
+      }
+    }
+  ],
+  "over_limit": {
+    "nodes": 100001,
+    "error_code": "INPUT_LIMIT_EXCEEDED",
+    "retryable": false
+  }
+}

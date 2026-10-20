@@ -1,0 +1,54 @@
+{
+  "recorded_at": "2026-10-18T08:30:26.339817+00:00",
+  "scope": "Frozen package-lock production dependency graph used to build browser JS/assets; excludes dev dependencies from audit, not Nginx/container OS packages",
+  "command": [
+    "node",
+    "npm-cli.js",
+    "audit",
+    "--omit=dev",
+    "--json",
+    "--registry=https://registry.npmjs.org"
+  ],
+  "npm_version": "11.12.1",
+  "registry": "https://registry.npmjs.org",
+  "exit_code": 0,
+  "duration_seconds": 1.597,
+  "json_has_error": false,
+  "audit_report_version": 2,
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "dependencies": {
+      "prod": 100,
+      "dev": 139,
+      "optional": 54,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 239
+    }
+  },
+  "vulnerability_entries": 0,
+  "raw_json_sha256": "fe2dd6e710bb9255e3f6e196a0d4e18cf9db4ef94844b8309f977e68b490227c",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_bytes": 0,
+  "stderr_retained": false,
+  "source_files": {
+    "web/package.json": "8ef68e7ff16abf7c1820289687724cf69ee14422425174a9711963fd2c4a2b90",
+    "web/package-lock.json": "3ab021ea06a7a3396a7357abd42d989c01d1a5c310240e5716f71d4a0a06fa7b"
+  },
+  "inputs_unchanged": true,
+  "runtime_bundle_changed": false,
+  "runtime_image_changed": false,
+  "production_changed": false,
+  "metadata_count_note": "npm metadata still describes the complete lock graph (prod/dev/optional counts can overlap); --omit=dev determines the audited set. The prod graph is build input; npm packages are not installed in the Nginx runtime image.",
+  "limitations": [
+    "Known npm advisory results at this time; not a scan of Alpine/Nginx/zlib/BusyBox or the image base.",
+    "DOMPurify and the remark pipeline candidate were separately audited before installation; this report captures the final Web production graph and actual npm exit code."
+  ]
+}

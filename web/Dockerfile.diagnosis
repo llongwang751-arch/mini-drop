@@ -1,0 +1,6 @@
+# Preserve the frozen runtime and old content-addressed chunks for cache grace.
+ARG WEB_RUNTIME_BASE=drop-web:20261019.3
+FROM ${WEB_RUNTIME_BASE}
+COPY web/dist/ /usr/share/nginx/html/
+ARG SOURCE_SHA256
+LABEL org.opencontainers.image.version="20261020.2" io.drop.source.sha256=${SOURCE_SHA256}

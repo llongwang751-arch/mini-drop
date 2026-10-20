@@ -1,0 +1,53 @@
+# The Aliyun 2-vCPU / 3.42-GiB single-node profile. Merge last, after the
+# selected helper, tools, observability and HTTPS overlays. Single collection
+# and analysis concurrency remain bounded; these are limits, not SLA claims.
+services:
+  postgres: {mem_limit: 192m, memswap_limit: 192m}
+  # The initialized MinIO process used ~227 MiB anonymous memory; at 256 MiB
+  # code-page reclaim saturated disk I/O even without an OOM event.
+  storage-backend: {mem_limit: 512m, memswap_limit: 512m}
+  minio: {mem_limit: 48m, memswap_limit: 48m}
+  drop-server: {mem_limit: 128m, memswap_limit: 128m}
+  api:
+    mem_limit: 256m
+    memswap_limit: 256m
+    environment: {GOMEMLIMIT: 192MiB, GOMAXPROCS: '2'}
+  analyzer:
+    mem_limit: 512m
+    memswap_limit: 512m
+    environment:
+      ANALYSIS_MEMORY_BYTES: '536870912'
+      ANALYZER_QUEUE: all
+  agent: {mem_limit: 192m, memswap_limit: 192m}
+  collector-helper: {mem_limit: 512m, memswap_limit: 512m}
+  web: {mem_limit: 48m, memswap_limit: 48m}
+  maintenance: {mem_limit: 96m, memswap_limit: 96m}
+  prometheus:
+    mem_limit: 128m
+    memswap_limit: 128m
+    environment: {GOMEMLIMIT: 96MiB}
+  grafana:
+    # Grafana 13's ~498 MiB executable plus cold-start reads exceeded 384 MiB.
+    # Bound its whole cgroup separately from the Go heap to avoid reclaim stalls.
+    mem_limit: 768m
+    memswap_limit: 768m
+    cpus: 0.3
+    environment:
+      GOMEMLIMIT: 256MiB
+      GF_PLUGINS_PREINSTALL_DISABLED: 'true'
+      GF_PLUGINS_PREINSTALL_AUTO_UPDATE: 'false'
+      # This profile provisions only Prometheus and Tempo. Avoid starting
+      # unrelated backend datasource processes on the small host.
+      GF_PLUGINS_DISABLE_PLUGINS: cloudwatch,elasticsearch,graphite,influxdb,jaeger,loki,mssql,mysql,postgres,pyroscope,stackdriver,zipkin,grafana-azure-monitor-datasource,grafana-testdata-datasource
+  alertmanager:
+    mem_limit: 48m
+    memswap_limit: 48m
+    environment: {GOMEMLIMIT: 32MiB}
+  otel-collector:
+    mem_limit: 96m
+    memswap_limit: 96m
+    environment: {GOMEMLIMIT: 64MiB}
+  tempo:
+    mem_limit: 128m
+    memswap_limit: 128m
+    environment: {GOMEMLIMIT: 96MiB}

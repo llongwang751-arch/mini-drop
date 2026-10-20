@@ -1,0 +1,41 @@
+# Tencent 82.157.81.79: isolated enrolled CRM test workload, no CRM release.
+# Merge last. No Docker socket, business config or source tree enters the API.
+services:
+  migration: {image: 'drop-api:20261020.10'}
+  api:
+    image: drop-api:20261020.10
+    user: '10001:10001'
+    environment:
+      CODE_EXECUTOR_SOCKET: /run/drop-code-executor/control.sock
+    volumes:
+      - /opt/drop-code-executor/run:/run/drop-code-executor:ro
+  web: {image: 'drop-web:20261020.10'}
+  agent:
+    environment:
+      # Only the Agent container namespace, not the server's host namespace.
+      ALLOW_HOST_PROCESSES: 'true'
+      ALLOWED_TARGET_UIDS: '10001'
+  collector-helper:
+    environment:
+      ALLOW_HOST_PROCESSES: 'true'
+      ALLOWED_TARGET_UIDS: '10001'
+  crm-workload:
+    image: drop-crm-sandbox:20261020.3
+    container_name: txdrop-crm-workload-1
+    labels:
+      drop.code-project: crm-python
+      drop.source-revision: 20eb8592d7a6c9b959113417de45ef99ec2c6b2125b9c635b9c15cd574cf12a5
+    user: '10001:10001'
+    pid: service:agent
+    network_mode: service:agent
+    depends_on: {agent: {condition: service_started}}
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: ['/tmp:size=32m,mode=1777,noexec,nosuid']
+    mem_limit: 256m
+    memswap_limit: 256m
+    cpus: 0.5
+    pids_limit: 16
+    logging: {driver: json-file, options: {max-size: 2m, max-file: '2'}}

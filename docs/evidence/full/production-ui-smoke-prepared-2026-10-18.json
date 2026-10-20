@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-18T17:20:06+08:00",
+  "status": "prepared_only_not_executed",
+  "origin": "http://120.24.187.205",
+  "runner": {
+    "path": ".local/prod_ui_smoke.mjs",
+    "sha256": "3aa0989d0f90c2dcbebe325d70f734c1e25da5aaaf557c5e23ea0dbbc03d412c",
+    "tests_path": ".local/prod_ui_smoke.test.mjs",
+    "tests_sha256": "3e4beaeac55ad43bf10e992cdd95f7f7a55dcf64c853dadbfae549108e19197f"
+  },
+  "local_checks_actual": {
+    "pure_tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_ms": 120.2716,
+    "node_syntax_check_exit_code": 0,
+    "prettier_write_exit_code": 0,
+    "frozen_input_check_exit_code": 0,
+    "frozen_sources_verified": 105,
+    "frozen_built_files_verified": 14,
+    "freeze_sha256": "f5ef8cb7b15ab4abf5ebed573d75573e0732686a1d2472688b19a3b5d1c97b9b",
+    "bundle_manifest_sha256": "d73b79da367c1a536204f46c3ab979fd0ee7b501ce7b0c8d8a6fa2ba9808224e"
+  },
+  "planned_execution": {
+    "requires_explicit_release_handoff_and_new_synthetic_task_id": true,
+    "synthetic_name_pattern": "^IMPORTED_RELEASE_SMOKE_[0-9a-f]{32}$",
+    "synthetic_must_be_recent_logged_in_owner_import_with_successful_analysis": true,
+    "pages": ["overview", "task_list", "agents", "new_task_without_submit", "new_synthetic_task_detail"],
+    "serial_viewport_widths": [1440, 375],
+    "maximum_browser_wall_seconds": 240,
+    "browser_contexts": 1,
+    "legacy_task_1_result_only": "No screenshot, body logging, RAW read or function name output; require result HTTP 200, completed analysis component and no error panel",
+    "screenshot_masks": "Existing task, node and user identifiers; the new synthetic detail and graph remain visible",
+    "request_observation": "Fixed origin; login-only write; current synthetic and explicitly authorized legacy task 1 RESULT paths; no route or mock"
+  },
+  "preparation_safety": {
+    "credentials_opened": false,
+    "browser_started": false,
+    "production_accessed": false,
+    "network_used": false,
+    "runtime_sources_changed": false,
+    "bundle_changed": false,
+    "trace": false,
+    "har": false,
+    "video": false,
+    "storage_state_persisted": false
+  },
+  "limitation": "These local preparation checks are not evidence that production UI or legacy results have passed. Actual execution remains pending the release coordinator's explicit handoff."
+}

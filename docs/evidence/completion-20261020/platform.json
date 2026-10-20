@@ -1,0 +1,59 @@
+{
+  "source": "fresh real Tencent 82.157.81.79 tasks; no imported profiles or model fixtures",
+  "recorded_at": "2026-10-20T06:52:41.460907+00:00",
+  "controlled_pid": 8,
+  "cases": [
+    {
+      "name": "cancel and idempotent retry",
+      "task_id": "50",
+      "cancel_persisted": true,
+      "retry_replay_single_event": true,
+      "raw_size": 48,
+      "raw_sha256": "121b6808496126dec2f5bf3fc12689c11ced8958c7e538d53bf8cb773128f778",
+      "raw_download_verified": true,
+      "passed": true,
+      "elapsed_seconds": 16.77
+    },
+    {
+      "name": "serial live collection DAG",
+      "composite_id": "1",
+      "serial_dependency_verified": true,
+      "children": [
+        {
+          "task_id": "51",
+          "raw_size": 47,
+          "raw_sha256": "fec66a096e5f3e52a1b9c493fdd58b06d2c21abac3ba436190c79ade9ac5ad9a",
+          "raw_download_verified": true
+        },
+        {
+          "task_id": "52",
+          "raw_size": 8285,
+          "raw_sha256": "4f19707d5fbaf32f764769068c92f698017ff7f406900c4802550ffe6e0a66f5",
+          "raw_download_verified": true
+        }
+      ],
+      "passed": true,
+      "elapsed_seconds": 15.48
+    },
+    {
+      "name": "one-minute real scheduler firing",
+      "schedule_id": "1",
+      "task_id": "53",
+      "real_clock_firing": true,
+      "disabled_after_first_firing": true,
+      "raw_size": 47,
+      "raw_sha256": "b6d9e0c3448f0049693678c94ff9788dd611e0afd143d3dd555ef18da7bdf810",
+      "raw_download_verified": true,
+      "passed": true,
+      "elapsed_seconds": 66.64
+    },
+    {
+      "name": "authentication and optional distinct viewer authorization",
+      "anonymous_401_surfaces": 5,
+      "full_role_matrix": "not exercised: existing viewer session not supplied",
+      "passed": true,
+      "elapsed_seconds": 0.06
+    }
+  ],
+  "passed": true
+}

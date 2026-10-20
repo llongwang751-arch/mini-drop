@@ -1,0 +1,146 @@
+@layer workspace {
+  .safe-markdown {
+    display: block;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.85;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .suggestion-feedback > div:first-child {
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    flex: 1;
+  }
+
+  .safe-markdown > :first-child,
+  .safe-markdown-body > :first-child {
+    margin-block-start: 0;
+  }
+  .safe-markdown > :last-child,
+  .safe-markdown-body > :last-child {
+    margin-block-end: 0;
+  }
+  .safe-markdown-pending > p {
+    white-space: pre-wrap;
+  }
+  .safe-markdown[data-markdown-sanitizer="plaintext"] > p {
+    white-space: pre-wrap;
+  }
+  .safe-markdown p,
+  .safe-markdown ul,
+  .safe-markdown ol,
+  .safe-markdown blockquote,
+  .safe-markdown pre,
+  .safe-markdown-table {
+    margin-block: 0.85em;
+  }
+  .safe-markdown h3,
+  .safe-markdown h4,
+  .safe-markdown h5,
+  .safe-markdown h6 {
+    margin-block: 1.2em 0.55em;
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.55;
+    letter-spacing: 0;
+  }
+  .safe-markdown strong {
+    font-size: inherit;
+    font-weight: 600;
+  }
+  .safe-markdown ul,
+  .safe-markdown ol {
+    padding-inline-start: 1.6em;
+  }
+  .safe-markdown li + li {
+    margin-block-start: 0.3em;
+  }
+  .safe-markdown li > p {
+    margin-block: 0.3em;
+  }
+  .safe-markdown blockquote {
+    border-inline-start: 2px solid var(--border-strong);
+    padding-inline-start: 14px;
+    color: var(--muted);
+  }
+  .safe-markdown blockquote > p {
+    margin-block: 0.3em;
+  }
+  .safe-markdown a {
+    color: var(--accent-hover);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .safe-markdown code {
+    font-family: var(--mono, "IBM Plex Mono", monospace);
+    font-size: 0.88em;
+    border-radius: 4px;
+    padding: 0.15em 0.35em;
+    background: #eef2f6;
+    overflow-wrap: anywhere;
+  }
+  .safe-markdown pre {
+    max-inline-size: 100%;
+    max-block-size: 24rem;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #f6f8fa;
+    white-space: pre;
+    line-height: 1.65;
+  }
+  .safe-markdown pre code {
+    display: block;
+    min-inline-size: max-content;
+    padding: 0;
+    background: none;
+    white-space: pre;
+    overflow-wrap: normal;
+  }
+  .safe-markdown-table {
+    max-inline-size: 100%;
+    max-block-size: 24rem;
+    overflow: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .safe-markdown table {
+    inline-size: 100%;
+    min-inline-size: 28rem;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: start;
+  }
+  .safe-markdown th,
+  .safe-markdown td {
+    padding: 9px 12px;
+    max-inline-size: 22rem;
+    border-block-end: 1px solid var(--border);
+    text-align: start;
+    vertical-align: top;
+  }
+  .safe-markdown th {
+    background: #f6f8fa;
+    font-weight: 600;
+  }
+  .safe-markdown tr:last-child td {
+    border-block-end: 0;
+  }
+  .safe-markdown hr {
+    margin-block: 1.2em;
+    border: 0;
+    border-top: 1px solid var(--border);
+  }
+  .safe-markdown .safe-markdown-limit {
+    color: var(--muted);
+    font-size: 12px;
+  }
+}

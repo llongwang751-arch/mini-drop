@@ -1,0 +1,10 @@
+[Unit]
+Description=Rotate Drop internal mTLS leaves in a quiet window
+After=docker.service
+Requires=docker.service
+[Service]
+Type=oneshot
+ExecStart=/opt/drop/deploy/rotate-internal-certs.sh
+User=root
+UMask=0077
+NoNewPrivileges=true

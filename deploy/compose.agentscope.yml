@@ -1,0 +1,76 @@
+# Merge after the current application overlays. The framework owns no business
+# database, object-store, collector or Docker credential. Tools remain in Go.
+services:
+  api:
+    image: drop-api:${AGENTSCOPE_API_RELEASE_TAG:-20261020.12}
+    group_add: ['10003']
+    environment:
+      AI_AGENT_BACKEND: agentscope
+      AGENTSCOPE_RUNNER_SOCKET: /run/drop-ai-runner/control.sock
+      AGENTSCOPE_GATEWAY_SOCKET: /run/drop-ai-tools/control.sock
+    volumes:
+      - ai_runner_socket:/run/drop-ai-runner:ro
+      - ai_tool_socket:/run/drop-ai-tools
+    depends_on:
+      agent-runtime-permission-init: {condition: service_completed_successfully}
+      agent-runtime: {condition: service_healthy}
+  agent-runtime-permission-init:
+    image: ubuntu:24.04
+    entrypoint: [sh, -ec]
+    command:
+      - >-
+        chown 10002:10003 /runner && chmod 2750 /runner &&
+        chown 10001:10003 /tools && chmod 2750 /tools
+    user: '0:0'
+    group_add: ['10003']
+    network_mode: none
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER]
+    security_opt: [no-new-privileges:true]
+    read_only: true
+    volumes: [ai_runner_socket:/runner, ai_tool_socket:/tools]
+    restart: 'no'
+    mem_limit: 48m
+    memswap_limit: 48m
+    cpus: 0.1
+    pids_limit: 16
+    logging: {driver: json-file, options: {max-size: 1m, max-file: '1'}}
+  agent-runtime:
+    image: drop-agent-runtime:${AGENTSCOPE_RELEASE_TAG:-20261020.2}
+    build:
+      context: ..
+      dockerfile: agent_runtime/Dockerfile
+    user: '10002:10003'
+    restart: unless-stopped
+    init: true
+    networks: [model-egress]
+    environment:
+      AGENTSCOPE_RUNNER_SOCKET: /run/drop-ai-runner/control.sock
+      AGENTSCOPE_GATEWAY_SOCKET: /run/drop-ai-tools/control.sock
+      AI_ENDPOINT: https://api.deepseek.com/chat/completions
+      AI_MODEL: deepseek-flash
+      AI_API_KEY_FILE: /run/secrets/ai_api_key
+      OTEL_SDK_DISABLED: 'true'
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+    secrets: [ai_api_key]
+    volumes:
+      - ai_runner_socket:/run/drop-ai-runner
+      - ai_tool_socket:/run/drop-ai-tools:ro
+    depends_on:
+      agent-runtime-permission-init: {condition: service_completed_successfully}
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    read_only: true
+    tmpfs: ['/tmp:size=32m,mode=1777,noexec,nosuid']
+    mem_limit: 512m
+    memswap_limit: 512m
+    cpus: 0.5
+    pids_limit: 64
+    logging: {driver: json-file, options: {max-size: 2m, max-file: '2'}}
+volumes:
+  ai_runner_socket:
+  ai_tool_socket:
+networks:
+  model-egress:
+

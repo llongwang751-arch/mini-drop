@@ -1,0 +1,177 @@
+syntax = "proto3";
+package drop.v1;
+option go_package = "drop/api/gen/dropv1";
+
+message Empty {}
+message Ack { bool ok = 1; string error_code = 2; string message = 3; }
+message AgentInfo {
+  string agent_id = 1;
+  string hostname = 2;
+  string ip = 3;
+  string version = 4;
+  string platform = 5;
+  repeated string capabilities = 6;
+  string labels_json = 7;
+  int32 protocol_version = 8;
+  string capability_details_json = 9;
+  string build_commit = 10;
+  string os = 11;
+  string arch = 12;
+  string kernel = 13;
+  string tool_versions_json = 14;
+  int64 certificate_expires_unix_ms = 15;
+}
+message InitResponse {
+  int32 heartbeat_seconds = 1;
+  int32 protocol_version = 2;
+  int32 minimum_protocol_version = 3;
+  int32 recommended_protocol_version = 4;
+  string config_version = 5;
+  string upgrade_message = 6;
+}
+message HeartbeatRequest {
+  string agent_id = 1;
+  double cpu_percent = 2;
+  double memory_percent = 3;
+  double load_average = 4;
+  repeated int64 running_attempt_ids = 5;
+  string resources_json = 6;
+  repeated AgentEvent events = 7;
+}
+message TargetDesc {
+  string type = 1; // process | host | container
+  int32 pid = 2; // host-visible PID, if known
+  uint64 start_time_ticks = 3; // Linux /proc/PID/stat field 22; 0 asks Agent to pin at acceptance
+  string container_id = 4;
+  string runtime = 5; // docker | containerd
+  int32 container_pid = 6; // optional PID inside the selected container
+  uint32 expected_uid = 7;
+  bool check_uid = 8;
+}
+message ResourceBudget {
+  int64 max_file_bytes = 1;
+  int64 max_address_space_bytes = 2;
+  int32 max_cpu_seconds = 3;
+  int32 max_processes = 4;
+  int32 max_concurrency = 5;
+}
+message PerfTask { string event = 1; string call_graph = 2; }
+message JavaProfilerTask { string event = 1; string output_format = 2; }
+message GoProfileTask { int32 port = 1; string path = 2; string profile_type = 3; }
+message PythonProfilerTask { string mode = 1; bool native = 2; }
+message HeapTask { string format = 1; bool live = 2; }
+message TraceTask { string category = 1; int64 min_duration_us = 2; }
+message AllocatorTask { string mode = 1; string control_path = 2; }
+message BoltTask { string binary_path = 1; bool optimize = 2; }
+message ScriptTask { string template_id = 1; }
+message NativeTask { string category = 1; }
+message UploadTarget {
+  string name = 1;
+  string object_key = 2;
+  string put_url = 3;
+  string kind = 4; // RAW | BINARY | MANIFEST | LOG
+  int64 max_file_bytes = 5;
+}
+message TaskParameters {
+  int32 pid = 1;
+  int32 duration_seconds = 2;
+  int32 frequency_hz = 3;
+  string scope = 4;
+}
+message TaskDesc {
+  int64 task_id = 1;
+  int64 attempt_id = 2;
+  string kind = 3;
+  string target_agent_id = 4;
+  TaskParameters parameters = 5;
+  int64 deadline_unix_ms = 6;
+  string raw_upload_url = 7;
+  string raw_object_key = 8;
+  string request_id = 9;
+  int64 max_file_bytes = 10;
+  TargetDesc target = 11;
+  ResourceBudget budget = 12;
+  string extra_parameters_json = 13; // bounded validated options object; never arbitrary argv
+  string raw_format = 14;
+  string raw_name = 15;
+  string raw_content_type = 16;
+  string analysis_pipeline = 17;
+  int32 protocol_version = 18;
+  oneof payload {
+    PerfTask perf = 20;
+    JavaProfilerTask java_profiler = 21;
+    GoProfileTask go_profile = 22;
+    PythonProfilerTask python_profiler = 23;
+    HeapTask heap = 24;
+    TraceTask trace = 25;
+    AllocatorTask allocator = 26;
+    BoltTask bolt = 27;
+    ScriptTask script = 28;
+    NativeTask native = 29;
+  }
+  repeated UploadTarget upload_targets = 30;
+  string traceparent = 31;
+  int32 priority = 32; // -10..10; higher values dispatch first, then FIFO
+}
+message HeartbeatResponse {
+  repeated TaskDesc tasks = 1;
+  repeated int64 cancel_attempt_ids = 2;
+}
+message CollectRequest { string agent_id = 1; }
+message ProgressRequest {
+  string agent_id = 1;
+  int64 task_id = 2;
+  int64 attempt_id = 3;
+  string status = 4;
+  string error_code = 5;
+  string error_message = 6;
+}
+message ArtifactInfo {
+  string object_key = 1;
+  int64 size = 2;
+  string sha256 = 3;
+  string content_type = 4;
+  string name = 5;
+  string format = 6;
+  string metadata_json = 7;
+  string kind = 8;
+}
+message ResultRequest {
+  string agent_id = 1;
+  int64 task_id = 2;
+  int64 attempt_id = 3;
+  bool success = 4;
+  ArtifactInfo artifact = 5;
+  string error_code = 6;
+  string error_message = 7;
+  int32 exit_code = 8;
+  string runner_metadata_json = 9;
+  repeated ArtifactInfo artifacts = 10; // auxiliary artifacts; primary RAW remains artifact=5
+}
+message AgentEvent {
+  string agent_id = 1;
+  string event_id = 2;
+  string type = 3;
+  string payload_json = 4;
+  int64 occurred_at_unix_ms = 5;
+}
+message DataRequest { string agent_id = 1; string category = 2; int32 limit = 3; }
+message DataResponse { string data_json = 1; int64 generated_at_unix_ms = 2; bool truncated = 3; }
+message TaskReference { int64 task_id = 1; string request_id = 2; int64 attempt_id = 3; }
+message AgentReference { string agent_id = 1; }
+message AgentStats { string resources_json = 1; }
+service InitAgent { rpc Init(AgentInfo) returns (InitResponse); }
+service HealthCheck { rpc Do(HeartbeatRequest) returns (HeartbeatResponse); }
+service Hotmethod {
+  rpc Collect(CollectRequest) returns (HeartbeatResponse);
+  rpc ReportProgress(ProgressRequest) returns (Ack);
+  rpc NotifyResult(ResultRequest) returns (Ack);
+  rpc ReportAgentEvent(AgentEvent) returns (Ack);
+}
+service Control {
+  rpc CreateTask(TaskDesc) returns (Ack);
+  rpc CancelTask(TaskReference) returns (Ack);
+  rpc StatAgent(AgentReference) returns (AgentStats);
+  rpc Ping(Empty) returns (Ack);
+  rpc FetchData(DataRequest) returns (DataResponse);
+}

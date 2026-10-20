@@ -1,0 +1,428 @@
+{
+  "success": true,
+  "origin": "https://82.157.81.79",
+  "source": "real live controlled UID10001 workload on Tencent host; no imported profile fixture",
+  "tls_verified": true,
+  "secure_session_cookie": true,
+  "agent_id": "tencent-local",
+  "advertised_capabilities": [
+    "BOLT_PROFILE",
+    "GO_CPU",
+    "GO_HEAP",
+    "GPERF_CPU",
+    "GPERF_HEAP",
+    "IO_TRACE",
+    "JAVA_CPU",
+    "JAVA_HEAP",
+    "JEPROF_HEAP",
+    "MEMORY_TRACE",
+    "PERF_CPU",
+    "PROC_CPU",
+    "PYTHON_CPU",
+    "PYTHON_MEMORY",
+    "RESOURCE_SNAPSHOT",
+    "SCRIPT"
+  ],
+  "captures": [
+    {
+      "task_id": "1",
+      "kind": "PROC_CPU",
+      "total_samples": 174,
+      "node_count": 3,
+      "raw_size": 48,
+      "raw_sha256": "e6a68fa71d859193489ca5ad297fe36364f9678b95abbe1de64751bc23053cf1",
+      "raw_download_verified": true
+    },
+    {
+      "task_id": "2",
+      "kind": "PERF_CPU",
+      "total_samples": 82,
+      "node_count": 23,
+      "raw_size": 50759,
+      "raw_sha256": "c1bb1b440ca7f6bb695eeb7ce9f4bb20d4ced4574738e56271cb631af3bd64bf",
+      "raw_download_verified": true
+    }
+  ],
+  "diagnosis": {
+    "task_id": "2",
+    "run_id": "2",
+    "status": "success",
+    "tools": [
+      "read_profile_summary",
+      "inspect_hotspots",
+      "check_collection_quality",
+      "inspect_call_paths",
+      "propose_verification"
+    ],
+    "trace": [
+      {
+        "tool": "read_profile_summary",
+        "evidence_id": "E1",
+        "observation": {
+          "kind": "PERF_CPU",
+          "node_count": 23,
+          "limitations": [
+            "Sample weights are not request latency; no root cause or improvement is proven.",
+            "Raw profiles and symbol names are excluded. Symbol hashes are pseudonyms, not a guarantee of anonymization."
+          ],
+          "stack_scope": "profile_dependent",
+          "total_weight": 82,
+          "top_functions": [
+            {
+              "symbol": "symbol_11f64044146d",
+              "self_percent": 51.2195,
+              "total_percent": 98.7805
+            },
+            {
+              "symbol": "symbol_38b5683cb73f",
+              "self_percent": 19.5122,
+              "total_percent": 19.5122
+            },
+            {
+              "symbol": "symbol_2706429b36a4",
+              "self_percent": 8.5366,
+              "total_percent": 8.5366
+            },
+            {
+              "symbol": "symbol_551cd6772ad1",
+              "self_percent": 3.6585,
+              "total_percent": 3.6585
+            },
+            {
+              "symbol": "symbol_9a1abedfd81c",
+              "self_percent": 3.6585,
+              "total_percent": 3.6585
+            },
+            {
+              "symbol": "symbol_6360f84822a5",
+              "self_percent": 2.439,
+              "total_percent": 2.439
+            },
+            {
+              "symbol": "symbol_bbe69d4a8a93",
+              "self_percent": 1.2195,
+              "total_percent": 1.2195
+            },
+            {
+              "symbol": "symbol_a936eb43a1a7",
+              "self_percent": 1.2195,
+              "total_percent": 1.2195
+            },
+            {
+              "symbol": "symbol_541680c7413e",
+              "self_percent": 1.2195,
+              "total_percent": 1.2195
+            },
+            {
+              "symbol": "symbol_47beccf65fa4",
+              "self_percent": 1.2195,
+              "total_percent": 1.2195
+            },
+            {
+              "symbol": "symbol_c586663538c7",
+              "self_percent": 1.2195,
+              "total_percent": 1.2195
+            },
+            {
+              "symbol": "symbol_27ab62df9a93",
+              "self_percent": 1.2195,
+              "total_percent": 1.2195
+            },
+            {
+              "symbol": "symbol_c639c5e0f052",
+              "self_percent": 1.2195,
+              "total_percent": 1.2195
+            },
+            {
+              "symbol": "symbol_945917f328fb",
+              "self_percent": 1.2195,
+              "total_percent": 1.2195
+            },
+            {
+              "symbol": "symbol_3b78c95ece02",
+              "self_percent": 1.2195,
+              "total_percent": 1.2195
+            },
+            {
+              "symbol": "symbol_243b1bfa3585",
+              "self_percent": 0,
+              "total_percent": 100
+            },
+            {
+              "symbol": "symbol_a5dfff961c3e",
+              "self_percent": 0,
+              "total_percent": 100
+            },
+            {
+              "symbol": "symbol_b403d941bbad",
+              "self_percent": 0,
+              "total_percent": 100
+            },
+            {
+              "symbol": "symbol_e2b02532902a",
+              "self_percent": 0,
+              "total_percent": 100
+            },
+            {
+              "symbol": "symbol_fb19d0a99d9e",
+              "self_percent": 0,
+              "total_percent": 100
+            }
+          ],
+          "schema_version": 1,
+          "measurement_unit": "samples"
+        }
+      },
+      {
+        "tool": "inspect_hotspots",
+        "evidence_id": "E2",
+        "observation": {
+          "hint_source": "local_symbol_heuristic_v1",
+          "top_functions": [
+            {
+              "rank": 1,
+              "symbol": "symbol_11f64044146d",
+              "symbol_hint": "unknown",
+              "self_percent": 51.2195,
+              "total_percent": 98.7805
+            },
+            {
+              "rank": 2,
+              "symbol": "symbol_38b5683cb73f",
+              "symbol_hint": "unknown",
+              "self_percent": 19.5122,
+              "total_percent": 19.5122
+            },
+            {
+              "rank": 3,
+              "symbol": "symbol_2706429b36a4",
+              "symbol_hint": "unknown",
+              "self_percent": 8.5366,
+              "total_percent": 8.5366
+            },
+            {
+              "rank": 4,
+              "symbol": "symbol_551cd6772ad1",
+              "symbol_hint": "unknown",
+              "self_percent": 3.6585,
+              "total_percent": 3.6585
+            },
+            {
+              "rank": 5,
+              "symbol": "symbol_9a1abedfd81c",
+              "symbol_hint": "unknown",
+              "self_percent": 3.6585,
+              "total_percent": 3.6585
+            },
+            {
+              "rank": 6,
+              "symbol": "symbol_6360f84822a5",
+              "symbol_hint": "unknown",
+              "self_percent": 2.439,
+              "total_percent": 2.439
+            },
+            {
+              "rank": 7,
+              "symbol": "symbol_bbe69d4a8a93",
+              "symbol_hint": "unknown",
+              "self_percent": 1.2195,
+              "total_percent": 1.2195
+            },
+            {
+              "rank": 8,
+              "symbol": "symbol_a936eb43a1a7",
+              "symbol_hint": "unknown",
+              "self_percent": 1.2195,
+              "total_percent": 1.2195
+            },
+            {
+              "rank": 9,
+              "symbol": "symbol_541680c7413e",
+              "symbol_hint": "unknown",
+              "self_percent": 1.2195,
+              "total_percent": 1.2195
+            },
+            {
+              "rank": 10,
+              "symbol": "symbol_47beccf65fa4",
+              "symbol_hint": "unknown",
+              "self_percent": 1.2195,
+              "total_percent": 1.2195
+            }
+          ],
+          "interpretation": "self为叶帧权重，total为包含子调用权重；symbol_hint为本地符号词形分类，仅作线索，不能证明锁等待或根因。比例不证明请求延迟或因果。原符号仅保留在授权结果页面。"
+        }
+      },
+      {
+        "tool": "check_collection_quality",
+        "evidence_id": "E3",
+        "observation": {
+          "kind": "PERF_CPU",
+          "issues": [
+            "采集窗口短于10秒，需在稳定负载下复测"
+          ],
+          "unknowns": [
+            "未关联业务请求延迟、吞吐和错误率",
+            "单次快照不能证明性能回退或修复收益",
+            "未采集源码、符号地址映射及丢样率，不输出文件行号"
+          ],
+          "frequency_hz": 49,
+          "duration_seconds": 4
+        }
+      },
+      {
+        "tool": "inspect_call_paths",
+        "evidence_id": "E4",
+        "observation": {
+          "limits": {
+            "depth": 64,
+            "nodes": 4096,
+            "callees": 3,
+            "ancestors": 6,
+            "occurrences": 5
+          },
+          "symbol": "symbol_11f64044146d",
+          "available": true,
+          "truncated": true,
+          "occurrences": [
+            {
+              "selected": {
+                "symbol": "symbol_11f64044146d",
+                "symbol_hint": "unknown"
+              },
+              "ancestors": [
+                {
+                  "symbol": "symbol_fb19d0a99d9e",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_e2b02532902a",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_b403d941bbad",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_3ead032a8caf",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_a5dfff961c3e",
+                  "symbol_hint": "unknown"
+                },
+                {
+                  "symbol": "symbol_243b1bfa3585",
+                  "symbol_hint": "unknown"
+                }
+              ],
+              "self_weight": 42,
+              "top_callees": [
+                {
+                  "symbol": "symbol_38b5683cb73f",
+                  "self_weight": 16,
+                  "symbol_hint": "unknown",
+                  "inclusive_weight": 16
+                },
+                {
+                  "symbol": "symbol_2706429b36a4",
+                  "self_weight": 7,
+                  "symbol_hint": "unknown",
+                  "inclusive_weight": 7
+                },
+                {
+                  "symbol": "symbol_551cd6772ad1",
+                  "self_weight": 3,
+                  "symbol_hint": "unknown",
+                  "inclusive_weight": 3
+                }
+              ],
+              "inclusive_weight": 81,
+              "callees_truncated": true,
+              "ancestors_truncated": true
+            }
+          ],
+          "examined_nodes": 23,
+          "interpretation": "每项是调用树中的独立出现位置；递归inclusive不可相加。权重单位沿用原profile，不能当作请求延迟。tree_truncated表示遍历预算耗尽；ancestors_truncated/callees_truncated/occurrences_truncated分别表示返回上下文省略。matched_occurrences只统计已遍历树。单次采集不证明其他时段或负载没有其他路径。",
+          "tree_truncated": false,
+          "matched_occurrences": 1,
+          "occurrences_truncated": false
+        }
+      },
+      {
+        "tool": "propose_verification",
+        "evidence_id": "E5",
+        "observation": {
+          "kind": "PERF_CPU",
+          "reason": "相同目标、稳定负载下复测，使用结果对比检查热点分布；请同时记录业务P95/P99、吞吐、错误率及采集开销。",
+          "frequency_hz": 99,
+          "duration_seconds": 30
+        }
+      }
+    ],
+    "report": {
+      "plan": {
+        "kind": "PERF_CPU",
+        "reason": "相同目标、稳定负载下复测，使用结果对比检查热点分布；请同时记录业务P95/P99、吞吐、错误率及采集开销。",
+        "frequency_hz": 99,
+        "duration_seconds": 30
+      },
+      "model": "deepseek-flash",
+      "engine": "model",
+      "summary": "本次为PERF_CPU采样，单位samples，总权重82，节点23。采集窗口仅4秒、频率49Hz，短于10秒，属短窗口单次快照，代表性有限。排名1热点symbol_11f64044146d（哈希）self 51.22%、total 98.78%，是叶帧权重占比最高的位置；其调用树中仅1处独立出现，inclusive权重81、self权重42，直接子调用为rank2 symbol_38b5683cb73f（inclusive 16）、rank3 symbol_2706429b36a4（7）、rank4 symbol_551cd6772ad1（3）。该热点的祖先链与子调用列表均被截断（ancestors_truncated=true、callees_truncated=true），因此无法确认完整上层入口与全部下游路径；tree_truncated=false、occurrences_truncated=false，说明本次遍历预算未耗尽，但仅代表本次采集树。所有symbol_hint均为unknown，无法据此判断锁等待、内存压力或缺陷。样本占比不等于业务请求延迟、CPU利用率或回退幅度，未关联P95/P99、吞吐与错误率，不能据此断言根因或优化收益。建议在稳定负载下用同种采集器做30秒、99Hz复测，并同步记录业务指标与采集开销。",
+      "hypotheses": [
+        {
+          "claim": "排名1热点symbol_11f64044146d的self权重占比（51.22%）在稳定负载复测中仍居首位，说明该函数自身执行是主要采样集中点，而非仅因被上层频繁调用。",
+          "evidence_ids": [
+            "E1",
+            "E2",
+            "E4"
+          ],
+          "verification": "用同种PERF_CPU采集器在稳定负载下复测30秒、99Hz（E5草案），对比rank1的self_percent与total_percent及排名；同时记录业务P95/P99、吞吐、错误率。验收指标待协商示例：rank1仍在前3且self_percent与本次51.22%的差异在±10个百分点内，则视为分布稳定；若排名或占比大幅漂移，需按采样随机性、负载与环境变化分别排查，不直接判定噪声或缺陷。"
+        },
+        {
+          "claim": "rank1热点的权重主要来自其自身叶帧（self 42/81）而非下游子调用，其下游rank2/rank3/rank4（inclusive 16/7/3）为次要贡献，因此优化重点应先落在rank1自身执行路径。",
+          "evidence_ids": [
+            "E1",
+            "E4"
+          ],
+          "verification": "复测时对rank1再次执行inspect_call_paths，检查self_weight与top_callees的inclusive_weight比例是否保持self占多数；并核对callees_truncated是否仍为true。若复测中callees_truncated为false且下游子调用权重占比上升，则需修正该假设。验收指标待协商示例：self/inclusive比例与本次42/81的差异在±15个百分点内。"
+        },
+        {
+          "claim": "rank1热点的上层调用入口在本次采集中被截断（ancestors_truncated=true），当前无法确认其是否由单一业务入口驱动；可能存在多个独立入口共享该热点。",
+          "evidence_ids": [
+            "E4"
+          ],
+          "verification": "复测时提高采集时长至30秒以获取更多样本，并再次调用inspect_call_paths(rank=1)查看matched_occurrences与ancestors列表；若ancestors_truncated仍为true，需在平台侧按哈希symbol_11f64044146d查原符号与完整调用链。验收指标待协商示例：matched_occurrences≥2且祖先链未截断，方可判断入口是否单一。"
+        },
+        {
+          "claim": "本次4秒、49Hz的短窗口单次快照可能不足以代表稳态热点分布，需以更长窗口复测确认结论可复现。",
+          "evidence_ids": [
+            "E3",
+            "E5"
+          ],
+          "verification": "按E5草案执行30秒、99Hz同目标复测，比较两次采集的Top10排名与self/total占比分布，并记录采集开销与丢样情况（本次未采集丢样率）。验收指标待协商示例：Top3集合一致且各占比差异在±10个百分点内视为可复现；否则需在稳定负载下重复多次取分布。"
+        }
+      ],
+      "limitations": [
+        "未关联业务请求延迟、吞吐与错误率，样本权重不能换算为延迟或CPU利用率。",
+        "symbol_hint全部为unknown，且原符号与源码映射未提供，无法定位具体函数语义或代码行。",
+        "rank1的祖先链与子调用列表在本次采集中被截断（ancestors_truncated/callees_truncated=true），完整调用路径未知。",
+        "采集窗口仅4秒、频率49Hz，短于10秒，单次快照代表性有限。",
+        "未采集丢样率与采集开销，无法评估采样完整性。",
+        "PROC_CPU类线程tick证据未提供，无法区分线程级CPU分布。",
+        "模型结论为待验证假设，不代表已确认缺陷；不提供未经符号映射验证的源码行号。",
+        "原始profile、原符号、主机、PID、路径和凭据不发送模型；问题文本会发送，请勿填入敏感信息。"
+      ]
+    }
+  },
+  "verification": {
+    "task_id": "4",
+    "collection_status": "COLLECTED",
+    "analysis_status": "SUCCESS",
+    "total_samples": 1281,
+    "duplicate_confirmation_same_task": true,
+    "compare_url": "https://82.157.81.79/compare?baseline=2&candidate=4"
+  },
+  "api_image": "drop-api:20261020.3"
+}

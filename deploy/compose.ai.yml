@@ -1,0 +1,9 @@
+services:
+  api:
+    environment:
+      AI_ENDPOINT: ${AI_ENDPOINT:?Set the trusted model chat-completions endpoint}
+      AI_MODEL: ${AI_MODEL:?Set the configured model identifier}
+      AI_API_KEY_FILE: /run/secrets/ai_api_key
+    secrets: [ai_api_key]
+secrets:
+  ai_api_key: {file: ./secrets/ai_api_key}

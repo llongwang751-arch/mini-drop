@@ -1,0 +1,187 @@
+{
+  "verified_at": "2026-10-16T12:25:58.421Z",
+  "task_id": "19",
+  "name": "验收 · 最终真实 perf CPU · 5s/99Hz",
+  "task_url": "http://120.24.187.205/tasks/19",
+  "kind": "PERF_CPU",
+  "target": {
+    "agent_id": "aliyun-local",
+    "sampled_pid": 7,
+    "observed_agent_capabilities": [
+      "PROC_CPU",
+      "PERF_CPU"
+    ],
+    "observed_process_name": "drop_workload · controlled CPU benchmark"
+  },
+  "parameters": {
+    "pid": 7,
+    "duration_seconds": 5,
+    "frequency_hz": 99,
+    "scope": "process"
+  },
+  "collection_status": "COLLECTED",
+  "analysis_status": "SUCCESS",
+  "result_summary": {
+    "unit": "samples",
+    "source": "perf",
+    "limitations": [
+      "采样权重不等于请求延迟。",
+      "折叠输入未提供丢样统计、时间戳和独立线程元数据；这些信息未作推断。"
+    ],
+    "frequency_hz": 99,
+    "lost_samples": null,
+    "duration_seconds": 5
+  },
+  "total_samples": 190,
+  "unique_stacks": 2,
+  "node_count": 10,
+  "max_depth": 9,
+  "raw_folded_lines": 2,
+  "raw_weight_matches_result": true,
+  "artifacts": [
+    {
+      "id": "81",
+      "name": "profile.folded",
+      "kind": "RAW",
+      "bytes": 387,
+      "sha256": "06f0ef37cadc74e0299f862d0f38539c534e5586bc89b02b3e3023c1ee78a8c0",
+      "content_type": "text/plain",
+      "sha256_verified": true,
+      "size_verified": true
+    },
+    {
+      "id": "82",
+      "name": "flamegraph.json.gz",
+      "kind": "RESULT",
+      "bytes": 192,
+      "sha256": "a9c0bf0e73ed5fba932d51b3de0990030c1589830cb6a97529d9c9384e7e8bc7",
+      "content_type": "application/gzip",
+      "sha256_verified": true,
+      "size_verified": true
+    },
+    {
+      "id": "83",
+      "name": "top.json",
+      "kind": "RESULT",
+      "bytes": 2514,
+      "sha256": "8e3f3f5d318adaaa3113831eb71a0faa14e23344719a3fbcc428ce6426dd09d6",
+      "content_type": "application/json",
+      "sha256_verified": true,
+      "size_verified": true
+    },
+    {
+      "id": "84",
+      "name": "report.json",
+      "kind": "RESULT",
+      "bytes": 701,
+      "sha256": "ef3542175fd539f8c07acd3e4487c23c8beb8742cebfdb0ca4af9450f1f2a621",
+      "content_type": "application/json",
+      "sha256_verified": true,
+      "size_verified": true
+    },
+    {
+      "id": "85",
+      "name": "manifest.json",
+      "kind": "MANIFEST",
+      "bytes": 1102,
+      "sha256": "a769bda7514d6784cd80542ad8f78162d5f63a2ea04194773747c2babd6410a6",
+      "content_type": "application/json",
+      "sha256_verified": true,
+      "size_verified": true
+    }
+  ],
+  "analyzer_version": "0.1.0",
+  "events": [
+    {
+      "sequence": "189",
+      "type": "TASK_CREATED",
+      "source": "api",
+      "created_at": "2026-10-16T12:25:51.876759Z"
+    },
+    {
+      "sequence": "190",
+      "type": "DISPATCH_QUEUED",
+      "source": "drop-server",
+      "created_at": "2026-10-16T12:25:52.170282Z"
+    },
+    {
+      "sequence": "191",
+      "type": "TASK_DELIVERED",
+      "source": "drop-server",
+      "created_at": "2026-10-16T12:25:53.854322Z"
+    },
+    {
+      "sequence": "192",
+      "type": "RUNNER_STARTED",
+      "source": "drop-server",
+      "created_at": "2026-10-16T12:25:53.860622Z"
+    },
+    {
+      "sequence": "193",
+      "type": "RAW_ARTIFACT_UPLOADING",
+      "source": "drop-server",
+      "created_at": "2026-10-16T12:25:59.944833Z"
+    },
+    {
+      "sequence": "194",
+      "type": "RAW_ARTIFACT_UPLOADED",
+      "source": "drop-server",
+      "created_at": "2026-10-16T12:25:59.967142Z"
+    },
+    {
+      "sequence": "195",
+      "type": "COLLECTION_SUCCEEDED",
+      "source": "drop-server",
+      "created_at": "2026-10-16T12:25:59.967142Z"
+    },
+    {
+      "sequence": "196",
+      "type": "ANALYSIS_STARTED",
+      "source": "analyzer",
+      "created_at": "2026-10-16T12:26:01.155638Z"
+    },
+    {
+      "sequence": "197",
+      "type": "RESULT_ARTIFACT_UPLOADED",
+      "source": "analyzer",
+      "created_at": "2026-10-16T12:26:01.206804Z"
+    },
+    {
+      "sequence": "198",
+      "type": "RESULT_ARTIFACT_UPLOADED",
+      "source": "analyzer",
+      "created_at": "2026-10-16T12:26:01.206804Z"
+    },
+    {
+      "sequence": "199",
+      "type": "RESULT_ARTIFACT_UPLOADED",
+      "source": "analyzer",
+      "created_at": "2026-10-16T12:26:01.206804Z"
+    },
+    {
+      "sequence": "200",
+      "type": "RESULT_ARTIFACT_UPLOADED",
+      "source": "analyzer",
+      "created_at": "2026-10-16T12:26:01.206804Z"
+    },
+    {
+      "sequence": "201",
+      "type": "ANALYSIS_SUCCEEDED",
+      "source": "analyzer",
+      "created_at": "2026-10-16T12:26:01.206804Z"
+    }
+  ],
+  "required_events_verified": true,
+  "sse_resume_evidence": "sse-resume.json",
+  "screenshot": {
+    "fonts_status": "loaded",
+    "finite_animations_waited": 6,
+    "active_finite_animations": 0,
+    "visible_flame_rects": 10,
+    "viewport": "1440x1000",
+    "path": "perf-live-final.png",
+    "javascript_errors": []
+  },
+  "scope": "Actual perf sampling against the Agent's currently advertised controlled process. Not imported or mocked. No service restart or deployment performed.",
+  "timestamp_note": "连接、关闭与verified_at来自Windows客户端；事件created_at来自服务端数据库。未用跨机器时间差衡量延迟。"
+}

@@ -1,0 +1,11 @@
+[Unit]
+Description=Renew and verify Drop public IP TLS certificate
+After=docker.service network-online.target
+Requires=docker.service
+[Service]
+Type=oneshot
+ExecStart=/opt/drop/deploy/tls/renew-public.sh
+User=root
+UMask=0077
+PrivateTmp=true
+NoNewPrivileges=true

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-20T10:43:48.228060+00:00",
+  "source": "actual offline acceptance-preparation checks only; model responses in tests are explicitly imported protocol fixtures",
+  "checks": [
+    {
+      "command": "node --test .local/agentscope-20261020/acceptance-evidence.test.cjs",
+      "passed": true,
+      "tests": 7,
+      "skipped": 0
+    },
+    {
+      "command": "node --check .local/agentscope-20261020/acceptance-live-saber-browser.cjs",
+      "passed": true
+    },
+    {
+      "command": "python -m py_compile .local/agentscope-20261020/acceptance-resource-snapshot.py",
+      "passed": true
+    },
+    {
+      "command": "python -m unittest ops.test_code_executor -v",
+      "passed": true,
+      "tests": 12,
+      "skipped": 0,
+      "scope": "explicitly imported Docker-control responses plus real socket EOF and owned test CLI child; source patch and new-CID ownership/startup-cancel boundaries"
+    }
+  ],
+  "files_sha256": {
+    ".local/agentscope-20261020/acceptance-evidence.cjs": "2cbd948661452b9c28ffdf58d26e63c590288bf6655980569f62d6e4742f542c",
+    ".local/agentscope-20261020/acceptance-evidence.test.cjs": "a9dc501d395b29a290139c5584ff0219d1f7321102ef11ee60821279a14ec3d4",
+    ".local/agentscope-20261020/acceptance-live-saber-browser.cjs": "78028b3a2755264b82fd0e9908df6e6664f84e41dbab545d305dbc6dc6084890",
+    ".local/agentscope-20261020/acceptance-resource-snapshot.py": "cf0cd59ae65f0c8b0d8ad1a87e6d48831e298c33e685690fd77861e7119dd9a3",
+    "ops/test_code_executor.py": "18dbfc3edbd80ff73046f681a9e3e394fd3f54fa2a6381c40d88998823ee6ffd",
+    "ops/code_executor.py": "82ecf1840f69a3d43236c4cf251129ddf8d5d45101922ab9963769ef80d53b52"
+  },
+  "production_model_or_collection_requests": 0,
+  "live_browser_rehearsal": "not_yet_run",
+  "limitation": "Fixture acceptance cannot prove actual AgentScope provider execution, Linux socket credentials or production deployment."
+}

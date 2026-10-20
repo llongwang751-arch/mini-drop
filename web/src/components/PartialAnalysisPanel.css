@@ -1,0 +1,170 @@
+@layer reset, base, components, responsive, workspace;
+@layer workspace {
+  .partial-analysis-panel,
+  .partial-analysis-loading {
+    padding: 24px;
+  }
+  .partial-analysis-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .partial-analysis-heading > svg {
+    color: var(--muted);
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+  .partial-analysis-heading h2 {
+    font-size: 20px;
+    margin: 8px 0 10px;
+  }
+  .partial-analysis-heading p,
+  .partial-analysis-top > p,
+  .partial-analysis-limitation {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.8;
+    margin: 0;
+  }
+  .partial-analysis-heading .eyebrow {
+    font-size: 11px;
+  }
+  .partial-analysis-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+    padding: 24px 0;
+    margin: 24px 0 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .partial-analysis-metrics dt,
+  .partial-analysis-binding dt {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .partial-analysis-metrics dd {
+    font-size: 20px;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .partial-analysis-provenance {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 12px 0 28px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .partial-analysis-top h3 {
+    font-size: 15px;
+    font-weight: 550;
+    margin: 0 0 8px;
+  }
+  .partial-analysis-table {
+    overflow-x: auto;
+    margin-top: 16px;
+  }
+  .partial-analysis-table table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    text-align: left;
+  }
+  .partial-analysis-table th,
+  .partial-analysis-table td {
+    border-bottom: 1px solid var(--border);
+    padding: 14px 12px;
+    vertical-align: top;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+  .partial-analysis-table th {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .partial-analysis-table th:first-child,
+  .partial-analysis-table td:first-child {
+    width: 60%;
+    padding-left: 0;
+  }
+  .partial-analysis-table th:last-child,
+  .partial-analysis-table td:last-child {
+    padding-right: 0;
+    text-align: right;
+  }
+  .partial-analysis-table small {
+    display: block;
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .partial-analysis-symbol,
+  .partial-analysis-binding dd {
+    overflow-wrap: anywhere;
+  }
+  .partial-analysis-binding {
+    margin-top: 24px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+  }
+  .partial-analysis-binding summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 13px;
+    gap: 10px;
+  }
+  .partial-analysis-binding summary::before {
+    content: "+";
+    font-family: monospace;
+    font-size: 17px;
+  }
+  .partial-analysis-binding[open] summary::before {
+    content: "−";
+  }
+  .partial-analysis-binding dl {
+    display: grid;
+    gap: 16px;
+    margin: 10px 0 16px;
+  }
+  .partial-analysis-binding dd {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.8;
+  }
+  .partial-analysis-limitation {
+    margin-top: 18px;
+  }
+  @media (max-width: 600px) {
+    .partial-analysis-panel,
+    .partial-analysis-loading {
+      padding: 20px 16px;
+    }
+    .partial-analysis-heading {
+      gap: 10px;
+    }
+    .partial-analysis-heading h2 {
+      font-size: 17px;
+    }
+    .partial-analysis-metrics {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px 14px;
+    }
+    .partial-analysis-metrics dd {
+      font-size: 18px;
+    }
+    .partial-analysis-table th,
+    .partial-analysis-table td {
+      padding: 14px 8px;
+    }
+    .partial-analysis-table th:first-child,
+    .partial-analysis-table td:first-child {
+      width: 51%;
+    }
+  }
+}

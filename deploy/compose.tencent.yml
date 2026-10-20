@@ -1,0 +1,52 @@
+# User-authorized Tencent host 82.157.81.79; independent project txdrop.
+# Merge after base, tools, helper, helper-ebpf, HTTPS and observability.
+services:
+  migration: {image: 'drop-api:20261020.3'}
+  api:
+    image: drop-api:20261020.3
+    environment:
+      AI_ENDPOINT: https://api.deepseek.com/chat/completions
+      AI_MODEL: deepseek-flash
+      AI_API_KEY_FILE: /run/secrets/ai_api_key
+      GOMEMLIMIT: 300MiB
+      GOMAXPROCS: '2'
+    secrets: [ai_api_key]
+    mem_limit: 384m
+  web: {image: 'drop-web:20261020.2'}
+  gateway: {image: 'drop-nginx:20261020.1'}
+  minio: {image: 'drop-nginx:20261020.1'}
+  storage-backend: {mem_limit: 768m}
+  storage-init: {image: 'drop-analyzer:20261020.1'}
+  backup-client: {image: 'drop-analyzer:20261020.1'}
+  drop-server:
+    image: drop-core:20261020.1
+    ports: !reset []
+    mem_limit: 256m
+    cpus: 0.75
+  analyzer:
+    image: drop-analyzer:20261020.1
+    mem_limit: 768m
+    tmpfs: !override ['/tmp:size=256m,mode=1777']
+    environment:
+      ANALYZER_QUEUE: all
+      ANALYSIS_MEMORY_BYTES: '536870912'
+      ANALYSIS_DOWNLOAD_BYTES: '33554432'
+      ANALYSIS_TEMP_BYTES: '201326592'
+      ANALYSIS_MIN_FREE_BYTES: '16777216'
+      ANALYSIS_CPU_SECONDS: '90'
+      ANALYSIS_WALL_SECONDS: '120'
+  agent:
+    image: drop-agent:20261020.1
+    environment:
+      AGENT_ID: tencent-local
+      AGENT_HOSTNAME: tencent-drop-01
+    mem_limit: 256m
+    memswap_limit: 256m
+    cpus: 0.5
+  collector-helper:
+    image: drop-agent:20261020.1
+    cpus: 0.75
+  maintenance: {image: 'drop-ops:20261020.1'}
+  grafana: {mem_limit: 768m}
+secrets:
+  ai_api_key: {file: ./secrets/ai_api_key}

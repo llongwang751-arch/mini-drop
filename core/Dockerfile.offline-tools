@@ -1,0 +1,14 @@
+# Supply the verified official v4.1 archive in a dedicated, credential-free context.
+# Base must be built from this release's core/Dockerfile --target profiler-deps.
+ARG PROFILER_BASE=drop-core-profiler-deps:20261020.1
+FROM ${PROFILER_BASE}
+USER root
+COPY tools-install.py /tmp/drop-tools-install.py
+COPY async-profiler.tar.gz /tmp/async-profiler.tar.gz
+RUN DROP_ASYNC_PROFILER_ARCHIVE=/tmp/async-profiler.tar.gz python3 /tmp/drop-tools-install.py && \
+    rm /tmp/drop-tools-install.py /tmp/async-profiler.tar.gz && ldconfig
+ENV ASPROF_EXECUTABLE=/opt/drop-tools/async-profiler/bin/asprof \
+    PY_SPY_EXECUTABLE=/opt/drop-tools/venv/bin/py-spy \
+    MEMRAY_EXECUTABLE=/opt/drop-tools/venv/bin/memray \
+    PERF2BOLT_EXECUTABLE=/usr/bin/perf2bolt-16
+USER 10001:10001

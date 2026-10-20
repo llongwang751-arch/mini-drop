@@ -1,0 +1,27 @@
+{
+  "checked_at": "2026-10-16T18:17:05.800071+00:00",
+  "tool": "promtool3.15.0 windows/amd64, official release checksum verified",
+  "syntax": {
+    "rules": 18,
+    "exit_code": 0
+  },
+  "rule_tests": {
+    "scenarios": 5,
+    "assertions": 12,
+    "exit_code": 0,
+    "before_fix": {
+      "exit_code": 1,
+      "missing_expected_alerts": [
+        "DropAnalysisFailures",
+        "DropLeaseRecoveries",
+        "DropServiceDown(agent)"
+      ]
+    }
+  },
+  "source_sha256": {
+    "deploy/observability/alerts.yml": "9169e395f02af4146443833f3075b074940270b701514a96b401e4e6e8a1a860",
+    "deploy/observability/alerts.test.yml": "f7e3632e8f3145be06a74cbadf5c20fa8350d938c2f7e71871e5ebeb4a474df9"
+  },
+  "reference": "https://prometheus.io/docs/prometheus/latest/configuration/unit_testing_rules/",
+  "limitations": "Synthetic time-series evaluation only; live Prometheus scrape, Alertmanager firing/resolved webhook and audit delivery remain pending."
+}

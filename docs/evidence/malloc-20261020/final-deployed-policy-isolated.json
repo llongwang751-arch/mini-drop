@@ -1,0 +1,182 @@
+{
+  "cases": [
+    {
+      "case": "duration",
+      "wall_seconds": 2.973,
+      "result": {
+        "format": "jsonl",
+        "kind": "MEMORY_TRACE",
+        "metadata": {
+          "allocator_attach_scope": "selected_pid_only",
+          "allocator_library_sha256": "3a15d66867d83762c7f2f1e37359cb8f6c5743edb369c65285cb0b1c4f7498bf",
+          "allocator_probe_mode": "single_symbol_verified_globs; root_owned_same_inode_short_alias; legacy_single_uprobe_or_multi_uprobe_when_supported_by_bpftrace_and_kernel",
+          "allocator_symbols": [
+            "malloc",
+            "free"
+          ],
+          "collection_finished_unix_ms": 1792483072726,
+          "collection_isolation": {
+            "agent_uid": 10001,
+            "bounded_filesystem": true,
+            "cooperative_output_group": 10001,
+            "effective_file_limit_bytes": 67108864,
+            "helper_uid": 0,
+            "transport": "unix_peer_credentials"
+          },
+          "collection_started_unix_ms": 1792483069886,
+          "collector_overhead": {
+            "children_system_cpu_seconds": 0.134406,
+            "children_user_cpu_seconds": 0.11356700000000003,
+            "scope": "collector process CPU (including concurrent heartbeat threads), plus reaped child profiler tools; interval deltas",
+            "system_cpu_seconds": 0.029101999999999996,
+            "user_cpu_seconds": 0.02013999999999999
+          },
+          "duration_ms": 2803,
+          "event_count": 194,
+          "kind": "MEMORY_TRACE",
+          "runner": "bpftrace",
+          "schema_version": 1,
+          "stack_source": "bpftrace ustack(perf)",
+          "start_time_ticks": 9058879,
+          "target_namespace_pid": 23,
+          "target_pid": 23,
+          "target_pid_namespace": "pid:[4026532506]",
+          "time_clock": "monotonic nanoseconds",
+          "tool_probes": [
+            {
+              "available": true,
+              "name": "bpftrace",
+              "path": "/usr/bin/bpftrace",
+              "reason": "",
+              "sha256": "d2846f3400bb129b1a569aae64adf548de99ff41f247823ff8caf1fbde40ff1e",
+              "version": "bpftrace v0.20.2\n"
+            }
+          ]
+        },
+        "name": "memory.jsonl",
+        "ok": true,
+        "sha256": "ea1b206b0c9def4022452aae3f8b35509e809cdb2e5519de5b198e45797c31cc",
+        "size": 56066
+      },
+      "raw_verification": {
+        "size": 56066,
+        "sha256": "ea1b206b0c9def4022452aae3f8b35509e809cdb2e5519de5b198e45797c31cc",
+        "events": {
+          "alloc": 97,
+          "free": 97
+        },
+        "pids": [
+          23
+        ],
+        "all_stacks_present": true,
+        "native_allocations": true
+      },
+      "target_resumed": true,
+      "root_aliases_removed": true,
+      "probes_restored": true
+    },
+    {
+      "case": "event_budget",
+      "wall_seconds": 1.991,
+      "result": {
+        "format": "jsonl",
+        "kind": "MEMORY_TRACE",
+        "metadata": {
+          "allocator_attach_scope": "selected_pid_only",
+          "allocator_library_sha256": "3a15d66867d83762c7f2f1e37359cb8f6c5743edb369c65285cb0b1c4f7498bf",
+          "allocator_probe_mode": "single_symbol_verified_globs; root_owned_same_inode_short_alias; legacy_single_uprobe_or_multi_uprobe_when_supported_by_bpftrace_and_kernel",
+          "allocator_symbols": [
+            "malloc",
+            "free"
+          ],
+          "collection_finished_unix_ms": 1792483075839,
+          "collection_isolation": {
+            "agent_uid": 10001,
+            "bounded_filesystem": true,
+            "cooperative_output_group": 10001,
+            "effective_file_limit_bytes": 67108864,
+            "helper_uid": 0,
+            "transport": "unix_peer_credentials"
+          },
+          "collection_started_unix_ms": 1792483073994,
+          "collector_overhead": {
+            "children_system_cpu_seconds": 0.11449199999999998,
+            "children_user_cpu_seconds": 0.10602999999999996,
+            "scope": "collector process CPU (including concurrent heartbeat threads), plus reaped child profiler tools; interval deltas",
+            "system_cpu_seconds": 0.020113000000000006,
+            "user_cpu_seconds": 0.014036999999999994
+          },
+          "duration_ms": 1795,
+          "event_count": 9,
+          "kind": "MEMORY_TRACE",
+          "runner": "bpftrace",
+          "schema_version": 1,
+          "stack_source": "bpftrace ustack(perf)",
+          "start_time_ticks": 9058879,
+          "target_namespace_pid": 23,
+          "target_pid": 23,
+          "target_pid_namespace": "pid:[4026532506]",
+          "time_clock": "monotonic nanoseconds",
+          "tool_probes": [
+            {
+              "available": true,
+              "name": "bpftrace",
+              "path": "/usr/bin/bpftrace",
+              "reason": "",
+              "sha256": "d2846f3400bb129b1a569aae64adf548de99ff41f247823ff8caf1fbde40ff1e",
+              "version": "bpftrace v0.20.2\n"
+            }
+          ]
+        },
+        "name": "memory.jsonl",
+        "ok": true,
+        "sha256": "4537bcb99d2f6e275a0356d38e9f26a2cf95e52d8c44768fee17f56fbc2634be",
+        "size": 2608
+      },
+      "raw_verification": {
+        "size": 2608,
+        "sha256": "4537bcb99d2f6e275a0356d38e9f26a2cf95e52d8c44768fee17f56fbc2634be",
+        "events": {
+          "alloc": 5,
+          "free": 4
+        },
+        "pids": [
+          23
+        ],
+        "all_stacks_present": true,
+        "native_allocations": true
+      },
+      "target_resumed": true,
+      "root_aliases_removed": true,
+      "probes_restored": true
+    },
+    {
+      "case": "cancel",
+      "wall_seconds": 0.644,
+      "result": {
+        "error_code": "TASK_CANCELED",
+        "ok": false
+      },
+      "target_resumed": true,
+      "root_aliases_removed": true,
+      "probes_restored": true
+    }
+  ],
+  "scope": "real_isolated_helper_under_final_deployed_three_role_profiles",
+  "pid": 1613886,
+  "candidate": "20261020.3-final-three-role-matrix",
+  "runtime_image_id": "sha256:abb10f7f51f7f33e08248fde4c0d6ec0bbf200f5b4c9cde7248e8701cb25c4dc",
+  "build": "/opt/tx-drop-20261020/core3-candidate-build/build",
+  "binary_sha256": {
+    "drop_collector_helper": "fa4f2daf655fbf8b78d7276c636d4350b85aee6a91e3e7ea03f6a0f1cd30b4f4",
+    "drop_helper_probe": "4f062bf2ac781536276ee067530f60565ae23db8dbd0cf9da69938b92526cd66"
+  },
+  "harness_sha256": "d1f1d2b003e223e6797260b756e9052001f57b24ceece041ebf6c0d7b5944929",
+  "profile_sha256": {
+    "drop-collector-helper": "ceaeb5c9585f7da92953dd0b2043775d099fe0f632b46748d26016e9d4ffb855",
+    "drop-diagnostic-target": "f502c6cc6b22ec03a221843e0b918329bc81ccf66f7c01934a7e68117bd78c39",
+    "drop-agent-controller": "6305cb9b10b6e08b522ab118a1c5abe23a22afa4fac409778d70d135686e8748"
+  },
+  "platform_deployed": true,
+  "temporary_containers_removed": true
+}

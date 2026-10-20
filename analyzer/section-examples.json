@@ -1,0 +1,370 @@
+{
+  "notice": "SCHEMA EXAMPLES ONLY; values illustrate fields, not measurements.",
+  "schema_version": 1,
+  "examples": {
+    "IO_TRACE": {
+      "io": {
+        "operations": 1,
+        "bytes": 4096,
+        "read_operations": 1,
+        "write_operations": 0,
+        "duration_seconds": 0.001,
+        "throughput_bytes_per_second": 4096000.0,
+        "iops": 1000.0,
+        "latency_ns": {
+          "p50": 1000000,
+          "p95": 1000000,
+          "p99": 1000000
+        },
+        "queue": {
+          "max_depth": 1,
+          "average_depth": 1.0,
+          "derivation": "overlapping observed issue/completion intervals"
+        },
+        "devices": [
+          {
+            "name": "vda",
+            "operations": 1,
+            "bytes": 4096,
+            "duration_ns": 1000000
+          }
+        ],
+        "processes": [
+          {
+            "name": "7:",
+            "operations": 1,
+            "bytes": 4096,
+            "duration_ns": 1000000
+          }
+        ],
+        "files": [
+          {
+            "name": "/tmp/fixture",
+            "operations": 1,
+            "bytes": 4096,
+            "duration_ns": 1000000
+          }
+        ],
+        "timeseries": [
+          {
+            "time_ns": 2000000000,
+            "operations": 1,
+            "bytes": 4096,
+            "duration_ns": 1000000
+          }
+        ],
+        "lost_events": 0,
+        "limitations": [
+          "队列深度由已观测事件区间计算；采样、丢失和未覆盖设备会影响统计。"
+        ]
+      }
+    },
+    "MEMORY_TRACE": {
+      "memory": {
+        "allocated_bytes": 4096,
+        "freed_bytes": 0,
+        "live_bytes": 4096,
+        "peak_live_bytes": 4096,
+        "allocations": 1,
+        "frees": 0,
+        "unknown_frees": 0,
+        "pagefaults": {
+          "minor": 0,
+          "major": 0
+        },
+        "lost_events": 0,
+        "survivors": [
+          {
+            "pid": 7,
+            "address": "0xabc",
+            "bytes": 4096,
+            "age_ns": 0,
+            "stack": [
+              "main",
+              "allocate"
+            ],
+            "classification": "unfreed_during_observation"
+          }
+        ],
+        "timeseries": [
+          {
+            "time_ns": 0,
+            "allocated_bytes": 4096,
+            "allocations": 1,
+            "live_bytes": 4096
+          }
+        ],
+        "limitations": [
+          "观测结束仍存活不等于内存泄漏；采集前分配和丢失事件可能造成未知 free。"
+        ]
+      }
+    },
+    "RESOURCE_SNAPSHOT": {
+      "resources": {
+        "samples": [
+          {
+            "timestamp_ns": 1,
+            "rss_bytes": 123456,
+            "vms_bytes": null,
+            "read_bytes": null,
+            "write_bytes": null,
+            "threads": 3,
+            "fd_count": null,
+            "network_rx_bytes": 1024,
+            "network_tx_bytes": 2048,
+            "context_switches": null,
+            "voluntary_context_switches": 12,
+            "involuntary_context_switches": 3,
+            "collector_cpu_ticks": 2,
+            "collector_rss_bytes": 4096,
+            "cpu_percent": 22.5
+          }
+        ],
+        "peaks": {
+          "cpu_percent": 22.5,
+          "rss_bytes": 123456,
+          "vms_bytes": null,
+          "threads": 3,
+          "fd_count": null
+        },
+        "sample_count": 1,
+        "network_scope": "target_network_namespace_total",
+        "collector_overhead": {
+          "user_cpu_seconds": 0.01,
+          "system_cpu_seconds": 0.005,
+          "children_user_cpu_seconds": 0,
+          "children_system_cpu_seconds": 0,
+          "scope": "collector_process_including_heartbeat"
+        },
+        "dmesg": {
+          "status": "permission_denied",
+          "reason": "Kernel logs disabled by operator policy",
+          "lines": [],
+          "truncated": false
+        },
+        "limitations": [
+          "进程快照可能遗漏采样间隔内的短暂峰值。"
+        ]
+      }
+    },
+    "SCRIPT": {
+      "script": {
+        "template": "uname",
+        "exit_code": 0,
+        "stdout": "Linux\n",
+        "stderr": "",
+        "duration_ms": 10,
+        "truncated": false
+      }
+    },
+    "JAVA_HEAP": {
+      "heap": {
+        "format": "hprof",
+        "unit": "bytes",
+        "totals": {
+          "objects": 123,
+          "shallow_bytes": 4096,
+          "root_count": 5
+        },
+        "classes": [
+          {
+            "class_name": "java.lang.String",
+            "instances": 10,
+            "shallow_bytes": 240,
+            "retained_bytes": 700
+          }
+        ],
+        "dominators": [
+          {
+            "object_id": "0x123",
+            "class_name": "java.util.HashMap",
+            "shallow_bytes": 48,
+            "retained_bytes": 2048
+          }
+        ],
+        "leak_paths": [
+          {
+            "object_id": "0x123",
+            "retained_bytes": 2048,
+            "path": [
+              {
+                "object_id": "0x100",
+                "class_name": "Example",
+                "root_kind": "sticky_class"
+              },
+              {
+                "object_id": "0x123",
+                "class_name": "java.util.HashMap"
+              }
+            ]
+          }
+        ],
+        "limitations": [
+          "Retained size uses the references represented by this HPROF dump."
+        ]
+      }
+    },
+    "GO_HEAP": {
+      "heap": {
+        "format": "pprof",
+        "profile_type": "inuse_space",
+        "unit": "bytes",
+        "sample_types": [
+          {
+            "type": "alloc_space",
+            "unit": "bytes",
+            "total": 4096
+          },
+          {
+            "type": "inuse_space",
+            "unit": "bytes",
+            "total": 2048
+          }
+        ],
+        "classes": [],
+        "dominators": [],
+        "leak_paths": [],
+        "totals": {
+          "sample_weight": 2048
+        },
+        "limitations": [
+          "Sampling allocation stacks contain no object graph."
+        ]
+      }
+    },
+    "BOLT_PROFILE": {
+      "binary": {
+        "format": "bolt_fdata",
+        "functions": [
+          {
+            "name": "main",
+            "samples": 100,
+            "branches": 10,
+            "mispredictions": 1
+          }
+        ],
+        "branches": [
+          {
+            "from_function": "main",
+            "from_offset": "0x10",
+            "to_function": "foo",
+            "to_offset": "0x0",
+            "count": 10,
+            "mispredictions": 1
+          }
+        ],
+        "totals": {
+          "branches": 10,
+          "mispredictions": 1
+        },
+        "limitations": []
+      }
+    },
+    "PYTHON_MEMORY": {
+      "memory": {
+        "allocated_bytes": 4096,
+        "freed_bytes": 2048,
+        "live_bytes": 2048,
+        "peak_live_bytes": 4096,
+        "allocations": 10,
+        "frees": 5,
+        "unknown_frees": 0,
+        "pagefaults": {
+          "minor": null,
+          "major": null
+        },
+        "lost_events": null,
+        "survivors": [
+          {
+            "bytes": 2048,
+            "allocations": 5,
+            "stack": [
+              "main",
+              "allocate"
+            ],
+            "classification": "unfreed_at_capture_end"
+          }
+        ],
+        "timeseries": [],
+        "limitations": [
+          "memray allocation captures are not page-fault traces."
+        ]
+      }
+    },
+    "PERF_CPU": {
+      "perf": {
+        "threads": [
+          {
+            "pid": 123,
+            "tid": 124,
+            "comm": "worker",
+            "root_name": "worker [pid=123 tid=124]",
+            "sample_count": 2,
+            "first_timestamp_ns": "12000000001",
+            "last_timestamp_ns": "12000000009"
+          },
+          {
+            "pid": 123,
+            "tid": 125,
+            "comm": "worker",
+            "root_name": "worker [pid=123 tid=125]",
+            "sample_count": 1,
+            "first_timestamp_ns": "12000000005",
+            "last_timestamp_ns": "12000000005"
+          }
+        ],
+        "event_counts": {
+          "cpu-clock": 3
+        },
+        "clock": null,
+        "timestamp_unit": "nanoseconds",
+        "time_range_ns": {
+          "start": "12000000001",
+          "end": "12000000009",
+          "duration": "8"
+        },
+        "lost_samples": null,
+        "reported_lost_samples": null,
+        "lost_records": null,
+        "loss_status": "not_reported",
+        "filters": {},
+        "limitations": [
+          "PERF_RECORD_LOST reports missing records; these cannot all be labeled missing samples.",
+          "Absence of a textual loss line does not prove zero loss.",
+          "Nanosecond timestamps are decimal strings to retain 64-bit precision in browsers.",
+          "Weights count observations across the listed events; they are not measured cycles, instructions or elapsed time."
+        ]
+      }
+    }
+  },
+  "perf_thread_node_example": {
+    "name": "worker [pid=123 tid=124]",
+    "value": 2,
+    "self": 0,
+    "children": [
+      {
+        "name": "0x7fa1 (/lib/a.so)",
+        "value": 1,
+        "self": 1,
+        "children": []
+      },
+      {
+        "name": "main (/bin/toy)",
+        "value": 1,
+        "self": 0,
+        "children": [
+          {
+            "name": "leaf (/lib/a.so)",
+            "value": 1,
+            "self": 1,
+            "children": []
+          }
+        ]
+      }
+    ],
+    "node_type": "thread",
+    "pid": 123,
+    "tid": 124,
+    "comm": "worker"
+  }
+}

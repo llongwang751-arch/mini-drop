@@ -1,0 +1,63 @@
+# Explicitly synthetic, bounded live targets. No business data or credentials.
+x-demo: &demo
+  image: drop-demo-workloads:20261020.1
+  user: '10001:10001'
+  pid: service:agent
+  network_mode: service:agent
+  depends_on: {agent: {condition: service_started}}
+  profiles: [demo]
+  restart: unless-stopped
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  tmpfs: ['/tmp:size=64m,mode=1777,nosuid']
+  mem_limit: 128m
+  memswap_limit: 128m
+  cpus: 0.15
+  pids_limit: 64
+  volumes: ['helper_incoming:/run/drop-helper-incoming']
+  labels: {drop.workload-type: controlled-synthetic-demo}
+  logging: {driver: json-file, options: {max-size: 2m, max-file: '2'}}
+services:
+  demo-bolt:
+    <<: *demo
+    image: drop-demo-workloads:${DEMO_RELEASE_TAG:-20261020.2}
+    entrypoint: [/demo/bin/drop_bolt_demo]
+    cpus: 0.25
+  demo-go:
+    <<: *demo
+    entrypoint: [/demo/bin/drop_go_demo]
+    cpus: 0.25
+  demo-java:
+    <<: *demo
+    entrypoint: [/usr/bin/java]
+    command: ['-Xmx48m', '-Xms16m', '-XX:ReservedCodeCacheSize=32m', '-XX:MaxMetaspaceSize=48m', '-XX:+StartAttachListener', '-cp', /demo/classes, DropJvmFixture]
+    mem_limit: 256m
+    memswap_limit: 256m
+    cpus: 0.35
+  demo-python:
+    <<: *demo
+    entrypoint: [/opt/drop-tools/venv/bin/python, /demo/src/python_workload.py]
+    mem_limit: 192m
+    memswap_limit: 192m
+    cpus: 0.25
+  demo-io:
+    <<: *demo
+    entrypoint: [/demo/bin/drop_io_demo]
+    environment: {DROP_IO_FIXTURE_DIRECTORY: /run/drop-helper-incoming/demo-io-data}
+    cpus: 0.05
+  demo-gperf-cpu:
+    <<: *demo
+    entrypoint: [/usr/local/bin/drop_native_workload]
+    environment: {NATIVE_CONTROL_ROOT: /run/drop-helper-incoming/native-control, LD_PRELOAD: libprofiler.so}
+  demo-gperf-heap:
+    <<: *demo
+    entrypoint: [/usr/local/bin/drop_native_workload]
+    environment: {NATIVE_CONTROL_ROOT: /run/drop-helper-incoming/native-control, LD_PRELOAD: libtcmalloc.so}
+  demo-jemalloc:
+    <<: *demo
+    entrypoint: [/usr/local/bin/drop_native_workload]
+    environment:
+      NATIVE_CONTROL_ROOT: /run/drop-helper-incoming/native-control
+      LD_PRELOAD: libjemalloc.so
+      MALLOC_CONF: 'prof:true,prof_active:false,lg_prof_sample:0'

@@ -1,0 +1,42 @@
+
+
+Running 5 tests using 1 worker
+
+
+
+[1/5] e2e\partial-analysis.spec.ts:250:1 › partial analysis shows only this failed run as escaped readable data at 375 and 1440
+[2/5] e2e\partial-analysis.spec.ts:337:1 › partial analysis rejects stale runs and inputs and handles no-checkpoint/forbidden without retries
+[3/5] e2e\partial-analysis.spec.ts:371:1 › reanalyze and native retry/cancel clear partial presentation and never reuse its cache
+[4/5] e2e\partial-analysis.spec.ts:404:1 › leaving a task cancels its pending partial request and returning reads a fresh checkpoint
+  1) e2e\partial-analysis.spec.ts:404:1 › leaving a task cancels its pending partial request and returning reads a fresh checkpoint 
+
+    Error: locator.click: Error: strict mode violation: getByRole('link', { name: /Imported synthetic partial fixture/ }) resolved to 2 elements:
+        1) <a href="/tasks/7" data-discover="true" class="task-name task-identity" title="Imported synthetic partial fixture">…</a> aka getByRole('link', { name: 'Imported synthetic partial fixture #7 导入数据' })
+        2) <a href="/tasks/7" class="icon-button" data-discover="true" aria-label="查看Imported synthetic partial fixture">…</a> aka getByRole('link', { name: '查看Imported synthetic partial' })
+
+    Call log:
+      - waiting for getByRole('link', { name: /Imported synthetic partial fixture/ })
+
+
+      417 |   await page
+      418 |     .getByRole("link", { name: /Imported synthetic partial fixture/ })
+    > 419 |     .click();
+          |      ^
+      420 |   await expect(
+      421 |     page.getByRole("region", { name: "本次未完成分析的已解析摘要" }),
+      422 |   ).toBeVisible();
+        at E:\tx-drop\web\e2e\partial-analysis.spec.ts:419:6
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results-rc6-partial-fixed\partial-analysis-leaving-a-51ec5-ng-reads-a-fresh-checkpoint\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results-rc6-partial-fixed\partial-analysis-leaving-a-51ec5-ng-reads-a-fresh-checkpoint\error-context.md
+
+
+
+
+[5/5] e2e\partial-analysis.spec.ts:429:1 › a failed run with no checkpoint cannot render a cached successful result
+  1 failed
+    e2e\partial-analysis.spec.ts:404:1 › leaving a task cancels its pending partial request and returning reads a fresh checkpoint 
+  4 passed (9.3s)

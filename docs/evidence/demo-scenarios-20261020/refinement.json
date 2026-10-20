@@ -1,0 +1,33 @@
+{
+  "source": "semantic check for page-fault events and repeated block I/O on bounded disk",
+  "cases": [
+    {
+      "task_id": "35",
+      "kind": "MEMORY_TRACE",
+      "category": "pagefault",
+      "passed": true,
+      "pagefaults": {
+        "major": 0,
+        "minor": 0,
+        "total": 3952,
+        "unknown": 3952
+      },
+      "note": "zero byte weight is correct for page-fault counts; original generic weight assertion was unsuitable",
+      "raw_download_verified": true,
+      "raw_size": 1059136,
+      "raw_sha256": "8361cbc8ed90a53fe32a9ecae0983071f0b9e86cdecb38b7e99c240282900942"
+    },
+    {
+      "kind": "IO_TRACE",
+      "category": "block",
+      "pid": 19516,
+      "task_id": "48",
+      "passed": true,
+      "total_samples": 2752512,
+      "raw_download_verified": true,
+      "raw_size": 231841,
+      "raw_sha256": "bcb1b61083474bcf47332a96ddea4320a5bc17c1417520cafecff812f505e344",
+      "elapsed_seconds": 14.4
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "success": true,
+  "scope": "actual isolated PROC_CPU collection and analysis; sampled test trace context; no fabricated spans",
+  "task_id": "5",
+  "request_trace_id": "e84fb451ec30646c0ffba845f9d95260",
+  "services": {
+    "drop-server": {
+      "service": "drop-server",
+      "operation": "queue.task",
+      "trace_id": "d8fe979903b492b9a4c422a42680f71c",
+      "task_id_matches": true,
+      "linked_to_request_trace": true
+    },
+    "drop-api": {
+      "service": "drop-api",
+      "operation": "POST /api/v1/tasks",
+      "trace_id": "e84fb451ec30646c0ffba845f9d95260",
+      "task_id_matches": false,
+      "linked_to_request_trace": false
+    },
+    "drop-agent": {
+      "service": "drop-agent",
+      "operation": "collect.PROC_CPU",
+      "trace_id": "8bf1fa5f093c5742f46e0c8f557c37c1",
+      "task_id_matches": true,
+      "linked_to_request_trace": true
+    },
+    "drop-analyzer": {
+      "service": "drop-analyzer",
+      "operation": "analyze.profile",
+      "trace_id": "c4bdb451bdd7d9c5d1f7b46a22227c61",
+      "task_id_matches": true,
+      "linked_to_request_trace": true
+    }
+  },
+  "all_four_services_observed_in_tempo": true
+}

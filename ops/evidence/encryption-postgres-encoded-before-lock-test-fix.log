@@ -1,0 +1,26 @@
+test_each_nonterminal_collection_is_rejected (test_encryption_postgres.PostgreSQLMigrationTests.test_each_nonterminal_collection_is_rejected) ... ok
+test_existing_writer_causes_bounded_lock_timeout_without_copying (test_encryption_postgres.PostgreSQLMigrationTests.test_existing_writer_causes_bounded_lock_timeout_without_copying) ... ok
+test_named_cursor_stops_at_configured_database_scan_limit (test_encryption_postgres.PostgreSQLMigrationTests.test_named_cursor_stops_at_configured_database_scan_limit) ... ok
+test_pending_running_and_retry_analysis_are_rejected (test_encryption_postgres.PostgreSQLMigrationTests.test_pending_running_and_retry_analysis_are_rejected) ... ok
+test_real_database_full_migration_with_fake_storage_is_idempotent (test_encryption_postgres.PostgreSQLMigrationTests.test_real_database_full_migration_with_fake_storage_is_idempotent) ... ok
+test_real_set_local_share_locks_and_named_cursor_include_all_statuses (test_encryption_postgres.PostgreSQLMigrationTests.test_real_set_local_share_locks_and_named_cursor_include_all_statuses) ... ok
+test_same_advisory_lock_excludes_existing_reconciler (test_encryption_postgres.PostgreSQLMigrationTests.test_same_advisory_lock_excludes_existing_reconciler) ... ERROR
+test_share_lock_blocks_writes_then_releases_at_transaction_end (test_encryption_postgres.PostgreSQLMigrationTests.test_share_lock_blocks_writes_then_releases_at_transaction_end) ... ok
+
+======================================================================
+ERROR: test_same_advisory_lock_excludes_existing_reconciler (test_encryption_postgres.PostgreSQLMigrationTests.test_same_advisory_lock_excludes_existing_reconciler)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "E:\tx-drop\ops\test_encryption_postgres.py", line 125, in test_same_advisory_lock_excludes_existing_reconciler
+    with self.repo.quiescent(True):
+         ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "D:\洛伦兹力不做功\Desktop\1\Lib\contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "E:\tx-drop\ops\encrypt_existing.py", line 293, in quiescent
+    raise MigrationFailure("MAINTENANCE_ALREADY_RUNNING")
+encrypt_existing.MigrationFailure: MAINTENANCE_ALREADY_RUNNING
+
+----------------------------------------------------------------------
+Ran 8 tests in 4.008s
+
+FAILED (errors=1)

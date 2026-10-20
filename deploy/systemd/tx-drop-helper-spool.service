@@ -1,0 +1,17 @@
+[Unit]
+Description=Verify and mount the bounded tx-drop helper filesystem before Docker
+After=local-fs.target
+Before=docker.service
+RequiresMountsFor=/opt/drop-runtime /opt/drop-current
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+UMask=0077
+ExecStart=/bin/sh /opt/drop-current/deploy/prepare-helper-spool.sh --root /opt/drop-runtime
+RemainAfterExit=yes
+TimeoutStartSec=120
+
+[Install]
+WantedBy=multi-user.target

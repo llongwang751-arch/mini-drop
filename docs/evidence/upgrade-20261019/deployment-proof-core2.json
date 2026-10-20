@@ -1,0 +1,346 @@
+{
+  "recorded_at": "2026-10-19T09:39:31.671545+00:00",
+  "release": "20261019.2-platform",
+  "origin": "https://120.24.187.205",
+  "source_root": "/opt/tx-drop-20261019/source",
+  "current_pointer": "/opt/drop-current",
+  "containers": [
+    {
+      "name": "drop-api-1",
+      "id": "188a15d8e63112c6ce586194ab1769da187e77b918e3e1f692622b2ab34963da",
+      "image": "drop-api:20261018.1-rc4",
+      "image_id": "sha256:94ad66ca5cd6a9a866c84c35916626b9cfe41e765c3cd648abb04970777abc47",
+      "user": "drop",
+      "running": true,
+      "health": "healthy",
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "name": "drop-gateway-1",
+      "id": "e9ffda7cbaec7d68593f744b9f209f562ea6f4c853bf089a09f400984580ae4e",
+      "image": "drop-nginx:20261018.1-rc2",
+      "image_id": "sha256:f76c617fd59867fba9b4d322c1cd4a041d2253cf440f4816f7cad95a3c4a6cee",
+      "user": "101",
+      "running": true,
+      "health": null,
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "name": "drop-collector-helper-1",
+      "id": "636cb3212fe233b6d5048b3d10505608520506a30175f46eb42ca1ead39832da",
+      "image": "drop-agent:20261019.2",
+      "image_id": "sha256:ba4842043e9cd7c3c576e5a88cf1c4b1ed9d484fbee2d532684e79b5314e4351",
+      "user": "0:10001",
+      "running": true,
+      "health": null,
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [
+        "drop_helper_data",
+        "drop_helper_incoming",
+        "drop_helper_socket"
+      ],
+      "cap_add": [
+        "CAP_BPF",
+        "CAP_DAC_READ_SEARCH",
+        "CAP_PERFMON",
+        "CAP_SYS_PTRACE"
+      ],
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "name": "drop-web-1",
+      "id": "326d10997ac8a451d945a22f6fb8e1603604d31f8ce710905fc7c58ad92cab19",
+      "image": "drop-web:20261019.3",
+      "image_id": "sha256:452ef2a6ca44e9ca5f4f3ff7c14821acad3bf3a7810b9b9f6f65215dc9141959",
+      "user": "101",
+      "running": true,
+      "health": "healthy",
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "name": "drop-agent-1",
+      "id": "157814419c4e58fed169746c2fbc90842b554964ff836dc4b64ef8c4f6d6073c",
+      "image": "drop-agent:20261019.2",
+      "image_id": "sha256:ba4842043e9cd7c3c576e5a88cf1c4b1ed9d484fbee2d532684e79b5314e4351",
+      "user": "10001:10001",
+      "running": true,
+      "health": null,
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [
+        "drop_agent_perf_data",
+        "drop_helper_socket",
+        "drop_helper_incoming"
+      ],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "name": "drop-drop-server-1",
+      "id": "15824e164d9f80ddc865a6d99a440fbed613735f9c91e104bd41d1844d4d470e",
+      "image": "drop-core:20261019.2",
+      "image_id": "sha256:1310a7f48bf0cfba7f3de7e8b4e0dc3671bbbb91d2707b1d302f5f8db93a0355",
+      "user": "10001:10001",
+      "running": true,
+      "health": null,
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "name": "drop-minio-1",
+      "id": "642e202750165e85283fb54396c4b4e40be150ebcbb97f345f306656a35ca97e",
+      "image": "drop-nginx:20261018.1-rc2",
+      "image_id": "sha256:f76c617fd59867fba9b4d322c1cd4a041d2253cf440f4816f7cad95a3c4a6cee",
+      "user": "101",
+      "running": true,
+      "health": "healthy",
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "name": "drop-postgres-1",
+      "id": "66ed1eefc9febc9f4e33786a0fd9e10891265e1cebe72823f6b0a8a9b8aaf0d1",
+      "image": "postgres:17.11-alpine",
+      "image_id": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "user": "",
+      "running": true,
+      "health": "healthy",
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [
+        "drop_pg_data"
+      ],
+      "cap_add": null,
+      "cap_drop": null
+    },
+    {
+      "name": "drop-storage-backend-1",
+      "id": "35a31d5f6ab231fd85fb762582efe8c6cd79caf8eeb6e0c8535bac991108eb09",
+      "image": "minio/minio:RELEASE.2025-07-23T15-54-02Z",
+      "image_id": "sha256:d249d1fb6966de4d8ad26c04754b545205ff15a62e4fd19ebd0f26fa5baacbc0",
+      "user": "10001:10001",
+      "running": true,
+      "health": "healthy",
+      "oom_killed": false,
+      "restart_count": 9,
+      "data_volumes": [
+        "drop_object_data"
+      ],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "name": "drop-analyzer-1",
+      "id": "ae073e334d7ea065b964ee332fd951df87f4db4632b14722905bd26ca35c8427",
+      "image": "drop-analyzer:20261018.1-rc4",
+      "image_id": "sha256:b9e6b659e0494e5002ed5f49a43812a73c3eb7b966d050b2e325b5990e9af136",
+      "user": "10001:10001",
+      "running": true,
+      "health": "healthy",
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    }
+  ],
+  "core_source_sha256": "ff286e41e3927f6d6ddb8cd5e910a60b9c747b5b57d2885b85163d94ce4cd8d8",
+  "controlled_public_smoke": {
+    "origin": "https://120.24.187.205",
+    "tls_verified": true,
+    "secure_session_cookie": true,
+    "historical_result_readable": true,
+    "historical_task_id": "27",
+    "python_memory_live_attach_advertised": false,
+    "tasks": [
+      {
+        "kind": "PROC_CPU",
+        "task_id": "28",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 47,
+        "raw_sha256": "84b609ff9c256d92d63aa712bf26788c3cf0a00fce085459e5ad982d6559ee62",
+        "download_verified": true,
+        "source": "real controlled live process; no imported or synthetic folded data"
+      },
+      {
+        "kind": "PERF_CPU",
+        "task_id": "29",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 3214,
+        "raw_sha256": "50cbc1e7e704eb5b7ded78405bca7078ddbcd387ee778c427ee70b34753fc5b5",
+        "download_verified": true,
+        "source": "real controlled live process; no imported or synthetic folded data"
+      }
+    ]
+  },
+  "predeployment_backup": {
+    "path": "/opt/drop-backups/drop-20261019T092022Z-3ab99f",
+    "proof": {
+      "verified_at": "2026-10-19T09:20:34.334469+00:00",
+      "postgres_restore": "passed",
+      "database_counts": {
+        "audit_logs": 87,
+        "oidc_states": 0,
+        "rate_limits": 0,
+        "schema_migrations": 5,
+        "storage_maintenance_state": 0,
+        "artifacts": 125,
+        "agents": 1,
+        "agent_events": 0,
+        "agent_samples": 123664,
+        "task_attempts": 31,
+        "ai_requests": 0,
+        "users": 7,
+        "tasks": 25,
+        "analysis_job_runs": 0,
+        "analysis_jobs": 25,
+        "composite_runs": 0,
+        "composite_nodes": 0,
+        "groups": 0,
+        "diagnostic_rules": 3,
+        "group_agents": 0,
+        "group_members": 0,
+        "oidc_identities": 0,
+        "outbox": 28,
+        "schedules": 1,
+        "schedule_records": 1,
+        "sessions": 0,
+        "suggestions": 0,
+        "suggestion_feedback": 0,
+        "task_events": 294,
+        "task_shares": 0,
+        "schema_version": 5
+      },
+      "referenced_artifacts_verified": 125,
+      "object_files_verified": 125,
+      "object_metadata_verified": true,
+      "isolated_s3_roundtrip": "passed",
+      "production_resources_modified": false,
+      "restore_duration_seconds": 7.334
+    }
+  },
+  "post_encryption_backup": {
+    "path": "/opt/drop-backups/drop-20261019T093228Z-bd78e1",
+    "restore_check": {
+      "verified_at": "2026-10-19T09:32:39.657643+00:00",
+      "postgres_restore": "passed",
+      "database_counts": {
+        "audit_logs": 96,
+        "oidc_states": 0,
+        "rate_limits": 1,
+        "schema_migrations": 5,
+        "storage_maintenance_state": 0,
+        "artifacts": 139,
+        "agents": 1,
+        "agent_events": 9,
+        "agent_samples": 123990,
+        "task_attempts": 33,
+        "ai_requests": 0,
+        "users": 7,
+        "tasks": 27,
+        "analysis_job_runs": 0,
+        "analysis_jobs": 27,
+        "composite_runs": 0,
+        "composite_nodes": 0,
+        "groups": 0,
+        "diagnostic_rules": 3,
+        "group_agents": 0,
+        "group_members": 0,
+        "oidc_identities": 0,
+        "outbox": 30,
+        "schedules": 1,
+        "schedule_records": 1,
+        "sessions": 5,
+        "suggestions": 0,
+        "suggestion_feedback": 0,
+        "task_events": 324,
+        "task_shares": 0,
+        "schema_version": 5
+      },
+      "referenced_artifacts_verified": 139,
+      "object_files_verified": 139,
+      "object_metadata_verified": true,
+      "isolated_s3_roundtrip": "passed",
+      "production_resources_modified": false,
+      "restore_duration_seconds": 6.658
+    }
+  },
+  "storage_encryption": {
+    "already_encrypted": 14,
+    "artifact_integrity_complete": true,
+    "baseline_only": 0,
+    "bucket_encryption_verified": true,
+    "bytes_read": 3074494,
+    "checked": 139,
+    "complete": true,
+    "database_missing": 0,
+    "encrypted": 125,
+    "mode": "apply",
+    "scan_complete": true,
+    "would_encrypt": 0
+  },
+  "certificate": [
+    "issuer=C = US, O = Let's Encrypt, CN = YE2",
+    "notBefore=Oct 19 08:24:09 2026 GMT",
+    "notAfter=Oct 26 00:24:08 2026 GMT",
+    "sha256 Fingerprint=0E:30:8A:68:4D:1D:B8:0E:B8:F7:8B:6D:73:22:D1:B3:0C:C6:F9:02:89:17:19:4C:D2:B1:D9:33:CC:26:E2:B6"
+  ],
+  "renewal_service": [
+    "Result=success",
+    "ExecMainStatus=0"
+  ],
+  "backup_service": [
+    "Result=success",
+    "ExecMainStatus=0"
+  ],
+  "timers_enabled": {
+    "tx-drop-tls-renew.timer": true,
+    "tx-drop-backup.timer": true
+  },
+  "full_acceptance_complete": false,
+  "known_boundaries": [
+    "Live PYTHON_MEMORY attach disabled pending target recovery; imported memray analysis verified",
+    "External OIDC/model/offsite displays intentionally omitted; integrations retained",
+    "Single physical server; no multi-node HA claim",
+    "Analyzer and Ops vulnerability findings remain untriaged; no full security clearance claim"
+  ]
+}

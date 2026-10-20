@@ -1,0 +1,1845 @@
+{
+  "recorded_at": "2026-10-19T12:15:53.942515+00:00",
+  "release": "20261019.5-platform",
+  "origin": "https://120.24.187.205",
+  "source_root": "/opt/tx-drop-20261019/source",
+  "current_pointer": "/opt/drop-current",
+  "containers": [
+    {
+      "name": "drop-collector-helper-1",
+      "id": "8ece61baf43fb4c41bdbdfe679fd2035d1c34a120dcd6d602dbf26a1e1bac045",
+      "image": "drop-agent:20261019.5",
+      "image_id": "sha256:a5db5216584e7e441ec9ca985b568aa1425004b36b71975c887930449157314f",
+      "user": "0:10001",
+      "running": true,
+      "health": null,
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [
+        "drop_helper_socket",
+        "drop_helper_data",
+        "drop_helper_incoming"
+      ],
+      "cap_add": [
+        "CAP_BPF",
+        "CAP_DAC_READ_SEARCH",
+        "CAP_KILL",
+        "CAP_PERFMON",
+        "CAP_SYS_PTRACE"
+      ],
+      "cap_drop": [
+        "ALL"
+      ],
+      "memory_limit": 536870912,
+      "published_ports": {}
+    },
+    {
+      "name": "drop-agent-1",
+      "id": "51f93d95fdfe106f333105c356d2510b30ab7949776138cc8b592af5d0f680b4",
+      "image": "drop-agent:20261019.5",
+      "image_id": "sha256:a5db5216584e7e441ec9ca985b568aa1425004b36b71975c887930449157314f",
+      "user": "10001:10001",
+      "running": true,
+      "health": null,
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [
+        "drop_helper_socket",
+        "drop_helper_incoming",
+        "drop_agent_perf_data"
+      ],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "memory_limit": 201326592,
+      "published_ports": {}
+    },
+    {
+      "name": "drop-api-1",
+      "id": "bb35648faec11536c89666ac41a66127b15618c50579cab1eb07b8d1a58faad9",
+      "image": "drop-api:20261018.1-rc4",
+      "image_id": "sha256:94ad66ca5cd6a9a866c84c35916626b9cfe41e765c3cd648abb04970777abc47",
+      "user": "drop",
+      "running": true,
+      "health": "healthy",
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "memory_limit": 268435456,
+      "published_ports": {}
+    },
+    {
+      "name": "drop-drop-server-1",
+      "id": "a321da54602600c7ca5fcbc3a8c4fb32b009271a772fdf9400a6e51af4b35c80",
+      "image": "drop-core:20261019.5",
+      "image_id": "sha256:06b6d6ab16ca47ed9d54e90f7238b3fec56c0c310932b85acc28157b6c2688d9",
+      "user": "10001:10001",
+      "running": true,
+      "health": null,
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "memory_limit": 134217728,
+      "published_ports": {}
+    },
+    {
+      "name": "drop-storage-backend-1",
+      "id": "63d118a5e5e39e568191e9795babee9e4aeb2bfb8394992cea1684d8ee2e4da6",
+      "image": "minio/minio:RELEASE.2025-07-23T15-54-02Z",
+      "image_id": "sha256:d249d1fb6966de4d8ad26c04754b545205ff15a62e4fd19ebd0f26fa5baacbc0",
+      "user": "10001:10001",
+      "running": true,
+      "health": "healthy",
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [
+        "drop_object_data"
+      ],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "memory_limit": 536870912,
+      "published_ports": {}
+    },
+    {
+      "name": "drop-grafana-1",
+      "id": "c6441e47ed9f0969b812a7f496189973e30b971656931a1b3c419e16ed221598",
+      "image": "grafana/grafana:13.2.4",
+      "image_id": "sha256:dbbc38ea21103cefb50396340cd88afec779c7e070b0a7bf5a75b4ce46651d3f",
+      "user": "472",
+      "running": true,
+      "health": null,
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [
+        "drop_grafana_data"
+      ],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "memory_limit": 805306368,
+      "published_ports": {
+        "3000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "3000"
+          }
+        ]
+      }
+    },
+    {
+      "name": "drop-analyzer-1",
+      "id": "f7f6ba2f969b379684d64c993d4d403af9c37ac365ec29423b80db8e18457206",
+      "image": "drop-analyzer:20261018.1-rc4",
+      "image_id": "sha256:b9e6b659e0494e5002ed5f49a43812a73c3eb7b966d050b2e325b5990e9af136",
+      "user": "10001:10001",
+      "running": true,
+      "health": "healthy",
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "memory_limit": 536870912,
+      "published_ports": {}
+    },
+    {
+      "name": "drop-tempo-1",
+      "id": "67416da1dbafb5a4483decabb58643f60aaf3017f995a7097d21b8427c7bf992",
+      "image": "grafana/tempo:3.1.0",
+      "image_id": "sha256:3076b8dcdfb32fd6bc5ccef85e7b7313e6199b9cb84366257fc17ecb696db5fd",
+      "user": "10001:10001",
+      "running": true,
+      "health": null,
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [
+        "drop_tempo_data"
+      ],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "memory_limit": 134217728,
+      "published_ports": {
+        "3200/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "3200"
+          }
+        ]
+      }
+    },
+    {
+      "name": "drop-prometheus-1",
+      "id": "2a3ebb0335914cc27b498507235cc7de27b560da62c32f31224464043039e665",
+      "image": "prom/prometheus:v3.15.0",
+      "image_id": "sha256:efd719c99d83b060d9daefdcf00360461adf279f45ef5391f8d111892118753e",
+      "user": "nobody",
+      "running": true,
+      "health": null,
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [
+        "drop_prometheus_data"
+      ],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "memory_limit": 134217728,
+      "published_ports": {
+        "9090/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "9090"
+          }
+        ]
+      }
+    },
+    {
+      "name": "drop-alertmanager-1",
+      "id": "d9f63fc81cbc2f48255504cda11fb45bd38f4c87fd3b7aadc30d5682d2333f47",
+      "image": "prom/alertmanager:v0.34.1",
+      "image_id": "sha256:e9733bafb1bdef9b00e25a21f8f99dc26a22224bf16641ad754d1649f4c3357a",
+      "user": "nobody",
+      "running": true,
+      "health": null,
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [
+        "drop_alertmanager_data"
+      ],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "memory_limit": 50331648,
+      "published_ports": {
+        "9093/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "9093"
+          }
+        ]
+      }
+    },
+    {
+      "name": "drop-otel-collector-1",
+      "id": "35032a827d071ec9a0281ffbac7edffbb8df6a929def026a150545954845825f",
+      "image": "otel/opentelemetry-collector:0.162.0",
+      "image_id": "sha256:310a800ad69ee430e7c541796852a242c9c7db97aaad4daa5ccf843c525fbdb2",
+      "user": "10001:10001",
+      "running": true,
+      "health": null,
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "memory_limit": 100663296,
+      "published_ports": {}
+    },
+    {
+      "name": "drop-maintenance-1",
+      "id": "b4b3955b3bf5878f3e729efd3bd7a52986dabf48c0c5023916b7d075d10d312c",
+      "image": "drop-ops:20261019.1",
+      "image_id": "sha256:4301394ecf2eb00ea7d49e7d4b675065126d09022b1751e36695f8eaebfe8bff",
+      "user": "10001:10001",
+      "running": true,
+      "health": "healthy",
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "memory_limit": 100663296,
+      "published_ports": {}
+    },
+    {
+      "name": "drop-gateway-1",
+      "id": "e9ffda7cbaec7d68593f744b9f209f562ea6f4c853bf089a09f400984580ae4e",
+      "image": "drop-nginx:20261018.1-rc2",
+      "image_id": "sha256:f76c617fd59867fba9b4d322c1cd4a041d2253cf440f4816f7cad95a3c4a6cee",
+      "user": "101",
+      "running": true,
+      "health": null,
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "memory_limit": 50331648,
+      "published_ports": {
+        "8080/tcp": [
+          {
+            "HostIp": "",
+            "HostPort": "80"
+          }
+        ],
+        "8443/tcp": [
+          {
+            "HostIp": "",
+            "HostPort": "443"
+          }
+        ]
+      }
+    },
+    {
+      "name": "drop-web-1",
+      "id": "326d10997ac8a451d945a22f6fb8e1603604d31f8ce710905fc7c58ad92cab19",
+      "image": "drop-web:20261019.3",
+      "image_id": "sha256:452ef2a6ca44e9ca5f4f3ff7c14821acad3bf3a7810b9b9f6f65215dc9141959",
+      "user": "101",
+      "running": true,
+      "health": "healthy",
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "memory_limit": 50331648,
+      "published_ports": {}
+    },
+    {
+      "name": "drop-minio-1",
+      "id": "642e202750165e85283fb54396c4b4e40be150ebcbb97f345f306656a35ca97e",
+      "image": "drop-nginx:20261018.1-rc2",
+      "image_id": "sha256:f76c617fd59867fba9b4d322c1cd4a041d2253cf440f4816f7cad95a3c4a6cee",
+      "user": "101",
+      "running": true,
+      "health": "healthy",
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [],
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "memory_limit": 50331648,
+      "published_ports": {}
+    },
+    {
+      "name": "drop-postgres-1",
+      "id": "66ed1eefc9febc9f4e33786a0fd9e10891265e1cebe72823f6b0a8a9b8aaf0d1",
+      "image": "postgres:17.11-alpine",
+      "image_id": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "user": "",
+      "running": true,
+      "health": "healthy",
+      "oom_killed": false,
+      "restart_count": 0,
+      "data_volumes": [
+        "drop_pg_data"
+      ],
+      "cap_add": null,
+      "cap_drop": null,
+      "memory_limit": 201326592,
+      "published_ports": {}
+    }
+  ],
+  "core_source_sha256": "fa2150a46b8956724067baeaefae1ae437925c96481411d2d1800278ca983434",
+  "controlled_public_smoke": {
+    "origin": "https://120.24.187.205",
+    "tls_verified": true,
+    "secure_session_cookie": true,
+    "historical_result_readable": true,
+    "historical_task_id": "33",
+    "python_memory_live_attach_advertised": true,
+    "tasks": [
+      {
+        "kind": "PROC_CPU",
+        "task_id": "34",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 47,
+        "raw_sha256": "84b609ff9c256d92d63aa712bf26788c3cf0a00fce085459e5ad982d6559ee62",
+        "download_verified": true,
+        "source": "real controlled live process; no imported or synthetic folded data"
+      },
+      {
+        "kind": "PERF_CPU",
+        "task_id": "35",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 3148,
+        "raw_sha256": "c512863fcbef285bc3bc0e72949dac5778b65dd22508008ef75742d62f568767",
+        "download_verified": true,
+        "source": "real controlled live process; no imported or synthetic folded data"
+      }
+    ]
+  },
+  "core5_rollout": {
+    "success": true,
+    "recorded_at": "2026-10-19T12:12:42.894853+00:00",
+    "release": "20261019.5-platform",
+    "source_sha256": "fa2150a46b8956724067baeaefae1ae437925c96481411d2d1800278ca983434",
+    "images": {
+      "drop-core:20261019.5": "sha256:06b6d6ab16ca47ed9d54e90f7238b3fec56c0c310932b85acc28157b6c2688d9",
+      "drop-agent:20261019.5": "sha256:a5db5216584e7e441ec9ca985b568aa1425004b36b71975c887930449157314f"
+    },
+    "changed_services": [
+      "agent",
+      "api",
+      "collector-helper",
+      "drop-server"
+    ],
+    "other_twelve_container_ids_unchanged": true,
+    "api_readonly_catalog_coordinated": true,
+    "production_data_volumes_preserved": true,
+    "controlled_public_smoke": {
+      "origin": "https://120.24.187.205",
+      "tls_verified": true,
+      "secure_session_cookie": true,
+      "historical_result_readable": true,
+      "historical_task_id": "33",
+      "python_memory_live_attach_advertised": true,
+      "tasks": [
+        {
+          "kind": "PROC_CPU",
+          "task_id": "34",
+          "collection_status": "COLLECTED",
+          "analysis_status": "SUCCESS",
+          "raw_size": 47,
+          "raw_sha256": "84b609ff9c256d92d63aa712bf26788c3cf0a00fce085459e5ad982d6559ee62",
+          "download_verified": true,
+          "source": "real controlled live process; no imported or synthetic folded data"
+        },
+        {
+          "kind": "PERF_CPU",
+          "task_id": "35",
+          "collection_status": "COLLECTED",
+          "analysis_status": "SUCCESS",
+          "raw_size": 3148,
+          "raw_sha256": "c512863fcbef285bc3bc0e72949dac5778b65dd22508008ef75742d62f568767",
+          "download_verified": true,
+          "source": "real controlled live process; no imported or synthetic folded data"
+        }
+      ]
+    },
+    "all_sixteen_live_agent_kinds_twenty_scenarios_passed_in_isolated_stage": true,
+    "real_memory_permission_positive_and_negative_passed": true,
+    "sixty_second_idle_baseline_recorded": false,
+    "optional_idle_and_dev_validation_deferred_after_priority_release": true,
+    "old_named_images_preserved": true
+  },
+  "stage_all_sixteen_agent_kinds_twenty_scenarios": {
+    "success": true,
+    "source_sha256": "fa2150a46b8956724067baeaefae1ae437925c96481411d2d1800278ca983434",
+    "scope": "actual current Core5/Agent5 isolated full HTTP live collection/upload/analysis; 16 Agent kinds, 20 scenarios; no host PID, production secrets, imported profile data or execution of uploaded ELF",
+    "agent_capless": true,
+    "same_uid_cooperative_tools": true,
+    "scenarios": [
+      {
+        "success": true,
+        "kind": "JAVA_CPU",
+        "category": "",
+        "task_id": "15",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 113,
+        "raw_sha256": "b4f83ab8d25fe21ed48341429f79cb4cf3a942aa6eef8dd2374dbb96d5222ebb",
+        "raw_download_verified": true,
+        "unit": "samples",
+        "sections": [],
+        "target_resumed": true,
+        "target_before": {
+          "state": "S",
+          "ticks": 48,
+          "tracer_pid": 0
+        },
+        "target_after": {
+          "state": "S",
+          "ticks": 154,
+          "tracer_pid": 0
+        },
+        "target_later": {
+          "state": "S",
+          "ticks": 178,
+          "tracer_pid": 0
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      },
+      {
+        "success": true,
+        "kind": "JAVA_HEAP",
+        "category": "",
+        "task_id": "16",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 8983713,
+        "raw_sha256": "ff7bee9373463e04f2370d9cd9f72c25fec55decaa8b7abe6435bd9f1a62c72d",
+        "raw_download_verified": true,
+        "unit": "bytes",
+        "sections": [
+          "heap"
+        ],
+        "target_resumed": true,
+        "target_before": {
+          "state": "S",
+          "ticks": 182,
+          "tracer_pid": 0
+        },
+        "target_after": {
+          "state": "S",
+          "ticks": 307,
+          "tracer_pid": 0
+        },
+        "target_later": {
+          "state": "S",
+          "ticks": 332,
+          "tracer_pid": 0
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      },
+      {
+        "success": true,
+        "kind": "GO_CPU",
+        "category": "",
+        "task_id": "17",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 1112,
+        "raw_sha256": "676955509c9d28c1a5c7f9524d3a1657c2adcfd67df53976f1ae6228db05d94f",
+        "raw_download_verified": true,
+        "unit": "nanoseconds",
+        "sections": [],
+        "target_resumed": true,
+        "target_before": {
+          "state": "R",
+          "ticks": 7,
+          "tracer_pid": 0
+        },
+        "target_after": {
+          "state": "S",
+          "ticks": 133,
+          "tracer_pid": 0
+        },
+        "target_later": {
+          "state": "S",
+          "ticks": 157,
+          "tracer_pid": 0
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      },
+      {
+        "success": true,
+        "kind": "GO_HEAP",
+        "category": "",
+        "task_id": "18",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 999,
+        "raw_sha256": "b042915a31360895b769381ee6e55f90cd2aaa9a535cea221dc654ea287e89cf",
+        "raw_download_verified": true,
+        "unit": "bytes",
+        "sections": [
+          "heap"
+        ],
+        "target_resumed": true,
+        "target_before": {
+          "state": "S",
+          "ticks": 161,
+          "tracer_pid": 0
+        },
+        "target_after": {
+          "state": "R",
+          "ticks": 267,
+          "tracer_pid": 0
+        },
+        "target_later": {
+          "state": "S",
+          "ticks": 291,
+          "tracer_pid": 0
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      },
+      {
+        "success": true,
+        "kind": "PYTHON_CPU",
+        "category": "",
+        "task_id": "19",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 163,
+        "raw_sha256": "5a59ae61768e355526f9eb27c16a86be30c3d4f95e51ccf26a0d1072a4b565e3",
+        "raw_download_verified": true,
+        "unit": "samples",
+        "sections": [],
+        "target_resumed": true,
+        "target_before": {
+          "state": "R",
+          "ticks": 47,
+          "tracer_pid": 0
+        },
+        "target_after": {
+          "state": "R",
+          "ticks": 194,
+          "tracer_pid": 0
+        },
+        "target_later": {
+          "state": "R",
+          "ticks": 219,
+          "tracer_pid": 0
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      },
+      {
+        "success": true,
+        "kind": "PYTHON_MEMORY",
+        "category": "",
+        "task_id": "20",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 2989,
+        "raw_sha256": "7c252f18170d5f67ae4da710451a655f5627d4b8080d7e3c259039cf9d4947bf",
+        "raw_download_verified": true,
+        "unit": "bytes",
+        "sections": [
+          "memory"
+        ],
+        "target_resumed": true,
+        "target_before": {
+          "state": "R",
+          "ticks": 223,
+          "tracer_pid": 0
+        },
+        "target_after": {
+          "state": "R",
+          "ticks": 370,
+          "tracer_pid": 0
+        },
+        "target_later": {
+          "state": "R",
+          "ticks": 394,
+          "tracer_pid": 0
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      },
+      {
+        "success": true,
+        "kind": "GPERF_CPU",
+        "category": "",
+        "task_id": "21",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 7966,
+        "raw_sha256": "a9b98d31720da7db6a73bb8f4982f552dee4cb86bf2112ed947b07934441bfac",
+        "raw_download_verified": true,
+        "unit": "samples",
+        "sections": [],
+        "target_resumed": true,
+        "target_before": {
+          "state": "S",
+          "ticks": 47,
+          "tracer_pid": 0
+        },
+        "target_after": {
+          "state": "R",
+          "ticks": 193,
+          "tracer_pid": 0
+        },
+        "target_later": {
+          "state": "S",
+          "ticks": 217,
+          "tracer_pid": 0
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      },
+      {
+        "success": true,
+        "kind": "GPERF_HEAP",
+        "category": "",
+        "task_id": "22",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 9160,
+        "raw_sha256": "123521579a37dc96420990bc6b990d7c87636658b9814ea9b7f711488989ccb9",
+        "raw_download_verified": true,
+        "unit": "bytes",
+        "sections": [
+          "heap"
+        ],
+        "target_resumed": true,
+        "target_before": {
+          "state": "R",
+          "ticks": 27,
+          "tracer_pid": 0
+        },
+        "target_after": {
+          "state": "R",
+          "ticks": 136,
+          "tracer_pid": 0
+        },
+        "target_later": {
+          "state": "R",
+          "ticks": 160,
+          "tracer_pid": 0
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      },
+      {
+        "success": true,
+        "kind": "JEPROF_HEAP",
+        "category": "",
+        "task_id": "23",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 7186,
+        "raw_sha256": "be976abc7a3780ed25f08c0a7e27b36b5ce8f8b46a642cd2387d7a840b0cbeb4",
+        "raw_download_verified": true,
+        "unit": "bytes",
+        "sections": [
+          "heap"
+        ],
+        "target_resumed": true,
+        "target_before": {
+          "state": "S",
+          "ticks": 27,
+          "tracer_pid": 0
+        },
+        "target_after": {
+          "state": "R",
+          "ticks": 154,
+          "tracer_pid": 0
+        },
+        "target_later": {
+          "state": "R",
+          "ticks": 178,
+          "tracer_pid": 0
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      },
+      {
+        "success": true,
+        "kind": "IO_TRACE",
+        "category": "syscalls",
+        "task_id": "24",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 55007,
+        "raw_sha256": "f337d4ecd540795a264fd44c64959ae6103c8dad5f0d601b6e634f83fe64c65b",
+        "raw_download_verified": true,
+        "unit": "bytes",
+        "sections": [
+          "io"
+        ],
+        "target_resumed": true,
+        "target_before": {
+          "state": "S",
+          "ticks": 3,
+          "tracer_pid": 0
+        },
+        "target_after": {
+          "state": "S",
+          "ticks": 5,
+          "tracer_pid": 0
+        },
+        "target_later": {
+          "state": "D",
+          "ticks": 6,
+          "tracer_pid": 0
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      },
+      {
+        "success": true,
+        "kind": "IO_TRACE",
+        "category": "vfs",
+        "task_id": "25",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 62795,
+        "raw_sha256": "44b3cd639a3c4aee1c5390abc5415c16b6ea744bc0e25c85ffdf4fa3678a37d0",
+        "raw_download_verified": true,
+        "unit": "bytes",
+        "sections": [
+          "io"
+        ],
+        "target_resumed": true,
+        "target_before": {
+          "state": "S",
+          "ticks": 6,
+          "tracer_pid": 0
+        },
+        "target_after": {
+          "state": "D",
+          "ticks": 9,
+          "tracer_pid": 0
+        },
+        "target_later": {
+          "state": "S",
+          "ticks": 10,
+          "tracer_pid": 0
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      },
+      {
+        "success": true,
+        "kind": "IO_TRACE",
+        "category": "block",
+        "task_id": "26",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 50774,
+        "raw_sha256": "6c176204699d56a3be43f33da323bae529bc1332a55a76ebb407367c64bdabe6",
+        "raw_download_verified": true,
+        "unit": "bytes",
+        "sections": [
+          "io"
+        ],
+        "target_resumed": true,
+        "target_before": {
+          "state": "S",
+          "ticks": 10,
+          "tracer_pid": 0
+        },
+        "target_after": {
+          "state": "R",
+          "ticks": 13,
+          "tracer_pid": 0
+        },
+        "target_later": {
+          "state": "S",
+          "ticks": 14,
+          "tracer_pid": 0
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      },
+      {
+        "success": true,
+        "kind": "MEMORY_TRACE",
+        "category": "pagefault",
+        "task_id": "27",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 336224,
+        "raw_sha256": "65bcd5bbba7ef2f9ce94b1efb4133972c1bef1a9784fadf89370d761d5d4692f",
+        "raw_download_verified": true,
+        "unit": "bytes",
+        "sections": [
+          "memory"
+        ],
+        "target_resumed": true,
+        "target_before": {
+          "state": "S",
+          "ticks": 14,
+          "tracer_pid": 0
+        },
+        "target_after": {
+          "state": "S",
+          "ticks": 16,
+          "tracer_pid": 0
+        },
+        "target_later": {
+          "state": "S",
+          "ticks": 17,
+          "tracer_pid": 0
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      },
+      {
+        "success": true,
+        "kind": "MEMORY_TRACE",
+        "category": "alloc",
+        "task_id": "28",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 46880,
+        "raw_sha256": "4b4778bef5e2ddd0afd2320e82f6549cb64a533adcfac92cd29d1d4b291ff3b1",
+        "raw_download_verified": true,
+        "unit": "bytes",
+        "sections": [
+          "memory"
+        ],
+        "target_resumed": true,
+        "target_before": {
+          "state": "S",
+          "ticks": 17,
+          "tracer_pid": 0
+        },
+        "target_after": {
+          "state": "S",
+          "ticks": 19,
+          "tracer_pid": 0
+        },
+        "target_later": {
+          "state": "D",
+          "ticks": 21,
+          "tracer_pid": 0
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      },
+      {
+        "success": true,
+        "kind": "MEMORY_TRACE",
+        "category": "mmap",
+        "task_id": "30",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 51840,
+        "raw_sha256": "a5be863d8beff3a8473015f8ff8c8fe72cdcb83258f8ba5496117b26dd107a44",
+        "raw_download_verified": true,
+        "unit": "bytes",
+        "sections": [
+          "memory"
+        ],
+        "target_resumed": true,
+        "target_before": {
+          "state": "S",
+          "ticks": 2,
+          "tracer_pid": 0,
+          "io_calls": 183
+        },
+        "target_after": {
+          "state": "S",
+          "ticks": 5,
+          "tracer_pid": 0,
+          "io_calls": 703
+        },
+        "target_later": {
+          "state": "S",
+          "ticks": 5,
+          "tracer_pid": 0,
+          "io_calls": 801
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      },
+      {
+        "success": true,
+        "kind": "BOLT_PROFILE",
+        "category": "",
+        "task_id": "32",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 127,
+        "raw_sha256": "afdec6f04fb25860d073ba193f2645da99cbfc4878cc760012845317406856c3",
+        "raw_download_verified": true,
+        "unit": "samples",
+        "sections": [
+          "binary"
+        ],
+        "target_resumed": true,
+        "target_before": {
+          "state": "R",
+          "ticks": 48,
+          "tracer_pid": 0,
+          "io_calls": 48
+        },
+        "target_after": {
+          "state": "R",
+          "ticks": 257,
+          "tracer_pid": 0,
+          "io_calls": 48
+        },
+        "target_later": {
+          "state": "R",
+          "ticks": 282,
+          "tracer_pid": 0,
+          "io_calls": 48
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      },
+      {
+        "success": true,
+        "kind": "PROC_CPU",
+        "category": "",
+        "task_id": "33",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 47,
+        "raw_sha256": "5308c452678125dbecaad67736619b43146703736a4653a31500524ef48c0fc8",
+        "raw_download_verified": true,
+        "unit": "cpu_ticks",
+        "sections": [],
+        "target_resumed": true,
+        "target_before": {
+          "state": "R",
+          "ticks": 1433,
+          "tracer_pid": 0,
+          "io_calls": 12
+        },
+        "target_after": {
+          "state": "S",
+          "ticks": 1618,
+          "tracer_pid": 0,
+          "io_calls": 12
+        },
+        "target_later": {
+          "state": "S",
+          "ticks": 1648,
+          "tracer_pid": 0,
+          "io_calls": 12
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      },
+      {
+        "success": true,
+        "kind": "PERF_CPU",
+        "category": "",
+        "task_id": "34",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 3082,
+        "raw_sha256": "7a1d24bd30ef1eae8dd53e29cabb408dbbd42c38994451d4aa09a6021665e484",
+        "raw_download_verified": true,
+        "unit": "samples",
+        "sections": [
+          "perf"
+        ],
+        "target_resumed": true,
+        "target_before": {
+          "state": "R",
+          "ticks": 1651,
+          "tracer_pid": 0,
+          "io_calls": 12
+        },
+        "target_after": {
+          "state": "S",
+          "ticks": 1863,
+          "tracer_pid": 0,
+          "io_calls": 12
+        },
+        "target_later": {
+          "state": "R",
+          "ticks": 1895,
+          "tracer_pid": 0,
+          "io_calls": 12
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      },
+      {
+        "success": true,
+        "kind": "RESOURCE_SNAPSHOT",
+        "category": "",
+        "task_id": "35",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 7989,
+        "raw_sha256": "4e0eee66dface7c6904566549cfca2f91b1ae774cdd670edc50aacbdc9e6d454",
+        "raw_download_verified": true,
+        "unit": "bytes",
+        "sections": [
+          "resources"
+        ],
+        "target_resumed": true,
+        "target_before": {
+          "state": "S",
+          "ticks": 1898,
+          "tracer_pid": 0,
+          "io_calls": 12
+        },
+        "target_after": {
+          "state": "R",
+          "ticks": 2048,
+          "tracer_pid": 0,
+          "io_calls": 12
+        },
+        "target_later": {
+          "state": "R",
+          "ticks": 2081,
+          "tracer_pid": 0,
+          "io_calls": 12
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      },
+      {
+        "success": true,
+        "kind": "SCRIPT",
+        "category": "",
+        "task_id": "36",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "raw_size": 1729,
+        "raw_sha256": "43131f14334253179fe1f49381e37de0432674acdd757e9e31c0a6154ef1c624",
+        "raw_download_verified": true,
+        "unit": "operations",
+        "sections": [
+          "script"
+        ],
+        "target_resumed": true,
+        "target_before": {
+          "state": "R",
+          "ticks": 2084,
+          "tracer_pid": 0,
+          "io_calls": 12
+        },
+        "target_after": {
+          "state": "S",
+          "ticks": 2237,
+          "tracer_pid": 0,
+          "io_calls": 12
+        },
+        "target_later": {
+          "state": "R",
+          "ticks": 2269,
+          "tracer_pid": 0,
+          "io_calls": 12
+        },
+        "source": "real explicitly owned UID10001 live process; actual Agent/helper/cooperative/S3/Analyzer; no import"
+      }
+    ],
+    "fixture_sources_sha256": {
+      "io-fixture": "56c58eb60f0fa82d1f03e3e76b239a2d2bc859e23c81db6e5dcc1bf698e21e2c",
+      "JavaWorkload.class": "761163abd641394a0e232bffc4d7c5151a2f818219350bb7202cc812bac1123f",
+      "io_workload.cpp": "dec4e9a99f3d1aa9e0af5c5276f13016d705e2759ede9fa4d87dadaff214b5e4",
+      "python_workload.py": "35eea5ff9cfda65ab311a01f8e53e36d3d552c5e4cb6f92fef3dffeeaa2a1702",
+      "JavaWorkload.java": "075d0a83a81b3ca829f5eb13a01941e78b3c34f9e91c9bd7a2d81e4469ab49c4",
+      "go-fixture": "48949402859ec6aaf8a9016a5cfc24ab226128d6ee404f657ce21770511ef58a",
+      "go_workload.go": "97a40bd50f157ac4db2dd6b63f20e8889e2896d2828a09fe91e1a0a0ace40cc4"
+    },
+    "owned_runs": 3,
+    "earlier_completed_cases_file": "core5-first-fifteen-scenarios.json",
+    "resumption_probe": "bounded ten-second CPU or I/O syscall progress; no stopped state and TracerPid0",
+    "production_container_ids_verified_unchanged": true,
+    "production_container_ids_before": [
+      "1f5e39705dcdc8e321a1327ad8ca8925600aca1c93df8bf68751627c0ed3f9fd",
+      "2a3ebb0335914cc27b498507235cc7de27b560da62c32f31224464043039e665",
+      "30e61f637c88bcdf79ef297bb0df10e9434da02002ac3834b8608d0c983b854a",
+      "326d10997ac8a451d945a22f6fb8e1603604d31f8ce710905fc7c58ad92cab19",
+      "35032a827d071ec9a0281ffbac7edffbb8df6a929def026a150545954845825f",
+      "3d8f779d583699c06de52b1210e08c88724b8699889d9a6cbe27b524ccafdc16",
+      "63d118a5e5e39e568191e9795babee9e4aeb2bfb8394992cea1684d8ee2e4da6",
+      "642e202750165e85283fb54396c4b4e40be150ebcbb97f345f306656a35ca97e",
+      "66ed1eefc9febc9f4e33786a0fd9e10891265e1cebe72823f6b0a8a9b8aaf0d1",
+      "67416da1dbafb5a4483decabb58643f60aaf3017f995a7097d21b8427c7bf992",
+      "a744ada58b1ead21f75a881d2f11fcb8383f98a5d7cffb0d9208c1d0f986391b",
+      "b4b3955b3bf5878f3e729efd3bd7a52986dabf48c0c5023916b7d075d10d312c",
+      "c6441e47ed9f0969b812a7f496189973e30b971656931a1b3c419e16ed221598",
+      "d9f63fc81cbc2f48255504cda11fb45bd38f4c87fd3b7aadc30d5682d2333f47",
+      "e9ffda7cbaec7d68593f744b9f209f562ea6f4c853bf089a09f400984580ae4e",
+      "f7f6ba2f969b379684d64c993d4d403af9c37ac365ec29423b80db8e18457206"
+    ],
+    "production_container_ids_after": [
+      "1f5e39705dcdc8e321a1327ad8ca8925600aca1c93df8bf68751627c0ed3f9fd",
+      "2a3ebb0335914cc27b498507235cc7de27b560da62c32f31224464043039e665",
+      "30e61f637c88bcdf79ef297bb0df10e9434da02002ac3834b8608d0c983b854a",
+      "326d10997ac8a451d945a22f6fb8e1603604d31f8ce710905fc7c58ad92cab19",
+      "35032a827d071ec9a0281ffbac7edffbb8df6a929def026a150545954845825f",
+      "3d8f779d583699c06de52b1210e08c88724b8699889d9a6cbe27b524ccafdc16",
+      "63d118a5e5e39e568191e9795babee9e4aeb2bfb8394992cea1684d8ee2e4da6",
+      "642e202750165e85283fb54396c4b4e40be150ebcbb97f345f306656a35ca97e",
+      "66ed1eefc9febc9f4e33786a0fd9e10891265e1cebe72823f6b0a8a9b8aaf0d1",
+      "67416da1dbafb5a4483decabb58643f60aaf3017f995a7097d21b8427c7bf992",
+      "a744ada58b1ead21f75a881d2f11fcb8383f98a5d7cffb0d9208c1d0f986391b",
+      "b4b3955b3bf5878f3e729efd3bd7a52986dabf48c0c5023916b7d075d10d312c",
+      "c6441e47ed9f0969b812a7f496189973e30b971656931a1b3c419e16ed221598",
+      "d9f63fc81cbc2f48255504cda11fb45bd38f4c87fd3b7aadc30d5682d2333f47",
+      "e9ffda7cbaec7d68593f744b9f209f562ea6f4c853bf089a09f400984580ae4e",
+      "f7f6ba2f969b379684d64c993d4d403af9c37ac365ec29423b80db8e18457206"
+    ]
+  },
+  "core5_strict_build": {
+    "success": true,
+    "release": "20261019.5-candidate",
+    "source_sha256": "fa2150a46b8956724067baeaefae1ae437925c96481411d2d1800278ca983434",
+    "strict_release_werror_build": true,
+    "ctest_passed": 16,
+    "capless_uid10001_process_regression": true,
+    "heap_native_jattach_dcmd_argv_and_live_all_options": true,
+    "heap_command_path_injection_rejected": true
+  },
+  "core5_memory_permission_regression": {
+    "positive_and_negative_boundaries_passed": true,
+    "source_sha256": "fa2150a46b8956724067baeaefae1ae437925c96481411d2d1800278ca983434",
+    "cases": [
+      {
+        "cross_uid_signal_permission": true,
+        "expected_result_observed": true,
+        "ok": true,
+        "size": 2667,
+        "sha256": "c869d84ba5d6858ce03a8181192387943b0eabc6ff893d74b7c9dacbb2a82fc9",
+        "target_resumption": {
+          "state": "R",
+          "tracer_pid": 0,
+          "cpu_ticks_before": 78,
+          "cpu_ticks_after": 88
+        },
+        "memray_reader": {
+          "records": 32,
+          "total_allocations": 32,
+          "fully_read": true
+        },
+        "acknowledged": true
+      },
+      {
+        "cross_uid_signal_permission": false,
+        "expected_result_observed": true,
+        "ok": false,
+        "error_code": "PROFILER_PERMISSION_DENIED",
+        "target_resumption": {
+          "state": "R",
+          "tracer_pid": 0,
+          "cpu_ticks_before": 24,
+          "cpu_ticks_after": 34
+        }
+      }
+    ]
+  },
+  "core5_idle_baseline": {
+    "recorded_at": "2026-10-19T12:15:04.770312+00:00",
+    "scope": "Actual locked dropfullstage Agent main process; no active Task at both boundaries",
+    "project": "dropfullstage",
+    "containers": {
+      "agent": {
+        "container_id": "61cd0fe7ddc8675a305dfc785ad65ff5b4ee26fe249c9dfd7099eaa5443c82e4",
+        "init_pid": 4025558,
+        "init_comm": "docker-init",
+        "init_starttime_ticks": 371078413
+      },
+      "postgres": {
+        "container_id": "9a8ac7146e49a4567faddd71946d1944c27a187f3842131d6cf0f9d56669ab05",
+        "init_pid": 4024627,
+        "init_comm": "docker-init",
+        "init_starttime_ticks": 371077127
+      }
+    },
+    "task_counts": {
+      "before": {
+        "collection": 0,
+        "analysis": 0
+      },
+      "after": {
+        "collection": 0,
+        "analysis": 0
+      }
+    },
+    "clock_ticks_per_second": 100,
+    "agent_main": {
+      "elapsed_seconds": 60.000428,
+      "cpu_ticks_delta": 5,
+      "single_core_cpu_percent": 0.083333,
+      "before": {
+        "pid": 4025596,
+        "comm": "drop_agent",
+        "state": "S",
+        "ppid": 4025558,
+        "utime_ticks": 11,
+        "stime_ticks": 8,
+        "starttime_ticks": 371078423,
+        "rss_pages": 7629,
+        "uids": [
+          10001,
+          10001,
+          10001,
+          10001
+        ],
+        "hwm_bytes": 31420416,
+        "status_rss_bytes": 31420416,
+        "rss_bytes": 31248384,
+        "monotonic_ns": 3710818619449210
+      },
+      "after": {
+        "pid": 4025596,
+        "comm": "drop_agent",
+        "state": "S",
+        "ppid": 4025558,
+        "utime_ticks": 15,
+        "stime_ticks": 9,
+        "starttime_ticks": 371078423,
+        "rss_pages": 7629,
+        "uids": [
+          10001,
+          10001,
+          10001,
+          10001
+        ],
+        "hwm_bytes": 31440896,
+        "status_rss_bytes": 31440896,
+        "rss_bytes": 31248384,
+        "monotonic_ns": 3710878619877700
+      }
+    },
+    "controlled_workload_direct_child": {
+      "observed": true,
+      "measurement": {
+        "elapsed_seconds": 60.000465,
+        "cpu_ticks_delta": 1795,
+        "single_core_cpu_percent": 29.916435,
+        "before": {
+          "pid": 4025597,
+          "comm": "drop_workload",
+          "state": "S",
+          "ppid": 4025596,
+          "utime_ticks": 968,
+          "stime_ticks": 3,
+          "starttime_ticks": 371078425,
+          "rss_pages": 896,
+          "uids": [
+            10001,
+            10001,
+            10001,
+            10001
+          ],
+          "hwm_bytes": 3764224,
+          "status_rss_bytes": 3764224,
+          "rss_bytes": 3670016,
+          "monotonic_ns": 3710818619606361
+        },
+        "after": {
+          "pid": 4025597,
+          "comm": "drop_workload",
+          "state": "S",
+          "ppid": 4025596,
+          "utime_ticks": 2760,
+          "stime_ticks": 6,
+          "starttime_ticks": 371078425,
+          "rss_pages": 896,
+          "uids": [
+            10001,
+            10001,
+            10001,
+            10001
+          ],
+          "hwm_bytes": 3764224,
+          "status_rss_bytes": 3764224,
+          "rss_bytes": 3670016,
+          "monotonic_ns": 3710878620071551
+        }
+      }
+    },
+    "container_aggregate": {
+      "elapsed_seconds": 61.023247,
+      "single_core_cpu_percent": 29.997288,
+      "before": {
+        "docker_stats": {
+          "cpu_percent": 30.22,
+          "memory_percent": 5.38,
+          "memory_usage_bytes": 10831790,
+          "memory_limit_bytes": 201326592,
+          "pids": 12
+        },
+        "cgroup_v2": {
+          "monotonic_ns": 3710818619110240,
+          "memory": {
+            "memory.current": 34648064,
+            "memory.peak": 63987712,
+            "memory.max": 201326592,
+            "memory.swap.current": 0,
+            "memory.swap.max": 0
+          },
+          "cpu": {
+            "usage_usec": 10346377,
+            "user_usec": 10121780,
+            "system_usec": 224597,
+            "nr_periods": 345,
+            "nr_throttled": 334,
+            "throttled_usec": 9944502
+          },
+          "memory_breakdown": {
+            "anon": 8470528,
+            "file": 23937024,
+            "kernel": 2240512,
+            "sock": 0,
+            "slab": 1719160
+          },
+          "pressure": {
+            "cpu": {
+              "some": {
+                "avg10": 12.12,
+                "avg60": 6.67,
+                "avg300": 1.79,
+                "total_microseconds": 5899896
+              },
+              "full": {
+                "avg10": 12.11,
+                "avg60": 6.63,
+                "avg300": 1.78,
+                "total_microseconds": 5828892
+              }
+            },
+            "memory": {
+              "some": {
+                "avg10": 0.0,
+                "avg60": 0.0,
+                "avg300": 0.0,
+                "total_microseconds": 0
+              },
+              "full": {
+                "avg10": 0.0,
+                "avg60": 0.0,
+                "avg300": 0.0,
+                "total_microseconds": 0
+              }
+            },
+            "io": {
+              "some": {
+                "avg10": 0.0,
+                "avg60": 0.0,
+                "avg300": 0.0,
+                "total_microseconds": 9203
+              },
+              "full": {
+                "avg10": 0.0,
+                "avg60": 0.0,
+                "avg300": 0.0,
+                "total_microseconds": 8314
+              }
+            }
+          }
+        },
+        "host_pressure": {
+          "cpu": {
+            "some": {
+              "avg10": 36.92,
+              "avg60": 35.35,
+              "avg300": 33.7,
+              "total_microseconds": 152990149108
+            },
+            "full": {
+              "avg10": 0.0,
+              "avg60": 0.0,
+              "avg300": 0.0,
+              "total_microseconds": 0
+            }
+          },
+          "memory": {
+            "some": {
+              "avg10": 0.01,
+              "avg60": 0.08,
+              "avg300": 0.26,
+              "total_microseconds": 6377381883
+            },
+            "full": {
+              "avg10": 0.01,
+              "avg60": 0.04,
+              "avg300": 0.18,
+              "total_microseconds": 3519773096
+            }
+          },
+          "io": {
+            "some": {
+              "avg10": 0.58,
+              "avg60": 2.16,
+              "avg300": 3.77,
+              "total_microseconds": 24310431447
+            },
+            "full": {
+              "avg10": 0.13,
+              "avg60": 0.94,
+              "avg300": 2.1,
+              "total_microseconds": 17182956044
+            }
+          }
+        }
+      },
+      "after": {
+        "docker_stats": {
+          "cpu_percent": 30.07,
+          "memory_percent": 5.39,
+          "memory_usage_bytes": 10852762,
+          "memory_limit_bytes": 201326592,
+          "pids": 12
+        },
+        "cgroup_v2": {
+          "monotonic_ns": 3710879642357001,
+          "memory": {
+            "memory.current": 34144256,
+            "memory.peak": 63987712,
+            "memory.max": 201326592,
+            "memory.swap.current": 0,
+            "memory.swap.max": 0
+          },
+          "cpu": {
+            "usage_usec": 28651696,
+            "user_usec": 28381169,
+            "system_usec": 270526,
+            "nr_periods": 955,
+            "nr_throttled": 943,
+            "throttled_usec": 23592174
+          },
+          "memory_breakdown": {
+            "anon": 8491008,
+            "file": 23412736,
+            "kernel": 2240512,
+            "sock": 0,
+            "slab": 1719160
+          },
+          "pressure": {
+            "cpu": {
+              "some": {
+                "avg10": 12.35,
+                "avg60": 10.28,
+                "avg300": 3.77,
+                "total_microseconds": 13779297
+              },
+              "full": {
+                "avg10": 12.35,
+                "avg60": 10.27,
+                "avg300": 3.76,
+                "total_microseconds": 13684674
+              }
+            },
+            "memory": {
+              "some": {
+                "avg10": 0.0,
+                "avg60": 0.0,
+                "avg300": 0.0,
+                "total_microseconds": 0
+              },
+              "full": {
+                "avg10": 0.0,
+                "avg60": 0.0,
+                "avg300": 0.0,
+                "total_microseconds": 0
+              }
+            },
+            "io": {
+              "some": {
+                "avg10": 0.0,
+                "avg60": 0.0,
+                "avg300": 0.0,
+                "total_microseconds": 9203
+              },
+              "full": {
+                "avg10": 0.0,
+                "avg60": 0.0,
+                "avg300": 0.0,
+                "total_microseconds": 8314
+              }
+            }
+          }
+        },
+        "host_pressure": {
+          "cpu": {
+            "some": {
+              "avg10": 32.33,
+              "avg60": 33.64,
+              "avg300": 33.49,
+              "total_microseconds": 153010363654
+            },
+            "full": {
+              "avg10": 0.0,
+              "avg60": 0.0,
+              "avg300": 0.0,
+              "total_microseconds": 0
+            }
+          },
+          "memory": {
+            "some": {
+              "avg10": 0.0,
+              "avg60": 0.02,
+              "avg300": 0.2,
+              "total_microseconds": 6377391763
+            },
+            "full": {
+              "avg10": 0.0,
+              "avg60": 0.01,
+              "avg300": 0.14,
+              "total_microseconds": 3519778028
+            }
+          },
+          "io": {
+            "some": {
+              "avg10": 0.13,
+              "avg60": 1.13,
+              "avg300": 3.17,
+              "total_microseconds": 24310994258
+            },
+            "full": {
+              "avg10": 0.05,
+              "avg60": 0.49,
+              "avg300": 1.75,
+              "total_microseconds": 17183232789
+            }
+          }
+        }
+      }
+    },
+    "limitations": [
+      "Main-process CPU excludes its controlled workload child; the child can remain CPU-active despite zero Tasks.",
+      "Docker/cgroup data aggregates this Agent container, including that child; it is not main-process idle CPU/RSS or helper-container usage.",
+      "VmHWM is since process start and cgroup memory.peak since cgroup creation, not a reset 60-second-window peak.",
+      "Docker stats CPU and rolling PSI are endpoint snapshots; cgroup CPU uses its own measured elapsed span.",
+      "Only zero Tasks at before/after boundaries is proven; no continuous DB observation or production SLA is asserted."
+    ],
+    "production_changed": false,
+    "source_sha256": "fa2150a46b8956724067baeaefae1ae437925c96481411d2d1800278ca983434",
+    "image_id": "sha256:a5db5216584e7e441ec9ca985b568aa1425004b36b71975c887930449157314f",
+    "measured_after_priority_production_release": true
+  },
+  "latest_actual_backup_restore": {
+    "path": "/opt/drop-backups/drop-20261019T121243Z-10fd95",
+    "restore_check": {
+      "verified_at": "2026-10-19T12:12:55.024455+00:00",
+      "postgres_restore": "passed",
+      "database_counts": {
+        "audit_logs": 120,
+        "oidc_states": 0,
+        "rate_limits": 2,
+        "schema_migrations": 5,
+        "storage_maintenance_state": 1,
+        "artifacts": 181,
+        "agents": 1,
+        "agent_events": 29,
+        "agent_samples": 128732,
+        "task_attempts": 39,
+        "ai_requests": 0,
+        "users": 7,
+        "tasks": 33,
+        "analysis_job_runs": 0,
+        "analysis_jobs": 33,
+        "composite_runs": 0,
+        "composite_nodes": 0,
+        "groups": 0,
+        "diagnostic_rules": 3,
+        "group_agents": 0,
+        "group_members": 0,
+        "oidc_identities": 0,
+        "outbox": 36,
+        "schedules": 1,
+        "schedule_records": 1,
+        "sessions": 11,
+        "suggestions": 0,
+        "suggestion_feedback": 0,
+        "task_events": 414,
+        "task_shares": 0,
+        "schema_version": 5
+      },
+      "referenced_artifacts_verified": 181,
+      "object_files_verified": 181,
+      "object_metadata_verified": true,
+      "isolated_s3_roundtrip": "passed",
+      "production_resources_modified": false,
+      "restore_duration_seconds": 7.024
+    }
+  },
+  "storage_encryption": {
+    "already_encrypted": 14,
+    "artifact_integrity_complete": true,
+    "baseline_only": 0,
+    "bucket_encryption_verified": true,
+    "bytes_read": 3074494,
+    "checked": 139,
+    "complete": true,
+    "database_missing": 0,
+    "encrypted": 125,
+    "mode": "apply",
+    "scan_complete": true,
+    "would_encrypt": 0
+  },
+  "monitoring": {
+    "success": true,
+    "recorded_at": "2026-10-19T12:13:30.992420+00:00",
+    "scrape_targets": [
+      {
+        "job": "agent",
+        "health": "up"
+      },
+      {
+        "job": "analyzer",
+        "health": "up"
+      },
+      {
+        "job": "api",
+        "health": "up"
+      },
+      {
+        "job": "core",
+        "health": "up"
+      },
+      {
+        "job": "maintenance",
+        "health": "up"
+      },
+      {
+        "job": "prometheus",
+        "health": "up"
+      },
+      {
+        "job": "tempo",
+        "health": "up"
+      }
+    ],
+    "grafana_database": "ok",
+    "dashboards": [
+      {
+        "uid": "drop-operations",
+        "title": "Drop \u00b7 Operations",
+        "panels": 12
+      }
+    ],
+    "datasource_types": [
+      "prometheus",
+      "tempo"
+    ],
+    "tempo_ready": true,
+    "management_ports_loopback_only": true,
+    "scope": "production readiness and provisioned dashboards; no fabricated alert or trace"
+  },
+  "internal_tls_rotation": {
+    "success": true,
+    "ca_unchanged": true,
+    "all_three_leaf_certificates_changed": true,
+    "changed_services": [
+      "agent",
+      "api",
+      "collector-helper",
+      "drop-server"
+    ],
+    "all_other_twelve_container_ids_unchanged": true,
+    "helper_rejoined_agent_namespace": true,
+    "data_volumes_preserved": true,
+    "before_certificates": {
+      "ca": {
+        "sha256": "2148180e2e569a0ff30a0e65ccbdd27e4c49264d5ae0c120ad620806422bb5e5",
+        "public_metadata": [
+          "serial=2B2FCB99604BD0962EBE1229F1DF99B304AD305A",
+          "notBefore=Oct 16 11:41:58 2026 GMT",
+          "notAfter=Oct 13 11:41:58 2036 GMT"
+        ]
+      },
+      "server": {
+        "sha256": "14ba72d4a53170d6e48a5280e89f9df77ab08a89dffd5b285bb69c72e03e532a",
+        "public_metadata": [
+          "serial=06772C16EC2B102921470F0EB57F239C6B9B6132",
+          "notBefore=Oct 16 11:41:58 2026 GMT",
+          "notAfter=Oct 16 11:41:58 2027 GMT"
+        ]
+      },
+      "api": {
+        "sha256": "f9e5efa1b6f4defce3af843bed094a5ff1bcd8f797602bf6b79b3c8c1d9e67a7",
+        "public_metadata": [
+          "serial=06772C16EC2B102921470F0EB57F239C6B9B6133",
+          "notBefore=Oct 16 11:41:58 2026 GMT",
+          "notAfter=Oct 16 11:41:58 2027 GMT"
+        ]
+      },
+      "agent": {
+        "sha256": "f414c3521de3b035bd8726dd37c1eee04f0544cfc64a5c0f226fcdf9de61b807",
+        "public_metadata": [
+          "serial=06772C16EC2B102921470F0EB57F239C6B9B6134",
+          "notBefore=Oct 16 11:41:58 2026 GMT",
+          "notAfter=Oct 16 11:41:58 2027 GMT"
+        ]
+      }
+    },
+    "after_certificates": {
+      "ca": {
+        "sha256": "2148180e2e569a0ff30a0e65ccbdd27e4c49264d5ae0c120ad620806422bb5e5",
+        "public_metadata": [
+          "serial=2B2FCB99604BD0962EBE1229F1DF99B304AD305A",
+          "notBefore=Oct 16 11:41:58 2026 GMT",
+          "notAfter=Oct 13 11:41:58 2036 GMT"
+        ]
+      },
+      "server": {
+        "sha256": "7fd0a481072757273e9ce18b0db6ad7dea9895fe90e2f3f760f668373cb74ea4",
+        "public_metadata": [
+          "serial=8F50BA1D2E1F931BAC37911B9A1B7D15",
+          "notBefore=Oct 19 11:02:33 2026 GMT",
+          "notAfter=Jan 17 11:02:33 2027 GMT"
+        ]
+      },
+      "api": {
+        "sha256": "50139462e6ea96e2f22eacb3e407973a75cc8d00a39e22b1be5551fde19c6d69",
+        "public_metadata": [
+          "serial=A90433AA1E47FE100A87F76997909C2B",
+          "notBefore=Oct 19 11:02:33 2026 GMT",
+          "notAfter=Jan 17 11:02:33 2027 GMT"
+        ]
+      },
+      "agent": {
+        "sha256": "cfd9392f31b7d51c065fe52f3b14af06b38988e5db0b421874dd187105b3c487",
+        "public_metadata": [
+          "serial=050BD5D7D49DB61AA24C10BCE7F067D3",
+          "notBefore=Oct 19 11:02:33 2026 GMT",
+          "notAfter=Jan 17 11:02:33 2027 GMT"
+        ]
+      }
+    },
+    "daily_timer_enabled": true,
+    "installed_service_checked_fresh_leaves_without_rotation": true,
+    "post_rotation_live_proc_and_perf_smoke": {
+      "origin": "https://120.24.187.205",
+      "tls_verified": true,
+      "secure_session_cookie": true,
+      "historical_result_readable": true,
+      "historical_task_id": "31",
+      "python_memory_live_attach_advertised": true,
+      "tasks": [
+        {
+          "kind": "PROC_CPU",
+          "task_id": "32",
+          "collection_status": "COLLECTED",
+          "analysis_status": "SUCCESS",
+          "raw_size": 47,
+          "raw_sha256": "5308c452678125dbecaad67736619b43146703736a4653a31500524ef48c0fc8",
+          "download_verified": true,
+          "source": "real controlled live process; no imported or synthetic folded data"
+        },
+        {
+          "kind": "PERF_CPU",
+          "task_id": "33",
+          "collection_status": "COLLECTED",
+          "analysis_status": "SUCCESS",
+          "raw_size": 3082,
+          "raw_sha256": "37d045d560209be1e2eb08c28bc96dbe7b8d6bbac0335c7ef941f0c70689f66f",
+          "download_verified": true,
+          "source": "real controlled live process; no imported or synthetic folded data"
+        }
+      ]
+    }
+  },
+  "certificate": [
+    "issuer=C = US, O = Let's Encrypt, CN = YE2",
+    "notBefore=Oct 19 08:24:09 2026 GMT",
+    "notAfter=Oct 26 00:24:08 2026 GMT",
+    "sha256 Fingerprint=0E:30:8A:68:4D:1D:B8:0E:B8:F7:8B:6D:73:22:D1:B3:0C:C6:F9:02:89:17:19:4C:D2:B1:D9:33:CC:26:E2:B6"
+  ],
+  "services": {
+    "tx-drop-tls-renew.service": [
+      "Result=success",
+      "ExecMainStatus=0"
+    ],
+    "tx-drop-backup.service": [
+      "Result=success",
+      "ExecMainStatus=0"
+    ],
+    "tx-drop-monitoring-status.service": [
+      "Result=success",
+      "ExecMainStatus=0"
+    ],
+    "tx-drop-internal-tls.service": [
+      "Result=success",
+      "ExecMainStatus=0"
+    ]
+  },
+  "timers_enabled": {
+    "tx-drop-tls-renew.timer": true,
+    "tx-drop-backup.timer": true,
+    "tx-drop-monitoring-status.timer": true,
+    "tx-drop-internal-tls.timer": true
+  },
+  "full_acceptance_complete": false,
+  "known_boundaries": [
+    "Live profiling is verified on explicitly owned UID10001 fixtures in the Agent PID namespace; no arbitrary production host target authorization is claimed",
+    "Collector task budget uses bounded 50ms process-group polling and container-wide hard pids.max; not instantaneous per-attempt cgroup isolation",
+    "External OIDC/model/offsite displays intentionally omitted; integrations retained without configured external acceptance",
+    "Single 2-vCPU/3.42-GiB physical server; no physical multi-node HA or ARM tool execution claim",
+    "Analyzer and Ops dependency vulnerability matches remain untriaged; no full security clearance",
+    "Actual 60-second Agent baseline is not full heartbeat/P99/WAN/long-term capacity acceptance"
+  ],
+  "prior_core3_evidence": "deployment-proof-core3.json"
+}

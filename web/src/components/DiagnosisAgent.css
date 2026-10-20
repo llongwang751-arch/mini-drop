@@ -1,0 +1,120 @@
+.diagnosis-agent {
+  padding: 24px;
+}
+.diagnosis-agent form,
+.diagnosis-results {
+  display: grid;
+  gap: 12px;
+}
+.diagnosis-agent textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 90px;
+}
+.diagnosis-agent textarea,
+.diagnosis-agent select {
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font: inherit;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--surface);
+  min-height: 44px;
+  max-width: 100%;
+}
+.diagnosis-options,
+.diagnosis-run-state,
+.diagnosis-refs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.diagnosis-options select {
+  flex: 1;
+  min-width: 180px;
+}
+.diagnosis-consent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  line-height: 1.6;
+}
+.diagnosis-consent input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+}
+.diagnosis-results {
+  margin-top: 28px;
+  border-top: 1px solid var(--border);
+  padding-top: 24px;
+}
+.diagnosis-trace {
+  padding-left: 24px;
+  display: grid;
+  gap: 10px;
+}
+.diagnosis-trace li {
+  scroll-margin-top: 90px;
+}
+.diagnosis-agent summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 10px 0;
+}
+.diagnosis-trace pre {
+  max-height: 260px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 12px;
+}
+.diagnosis-report {
+  overflow-wrap: anywhere;
+  line-height: 1.8;
+}
+.diagnosis-hypothesis {
+  margin: 20px 0;
+  padding-left: 18px;
+  border-left: 3px solid var(--border-strong);
+}
+.diagnosis-refs a {
+  padding: 5px 10px;
+  background: var(--surface-raised);
+  border-radius: 5px;
+  min-width: 44px;
+  text-align: center;
+}
+.diagnosis-plan {
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+  margin-top: 24px;
+}
+.diagnosis-confirm {
+  padding: 16px;
+  background: var(--surface-raised);
+  border-radius: 8px;
+  margin-top: 12px;
+}
+.diagnosis-confirm button {
+  margin: 4px 8px 4px 0;
+}
+@media (max-width: 600px) {
+  .diagnosis-agent {
+    padding: 16px;
+  }
+  .diagnosis-options {
+    align-items: stretch;
+  }
+  .diagnosis-options label {
+    width: 100%;
+  }
+  .diagnosis-options button {
+    width: 100%;
+  }
+}

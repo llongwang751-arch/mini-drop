@@ -1,0 +1,135 @@
+{
+  "date": "2026-10-18",
+  "provenance": "Actual private labeled MinIO fixture, no production key, bucket, volume or data. The current migration module and probe are read-only bind mounts.",
+  "success": true,
+  "duration_seconds": 20.141009759,
+  "log_file": "encryption-minio-v3.log",
+  "log_sha256": "ef36c2827728aa70c599777f464c503edf886049029844338ee00877a10c1643",
+  "base_tool_image": "sha256:95532fb2a989938ffd5bcb85fe73fd349849842507d559bdaba2847394e8e52b",
+  "minio": "RELEASE.2025-07-23T15-54-02Z",
+  "source_sha256": {
+    "deploy/tests/test_s3_encryption.sh": "1d681a44ab0986ef641f06bb8fb5e3cc5669fbf48a8800ead8e1693c96d53f04",
+    "deploy/tests/s3_encryption_probe.py": "8de0118263cc193777dbaa0b0377f254a40f8edf892acdf3ab0b58244fdb8f41",
+    "ops/encrypt_existing.py": "faff7e8f1b1fb91b429b2e29c2e9d045fc61d86b0344ba0a8296b377d8633c90"
+  },
+  "probe_test_sha256": "9973ba0b528ccec16b8b552303de06bc7284208edb025953d33f3cc9f9c2b404",
+  "phases": [
+    {
+      "success": true,
+      "phase": "legacy-write",
+      "legacy_plaintext_confirmed": true,
+      "encoded_object": {
+        "get_algorithm": "absent",
+        "stat_algorithm": "absent",
+        "size": 2356,
+        "sha256": "89292ff9eecd84bca48a6de0979d93aad34c5b19db437bf39bacba2867f60a1b",
+        "plaintext_roundtrip": true,
+        "system_metadata_preserved": true
+      },
+      "get_algorithm": "absent",
+      "stat_algorithm": "absent",
+      "size": 2097152,
+      "sha256": "684179b36ca091b4c0b6b71a8b369ae965d0ad993a79416d6436ae32b0914cf6",
+      "plaintext_roundtrip": true,
+      "system_metadata_preserved": false
+    },
+    {
+      "success": true,
+      "phase": "encrypt-legacy",
+      "legacy_same_key_copy_verified": true,
+      "encoded_object": {
+        "get_algorithm": "AES256",
+        "stat_algorithm": "AES256",
+        "size": 2356,
+        "sha256": "89292ff9eecd84bca48a6de0979d93aad34c5b19db437bf39bacba2867f60a1b",
+        "plaintext_roundtrip": true,
+        "system_metadata_preserved": true
+      },
+      "get_algorithm": "AES256",
+      "stat_algorithm": "AES256",
+      "size": 2097152,
+      "sha256": "684179b36ca091b4c0b6b71a8b369ae965d0ad993a79416d6436ae32b0914cf6",
+      "plaintext_roundtrip": true,
+      "system_metadata_preserved": false
+    },
+    {
+      "success": true,
+      "phase": "write",
+      "encoded_object": {
+        "get_algorithm": "AES256",
+        "stat_algorithm": "AES256",
+        "size": 2356,
+        "sha256": "89292ff9eecd84bca48a6de0979d93aad34c5b19db437bf39bacba2867f60a1b",
+        "plaintext_roundtrip": true,
+        "system_metadata_preserved": true
+      },
+      "get_algorithm": "AES256",
+      "stat_algorithm": "AES256",
+      "size": 2097152,
+      "sha256": "684179b36ca091b4c0b6b71a8b369ae965d0ad993a79416d6436ae32b0914cf6",
+      "plaintext_roundtrip": true,
+      "system_metadata_preserved": false,
+      "storage_ready_before": true,
+      "storage_ready_after": true
+    },
+    {
+      "success": true,
+      "phase": "wrong-key",
+      "decryption_refused": true,
+      "refused_object_count": 3,
+      "decryption_reason_matched": true,
+      "refusals": [
+        {
+          "s3_error_code": "kms:InvalidCiphertextException",
+          "s3_error_status": 400,
+          "decryption_reason_matched": true
+        },
+        {
+          "s3_error_code": "kms:InvalidCiphertextException",
+          "s3_error_status": 400,
+          "decryption_reason_matched": true
+        },
+        {
+          "s3_error_code": "kms:InvalidCiphertextException",
+          "s3_error_status": 400,
+          "decryption_reason_matched": true
+        }
+      ],
+      "s3_error_code": "kms:InvalidCiphertextException",
+      "s3_error_status": 400,
+      "current_key_roundtrip": true,
+      "storage_ready_before": true,
+      "storage_ready_after": true
+    },
+    {
+      "success": true,
+      "phase": "restored-key",
+      "encoded_object": {
+        "get_algorithm": "AES256",
+        "stat_algorithm": "AES256",
+        "size": 2356,
+        "sha256": "89292ff9eecd84bca48a6de0979d93aad34c5b19db437bf39bacba2867f60a1b",
+        "plaintext_roundtrip": true,
+        "system_metadata_preserved": true
+      },
+      "get_algorithm": "AES256",
+      "stat_algorithm": "AES256",
+      "size": 2097152,
+      "sha256": "684179b36ca091b4c0b6b71a8b369ae965d0ad993a79416d6436ae32b0914cf6",
+      "plaintext_roundtrip": true,
+      "system_metadata_preserved": false,
+      "storage_ready_before": true,
+      "storage_ready_after": true
+    }
+  ],
+  "cleanup": {
+    "fixture_containers": 0,
+    "fixture_networks": 0,
+    "fixture_volumes": 0,
+    "production_running_container_count": 8
+  },
+  "limitations": [
+    "This fixture exercises the S3 migration primitive; real PostgreSQL locking is independently reported in encryption-postgres.json.",
+    "Production dry-run/apply and independent key backup are separate deployment actions."
+  ]
+}

@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/workspace/analyzer/scripts/verify_perf_runner.py", line 198, in <module>
+    main()
+  File "/workspace/analyzer/scripts/verify_perf_runner.py", line 174, in main
+    verify_case(args.root, fmt, {"fixture-alpha", "fixture-beta"})
+  File "/workspace/analyzer/scripts/verify_perf_runner.py", line 84, in verify_case
+    analyzed = analyze_isolated(context, check_lease=lambda: None)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/analyzer/drop_analyzer/isolate.py", line 152, in analyze_isolated
+    raise AnalysisError(
+drop_analyzer.errors.AnalysisError: Analysis tool perf rejected the profile

@@ -1,0 +1,99 @@
+{
+  "recorded_at": "2026-10-18T08:46:14.319856+00:00",
+  "scope": "Local runner preparation with imported metadata and fake subprocesses only",
+  "candidate": "20261018.1-rc6",
+  "source_manifest_sha256": "e945fc390166fabc0e96b01adde10ea2034541a6883d8487eb20fc3434e4a8e6",
+  "bundle_manifest_sha256": "d73b79da367c1a536204f46c3ab979fd0ee7b501ce7b0c8d8a6fa2ba9808224e",
+  "web_freeze_sha256": "f5ef8cb7b15ab4abf5ebed573d75573e0732686a1d2472688b19a3b5d1c97b9b",
+  "source_files_verified": 105,
+  "built_files_verified": 14,
+  "pure_tests_passed": 10,
+  "checks": [
+    {
+      "command": [
+        "D:\\\u6d1b\u4f26\u5179\u529b\u4e0d\u505a\u529f\\Desktop\\1\\python.exe",
+        "-m",
+        "unittest",
+        "-v",
+        "test_stage_sequence.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "D:\\\u6d1b\u4f26\u5179\u529b\u4e0d\u505a\u529f\\Desktop\\1\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        ".local/run_stage_sequence.py",
+        ".local/test_stage_sequence.py",
+        ".local/run_stage_browser_rc2.py",
+        ".local/run_stage_flame_rc2.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "D:\\\u6d1b\u4f26\u5179\u529b\u4e0d\u505a\u529f\\Desktop\\1\\python.exe",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        ".local/run_stage_sequence.py",
+        ".local/test_stage_sequence.py",
+        ".local/run_stage_browser_rc2.py",
+        ".local/run_stage_flame_rc2.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "D:\\\u6d1b\u4f26\u5179\u529b\u4e0d\u505a\u529f\\Desktop\\1\\python.exe",
+        "-m",
+        "py_compile",
+        ".local/run_stage_sequence.py",
+        ".local/test_stage_sequence.py",
+        ".local/run_stage_browser_rc2.py",
+        ".local/run_stage_flame_rc2.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "C:\\Program Files\\nodejs\\node.EXE",
+        "--check",
+        "scripts/validation/browser_ce_gzip.mjs"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "helpers": {
+    ".local/run_stage_sequence.py": "0c5fd22d4e3f9657e5de1b251f2489e910481ac4a0f92359574aaa8742a947a8",
+    ".local/test_stage_sequence.py": "bd6f2b842034645014181edcc1daa284ab87ac108c98e766acb0ac6d3505e01a",
+    ".local/run_stage_browser_rc2.py": "a9a506d00f5388fc448565e728b84a82a84fbb2cc08852a88dec28ae10419b99",
+    ".local/run_stage_flame_rc2.py": "f0913ef9cc40d4508f4afcf96f1a76e43199f75e3f9c383fb6fdbcd3fa2cb66a"
+  },
+  "ce_browser_script_sha256": "b31f72fc1e0f6e735b4d2a43e0396fc8688b879c8acde049e60e2efbcbe62258",
+  "image_pins_complete": false,
+  "verified_candidate_image_pins": {
+    "drop-web:20261018.1-rc6": "sha256:8f3ead04322e631f44f8a7c010bd8437a3acb5b1a72560791a197dbdfbcb8053",
+    "drop-api:20261018.1-rc4": "sha256:94ad66ca5cd6a9a866c84c35916626b9cfe41e765c3cd648abb04970777abc47",
+    "drop-analyzer:20261018.1-rc4": "sha256:b9e6b659e0494e5002ed5f49a43812a73c3eb7b966d050b2e325b5990e9af136",
+    "drop-ops:20261018.1-rc4": "sha256:e8d95a64a714dba9e597dbf6ccae943ccb648a3610b9a45fbcdaa8445006c7d7",
+    "drop-nginx:20261018.1-rc2": "sha256:f76c617fd59867fba9b4d322c1cd4a041d2253cf440f4816f7cad95a3c4a6cee"
+  },
+  "pending_image_roles": [
+    "core",
+    "agent"
+  ],
+  "security_scan_gate_inferred_from_built_proof": false,
+  "web_runtime_image_proof_sha256": "ecabf8ce91496bf3c5a7c25633735e3ebe4751f06c7b66b2551f13f0c3a53584",
+  "unbuilt_image_preflight_code": "STAGE_IMAGE_ID_NOT_FROZEN",
+  "test_image_ids_are_synthetic": true,
+  "test_writes_only_temporary_directories": true,
+  "actual_stage_browser_executed": false,
+  "credentials_opened": false,
+  "servers_started": false,
+  "production_changed": false,
+  "runtime_or_bundle_changed": false
+}

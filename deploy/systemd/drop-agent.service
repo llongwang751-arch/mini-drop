@@ -1,0 +1,38 @@
+[Unit]
+Description=Drop business-host collection Agent
+After=network-online.target drop-collector-helper.service
+Wants=network-online.target drop-collector-helper.service
+StartLimitIntervalSec=120
+StartLimitBurst=6
+[Service]
+Type=simple
+User=drop
+Group=drop
+EnvironmentFile=/etc/drop/agent.env
+ExecStart=/usr/local/bin/drop_agent
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=90
+KillMode=mixed
+StateDirectory=drop-agent
+WorkingDirectory=/var/lib/drop-agent
+UMask=0077
+CapabilityBoundingSet=
+AmbientCapabilities=
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+LockPersonality=true
+ReadWritePaths=/var/lib/drop-agent /opt/drop-runtime/helper-spool/incoming
+MemoryMax=768M
+CPUQuota=100%
+TasksMax=64
+LimitNOFILE=4096
+[Install]
+WantedBy=multi-user.target

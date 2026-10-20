@@ -1,0 +1,67 @@
+{
+  "success": true,
+  "scope": "actual isolated internal leaf signing, mounted certificate replacement and mTLS/helper PERF_CPU after success and after forced mismatched API certificate rollback",
+  "ca_unchanged": true,
+  "all_three_leaf_serials_changed": true,
+  "only_four_expected_service_ids_changed": true,
+  "mounted_public_certificates_match_host": true,
+  "helper_rejoined_new_agent_namespace": true,
+  "positive_perf": {
+    "task_id": "8",
+    "kind": "PERF_CPU",
+    "collection_status": "COLLECTED",
+    "analysis_status": "SUCCESS",
+    "raw_size": 3148,
+    "raw_sha256": "6d05eebf4034d7655af33929775b99875a2e2657fb7ef22a747563db69f82d7e",
+    "raw_download_verified": true
+  },
+  "negative_control": "stage-only real API certificate/key mismatch before recreation; readiness failed; old leaves restored",
+  "rollback_exit_code": 1,
+  "all_previous_leaf_certificates_restored": true,
+  "recovered_perf": {
+    "task_id": "9",
+    "kind": "PERF_CPU",
+    "collection_status": "COLLECTED",
+    "analysis_status": "SUCCESS",
+    "raw_size": 3016,
+    "raw_sha256": "b418e09f76ad0d425841e3c6d25c650c2fc666a772382b9f80db4a6117e94aff",
+    "raw_download_verified": true
+  },
+  "production_unchanged": true,
+  "before_certificates": {
+    "ca": {
+      "sha256": "622d37f28f3ca9925c2b56f1f5f4029e2f02c38279d2aedcbd0ec5043e12d7e0",
+      "serial": "serial=4E3332BB3AF4EE98FA7D54A33297F12FC8029F62"
+    },
+    "server": {
+      "sha256": "fa9a5b31b0f31bf0611a9f327cf5559ce499f8d3968445152c568b473fb04775",
+      "serial": "serial=78E9215E3CFFB6BD0DF79C85B0292D57E07DC334"
+    },
+    "api": {
+      "sha256": "17f07cd72765a7648234fd25ecd53ee28b54a3013ed63359b272c2b3c82438f5",
+      "serial": "serial=78E9215E3CFFB6BD0DF79C85B0292D57E07DC335"
+    },
+    "agent": {
+      "sha256": "aacd95e6ca134f57e3944a5ac35962a69e3c01cad9ce974f345c99e0816524ef",
+      "serial": "serial=78E9215E3CFFB6BD0DF79C85B0292D57E07DC336"
+    }
+  },
+  "after_certificates": {
+    "ca": {
+      "sha256": "622d37f28f3ca9925c2b56f1f5f4029e2f02c38279d2aedcbd0ec5043e12d7e0",
+      "serial": "serial=4E3332BB3AF4EE98FA7D54A33297F12FC8029F62"
+    },
+    "server": {
+      "sha256": "2ed475c8962c8812a94f61ba4c302167805656891863a5f126387ffb176acdee",
+      "serial": "serial=4DD5C178CAC0FAC89D08C952931C1A22"
+    },
+    "api": {
+      "sha256": "3cb065779320331a805ac9e947771970c4dd4ebe3fb50f881d9d1c506f6bc2d3",
+      "serial": "serial=F1C4E6A38A5FD14CFB6FE89C6EA2E430"
+    },
+    "agent": {
+      "sha256": "71778cd06ae522e86471bb0c5890e896459f7b7cf08390a083142cc81d5f769a",
+      "serial": "serial=DB7322BAFB0B7219363BD6EA0315FC"
+    }
+  }
+}

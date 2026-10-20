@@ -1,0 +1,310 @@
+name: drop
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: '3'
+x-app: &app
+  restart: unless-stopped
+  logging: *logging
+  security_opt: [no-new-privileges:true]
+  networks: [control]
+  init: true
+services:
+  postgres:
+    <<: *app
+    image: postgres:17.11-alpine
+    environment:
+      POSTGRES_USER: drop
+      POSTGRES_DB: drop
+      POSTGRES_PASSWORD_FILE: /run/secrets/database_password
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    command: [postgres, -c, shared_buffers=96MB, -c, max_connections=60, -c, work_mem=4MB, -c, log_min_duration_statement=1000]
+    secrets: [database_password, app_database_password]
+    volumes: [pg_data:/var/lib/postgresql/data]
+    shm_size: 96m
+    mem_limit: 384m
+    cpus: 0.5
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U drop -d drop]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  minio:
+    <<: *app
+    image: drop-nginx:${NGINX_RELEASE_TAG:-${RELEASE_TAG:-build}}
+    build: {context: .., dockerfile: deploy/Dockerfile.nginx}
+    volumes: [./storage-gateway.conf:/etc/nginx/nginx.conf:ro]
+    networks: [control, storage]
+    depends_on:
+      storage-backend: {condition: service_healthy}
+    mem_limit: 48m
+    cpus: 0.15
+    cap_drop: [ALL]
+    read_only: true
+    tmpfs: ['/tmp:size=16m,mode=1777', '/var/cache/nginx:size=8m,mode=1777', '/var/run:size=1m,mode=1777']
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:9000/minio/health/live]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  storage-backend:
+    <<: *app
+    image: minio/minio:RELEASE.2025-07-23T15-54-02Z
+    command: [server, /data, --console-address, ':9001']
+    environment:
+      MINIO_ROOT_USER_FILE: /run/secrets/s3_access_key
+      MINIO_ROOT_PASSWORD_FILE: /run/secrets/s3_secret_key
+      MINIO_BROWSER: 'off'
+      MINIO_KMS_SECRET_KEY_FILE: /run/secrets/s3_kms_master_key
+      MINIO_KMS_AUTO_ENCRYPTION: 'on'
+      HOME: /tmp
+    secrets: [s3_access_key, s3_secret_key, s3_kms_master_key]
+    volumes: [object_data:/data]
+    networks: [storage]
+    user: '10001:10001'
+    cap_drop: [ALL]
+    read_only: true
+    tmpfs: ['/tmp:size=32m,mode=1777']
+    depends_on:
+      storage-permission-init: {condition: service_completed_successfully}
+    mem_limit: 512m
+    cpus: 0.5
+    healthcheck:
+      test: [CMD, curl, -fsS, http://localhost:9000/minio/health/live]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  storage-permission-init:
+    image: ubuntu:24.04
+    entrypoint: [sh, -ec]
+    command: ['chown -R 10001:10001 /data && chmod 700 /data']
+    user: '0:0'
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER]
+    security_opt: [no-new-privileges:true]
+    read_only: true
+    volumes: [object_data:/data]
+    network_mode: none
+    restart: 'no'
+    mem_limit: 48m
+    logging: *logging
+  migration:
+    image: drop-api:${API_RELEASE_TAG:-${RELEASE_TAG:-build}}
+    build:
+      context: ..
+      dockerfile: api/Dockerfile
+    command: [migrate]
+    environment:
+      DATABASE_URL_FILE: /run/secrets/migration_database_url
+    secrets: [migration_database_url]
+    networks: [control]
+    depends_on:
+      postgres: {condition: service_healthy}
+    restart: 'no'
+    mem_limit: 192m
+    logging: *logging
+  permission-init:
+    image: postgres:17.11-alpine
+    entrypoint: [sh, -ec]
+    command:
+      - 'export PGPASSWORD="$$(cat /run/secrets/database_password)"; exec psql -h postgres -U drop -d drop -v ON_ERROR_STOP=1 -f /config/db-permissions.sql'
+    secrets: [database_password]
+    volumes: [./db-permissions.sql:/config/db-permissions.sql:ro]
+    networks: [control]
+    depends_on:
+      migration: {condition: service_completed_successfully}
+    restart: 'no'
+    mem_limit: 96m
+    logging: *logging
+  storage-init:
+    image: drop-analyzer:${ANALYZER_RELEASE_TAG:-${RELEASE_TAG:-build}}
+    entrypoint: [python, -c]
+    command:
+      - "import os,pathlib; from minio import Minio; from minio.sseconfig import SSEConfig,Rule; read=lambda n:pathlib.Path(os.environ[n+'_FILE']).read_text().strip(); client=Minio('minio:9000',access_key=read('S3_ACCESS_KEY'),secret_key=read('S3_SECRET_KEY'),secure=False); client.bucket_exists('drop-artifacts') or client.make_bucket('drop-artifacts'); client.set_bucket_encryption('drop-artifacts',SSEConfig(Rule.new_sse_s3_rule())); assert client.get_bucket_encryption('drop-artifacts').rule.sse_algorithm=='AES256'; print('Private artifact bucket and AES256 default ready')"
+    environment:
+      S3_ACCESS_KEY_FILE: /run/secrets/s3_access_key
+      S3_SECRET_KEY_FILE: /run/secrets/s3_secret_key
+    secrets: [s3_access_key, s3_secret_key]
+    networks: [control]
+    depends_on:
+      minio: {condition: service_healthy}
+    restart: 'no'
+    mem_limit: 128m
+    logging: *logging
+  # Explicit one-shot disaster-recovery client. It has no control network or
+  # database credential; direct S3 is needed to restore original metadata
+  # without widening the user-facing gateway's header allowlist.
+  backup-client:
+    image: drop-analyzer:${ANALYZER_RELEASE_TAG:-${RELEASE_TAG:-build}}
+    profiles: [backup]
+    entrypoint: [python]
+    command: []
+    restart: 'no'
+    init: true
+    environment:
+      S3_ENDPOINT: http://storage-backend:9000
+      S3_ACCESS_KEY_FILE: /run/secrets/s3_access_key
+      S3_SECRET_KEY_FILE: /run/secrets/s3_secret_key
+      S3_BUCKET: drop-artifacts
+    secrets: [s3_access_key, s3_secret_key]
+    networks: [storage]
+    user: '10001:10001'
+    cap_drop: [ALL]
+    read_only: true
+    security_opt: [no-new-privileges:true]
+    tmpfs: ['/tmp:size=8m,mode=1777']
+    mem_limit: 128m
+    memswap_limit: 128m
+    cpus: 0.25
+    pids_limit: 32
+    healthcheck: {disable: true}
+    logging: *logging
+  drop-server:
+    <<: *app
+    image: drop-core:${RELEASE_TAG:-build}
+    build:
+      context: ..
+      dockerfile: core/Dockerfile
+    environment:
+      DATABASE_URL_FILE: /run/secrets/database_url
+      TLS_CA_FILE: /etc/drop/tls/ca.crt
+      TLS_CERT_FILE: /etc/drop/tls/server.crt
+      TLS_KEY_FILE: /etc/drop/tls/server.key
+    secrets: [database_url]
+    volumes:
+      - ./secrets/tls/ca.crt:/etc/drop/tls/ca.crt:ro
+      - ./secrets/tls/server.crt:/etc/drop/tls/server.crt:ro
+      - ./secrets/tls/server.key:/etc/drop/tls/server.key:ro
+    depends_on:
+      migration: {condition: service_completed_successfully}
+      permission-init: {condition: service_completed_successfully}
+    mem_limit: 256m
+    cpus: 0.5
+    cap_drop: [ALL]
+    read_only: true
+    tmpfs: ['/tmp:size=32m,mode=1777']
+  api:
+    <<: *app
+    image: drop-api:${API_RELEASE_TAG:-${RELEASE_TAG:-build}}
+    build:
+      context: ..
+      dockerfile: api/Dockerfile
+    environment:
+      DATABASE_URL_FILE: /run/secrets/database_url
+      DROP_SERVER_ADDRESS: drop-server:50051
+      TLS_CA_FILE: /etc/drop/tls/ca.crt
+      TLS_CERT_FILE: /etc/drop/tls/api.crt
+      TLS_KEY_FILE: /etc/drop/tls/api.key
+      S3_ENDPOINT: minio:9000
+      S3_ACCESS_KEY_FILE: /run/secrets/s3_access_key
+      S3_SECRET_KEY_FILE: /run/secrets/s3_secret_key
+      S3_BUCKET: drop-artifacts
+      ADMIN_USERNAME_FILE: /run/secrets/admin_username
+      ADMIN_PASSWORD_FILE: /run/secrets/admin_password
+      PUBLIC_URL: ${PUBLIC_URL:-http://120.24.187.205}
+    secrets: [database_url, s3_access_key, s3_secret_key, admin_username, admin_password]
+    volumes:
+      - ./secrets/tls/ca.crt:/etc/drop/tls/ca.crt:ro
+      - ./secrets/tls/api.crt:/etc/drop/tls/api.crt:ro
+      - ./secrets/tls/api.key:/etc/drop/tls/api.key:ro
+    depends_on:
+      migration: {condition: service_completed_successfully}
+      permission-init: {condition: service_completed_successfully}
+      minio: {condition: service_healthy}
+      storage-init: {condition: service_completed_successfully}
+      drop-server: {condition: service_started}
+    mem_limit: 256m
+    cpus: 0.5
+    cap_drop: [ALL]
+    read_only: true
+    tmpfs: ['/tmp:size=32m,mode=1777']
+  analyzer:
+    <<: *app
+    image: drop-analyzer:${ANALYZER_RELEASE_TAG:-${RELEASE_TAG:-build}}
+    build:
+      context: ..
+      dockerfile: analyzer/Dockerfile
+    environment:
+      DATABASE_URL_FILE: /run/secrets/database_url
+      S3_ENDPOINT: minio:9000
+      S3_ACCESS_KEY_FILE: /run/secrets/s3_access_key
+      S3_SECRET_KEY_FILE: /run/secrets/s3_secret_key
+      S3_BUCKET: drop-artifacts
+      WORKER_ID: analyzer-1
+    secrets: [database_url, s3_access_key, s3_secret_key]
+    depends_on:
+      migration: {condition: service_completed_successfully}
+      permission-init: {condition: service_completed_successfully}
+      minio: {condition: service_healthy}
+      storage-init: {condition: service_completed_successfully}
+    mem_limit: 384m
+    cpus: 0.65
+    cap_drop: [ALL]
+    read_only: true
+    tmpfs: ['/tmp:size=128m,mode=1777']
+  agent:
+    <<: *app
+    image: drop-core:${RELEASE_TAG:-build}
+    entrypoint: [/usr/local/bin/drop_agent]
+    environment:
+      DROP_SERVER_ADDRESS: drop-server:50051
+      AGENT_ID: aliyun-local
+      AGENT_HOSTNAME: aliyun-drop-01
+      TLS_CA_FILE: /etc/drop/tls/ca.crt
+      TLS_CERT_FILE: /etc/drop/tls/agent.crt
+      TLS_KEY_FILE: /etc/drop/tls/agent.key
+      WORK_DIR: /var/lib/drop-agent
+      RUN_CONTROLLED_WORKLOAD: 'true'
+      ALLOW_HOST_PROCESSES: 'false'
+    volumes:
+      - ./secrets/tls/ca.crt:/etc/drop/tls/ca.crt:ro
+      - ./secrets/tls/agent.crt:/etc/drop/tls/agent.crt:ro
+      - ./secrets/tls/agent.key:/etc/drop/tls/agent.key:ro
+      - agent_data:/var/lib/drop-agent
+    depends_on:
+      drop-server: {condition: service_started}
+    mem_limit: 192m
+    cpus: 0.65
+    cap_drop: [ALL]
+    read_only: true
+    tmpfs: ['/tmp:size=64m,mode=1777']
+  web:
+    <<: *app
+    image: drop-web:${WEB_RELEASE_TAG:-${RELEASE_TAG:-build}}
+    build:
+      context: ..
+      dockerfile: web/Dockerfile
+    ports: ['80:8080']
+    depends_on:
+      api: {condition: service_healthy}
+    mem_limit: 96m
+    cpus: 0.3
+    cap_drop: [ALL]
+    read_only: true
+    tmpfs: ['/tmp:size=32m,mode=1777', '/var/cache/nginx:size=16m,mode=1777', '/var/run:size=1m,mode=1777']
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:8080/healthz]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+networks:
+  control:
+    driver: bridge
+  storage:
+    driver: bridge
+    internal: true
+volumes:
+  pg_data:
+  object_data:
+  agent_data:
+secrets:
+  database_password: {file: ./secrets/database_password}
+  app_database_password: {file: ./secrets/app_database_password}
+  migration_database_url: {file: ./secrets/migration_database_url}
+  database_url: {file: ./secrets/database_url}
+  s3_access_key: {file: ./secrets/s3_access_key}
+  s3_secret_key: {file: ./secrets/s3_secret_key}
+  s3_kms_master_key: {file: ./secrets/s3_kms_master_key}
+  admin_username: {file: ./secrets/admin_username}
+  admin_password: {file: ./secrets/admin_password}

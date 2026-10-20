@@ -1,0 +1,166 @@
+{
+  "created_at": "2026-10-16T12:16:37.767Z",
+  "target": "http://120.24.187.205",
+  "browser": "156.0.8078.4",
+  "client": {
+    "platform": "win32",
+    "architecture": "x64",
+    "cpu_model": "Intel(R) Core(TM) i7-14650HX",
+    "logical_cpus": 24,
+    "total_memory_gib": 15.71,
+    "viewport": "1440x1000",
+    "headless": true,
+    "cpu_or_network_throttling": false
+  },
+  "methodology": [
+    "One IMPORT_COLLAPSED task per size, executed sequentially against the actual public API and Analyzer.",
+    "Fixtures are explicitly synthetic imported data, not a claim of host sampling.",
+    "Each branch is wide enough to avoid the UI's 0.6-unit tiny-frame filter. Actual layout node count and visible DOM rect count are independently checked; row virtualization may draw a subset.",
+    "Native Worker postMessage/message timestamps are observed; payloads and actual worker code are not mocked or replaced.",
+    "Worker round trip includes structured cloning and worker scheduling/layout; DOM-ready time includes React commit and two animation frames.",
+    "Search timing starts at the real browser input event and ends after the matching stroke is committed plus two animation frames.",
+    "Single trials on this client/server/network are baselines, not latency guarantees or an SLA. The second page may reuse cached assets."
+  ],
+  "cases": [
+    {
+      "task_id": "9",
+      "task_name": "验收 · 10k节点压力 · 合成折叠栈",
+      "source": "import",
+      "input_bytes": 202760,
+      "sampling_weight": 300,
+      "unique_stacks": 100,
+      "nodes": 10000,
+      "max_depth": 101,
+      "import_response_ms": null,
+      "analysis_observed_wall_ms": 59.289800000000014,
+      "server_event_analyzer_duration_ms": 130,
+      "page": {
+        "navigation_to_interactive_ms": 860.2999999998137,
+        "worker": {
+          "sent_at_ms": 669,
+          "received_at_ms": 760,
+          "layout_round_trip_ms": 91,
+          "returned_rects": 10000,
+          "layout_height": 102,
+          "total_weight": 300
+        },
+        "worker_received_to_interactive_ms": 100.29999999981374,
+        "dom_rects": 2102,
+        "dom_elements": 6622,
+        "total_layout_nodes": 10000,
+        "rendered_frame_height_px": 25,
+        "initial_scroll_top_px": 2356,
+        "keyboard_tab_stops": 1,
+        "result_requests": [
+          {
+            "path": "/api/v1/tasks/9/result",
+            "duration_ms": 32.700000000186265,
+            "transfer_bytes": 38754,
+            "decoded_body_bytes": 640093
+          }
+        ],
+        "long_tasks": [
+          {
+            "start_ms": 163.5,
+            "duration_ms": 72
+          },
+          {
+            "start_ms": 760.8999999994412,
+            "duration_ms": 76
+          }
+        ]
+      },
+      "search": {
+        "input_to_paint_ms": 58.799999999813735,
+        "matched_rects": 1,
+        "dimmed_rects": 2101,
+        "full_layout_status": "1 matches · 10,000 nodes · 2,102 visible"
+      },
+      "virtualization_checks": {
+        "root_initially_visible": true,
+        "root_unmounted_at_top": true,
+        "top_viewport_rects": 2198,
+        "offscreen_match_count": 1,
+        "offscreen_match_dom_rects": 0,
+        "offscreen_match_focus_and_reset": true,
+        "expand_collapse": true,
+        "roving_arrow_navigation": true
+      },
+      "javascript_errors": [],
+      "failed_http_requests": [],
+      "existing_task_reused": true
+    },
+    {
+      "task_id": "10",
+      "task_name": "验收 · 49k节点压力 · 合成折叠栈",
+      "source": "import",
+      "input_bytes": 991160,
+      "sampling_weight": 1200,
+      "unique_stacks": 400,
+      "nodes": 49000,
+      "max_depth": 124,
+      "import_response_ms": null,
+      "analysis_observed_wall_ms": 161.846,
+      "server_event_analyzer_duration_ms": 602,
+      "page": {
+        "navigation_to_interactive_ms": 1468.800000000745,
+        "worker": {
+          "sent_at_ms": 783.1000000005588,
+          "received_at_ms": 1087.4000000003725,
+          "layout_round_trip_ms": 304.29999999981374,
+          "returned_rects": 49000,
+          "layout_height": 125,
+          "total_weight": 1200
+        },
+        "worker_received_to_interactive_ms": 381.40000000037253,
+        "dom_rects": 8402,
+        "dom_elements": 25522,
+        "total_layout_nodes": 49000,
+        "rendered_frame_height_px": 25,
+        "initial_scroll_top_px": 3000,
+        "keyboard_tab_stops": 1,
+        "result_requests": [
+          {
+            "path": "/api/v1/tasks/10/result",
+            "duration_ms": 109.5,
+            "transfer_bytes": 185059,
+            "decoded_body_bytes": 3097516
+          }
+        ],
+        "long_tasks": [
+          {
+            "start_ms": 104.5,
+            "duration_ms": 64
+          },
+          {
+            "start_ms": 991.4000000003725,
+            "duration_ms": 96
+          },
+          {
+            "start_ms": 1088.7000000001863,
+            "duration_ms": 354
+          }
+        ]
+      },
+      "search": {
+        "input_to_paint_ms": 145.3999999994412,
+        "matched_rects": 1,
+        "dimmed_rects": 8401,
+        "full_layout_status": "1 matches · 49,000 nodes · 8,402 visible"
+      },
+      "virtualization_checks": {
+        "root_initially_visible": true,
+        "root_unmounted_at_top": true,
+        "top_viewport_rects": 8598,
+        "offscreen_match_count": 1,
+        "offscreen_match_dom_rects": 0,
+        "offscreen_match_focus_and_reset": true,
+        "expand_collapse": true,
+        "roving_arrow_navigation": true
+      },
+      "javascript_errors": [],
+      "failed_http_requests": [],
+      "existing_task_reused": true
+    }
+  ]
+}

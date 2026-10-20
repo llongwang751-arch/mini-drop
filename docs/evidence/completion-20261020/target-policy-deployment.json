@@ -1,0 +1,61 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-20T07:43:21.464216+00:00",
+  "policy_sha256": {
+    "apparmor/drop-collector-helper": "f9baacd205d8d01cfb53b8ceb2ebc148368f185f0e62f883d5916bcc3f017d63",
+    "apparmor/drop-diagnostic-target": "b5e725c558c9ace6f6f797d844937a6f967378512fb28e584a9e3a138ef1d90a",
+    "compose.helper-targets.yml": "c7cd81ba88dd4481dfa18f7b0c5b37569ed2dd9346ab555bfc0cec0f7f1b2c45"
+  },
+  "old": {
+    "collector-helper": {
+      "container_id": "196219d936148f2b03844c20f15fe9abb7fdcaad25dc57e56a25099917490d4b",
+      "image_id": "sha256:abb10f7f51f7f33e08248fde4c0d6ec0bbf200f5b4c9cde7248e8701cb25c4dc",
+      "image": "drop-agent:20261020.3"
+    },
+    "demo-python": {
+      "container_id": "0735d78756cb1f7d205c971886e037bc2ac84b52a34f4ed48bfdb6472d90e43d",
+      "image_id": "sha256:8ebd8552970a1441231ce2a0fc5d07e954ea985b703144841996f91f65f3355c",
+      "image": "drop-demo-workloads:20261020.1"
+    },
+    "crm-workload": {
+      "container_id": "72ca207c6762b707c41e7967b56bf5e77b04718eead248f855a003afa4a78561",
+      "image_id": "sha256:ed2b4f5757b3a2994b583cface49d08bfc598bc8006e199d5f909126a88fe8b6",
+      "image": "drop-crm-sandbox:20261020.3"
+    },
+    "saber-workload": {
+      "container_id": "4b108c89107352f1864db058ce20a8b74a6c63236843c1746c79acb9d593a876",
+      "image_id": "sha256:88049fe37ad3146a2f3ede5adcefccc761fbf64d6928a83a07e28519611e6779",
+      "image": "drop-saber-sandbox:20261020.1"
+    }
+  },
+  "new": {
+    "collector-helper": {
+      "container_id": "86bd1f93da50f9b554d27789f053e73c7b72dcdbc102c1da28ad81a21f0378d8",
+      "image_id": "sha256:abb10f7f51f7f33e08248fde4c0d6ec0bbf200f5b4c9cde7248e8701cb25c4dc",
+      "image": "drop-agent:20261020.3"
+    },
+    "demo-python": {
+      "container_id": "af6e752c509c5e116031dcf60b006ed9a6d7d1d3ef43248ceef1eeaf0edda83d",
+      "image_id": "sha256:8ebd8552970a1441231ce2a0fc5d07e954ea985b703144841996f91f65f3355c",
+      "image": "drop-demo-workloads:20261020.1"
+    },
+    "crm-workload": {
+      "container_id": "cbd5a62068d6bb7fa81f4f98a58cab1a295185116e1f096a007148921bfd4e1d",
+      "image_id": "sha256:ed2b4f5757b3a2994b583cface49d08bfc598bc8006e199d5f909126a88fe8b6",
+      "image": "drop-crm-sandbox:20261020.3"
+    },
+    "saber-workload": {
+      "container_id": "c166a0c3d439f9f5df4ec0c9395753f0ca5b59caab044ff89feeaef5b7305a1c",
+      "image_id": "sha256:88049fe37ad3146a2f3ede5adcefccc761fbf64d6928a83a07e28519611e6779",
+      "image": "drop-saber-sandbox:20261020.1"
+    }
+  },
+  "only_helper_and_three_python_targets_recreated": true,
+  "other_container_ids_preserved": true,
+  "same_agent_namespace": true,
+  "profiles_enforced_and_persisted": true,
+  "no_sys_admin_or_privileged_or_new_target_capability": true,
+  "global_docker_default_unchanged": true,
+  "readiness_http": 200,
+  "reason": "task61 GDB SIGSTOP rejected by target docker-default peer policy; target now accepts the named helper signal/ptrace, helper root directory reads explicitly permitted"
+}

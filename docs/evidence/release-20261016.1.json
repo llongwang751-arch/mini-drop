@@ -1,0 +1,245 @@
+{
+  "captured_at": "2026-10-16T12:29:04.738322+00:00",
+  "release": "20261016.1",
+  "url": "http://120.24.187.205",
+  "runtime_database_user": "drop_app",
+  "runtime_role": {
+    "rolname": "drop_app",
+    "rolsuper": false,
+    "rolcreatedb": false,
+    "rolcreaterole": false,
+    "rolreplication": false,
+    "rolbypassrls": false,
+    "can_create_table": false,
+    "can_create_temp": false
+  },
+  "database_connections": [
+    {
+      "usename": "drop",
+      "count": 1
+    },
+    {
+      "usename": "drop_app",
+      "count": 4
+    }
+  ],
+  "data_counts": {
+    "tasks": 17,
+    "artifacts": 85,
+    "events": 199,
+    "enabled_schedules": 0,
+    "in_progress": 0
+  },
+  "host_perf_event_paranoid": "4",
+  "containers": {
+    "postgres": {
+      "image": "postgres:17.11-alpine",
+      "image_id": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "state": "running",
+      "health": "healthy",
+      "oom_killed": false,
+      "restart_count": 0,
+      "uid": "0\t0\t0\t0",
+      "effective_capabilities": "00000000a80425fb",
+      "cap_add": null,
+      "cap_drop": null,
+      "readonly_root": false,
+      "privileged": false,
+      "pid_mode": "",
+      "security_options": [
+        "no-new-privileges:true"
+      ],
+      "memory_limit": 402653184,
+      "networks": [
+        "drop_control"
+      ],
+      "published_ports": {}
+    },
+    "storage-backend": {
+      "image": "minio/minio:RELEASE.2025-07-23T15-54-02Z",
+      "image_id": "sha256:d249d1fb6966de4d8ad26c04754b545205ff15a62e4fd19ebd0f26fa5baacbc0",
+      "state": "running",
+      "health": "healthy",
+      "oom_killed": false,
+      "restart_count": 0,
+      "uid": "10001\t10001\t10001\t10001",
+      "effective_capabilities": "0000000000000000",
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "readonly_root": true,
+      "privileged": false,
+      "pid_mode": "",
+      "security_options": [
+        "no-new-privileges:true"
+      ],
+      "memory_limit": 536870912,
+      "networks": [
+        "drop_storage"
+      ],
+      "published_ports": {}
+    },
+    "minio": {
+      "image": "nginxinc/nginx-unprivileged:1.30.6-alpine",
+      "image_id": "sha256:782bb89768cc87b7f95c18b95baa1af250e5d451f26794f59363540161147c01",
+      "state": "running",
+      "health": "healthy",
+      "oom_killed": false,
+      "restart_count": 0,
+      "uid": "101\t101\t101\t101",
+      "effective_capabilities": "0000000000000000",
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "readonly_root": true,
+      "privileged": false,
+      "pid_mode": "",
+      "security_options": [
+        "no-new-privileges:true"
+      ],
+      "memory_limit": 50331648,
+      "networks": [
+        "drop_control",
+        "drop_storage"
+      ],
+      "published_ports": {}
+    },
+    "drop-server": {
+      "image": "drop-core:20261016.1",
+      "image_id": "sha256:5c167462baf513671ad9eac5dc9f441e7d889539dd1f1096ea423a392e8792cd",
+      "state": "running",
+      "health": null,
+      "oom_killed": false,
+      "restart_count": 0,
+      "uid": "10001\t10001\t10001\t10001",
+      "effective_capabilities": "0000000000000000",
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "readonly_root": true,
+      "privileged": false,
+      "pid_mode": "",
+      "security_options": [
+        "no-new-privileges:true"
+      ],
+      "memory_limit": 268435456,
+      "networks": [
+        "drop_control"
+      ],
+      "published_ports": {}
+    },
+    "api": {
+      "image": "drop-api:20261016.1",
+      "image_id": "sha256:cf7e19fd00f9ade494522ddb4c185da4ac2eeb0db414dc184195354e42886023",
+      "state": "running",
+      "health": "healthy",
+      "oom_killed": false,
+      "restart_count": 0,
+      "uid": "101\t101\t101\t101",
+      "effective_capabilities": "0000000000000000",
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "readonly_root": true,
+      "privileged": false,
+      "pid_mode": "",
+      "security_options": [
+        "no-new-privileges:true"
+      ],
+      "memory_limit": 268435456,
+      "networks": [
+        "drop_control"
+      ],
+      "published_ports": {}
+    },
+    "analyzer": {
+      "image": "drop-analyzer:20261016.1",
+      "image_id": "sha256:154375d094cf279e843ea47b346771edae897901e88f2e1f5db0b4a3b438871d",
+      "state": "running",
+      "health": "healthy",
+      "oom_killed": false,
+      "restart_count": 0,
+      "uid": "10001\t10001\t10001\t10001",
+      "effective_capabilities": "0000000000000000",
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "readonly_root": true,
+      "privileged": false,
+      "pid_mode": "",
+      "security_options": [
+        "no-new-privileges:true"
+      ],
+      "memory_limit": 402653184,
+      "networks": [
+        "drop_control"
+      ],
+      "published_ports": {}
+    },
+    "agent": {
+      "image": "drop-core:20261016.1",
+      "image_id": "sha256:5c167462baf513671ad9eac5dc9f441e7d889539dd1f1096ea423a392e8792cd",
+      "state": "running",
+      "health": null,
+      "oom_killed": false,
+      "restart_count": 0,
+      "uid": "0\t0\t0\t0",
+      "effective_capabilities": "0000004000000000",
+      "cap_add": [
+        "CAP_PERFMON"
+      ],
+      "cap_drop": [
+        "ALL"
+      ],
+      "readonly_root": true,
+      "privileged": false,
+      "pid_mode": "",
+      "security_options": [
+        "no-new-privileges:true",
+        "seccomp={\"defaultAction\":\"SCMP_ACT_ERRNO\",\"defaultErrnoRet\":1,\"architectures\":[\"SCMP_ARCH_X86_64\",\"SCMP_ARCH_X86\",\"SCMP_ARCH_X32\"],\"syscalls\":[{\"names\":[\"accept\",\"accept4\",\"access\",\"adjtimex\",\"alarm\",\"bind\",\"brk\",\"cachestat\",\"capget\",\"capset\",\"chdir\",\"chmod\",\"chown\",\"chown32\",\"clock_adjtime\",\"clock_adjtime64\",\"clock_getres\",\"clock_getres_time64\",\"clock_gettime\",\"clock_gettime64\",\"clock_nanosleep\",\"clock_nanosleep_time64\",\"close\",\"close_range\",\"connect\",\"copy_file_range\",\"creat\",\"dup\",\"dup2\",\"dup3\",\"epoll_create\",\"epoll_create1\",\"epoll_ctl\",\"epoll_ctl_old\",\"epoll_pwait\",\"epoll_pwait2\",\"epoll_wait\",\"epoll_wait_old\",\"eventfd\",\"eventfd2\",\"execve\",\"execveat\",\"exit\",\"exit_group\",\"faccessat\",\"faccessat2\",\"fadvise64\",\"fadvise64_64\",\"fallocate\",\"fanotify_mark\",\"fchdir\",\"fchmod\",\"fchmodat\",\"fchmodat2\",\"fchown\",\"fchown32\",\"fchownat\",\"fcntl\",\"fcntl64\",\"fdatasync\",\"fgetxattr\",\"flistxattr\",\"flock\",\"fork\",\"fremovexattr\",\"fsetxattr\",\"fstat\",\"fstat64\",\"fstatat64\",\"fstatfs\",\"fstatfs64\",\"fsync\",\"ftruncate\",\"ftruncate64\",\"futex\",\"futex_requeue\",\"futex_time64\",\"futex_wait\",\"futex_waitv\",\"futex_wake\",\"futimesat\",\"getcpu\",\"getcwd\",\"getdents\",\"getdents64\",\"getegid\",\"getegid32\",\"geteuid\",\"geteuid32\",\"getgid\",\"getgid32\",\"getgroups\",\"getgroups32\",\"getitimer\",\"getpeername\",\"getpgid\",\"getpgrp\",\"getpid\",\"getppid\",\"getpriority\",\"getrandom\",\"getresgid\",\"getresgid32\",\"getresuid\",\"getresuid32\",\"getrlimit\",\"get_robust_list\",\"getrusage\",\"getsid\",\"getsockname\",\"getsockopt\",\"get_thread_area\",\"gettid\",\"gettimeofday\",\"getuid\",\"getuid32\",\"getxattr\",\"getxattrat\",\"inotify_add_watch\",\"inotify_init\",\"inotify_init1\",\"inotify_rm_watch\",\"io_cancel\",\"ioctl\",\"io_destroy\",\"io_getevents\",\"io_pgetevents\",\"io_pgetevents_time64\",\"ioprio_get\",\"ioprio_set\",\"io_setup\",\"io_submit\",\"ipc\",\"kill\",\"landlock_add_rule\",\"landlock_create_ruleset\",\"landlock_restrict_self\",\"lchown\",\"lchown32\",\"lgetxattr\",\"link\",\"linkat\",\"listen\",\"listmount\",\"listxattr\",\"listxattrat\",\"llistxattr\",\"_llseek\",\"lremovexattr\",\"lseek\",\"lsetxattr\",\"lstat\",\"lstat64\",\"madvise\",\"map_shadow_stack\",\"membarrier\",\"memfd_create\",\"memfd_secret\",\"mincore\",\"mkdir\",\"mkdirat\",\"mknod\",\"mknodat\",\"mlock\",\"mlock2\",\"mlockall\",\"mmap\",\"mmap2\",\"mprotect\",\"mq_getsetattr\",\"mq_notify\",\"mq_open\",\"mq_timedreceive\",\"mq_timedreceive_time64\",\"mq_timedsend\",\"mq_timedsend_time64\",\"mq_unlink\",\"mremap\",\"mseal\",\"msgctl\",\"msgget\",\"msgrcv\",\"msgsnd\",\"msync\",\"munlock\",\"munlockall\",\"munmap\",\"name_to_handle_at\",\"nanosleep\",\"newfstatat\",\"_newselect\",\"open\",\"openat\",\"openat2\",\"pause\",\"pidfd_open\",\"pidfd_send_signal\",\"pipe\",\"pipe2\",\"pkey_alloc\",\"pkey_free\",\"pkey_mprotect\",\"poll\",\"ppoll\",\"ppoll_time64\",\"prctl\",\"pread64\",\"preadv\",\"preadv2\",\"prlimit64\",\"process_mrelease\",\"pselect6\",\"pselect6_time64\",\"pwrite64\",\"pwritev\",\"pwritev2\",\"read\",\"readahead\",\"readlink\",\"readlinkat\",\"readv\",\"recv\",\"recvfrom\",\"recvmmsg\",\"recvmmsg_time64\",\"recvmsg\",\"remap_file_pages\",\"removexattr\",\"removexattrat\",\"rename\",\"renameat\",\"renameat2\",\"restart_syscall\",\"riscv_hwprobe\",\"rmdir\",\"rseq\",\"rt_sigaction\",\"rt_sigpending\",\"rt_sigprocmask\",\"rt_sigqueueinfo\",\"rt_sigreturn\",\"rt_sigsuspend\",\"rt_sigtimedwait\",\"rt_sigtimedwait_time64\",\"rt_tgsigqueueinfo\",\"sched_getaffinity\",\"sched_getattr\",\"sched_getparam\",\"sched_get_priority_max\",\"sched_get_priority_min\",\"sched_getscheduler\",\"sched_rr_get_interval\",\"sched_rr_get_interval_time64\",\"sched_setaffinity\",\"sched_setattr\",\"sched_setparam\",\"sched_setscheduler\",\"sched_yield\",\"seccomp\",\"select\",\"semctl\",\"semget\",\"semop\",\"semtimedop\",\"semtimedop_time64\",\"send\",\"sendfile\",\"sendfile64\",\"sendmmsg\",\"sendmsg\",\"sendto\",\"setfsgid\",\"setfsgid32\",\"setfsuid\",\"setfsuid32\",\"setgid\",\"setgid32\",\"setgroups\",\"setgroups32\",\"setitimer\",\"setpgid\",\"setpriority\",\"setregid\",\"setregid32\",\"setresgid\",\"setresgid32\",\"setresuid\",\"setresuid32\",\"setreuid\",\"setreuid32\",\"setrlimit\",\"set_robust_list\",\"setsid\",\"setsockopt\",\"set_thread_area\",\"set_tid_address\",\"setuid\",\"setuid32\",\"setxattr\",\"setxattrat\",\"shmat\",\"shmctl\",\"shmdt\",\"shmget\",\"shutdown\",\"sigaltstack\",\"signalfd\",\"signalfd4\",\"sigprocmask\",\"sigreturn\",\"socketcall\",\"socketpair\",\"splice\",\"stat\",\"stat64\",\"statfs\",\"statfs64\",\"statmount\",\"statx\",\"symlink\",\"symlinkat\",\"sync\",\"sync_file_range\",\"syncfs\",\"sysinfo\",\"tee\",\"tgkill\",\"time\",\"timer_create\",\"timer_delete\",\"timer_getoverrun\",\"timer_gettime\",\"timer_gettime64\",\"timer_settime\",\"timer_settime64\",\"timerfd_create\",\"timerfd_gettime\",\"timerfd_gettime64\",\"timerfd_settime\",\"timerfd_settime64\",\"times\",\"tkill\",\"truncate\",\"truncate64\",\"ugetrlimit\",\"umask\",\"uname\",\"unlink\",\"unlinkat\",\"uretprobe\",\"utime\",\"utimensat\",\"utimensat_time64\",\"utimes\",\"vfork\",\"vmsplice\",\"wait4\",\"waitid\",\"waitpid\",\"write\",\"writev\"],\"action\":\"SCMP_ACT_ALLOW\"},{\"names\":[\"process_vm_readv\",\"process_vm_writev\",\"ptrace\"],\"action\":\"SCMP_ACT_ALLOW\"},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":40,\"op\":\"SCMP_CMP_NE\"}]},{\"names\":[\"personality\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":0,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"personality\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":8,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"personality\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":131072,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"personality\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":131080,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"personality\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":4294967295,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"arch_prctl\"],\"action\":\"SCMP_ACT_ALLOW\"},{\"names\":[\"modify_ldt\"],\"action\":\"SCMP_ACT_ALLOW\"},{\"names\":[\"clone\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":2114060288,\"op\":\"SCMP_CMP_MASKED_EQ\"}]},{\"names\":[\"clone3\"],\"action\":\"SCMP_ACT_ERRNO\",\"errnoRet\":38},{\"names\":[\"perf_event_open\"],\"action\":\"SCMP_ACT_ALLOW\"}]}"
+      ],
+      "memory_limit": 201326592,
+      "networks": [
+        "drop_control"
+      ],
+      "published_ports": {}
+    },
+    "web": {
+      "image": "drop-web:20261016.1",
+      "image_id": "sha256:4dd7da9160a94d5f2cdd242f1cdd12233f36c040322e036db68281d0bacac97c",
+      "state": "running",
+      "health": "healthy",
+      "oom_killed": false,
+      "restart_count": 0,
+      "uid": "101\t101\t101\t101",
+      "effective_capabilities": "0000000000000000",
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ],
+      "readonly_root": true,
+      "privileged": false,
+      "pid_mode": "",
+      "security_options": [
+        "no-new-privileges:true"
+      ],
+      "memory_limit": 100663296,
+      "networks": [
+        "drop_control"
+      ],
+      "published_ports": {
+        "8080/tcp": [
+          {
+            "HostIp": "",
+            "HostPort": "80"
+          }
+        ]
+      }
+    }
+  }
+}

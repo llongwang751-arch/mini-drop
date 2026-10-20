@@ -1,0 +1,28 @@
+test_cli_env_file_defaults_and_effective_metrics_are_used (test_config.ConfigurationTests.test_cli_env_file_defaults_and_effective_metrics_are_used) ... ok
+test_health_accepts_same_config_without_requiring_database_secret (test_config.ConfigurationTests.test_health_accepts_same_config_without_requiring_database_secret) ... ok
+test_health_cli_uses_shared_effective_health_path (test_config.ConfigurationTests.test_health_cli_uses_shared_effective_health_path) ... ok
+test_log_schema_and_unknown_fields_never_emit_urls_or_exception_values (test_config.ConfigurationTests.test_log_schema_and_unknown_fields_never_emit_urls_or_exception_values) ... ok
+test_secret_file_precedence_and_snapshot_do_not_hash_secrets (test_config.ConfigurationTests.test_secret_file_precedence_and_snapshot_do_not_hash_secrets) ... ok
+test_startup_log_snapshot_contains_every_effective_setting (test_config.ConfigurationTests.test_startup_log_snapshot_contains_every_effective_setting) ... FAIL
+test_stdlib_library_logging_never_formats_secret_exception_or_url (test_config.ConfigurationTests.test_stdlib_library_logging_never_formats_secret_exception_or_url) ... ok
+test_telemetry_uses_effective_configuration_instead_of_reopening_env (test_config.ConfigurationTests.test_telemetry_uses_effective_configuration_instead_of_reopening_env) ... ok
+test_unknown_secret_cli_large_file_control_and_nonfinite_are_refused (test_config.ConfigurationTests.test_unknown_secret_cli_large_file_control_and_nonfinite_are_refused) ... ok
+
+======================================================================
+FAIL: test_startup_log_snapshot_contains_every_effective_setting (test_config.ConfigurationTests.test_startup_log_snapshot_contains_every_effective_setting)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "E:\tx-drop\analyzer\tests\test_config.py", line 195, in test_startup_log_snapshot_contains_every_effective_setting
+    self.assertEqual(set(recorded), set(visible))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the second set but not the first:
+'S3_SECURE'
+'S3_SECRET_KEY'
+'S3_BUCKET'
+'S3_ENDPOINT'
+'S3_ACCESS_KEY'
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.636s
+
+FAILED (failures=1)

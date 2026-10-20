@@ -1,0 +1,11 @@
+services:
+  agent:
+    image: drop-agent:${RELEASE_TAG:-build}
+    build: {context: .., dockerfile: core/Dockerfile, target: full-tools}
+    cap_add: [SYS_PTRACE]
+    mem_limit: 512m
+    tmpfs: ['/tmp:size=128m,mode=1777']
+    environment:
+      NATIVE_CONTROL_ROOT: /run/drop-profilers
+    # Tool presence and kernel/target permissions are separate capability probes.
+    # Host PID/runtime access is provided separately by systemd or DaemonSet.

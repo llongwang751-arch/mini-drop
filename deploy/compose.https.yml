@@ -1,0 +1,23 @@
+services:
+  web:
+    ports: !reset []
+  gateway:
+    image: drop-nginx:${NGINX_RELEASE_TAG:-${RELEASE_TAG:-build}}
+    build: {context: .., dockerfile: deploy/Dockerfile.nginx}
+    command: [nginx, -c, /etc/drop/runtime/edge.conf, -g, 'daemon off;']
+    ports: ['80:8080', '443:8443']
+    volumes:
+      - ./runtime:/etc/drop/runtime:ro
+      - ./acme-webroot:/var/www/acme:ro
+      - ./secrets/public-tls:/etc/drop/public-tls:ro
+    networks: [control]
+    depends_on: {web: {condition: service_healthy}}
+    restart: unless-stopped
+    cap_drop: [ALL]
+    read_only: true
+    security_opt: [no-new-privileges:true]
+    tmpfs: ['/tmp:size=16m,mode=1777', '/var/cache/nginx:size=8m,mode=1777', '/var/run:size=1m,mode=1777']
+    mem_limit: 48m
+    memswap_limit: 48m
+    cpus: 0.15
+    logging: {driver: json-file, options: {max-size: 5m, max-file: '2'}}

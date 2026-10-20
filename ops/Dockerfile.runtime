@@ -1,0 +1,5 @@
+# Patch the already reviewed dependency closure; this does not clear its CVEs.
+# Build with the exact locally preserved release base and a new image tag.
+ARG OPS_BASE=drop-ops:20261018.1-rc4
+FROM ${OPS_BASE}
+COPY ops/maintenance.py /app/maintenance.py

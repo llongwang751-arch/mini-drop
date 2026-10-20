@@ -1,0 +1,53 @@
+{
+  "verified_at": "2026-10-16T12:25:48.885Z",
+  "task_id": "19",
+  "actual_network_stream": true,
+  "credentials_reused_without_login": true,
+  "first_connection": {
+    "started_at": "2026-10-16T12:25:46.803Z",
+    "closed_at": "2026-10-16T12:25:46.838Z",
+    "status": 200,
+    "content_type": "text/event-stream",
+    "last_event_id_header": null,
+    "timeout_ms": 20000,
+    "timed_out": false,
+    "close_reason": "client_event_limit_reached",
+    "events": [
+      {
+        "id": "189",
+        "event": "task_status",
+        "type": "TASK_CREATED",
+        "created_at": "2026-10-16T12:25:51.876759Z"
+      }
+    ]
+  },
+  "resumed_connection": {
+    "started_at": "2026-10-16T12:25:46.841Z",
+    "closed_at": "2026-10-16T12:25:48.871Z",
+    "status": 200,
+    "content_type": "text/event-stream",
+    "last_event_id_header": "189",
+    "timeout_ms": 25000,
+    "timed_out": false,
+    "close_reason": "client_event_limit_reached",
+    "events": [
+      {
+        "id": "190",
+        "event": "task_status",
+        "type": "DISPATCH_QUEUED",
+        "created_at": "2026-10-16T12:25:52.170282Z"
+      },
+      {
+        "id": "191",
+        "event": "task_status",
+        "type": "TASK_DELIVERED",
+        "created_at": "2026-10-16T12:25:53.854322Z"
+      }
+    ]
+  },
+  "strict_monotonic_ids": true,
+  "no_replayed_cursor_event": true,
+  "matches_persisted_events_after_cursor": true,
+  "bounded_timeout_and_active_client_close": true,
+  "timestamp_note": "连接、关闭与verified_at来自Windows客户端；事件created_at来自服务端数据库。未用跨机器时间差衡量延迟。"
+}

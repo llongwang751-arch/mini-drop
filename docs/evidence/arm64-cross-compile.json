@@ -1,0 +1,52 @@
+{
+  "recorded_at": "2026-10-16T15:26:51.323312+00:00",
+  "toolchain": "go version go1.26.9 windows/amd64",
+  "cross_compile": {
+    "passed": true,
+    "target": "linux/arm64",
+    "CGO_ENABLED": "0",
+    "tags": "nomsgpack",
+    "GOMAXPROCS": 1,
+    "GOMEMLIMIT": "384MiB",
+    "GOFLAGS": "-p=1"
+  },
+  "artifacts": [
+    {
+      "artifact": "drop-api",
+      "bytes": 41949396,
+      "sha256": "239b2d6f31adae922a83b095926838ce8cfc8f79cf81910d189ef426b3227a81",
+      "elf_machine": 183,
+      "architecture": "AArch64"
+    },
+    {
+      "artifact": "tests/httpapi.test",
+      "bytes": 38896332,
+      "sha256": "694ab9a705614c09ed3e6089bb7be3fdbae3acb57f11d726e82bdfc0dc10327d",
+      "elf_machine": 183,
+      "architecture": "AArch64"
+    },
+    {
+      "artifact": "tests/repository.test",
+      "bytes": 20276535,
+      "sha256": "ab9645f0eaf29437de7708a212349caa7db4ab27cb35a1b12a1a4784403cb0af",
+      "elf_machine": 183,
+      "architecture": "AArch64"
+    },
+    {
+      "artifact": "tests/service.test",
+      "bytes": 31176823,
+      "sha256": "417b2f86f3456294563684614962580d7d88ebb09aa68a50659a7e6ca4846279",
+      "elf_machine": 183,
+      "architecture": "AArch64"
+    }
+  ],
+  "runtime_validation": {
+    "passed": false,
+    "reason": "Docker Desktop Linux Engine initially absent, recovered briefly, then terminated with API 502/unexpected EOF during bounded 96MiB/0.25CPU ARM Ops recheck. No ARM API test binary was executed. This is compiled AArch64 ELF evidence only, not native ARM hardware qualification."
+  },
+  "ops_prior_build_log": ".local/supplychain/ops-arm64-build.log",
+  "limitations": [
+    "No ARM cluster or native ARM hardware provided.",
+    "Final ARM Analyzer and full Agent image builds not executed after the Bookworm/Noble LLVM package corrections."
+  ]
+}

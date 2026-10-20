@@ -1,0 +1,27 @@
+test_config_reload_and_https_failures_restore_previous_pair_and_edge (test_tls_publication.PublicTLSExecutionTests.test_config_reload_and_https_failures_restore_previous_pair_and_edge) ... ok
+test_failed_first_issue_restores_http_and_removes_only_its_new_bundle (test_tls_publication.PublicTLSExecutionTests.test_failed_first_issue_restores_http_and_removes_only_its_new_bundle) ... ok
+test_invalid_certificate_or_mismatched_pair_never_changes_current (test_tls_publication.PublicTLSExecutionTests.test_invalid_certificate_or_mismatched_pair_never_changes_current) ... ok
+test_outside_pointer_is_rejected_before_reading_or_overwriting_it (test_tls_publication.PublicTLSExecutionTests.test_outside_pointer_is_rejected_before_reading_or_overwriting_it) ... ok
+test_public_entrypoint_only_recreates_named_services_without_build_or_pull (test_tls_publication.PublicTLSExecutionTests.test_public_entrypoint_only_recreates_named_services_without_build_or_pull) ... ok
+test_renewal_uses_the_same_atomic_publish_and_rollback (test_tls_publication.PublicTLSExecutionTests.test_renewal_uses_the_same_atomic_publish_and_rollback) ... ERROR
+test_success_commits_pair_and_edge_without_success_trap_rollback (test_tls_publication.PublicTLSExecutionTests.test_success_commits_pair_and_edge_without_success_trap_rollback) ... ok
+test_internal_rotation_never_builds_or_pulls_and_rejoins_helper_last (test_tls_publication.TLSConfigurationTests.test_internal_rotation_never_builds_or_pulls_and_rejoins_helper_last) ... ok
+test_monitoring_reads_only_the_controlled_current_bundle (test_tls_publication.TLSConfigurationTests.test_monitoring_reads_only_the_controlled_current_bundle) ... ok
+test_templates_hide_signed_url_error_logs_and_share_current_pair (test_tls_publication.TLSConfigurationTests.test_templates_hide_signed_url_error_logs_and_share_current_pair) ... ok
+
+======================================================================
+ERROR: test_renewal_uses_the_same_atomic_publish_and_rollback (test_tls_publication.PublicTLSExecutionTests.test_renewal_uses_the_same_atomic_publish_and_rollback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "E:\tx-drop\deploy\tests\test_tls_publication.py", line 186, in test_renewal_uses_the_same_atomic_publish_and_rollback
+    self.assertIn("run --rm --pull never", (fixture.root / "calls").read_text())
+                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\��������������\Desktop\1\Lib\pathlib\__init__.py", line 793, in read_text
+    return f.read()
+           ~~~~~~^^
+UnicodeDecodeError: 'gbk' codec can't decode byte 0x9f in position 162: illegal multibyte sequence
+
+----------------------------------------------------------------------
+Ran 10 tests in 18.328s
+
+FAILED (errors=1)

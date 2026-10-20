@@ -1,0 +1,315 @@
+{
+  "python_type_regression_rejected": {
+    "success": false,
+    "error_code": "CRM_REGRESSION_EXECUTION_FAILED",
+    "job_key": "77c97772ec38a9a41d3dc8f97d3da5af57cca9a79b59c33dcd24121264d6a12d",
+    "source_revision": "20eb8592d7a6c9b959113417de45ef99ec2c6b2125b9c635b9c15cd574cf12a5",
+    "project_id": "crm-python",
+    "executor_contract": 2,
+    "runner_image_id": "sha256:dc12e7ab31dd44f09b27bd6cd7dc8f4b2b86ac458dada37424ba45a46ed5b439",
+    "network": "none",
+    "uid": 10001,
+    "credentials_mounted": false,
+    "patch": [
+      {
+        "new": "@lru_cache(maxsize=4096)\ndef linear(hex_value):\n    rgb = tuple(int(hex_value[i:i+2], 16)/255 for i in (1, 3, 5))\n    return tuple(v/12.92 if v <= .04045 else ((v+.055)/1.055)**2.4 for v in rgb)",
+        "old": "def linear(hex_value):\n    rgb = tuple(int(hex_value[i:i+2], 16)/255 for i in (1, 3, 5))\n    return tuple(v/12.92 if v <= .04045 else ((v+.055)/1.055)**2.4 for v in rgb)",
+        "path": "crm/services/brand_palette.py",
+        "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d"
+      },
+      {
+        "new": "@lru_cache(maxsize=4096)\ndef _luminance(color):\n    r, g, bb = linear(color)\n    return .2126*r+.7152*g+.0722*bb\n\n\ndef contrast(a, b):\n    la, lb = _luminance(a), _luminance(b)\n    return (max(la, lb)+.05)/(min(la, lb)+.05)",
+        "old": "def contrast(a, b):\n    def luminance(color):\n        r, g, bb = linear(color)\n        return .2126*r+.7152*g+.0722*bb\n    la, lb = luminance(a), luminance(b)\n    return (max(la, lb)+.05)/(min(la, lb)+.05)",
+        "path": "crm/services/brand_palette.py",
+        "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d"
+      },
+      {
+        "new": "@lru_cache(maxsize=4096)\ndef lch(hex_value):\n    lightness, aa, bb = lab(linear(hex_value))\n    return lightness, math.hypot(aa, bb), math.degrees(math.atan2(bb, aa)) % 360",
+        "old": "def lch(hex_value):\n    lightness, aa, bb = lab(linear(hex_value))\n    return lightness, math.hypot(aa, bb), math.degrees(math.atan2(bb, aa)) % 360",
+        "path": "crm/services/brand_palette.py",
+        "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d"
+      },
+      {
+        "new": "@lru_cache(maxsize=4096)\ndef from_lch(lightness, chroma, hue):\n    lightness = max(0., min(1., lightness))",
+        "old": "def from_lch(lightness, chroma, hue):\n    lightness = max(0., min(1., lightness))",
+        "path": "crm/services/brand_palette.py",
+        "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d"
+      },
+      {
+        "new": "@lru_cache(maxsize=1024)\ndef ramp(seed):\n    seed = normalize(seed)",
+        "old": "def ramp(seed):\n    seed = normalize(seed)",
+        "path": "crm/services/brand_palette.py",
+        "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d"
+      },
+      {
+        "new": "    stops[6] = seed\n    return tuple(stops)",
+        "old": "    stops[6] = seed\n    return stops",
+        "path": "crm/services/brand_palette.py",
+        "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d"
+      }
+    ],
+    "candidate_files": {
+      "crm/services/brand_palette.py": "14dfe15e216211b17b4bb2bf9dde521a8a31b31e1532675a588e686b3b6d086d"
+    }
+  },
+  "no_op_patch_rejected_by_performance_gate": {
+    "success": true,
+    "functional_regression": "passed",
+    "output_parity_cases": 384,
+    "pairs": [
+      {
+        "baseline_ns": 405840246,
+        "candidate_ns": 378093034,
+        "baseline_cpu_ns": 405781519,
+        "candidate_cpu_ns": 375588851,
+        "cases": 64,
+        "output_sha256": "f74d07e35e00632da78d2d321108e5b321362b849b9efb6f36f24d20e04a69ab"
+      },
+      {
+        "baseline_ns": 444125599,
+        "candidate_ns": 381481135,
+        "baseline_cpu_ns": 441634823,
+        "candidate_cpu_ns": 381460740,
+        "cases": 64,
+        "output_sha256": "c9a3051a81ff94ae7b96973a2c4905a5560525cb030f73ab4744a59740b8bcab"
+      },
+      {
+        "baseline_ns": 423476465,
+        "candidate_ns": 395524578,
+        "baseline_cpu_ns": 423404893,
+        "candidate_cpu_ns": 387116135,
+        "cases": 64,
+        "output_sha256": "289a833dde2844ba044a4c8568debad9f9815d5dc7570e16ab75f501b8dcf5de"
+      },
+      {
+        "baseline_ns": 441826442,
+        "candidate_ns": 455486159,
+        "baseline_cpu_ns": 440246310,
+        "candidate_cpu_ns": 455400061,
+        "cases": 64,
+        "output_sha256": "4d9c5b99a2488f51c24f5350c4eb90d42bd893b80990da4c750407e5e202f0a7"
+      },
+      {
+        "baseline_ns": 369422358,
+        "candidate_ns": 418053897,
+        "baseline_cpu_ns": 369378307,
+        "candidate_cpu_ns": 417032700,
+        "cases": 64,
+        "output_sha256": "11ceeca709ce141840beba5abe2f41377e264b29c92af4af4bf671c64bfbe166"
+      },
+      {
+        "baseline_ns": 433589232,
+        "candidate_ns": 417101990,
+        "baseline_cpu_ns": 428528477,
+        "candidate_cpu_ns": 416993702,
+        "cases": 64,
+        "output_sha256": "5e65307b4e309a0031113d7a3530d37692b9632107021457b456c124876d05e9"
+      }
+    ],
+    "median_cpu_speedup": 1.0540246499703767,
+    "improved_pairs": 3,
+    "accepted": false,
+    "gate": {
+      "minimum_median_speedup": 1.1,
+      "minimum_pairs_above_1_05": 5,
+      "total_alternating_pairs": 6
+    },
+    "root_cause_status": "not_validated",
+    "scope": "isolated CRM palette service with synthetic novel seeds; not production P95/P99 or all CRM functions",
+    "candidate_profile": {
+      "cases": 64,
+      "output_sha256": "f74d07e35e00632da78d2d321108e5b321362b849b9efb6f36f24d20e04a69ab",
+      "output_comparison": "recursive exact Python types and values, including list versus tuple",
+      "elapsed_ns": 1042224912,
+      "cpu_ns": 1021530237,
+      "median_case_ns": 12582030.0,
+      "p95_case_ns": 32128597,
+      "source_sha256": "439ef2d55951d77806eda2f991584409996693142a4ab450e754f1f1b0d9345d",
+      "scope": "actual CRM palette service, synthetic novel brand seeds; not production request latency",
+      "hotspots": [
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 32,
+          "function": "linear",
+          "calls": 112053,
+          "self_seconds": 0.228431077,
+          "total_seconds": 0.46566246800000005
+        },
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 33,
+          "function": "<genexpr>",
+          "calls": 448212,
+          "self_seconds": 0.158675343,
+          "total_seconds": 0.158675343
+        },
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 34,
+          "function": "<genexpr>",
+          "calls": 448212,
+          "self_seconds": 0.078556048,
+          "total_seconds": 0.078556048
+        },
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 97,
+          "function": "contrast",
+          "calls": 48915,
+          "self_seconds": 0.047252131,
+          "total_seconds": 0.516187003
+        },
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 98,
+          "function": "luminance",
+          "calls": 97830,
+          "self_seconds": 0.043326842000000004,
+          "total_seconds": 0.44450779900000004
+        },
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 38,
+          "function": "channel",
+          "calls": 42990,
+          "self_seconds": 0.04209317,
+          "total_seconds": 0.089390524
+        },
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 60,
+          "function": "from_lch",
+          "calls": 14330,
+          "self_seconds": 0.040709995000000006,
+          "total_seconds": 0.26396615
+        },
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 63,
+          "function": "rgb",
+          "calls": 30855,
+          "self_seconds": 0.030426885,
+          "total_seconds": 0.039694871
+        },
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 42,
+          "function": "<genexpr>",
+          "calls": 57320,
+          "self_seconds": 0.027273892,
+          "total_seconds": 0.116664416
+        },
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 122,
+          "function": "<genexpr>",
+          "calls": 64196,
+          "self_seconds": 0.019974494000000002,
+          "total_seconds": 0.5273903
+        },
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 117,
+          "function": "<genexpr>",
+          "calls": 17200,
+          "self_seconds": 0.016910383,
+          "total_seconds": 0.041793421000000004
+        },
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 55,
+          "function": "lch",
+          "calls": 9923,
+          "self_seconds": 0.015024367,
+          "total_seconds": 0.08094404000000001
+        },
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 84,
+          "function": "ramp",
+          "calls": 1205,
+          "self_seconds": 0.014691441000000001,
+          "total_seconds": 0.279749929
+        },
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 45,
+          "function": "lab",
+          "calls": 14223,
+          "self_seconds": 0.014144272000000001,
+          "total_seconds": 0.02078891
+        },
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 37,
+          "function": "to_hex",
+          "calls": 14330,
+          "self_seconds": 0.01008198,
+          "total_seconds": 0.14072688800000002
+        },
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 121,
+          "function": "role",
+          "calls": 1459,
+          "self_seconds": 0.009072653,
+          "total_seconds": 0.62404177
+        },
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 115,
+          "function": "simulated",
+          "calls": 4300,
+          "self_seconds": 0.008196065,
+          "total_seconds": 0.07547041
+        },
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 72,
+          "function": "<genexpr>",
+          "calls": 55683,
+          "self_seconds": 0.007846735,
+          "total_seconds": 0.007846735
+        },
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 77,
+          "function": "<genexpr>",
+          "calls": 46168,
+          "self_seconds": 0.007841901,
+          "total_seconds": 0.007841901
+        },
+        {
+          "path": "crm/services/brand_palette.py",
+          "line": 117,
+          "function": "<genexpr>",
+          "calls": 51600,
+          "self_seconds": 0.007634229,
+          "total_seconds": 0.007634229
+        }
+      ],
+      "profile_unit": "seconds",
+      "profile_source": "actual cProfile execution with exact source-file SHA"
+    },
+    "elapsed_seconds": 12.826,
+    "job_key": "a4616f368c3cae59e75fbde9d613a84b05ae5d40c8219d7e707021a36ca5f49a",
+    "source_revision": "20eb8592d7a6c9b959113417de45ef99ec2c6b2125b9c635b9c15cd574cf12a5",
+    "project_id": "crm-python",
+    "executor_contract": 2,
+    "runner_image_id": "sha256:dc12e7ab31dd44f09b27bd6cd7dc8f4b2b86ac458dada37424ba45a46ed5b439",
+    "network": "none",
+    "uid": 10001,
+    "credentials_mounted": false,
+    "patch": [
+      {
+        "path": "crm/services/brand_palette.py",
+        "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d",
+        "old": "import copy",
+        "new": "# Strict no-op negative control: no executable change.\nimport copy"
+      }
+    ],
+    "candidate_files": {
+      "crm/services/brand_palette.py": "439ef2d55951d77806eda2f991584409996693142a4ab450e754f1f1b0d9345d"
+    }
+  }
+}

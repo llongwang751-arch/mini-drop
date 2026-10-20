@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "checks": {
+    "/sys/kernel/tracing/uprobe_events": {
+      "write_open": true
+    },
+    "/sys/kernel/tracing/kprobe_events": {
+      "write_open": false,
+      "errno": 30
+    },
+    "/sys/kernel/tracing/trace_marker": {
+      "write_open": false,
+      "errno": 30
+    },
+    "/sys/kernel/tracing/events/enable": {
+      "write_open": false,
+      "errno": 30
+    },
+    "/proc/sys/kernel/perf_event_paranoid": {
+      "write_open": false,
+      "errno": 30
+    },
+    "sys_admin": false,
+    "apparmor": "drop-collector-helper (enforce)"
+  },
+  "diagnostics": "",
+  "profile_sha256": "ceaeb5c9585f7da92953dd0b2043775d099fe0f632b46748d26016e9d4ffb855"
+}

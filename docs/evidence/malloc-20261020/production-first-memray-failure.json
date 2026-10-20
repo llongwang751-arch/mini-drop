@@ -1,0 +1,107 @@
+{
+  "source": "fresh production API collection, upload, analysis and RAW download on controlled synthetic UID10001 processes",
+  "targets": {
+    "io": {
+      "pid": 86,
+      "uid": 10001,
+      "start_time_ticks": 8900523,
+      "namespace": "pid:[4026532266]"
+    },
+    "python": {
+      "pid": 49,
+      "uid": 10001,
+      "start_time_ticks": 8900508,
+      "namespace": "pid:[4026532266]"
+    },
+    "native": {
+      "pid": 8,
+      "uid": 10001
+    }
+  },
+  "cases": [
+    {
+      "kind": "MEMORY_TRACE",
+      "target": "io",
+      "options": {
+        "category": "alloc",
+        "max_events": 200,
+        "stack_depth": 8
+      },
+      "task_id": "58",
+      "native_events": {
+        "alloc": 100,
+        "free": 100
+      },
+      "actual_nonempty_stacks": true,
+      "passed": true,
+      "total_samples": 6553600,
+      "node_count": 5,
+      "raw_size": 57800,
+      "raw_sha256": "b8f7e660404b8ae297b82e0aed2a71d0a8bfa59a81dbf36d85f5a99784959ae7",
+      "raw_download_verified": true,
+      "elapsed_seconds": 6.49
+    },
+    {
+      "kind": "PERF_CPU",
+      "target": "native",
+      "options": {},
+      "task_id": "59",
+      "passed": true,
+      "total_samples": 56,
+      "node_count": 20,
+      "raw_size": 34512,
+      "raw_sha256": "223c000e18b31cb40830ee57d9323097f24d04f8d43d3b2224796aa94bf0d391",
+      "raw_download_verified": true,
+      "elapsed_seconds": 7.34
+    },
+    {
+      "kind": "PYTHON_CPU",
+      "target": "python",
+      "options": {
+        "native": false
+      },
+      "task_id": "60",
+      "passed": true,
+      "total_samples": 188,
+      "node_count": 5,
+      "raw_size": 201,
+      "raw_sha256": "cd018e22cc6f6c87a8afc82dc1fc284b717cba0e9a8e29202fd8f666696e34eb",
+      "raw_download_verified": true,
+      "elapsed_seconds": 7.43
+    },
+    {
+      "kind": "PYTHON_MEMORY",
+      "target": "python",
+      "options": {
+        "native": false
+      },
+      "task_id": "61",
+      "passed": false,
+      "error": "COLLECTION_OR_ANALYSIS_FAILED",
+      "task_state": {
+        "collection_status": "FAILED",
+        "analysis_status": "FAILED",
+        "error_code": "RUNNER_FAILED",
+        "error_message": "Local collector helper refused or interrupted the bounded operation"
+      },
+      "elapsed_seconds": 35.14
+    }
+  ],
+  "passed": false,
+  "failure_target_recovery": {
+    "before": {
+      "state": "R",
+      "cpu_ticks": 5228,
+      "start_time_ticks": 8920828,
+      "tracer_pid": 0
+    },
+    "after": {
+      "state": "R",
+      "cpu_ticks": 5238,
+      "start_time_ticks": 8920828,
+      "tracer_pid": 0
+    },
+    "progress": true,
+    "tracer_removed": true
+  }
+}

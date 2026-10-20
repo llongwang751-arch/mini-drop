@@ -1,0 +1,33 @@
+# Merge with compose.yml. Run explicitly after stopping all writers and backing
+# up data/key material. This one-shot administrator bypasses the user gateway.
+services:
+  encrypt-existing:
+    image: drop-ops:${OPS_RELEASE_TAG:-${RELEASE_TAG:-build}}
+    profiles: [maintenance]
+    entrypoint: [python, /app/encrypt_existing.py]
+    command: []
+    restart: 'no'
+    init: true
+    networks: [control, storage]
+    environment:
+      DATABASE_URL_FILE: /run/secrets/migration_database_url
+      S3_ENDPOINT: http://storage-backend:9000
+      S3_ACCESS_KEY_FILE: /run/secrets/s3_access_key
+      S3_SECRET_KEY_FILE: /run/secrets/s3_secret_key
+      S3_BUCKET: drop-artifacts
+    secrets: [migration_database_url, s3_access_key, s3_secret_key]
+    user: '10001:10001'
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    read_only: true
+    tmpfs: ['/tmp:size=8m,mode=1777']
+    mem_limit: 96m
+    memswap_limit: 96m
+    cpus: 0.25
+    healthcheck:
+      disable: true
+    logging:
+      driver: json-file
+      options:
+        max-size: 1m
+        max-file: '1'

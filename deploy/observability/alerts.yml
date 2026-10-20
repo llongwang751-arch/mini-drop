@@ -1,0 +1,90 @@
+groups:
+  - name: drop-availability
+    rules:
+      - alert: DropServiceDown
+        expr: up{job=~"api|analyzer|core|agent|maintenance"} == 0
+        for: 2m
+        labels: {severity: critical}
+        annotations: {summary: 'Drop service metrics endpoint is unavailable'}
+      - alert: DropNoAgentsOnline
+        expr: drop_agents_online == 0
+        for: 1m
+        labels: {severity: critical}
+        annotations: {summary: 'No Agent is available for collection'}
+      - alert: DropHeartbeatStale
+        expr: drop_agent_heartbeat_age_seconds > 30
+        for: 1m
+        labels: {severity: warning}
+        annotations: {summary: 'Agent heartbeat is stale'}
+      - alert: DropQueueSLA
+        expr: drop_task_queue_oldest_age_seconds > 60
+        for: 2m
+        labels: {severity: warning}
+        annotations: {summary: 'Collection queue age exceeds 60 seconds'}
+      - alert: DropTasksOverdue
+        expr: drop_tasks_overdue > 0
+        for: 1m
+        labels: {severity: critical}
+        annotations: {summary: 'Task execution exceeded its deadline'}
+      - alert: DropAnalysisBacklog
+        expr: drop_analysis_oldest_age_seconds > 120
+        for: 3m
+        labels: {severity: warning}
+        annotations: {summary: 'Analyzer backlog exceeds two minutes'}
+      - alert: DropAnalysisFailures
+        expr: sum(rate(drop_analyzer_jobs_finished_total{status="failure"}[10m])) / clamp_min(sum(rate(drop_analyzer_jobs_finished_total[10m])), 0.001) > 0.2
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: 'Analysis failure ratio exceeds 20 percent'}
+      - alert: DropLeaseRecoveries
+        expr: sum(increase(drop_analyzer_expired_lease_recoveries_total[10m])) > 3
+        for: 2m
+        labels: {severity: warning}
+        annotations: {summary: 'Repeated expired Analyzer leases'}
+      - alert: DropArtifactIntegrity
+        expr: increase(drop_storage_reconcile_quarantined_total[10m]) + increase(drop_storage_reconcile_missing_total[10m]) > 0
+        labels: {severity: critical}
+        annotations: {summary: 'Artifact is missing or failed hash verification'}
+      - alert: DropStorageMaintenanceStopped
+        expr: time() - drop_storage_reconcile_last_success > 900
+        for: 2m
+        labels: {severity: warning}
+        annotations: {summary: 'Storage reconciliation has not succeeded for fifteen minutes'}
+      - alert: DropCertificateExpiresSoon
+        expr: drop_certificate_expiry_seconds < 1209600
+        for: 10m
+        labels: {severity: warning}
+        annotations: {summary: 'Internal certificate expires within fourteen days'}
+      - alert: DropCertificateRenewalWindow
+        expr: drop_certificate_expiry_seconds < 2592000
+        for: 30m
+        labels: {severity: info}
+        annotations: {summary: 'Internal certificate enters thirty-day renewal window'}
+      - alert: DropCertificateCritical
+        expr: drop_certificate_expiry_seconds < 604800
+        for: 2m
+        labels: {severity: critical}
+        annotations: {summary: 'Internal certificate expires within seven days'}
+      - alert: DropPublicCertificateCritical
+        expr: drop_public_certificate_expiry_seconds < 86400
+        for: 5m
+        labels: {severity: critical}
+        annotations: {summary: 'Short-lived IP certificate expires within one day'}
+      - alert: DropHostDiskSpace
+        expr: drop_host_disk_free_bytes / drop_host_disk_size_bytes < 0.2
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: 'Drop host disk has less than twenty percent free'}
+      - alert: DropBackupStale
+        expr: time()-drop_backup_last_success > 129600
+        for: 5m
+        labels: {severity: critical}
+        annotations: {summary: 'No verified backup completed for thirty-six hours'}
+      - alert: DropStorageReconcileErrors
+        expr: increase(drop_storage_reconcile_errors_total[10m]) > 0
+        labels: {severity: warning}
+        annotations: {summary: 'Storage reconciliation encountered errors'}
+      - alert: DropWebRenderingErrors
+        expr: sum(increase(drop_web_errors_total[10m])) > 3
+        labels: {severity: warning}
+        annotations: {summary: 'Repeated Web rendering or flamegraph failures'}

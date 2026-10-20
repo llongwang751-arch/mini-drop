@@ -1,0 +1,11 @@
+# Binary built and tested with Go 1.26.9, CGO_ENABLED=0, linux/amd64.
+# Deployment verifies the locally frozen base image ID before building.
+ARG API_RUNTIME_BASE=drop-api:20261018.1-rc4
+FROM ${API_RUNTIME_BASE}
+USER root
+COPY --chmod=755 api/drop-api.bin /usr/local/bin/drop-api
+COPY contracts/task-kinds.json /app/contracts/task-kinds.json
+COPY db/migrations/ /app/db/migrations/
+ARG SOURCE_SHA256
+LABEL org.opencontainers.image.version="20261020.2" io.drop.source.sha256=${SOURCE_SHA256}
+USER drop

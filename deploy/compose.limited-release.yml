@@ -1,0 +1,41 @@
+# Append to the existing 20261016.1 compose.yml + compose.perf.yml deployment.
+# The existing Core/Agent, PostgreSQL, MinIO backend, volumes, secrets and
+# storage-gateway configuration are retained. This is a limited release;
+# helper, advanced live collectors and new maintenance/encryption are deferred.
+services:
+  migration:
+    image: drop-api:20261018.1-rc4
+  api:
+    image: drop-api:20261018.1-rc4
+    mem_limit: 256m
+    memswap_limit: 256m
+    environment:
+      GOMEMLIMIT: 192MiB
+      GOMAXPROCS: '2'
+  analyzer:
+    image: drop-analyzer:20261018.1-rc4
+    user: '10001:10001'
+    mem_limit: 512m
+    memswap_limit: 512m
+    cpus: 0.5
+    tmpfs: !override ['/tmp:size=256m,mode=1777']
+    environment:
+      ANALYZER_QUEUE: all
+      ANALYSIS_MEMORY_BYTES: '536870912'
+      ANALYSIS_DOWNLOAD_BYTES: '33554432'
+      ANALYSIS_TEMP_BYTES: '201326592'
+      ANALYSIS_MIN_FREE_BYTES: '16777216'
+      ANALYSIS_CPU_SECONDS: '90'
+      ANALYSIS_WALL_SECONDS: '120'
+    healthcheck:
+      test: [CMD, python, -m, drop_analyzer.health]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+  minio:
+    image: drop-nginx:20261018.1-rc2
+  web:
+    image: drop-web:20261018.1-rc7
+    mem_limit: 48m
+    memswap_limit: 48m

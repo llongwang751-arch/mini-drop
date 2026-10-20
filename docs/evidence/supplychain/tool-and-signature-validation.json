@@ -1,0 +1,27 @@
+{
+  "recorded_at": "2026-10-16T15:30:34.747740+00:00",
+  "tool": {
+    "tool": "anchore/syft",
+    "version": "1.54.1",
+    "download_url": "https://github.com/anchore/syft/releases/download/v1.54.1/syft_1.54.1_windows_amd64.zip",
+    "archive_sha256": "8b56e8285e295e0bbed26eeea9b16ed51c493be97ccdf42dae6326c84fe8e19f",
+    "verification": "Compared official release checksum file fetched over HTTPS; no upstream Sigstore identity verification performed."
+  },
+  "signing": {
+    "algorithm": "Ed25519",
+    "public_key_sha256": "fe2b4d7123f33ed95a3f48533459b2022362bcc7c9de83825cee9101eb487d5f",
+    "scope": "Project-local offline image/SBOM manifest, not registry/CI/transparency attestation.",
+    "regression_command": "python -m unittest discover -s api/tools -p test_supplychain.py -v",
+    "regressions_passed": 6,
+    "regressions": [
+      "signed manifest and bound SBOM roundtrip",
+      "modified manifest rejected",
+      "modified SBOM rejected",
+      "unpinned trust root rejected",
+      "signed path traversal rejected",
+      "remote image shell injection rejected"
+    ]
+  },
+  "script_sha256": "253af41a055a64c4fcdf1d11fcddc3d31b9d811d66f9fab40b2a1e02121f8019",
+  "release_manifest_status": "Awaiting final API migration-only image plus the remaining five frozen image SBOMs and final source snapshot; final release manifest has not been signed."
+}

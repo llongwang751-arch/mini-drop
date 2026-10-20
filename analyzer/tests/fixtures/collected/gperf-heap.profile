@@ -1,0 +1,67 @@
+heap profile:     48:  1572864 [    64:  2097152] @ heapprofile
+    48:  1572864 [    64:  2097152] @ 0x004013e8 0x748685e2d1ca 0x748685e2d28b 0x004011b5
+
+MAPPED_LIBRARIES:
+00400000-00401000 r--p 00000000 00:00 1711563     /tmp/real-profile-fixtures-6x7c4c4r/native-fixture
+00401000-00402000 r-xp 00001000 00:00 1711563     /tmp/real-profile-fixtures-6x7c4c4r/native-fixture
+00402000-00403000 r--p 00002000 00:00 1711563     /tmp/real-profile-fixtures-6x7c4c4r/native-fixture
+00403000-00404000 r--p 00002000 00:00 1711563     /tmp/real-profile-fixtures-6x7c4c4r/native-fixture
+00404000-00405000 rw-p 00003000 00:00 1711563     /tmp/real-profile-fixtures-6x7c4c4r/native-fixture
+2c906000-2d406000 rw-p 00000000 00:00 0           [heap]
+7486859b8000-748685c9d000 rw-p 00000000 00:00 0           
+748685c9d000-748685ca0000 r--p 00000000 00:00 395020      /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5
+748685ca0000-748685cc2000 r-xp 00003000 00:00 395020      /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5
+748685cc2000-748685ccd000 r--p 00025000 00:00 395020      /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5
+748685ccd000-748685cce000 r--p 00030000 00:00 395020      /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5
+748685cce000-748685ccf000 rw-p 00031000 00:00 395020      /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5
+748685ccf000-748685cdf000 r--p 00000000 00:00 395021      /usr/lib/x86_64-linux-gnu/libm.so.6
+748685cdf000-748685d5e000 r-xp 00010000 00:00 395021      /usr/lib/x86_64-linux-gnu/libm.so.6
+748685d5e000-748685db6000 r--p 0008f000 00:00 395021      /usr/lib/x86_64-linux-gnu/libm.so.6
+748685db6000-748685db7000 r--p 000e7000 00:00 395021      /usr/lib/x86_64-linux-gnu/libm.so.6
+748685db7000-748685db8000 rw-p 000e8000 00:00 395021      /usr/lib/x86_64-linux-gnu/libm.so.6
+748685db8000-748685dbc000 r--p 00000000 00:00 395004      /usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+748685dbc000-748685de0000 r-xp 00004000 00:00 395004      /usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+748685de0000-748685de4000 r--p 00028000 00:00 395004      /usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+748685de4000-748685de5000 r--p 0002b000 00:00 395004      /usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+748685de5000-748685de6000 rw-p 0002c000 00:00 395004      /usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+748685de6000-748685de8000 rw-p 00000000 00:00 0           
+748685de8000-748685deb000 r--p 00000000 00:00 402390      /usr/lib/x86_64-linux-gnu/libunwind.so.8.0.1
+748685deb000-748685df5000 r-xp 00003000 00:00 402390      /usr/lib/x86_64-linux-gnu/libunwind.so.8.0.1
+748685df5000-748685df7000 r--p 0000d000 00:00 402390      /usr/lib/x86_64-linux-gnu/libunwind.so.8.0.1
+748685df7000-748685df8000 r--p 0000e000 00:00 402390      /usr/lib/x86_64-linux-gnu/libunwind.so.8.0.1
+748685df8000-748685df9000 rw-p 0000f000 00:00 402390      /usr/lib/x86_64-linux-gnu/libunwind.so.8.0.1
+748685df9000-748685e03000 rw-p 00000000 00:00 0           
+748685e03000-748685e2b000 r--p 00000000 00:00 394979      /usr/lib/x86_64-linux-gnu/libc.so.6
+748685e2b000-748685fb4000 r-xp 00028000 00:00 394979      /usr/lib/x86_64-linux-gnu/libc.so.6
+748685fb4000-748686003000 r--p 001b1000 00:00 394979      /usr/lib/x86_64-linux-gnu/libc.so.6
+748686003000-748686007000 r--p 001ff000 00:00 394979      /usr/lib/x86_64-linux-gnu/libc.so.6
+748686007000-748686009000 rw-p 00203000 00:00 394979      /usr/lib/x86_64-linux-gnu/libc.so.6
+748686009000-748686016000 rw-p 00000000 00:00 0           
+748686016000-7486860b3000 r--p 00000000 00:00 395072      /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33
+7486860b3000-7486861fb000 r-xp 0009d000 00:00 395072      /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33
+7486861fb000-748686282000 r--p 001e5000 00:00 395072      /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33
+748686282000-74868628d000 r--p 0026b000 00:00 395072      /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33
+74868628d000-748686290000 rw-p 00276000 00:00 395072      /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33
+748686290000-748686294000 rw-p 00000000 00:00 0           
+748686294000-7486862a5000 r--p 00000000 00:00 1331736     /usr/lib/x86_64-linux-gnu/libtcmalloc.so.4.5.16
+7486862a5000-7486862ca000 r-xp 00011000 00:00 1331736     /usr/lib/x86_64-linux-gnu/libtcmalloc.so.4.5.16
+7486862ca000-7486862d8000 r--p 00036000 00:00 1331736     /usr/lib/x86_64-linux-gnu/libtcmalloc.so.4.5.16
+7486862d8000-7486862d9000 r--p 00044000 00:00 1331736     /usr/lib/x86_64-linux-gnu/libtcmalloc.so.4.5.16
+7486862d9000-7486862da000 rw-p 00045000 00:00 1331736     /usr/lib/x86_64-linux-gnu/libtcmalloc.so.4.5.16
+7486862da000-748686490000 rw-p 00000000 00:00 0           
+748686490000-748686494000 r--p 00000000 00:00 1331715     /usr/lib/x86_64-linux-gnu/libprofiler.so.0.5.11
+748686494000-74868649c000 r-xp 00004000 00:00 1331715     /usr/lib/x86_64-linux-gnu/libprofiler.so.0.5.11
+74868649c000-7486864a0000 r--p 0000c000 00:00 1331715     /usr/lib/x86_64-linux-gnu/libprofiler.so.0.5.11
+7486864a0000-7486864a1000 r--p 0000f000 00:00 1331715     /usr/lib/x86_64-linux-gnu/libprofiler.so.0.5.11
+7486864a1000-7486864a2000 rw-p 00010000 00:00 1331715     /usr/lib/x86_64-linux-gnu/libprofiler.so.0.5.11
+7486864a2000-7486864a7000 rw-p 00000000 00:00 0           
+7486864aa000-7486864ae000 rw-p 00000000 00:00 0           
+7486864ae000-7486864af000 r--p 00000000 00:00 394959      /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7486864af000-7486864da000 r-xp 00001000 00:00 394959      /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7486864da000-7486864e4000 r--p 0002c000 00:00 394959      /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7486864e4000-7486864e6000 r--p 00036000 00:00 394959      /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7486864e6000-7486864e8000 rw-p 00038000 00:00 394959      /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7ffc48ca1000-7ffc48cc2000 rw-p 00000000 00:00 0           [stack]
+7ffc48d6e000-7ffc48d72000 r--p 00000000 00:00 0           [vvar]
+7ffc48d72000-7ffc48d74000 r-xp 00000000 00:00 0           [vdso]
+ffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0           [vsyscall]

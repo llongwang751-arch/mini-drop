@@ -1,0 +1,100 @@
+{
+  "passed": true,
+  "compose_config_valid": true,
+  "demo_profile_persistent": true,
+  "demo_security_checks": [
+    {
+      "name": "/txdrop-demo-go-1",
+      "user": "10001:10001",
+      "cap_drop": [
+        "ALL"
+      ],
+      "read_only": true,
+      "memory_bytes": 134217728,
+      "cpu_limit": 0.25,
+      "pids_limit": 64,
+      "namespace_matches_agent": true,
+      "only_bounded_receive_mount": true
+    },
+    {
+      "name": "/txdrop-demo-java-1",
+      "user": "10001:10001",
+      "cap_drop": [
+        "ALL"
+      ],
+      "read_only": true,
+      "memory_bytes": 268435456,
+      "cpu_limit": 0.35,
+      "pids_limit": 64,
+      "namespace_matches_agent": true,
+      "only_bounded_receive_mount": true
+    },
+    {
+      "name": "/txdrop-demo-python-1",
+      "user": "10001:10001",
+      "cap_drop": [
+        "ALL"
+      ],
+      "read_only": true,
+      "memory_bytes": 201326592,
+      "cpu_limit": 0.25,
+      "pids_limit": 64,
+      "namespace_matches_agent": true,
+      "only_bounded_receive_mount": true
+    },
+    {
+      "name": "/txdrop-demo-io-1",
+      "user": "10001:10001",
+      "cap_drop": [
+        "ALL"
+      ],
+      "read_only": true,
+      "memory_bytes": 134217728,
+      "cpu_limit": 0.05,
+      "pids_limit": 64,
+      "namespace_matches_agent": true,
+      "only_bounded_receive_mount": true
+    },
+    {
+      "name": "/txdrop-demo-gperf-cpu-1",
+      "user": "10001:10001",
+      "cap_drop": [
+        "ALL"
+      ],
+      "read_only": true,
+      "memory_bytes": 134217728,
+      "cpu_limit": 0.15,
+      "pids_limit": 64,
+      "namespace_matches_agent": true,
+      "only_bounded_receive_mount": true
+    },
+    {
+      "name": "/txdrop-demo-gperf-heap-1",
+      "user": "10001:10001",
+      "cap_drop": [
+        "ALL"
+      ],
+      "read_only": true,
+      "memory_bytes": 134217728,
+      "cpu_limit": 0.15,
+      "pids_limit": 64,
+      "namespace_matches_agent": true,
+      "only_bounded_receive_mount": true
+    },
+    {
+      "name": "/txdrop-demo-jemalloc-1",
+      "user": "10001:10001",
+      "cap_drop": [
+        "ALL"
+      ],
+      "read_only": true,
+      "memory_bytes": 134217728,
+      "cpu_limit": 0.15,
+      "pids_limit": 64,
+      "namespace_matches_agent": true,
+      "only_bounded_receive_mount": true
+    }
+  ],
+  "delivery_archive_sha256": "7e9e4e64bc7e05d8d4965b99af35b43eae0404ffe49ae918a15d93c11fc8a259",
+  "application_binary_unchanged": true
+}

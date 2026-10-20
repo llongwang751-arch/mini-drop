@@ -1,0 +1,431 @@
+{
+  "source": "real DeepSeek on fresh non-CRM live captures",
+  "cases": [
+    {
+      "task_id": "23",
+      "scenario": "Go CPU",
+      "diagnosis_id": "15",
+      "diagnosis_status": "success",
+      "tools": [
+        "read_profile_summary",
+        "inspect_hotspots",
+        "check_collection_quality",
+        "inspect_call_paths",
+        "inspect_call_paths",
+        "propose_verification"
+      ],
+      "candidate_task_id": "32",
+      "verification_id": "7",
+      "verification_status": "success",
+      "verification": {
+        "id": "7",
+        "diagnosis_id": "15",
+        "baseline_task_id": "23",
+        "candidate_task_id": "32",
+        "requested_by": "77f0de20-54bb-4142-9cfc-474d9c7df79e",
+        "candidate_diagnosis_id": "16",
+        "status": "success",
+        "report": {
+          "comparison": {
+            "kind": "GO_CPU",
+            "unit": "nanoseconds",
+            "outcome": "insufficient_evidence",
+            "comparable": true,
+            "differences": [
+              {
+                "symbol": "symbol_12fa89070cf5",
+                "baseline_self_percent": 18.5185,
+                "candidate_self_percent": 5.3571,
+                "delta_percentage_points": -13.1614
+              },
+              {
+                "symbol": "symbol_2ec2c393b96b",
+                "baseline_self_percent": 11.1111,
+                "candidate_self_percent": 1.7857,
+                "delta_percentage_points": -9.3254
+              },
+              {
+                "symbol": "symbol_75477d9efa84",
+                "baseline_self_percent": 0,
+                "candidate_self_percent": 8.9286,
+                "delta_percentage_points": 8.9286
+              },
+              {
+                "symbol": "symbol_6f03ededbf18",
+                "baseline_self_percent": 55.5556,
+                "candidate_self_percent": 64.2857,
+                "delta_percentage_points": 8.730100000000007
+              },
+              {
+                "symbol": "symbol_14fc9b74a268",
+                "baseline_self_percent": 7.4074,
+                "candidate_self_percent": 3.5714,
+                "delta_percentage_points": -3.836
+              },
+              {
+                "symbol": "symbol_32de27a8b04c",
+                "baseline_self_percent": 3.7037,
+                "candidate_self_percent": 0,
+                "delta_percentage_points": -3.7037
+              },
+              {
+                "symbol": "symbol_1a2d393d5a88",
+                "baseline_self_percent": 3.7037,
+                "candidate_self_percent": 7.1429,
+                "delta_percentage_points": 3.4392
+              },
+              {
+                "symbol": "symbol_213acf5b3535",
+                "baseline_self_percent": 0,
+                "candidate_self_percent": 1.7857,
+                "delta_percentage_points": 1.7857
+              },
+              {
+                "symbol": "symbol_265056060271",
+                "baseline_self_percent": 0,
+                "candidate_self_percent": 1.7857,
+                "delta_percentage_points": 1.7857
+              },
+              {
+                "symbol": "symbol_373d3fd90ea9",
+                "baseline_self_percent": 0,
+                "candidate_self_percent": 1.7857,
+                "delta_percentage_points": 1.7857
+              }
+            ],
+            "limitations": [
+              "重复采样只检验现象复现；未实施受控代码或配置干预，不能确认因果根因。",
+              "百分比差值不是请求延迟或CPU利用率变化；需同一负载并记录业务指标。",
+              "样本数不足1000或单位不是采样计数；只展示描述差异，不给统计显著性结论。",
+              "Top表未出现的符号按0显示仅指已返回热点表，不证明实际没有执行。"
+            ],
+            "baseline_weight": 270000000,
+            "candidate_weight": 560000000,
+            "root_cause_status": "not_tested"
+          },
+          "candidate_report": {
+            "model": "deepseek-flash",
+            "engine": "model",
+            "summary": "复测（候选，总权重560000000ns，10s@99Hz，无采集问题）与原采集（基线，270000000ns）可比，rank1热点symbol_6f03ededbf18在两次采集中均为最大self占比（55.56%→64.29%，+8.73pp），说明该热点现象在本次复测中复现；但compare_profiles的outcome为insufficient_evidence、root_cause_status为not_tested，且样本量偏小（基线约270ms权重、候选约560ms权重，均远低于1000样本量级），因此只能称“现象复现”，不能称根因确认。调用链显示rank1只有1个独立出现位置，祖先为symbol_5ef5ef0364b6与symbol_952373f8cbd2，inclusive 390000000ns、self 360000000ns，唯一返回的被调用者symbol_12fa89070cf5（inclusive/self 30000000ns）；该路径未发生截断（tree_truncated=false，ancestors/callees/occurrences均未截断），但仅代表本次采集树。rank5 symbol_14fc9b74a268与rank9 symbol_2ec2c393b96b的symbol_hint为lock_or_wait，仅为本地词形线索，不能证明锁等待或阻塞；且两者self占比在复测中分别下降3.84pp与9.33pp，与“锁竞争是主因”的假设方向不一致。symbol_75477d9efa84在基线Top表中未出现（按0显示，仅指已返回热点表），复测升至8.93%，属需跟踪的新增热点，不能据此判定回退或噪声。所有百分比均为采样权重占比，不是请求延迟、CPU利用率或调用次数。",
+            "hypotheses": [
+              {
+                "claim": "rank1热点symbol_6f03ededbf18（self 64.29%，total 69.64%）是本次采集中的主要CPU权重集中点，且该现象在复测中复现（基线55.56%→候选64.29%）。",
+                "evidence_ids": [
+                  "E1",
+                  "E2",
+                  "E4",
+                  "E5"
+                ],
+                "verification": "在同一负载与同一采集参数下做受控复测：保持10s@99Hz，重复3次以上，记录每次rank1的self占比与总权重；以“rank1持续位于Top1且self占比区间不跨越基线值”作为现象复现的观察指标（具体容差需与团队协商，例如±10pp仅为待协商示例，非已验证阈值）。同时记录业务请求延迟/吞吐/错误率以区分现象与影响。"
+              },
+              {
+                "claim": "rank1的权重主要来自其自身叶帧（self 360000000ns / inclusive 390000000ns），而非其唯一返回的被调用者symbol_12fa89070cf5（30000000ns），因此优化方向应聚焦该函数自身逻辑而非其下游调用。",
+                "evidence_ids": [
+                  "E2",
+                  "E4"
+                ],
+                "verification": "对该函数做受控干预（如替换其内部实现或加计时打点）后复测同一采集器，比较rank1的self权重与inclusive权重变化；若self权重显著下降而inclusive基本不变，则支持“自身逻辑为主”的假设。需注意调用树仅1个出现位置且未截断，但只代表本次采集树，需在复测中确认路径是否稳定。"
+              },
+              {
+                "claim": "symbol_hint为lock_or_wait的rank5 symbol_14fc9b74a268与rank9 symbol_2ec2c393b96b并非本次权重增长的主因：两者self占比在复测中分别下降3.84pp与9.33pp，锁等待假设缺乏支持。",
+                "evidence_ids": [
+                  "E2",
+                  "E5"
+                ],
+                "verification": "在复测中同时采集阻塞/互斥相关指标（如Go block/mutex profile）与CPU profile，检查这两个符号的阻塞权重是否与CPU权重同向变化；若阻塞权重未升高或与CPU占比变化不一致，则进一步否定锁竞争为主因。symbol_hint仅为词形线索，不能作为证据。"
+              },
+              {
+                "claim": "symbol_75477d9efa84在复测中从基线Top表未出现升至self 8.93%，可能是新增热点或采样波动，需单独跟踪而非直接归因。",
+                "evidence_ids": [
+                  "E5"
+                ],
+                "verification": "延长采集时长（如60s@99Hz）并重复多次，观察该符号self占比是否稳定出现及其调用者路径；若在多轮中稳定出现且占比不随随机波动大幅变化，则视为真实新增热点并进一步查其调用链。基线为0仅指已返回热点表，不证明当时未执行。"
+              }
+            ],
+            "limitations": [
+              "compare_profiles判定outcome=insufficient_evidence、root_cause_status=not_tested，未做受控代码/配置干预，无法确认因果根因。",
+              "样本量偏小（基线权重270000000ns、候选560000000ns，均低于1000样本量级），不提供统计显著性结论。",
+              "未关联业务请求延迟、吞吐与错误率，无法判断该热点是否造成用户可见性能回退。",
+              "未采集源码、符号地址映射与丢样率，symbol_hint仅为本地词形启发式，不能证明锁等待或内存压力。",
+              "调用链仅覆盖本次采集树（rank1仅1个出现位置，未截断），不能代表其他时段或负载下的路径。",
+              "百分比为采样权重占比，不是请求延迟、CPU利用率或调用次数，不能换算为耗时。",
+              "模型结论为待验证假设，不代表已确认缺陷；不提供未经符号映射验证的源码行号。",
+              "原始profile、原符号、主机、PID、路径和凭据不发送模型；问题文本会发送，请勿填入敏感信息。"
+            ]
+          },
+          "baseline_diagnosis_id": "15",
+          "candidate_diagnosis_id": "16"
+        },
+        "created_at": "2026-10-20T05:02:40.358672Z",
+        "updated_at": "2026-10-20T05:03:04.960281Z"
+      },
+      "passed": true,
+      "elapsed_seconds": 36.5
+    },
+    {
+      "task_id": "24",
+      "scenario": "Go heap",
+      "diagnosis_id": "17",
+      "diagnosis_status": "success",
+      "tools": [
+        "read_profile_summary",
+        "inspect_hotspots",
+        "check_collection_quality",
+        "inspect_call_paths",
+        "propose_verification"
+      ],
+      "candidate_task_id": "36",
+      "verification_id": "8",
+      "verification_status": "success",
+      "verification": {
+        "id": "8",
+        "diagnosis_id": "17",
+        "baseline_task_id": "24",
+        "candidate_task_id": "36",
+        "requested_by": "77f0de20-54bb-4142-9cfc-474d9c7df79e",
+        "candidate_diagnosis_id": "18",
+        "status": "success",
+        "report": {
+          "comparison": {
+            "kind": "GO_HEAP",
+            "unit": "bytes",
+            "outcome": "insufficient_evidence",
+            "comparable": true,
+            "differences": [
+              {
+                "symbol": "symbol_536e10fbc34a",
+                "baseline_self_percent": 100,
+                "candidate_self_percent": 100,
+                "delta_percentage_points": 0
+              },
+              {
+                "symbol": "symbol_952373f8cbd2",
+                "baseline_self_percent": 0,
+                "candidate_self_percent": 0,
+                "delta_percentage_points": 0
+              }
+            ],
+            "limitations": [
+              "重复采样只检验现象复现；未实施受控代码或配置干预，不能确认因果根因。",
+              "百分比差值不是请求延迟或CPU利用率变化；需同一负载并记录业务指标。",
+              "样本数不足1000或单位不是采样计数；只展示描述差异，不给统计显著性结论。",
+              "Top表未出现的符号按0显示仅指已返回热点表，不证明实际没有执行。"
+            ],
+            "baseline_weight": 4802021,
+            "candidate_weight": 4802021,
+            "root_cause_status": "not_tested"
+          },
+          "candidate_report": {
+            "model": "deepseek-flash",
+            "engine": "model",
+            "summary": "复测与原采集在GO_HEAP字节权重上完全一致：rank1 symbol_536e10fbc34a self=100%、total=100%，权重4802021 bytes；rank2 symbol_952373f8cbd2 self=0%、total=100%。compare_profiles判定comparable=true，但outcome=insufficient_evidence、root_cause_status=not_tested，因此只能说明该堆分配热点现象在本次复测中复现，不能确认因果根因。调用链显示rank1仅1处独立出现，其祖先为symbol_5ef5ef0364b6与symbol_952373f8cbd2，无被调用者，self_weight=inclusive_weight=4802021，tree_truncated=false、ancestors_truncated=false、callees_truncated=false、occurrences_truncated=false，即本次采集树未发生截断，但这只代表本次采集。采集参数为10秒、99Hz，issues为空；未知项包括业务请求延迟、吞吐、错误率、丢样率与符号地址映射。symbol_hint均为unknown，不能据此推断锁等待、内存压力或缺陷。",
+            "hypotheses": [
+              {
+                "claim": "rank1 symbol_536e10fbc34a 是本次GO_HEAP采集中占主导的分配叶帧（self=100%，4802021 bytes），且该现象在复测中稳定复现；但其是否为回退根因尚未验证。",
+                "evidence_ids": [
+                  "E1",
+                  "E2",
+                  "E4",
+                  "E5"
+                ],
+                "verification": "在相同负载与相同采集参数下做受控对照：对候选分配点实施单一干预（如复用/预分配或降低该路径分配量），保持业务负载一致，比较该符号的字节权重占比与业务侧内存/GC指标；验收指标建议（待协商示例）：该符号self字节权重占比下降且业务内存指标同向改善，否则不支持其为根因。注意字节权重不等于延迟或CPU。"
+              },
+              {
+                "claim": "rank2 symbol_952373f8cbd2 是rank1的祖先帧（total=100%、self=0%），即分配发生在该调用路径之下，而非该帧自身分配。",
+                "evidence_ids": [
+                  "E2",
+                  "E4"
+                ],
+                "verification": "在授权结果页面按哈希核对原符号，确认祖先-叶关系；复测时用同一采集器并记录完整调用树，检查该祖先下是否出现其他独立分配叶帧（本次matched_occurrences=1，仅代表已遍历树）。若出现多个叶帧，则需分别评估，不能把全部权重归因于单一分配点。"
+              },
+              {
+                "claim": "当前证据不足以判定性能回退或修复收益：单次快照与重复采样只检验现象复现，未做受控干预，且缺少业务延迟/吞吐/错误率与丢样率。",
+                "evidence_ids": [
+                  "E3",
+                  "E5"
+                ],
+                "verification": "补充同一时间窗的业务指标（请求延迟、吞吐、错误率）与采集丢样率，并在干预前后各做一次同参数采集；以业务指标与字节权重的联合变化作为判断依据，仅当两者同向且可重复时才讨论因果，否则维持“现象复现、根因未验证”。"
+              }
+            ],
+            "limitations": [
+              "GO_HEAP字节权重不能换算为请求延迟、CPU利用率或调用次数；无CPU/延迟类证据。",
+              "compare_profiles提示样本数不足1000或单位非采样计数，未给出统计显著性结论。",
+              "未采集源码、符号地址映射与丢样率，symbol_hint均为unknown，无法定位具体分配语义。",
+              "未关联业务请求延迟、吞吐与错误率，无法判断是否构成性能回退。",
+              "未实施受控代码或配置干预，root_cause_status=not_tested，因果未验证。",
+              "调用树仅覆盖本次采集（未截断），不代表其他时段或负载下无其他路径。",
+              "模型结论为待验证假设，不代表已确认缺陷；不提供未经符号映射验证的源码行号。",
+              "原始profile、原符号、主机、PID、路径和凭据不发送模型；问题文本会发送，请勿填入敏感信息。"
+            ]
+          },
+          "baseline_diagnosis_id": "17",
+          "candidate_diagnosis_id": "18"
+        },
+        "created_at": "2026-10-20T05:03:16.813661Z",
+        "updated_at": "2026-10-20T05:03:30.93624Z"
+      },
+      "passed": true,
+      "elapsed_seconds": 24.4
+    },
+    {
+      "task_id": "25",
+      "scenario": "Java CPU",
+      "diagnosis_id": "19",
+      "diagnosis_status": "success",
+      "tools": [
+        "read_profile_summary",
+        "inspect_hotspots",
+        "check_collection_quality",
+        "inspect_call_paths",
+        "propose_verification"
+      ],
+      "candidate_task_id": "41",
+      "verification_id": "9",
+      "verification_status": "success",
+      "verification": {
+        "id": "9",
+        "diagnosis_id": "19",
+        "baseline_task_id": "25",
+        "candidate_task_id": "41",
+        "requested_by": "77f0de20-54bb-4142-9cfc-474d9c7df79e",
+        "candidate_diagnosis_id": "20",
+        "status": "success",
+        "report": {
+          "comparison": {
+            "kind": "JAVA_CPU",
+            "unit": "samples",
+            "outcome": "insufficient_evidence",
+            "comparable": true,
+            "differences": [
+              {
+                "symbol": "symbol_2d2f6eea43f3",
+                "baseline_self_percent": 91.716,
+                "candidate_self_percent": 89.3064,
+                "delta_percentage_points": -2.4095999999999975
+              },
+              {
+                "symbol": "symbol_6fe8768faa3e",
+                "baseline_self_percent": 0,
+                "candidate_self_percent": 2.3121,
+                "delta_percentage_points": 2.3121
+              },
+              {
+                "symbol": "symbol_482931a757fb",
+                "baseline_self_percent": 2.9586,
+                "candidate_self_percent": 4.6243,
+                "delta_percentage_points": 1.6656999999999997
+              },
+              {
+                "symbol": "symbol_d5a69dcf3ca7",
+                "baseline_self_percent": 1.1834,
+                "candidate_self_percent": 0,
+                "delta_percentage_points": -1.1834
+              },
+              {
+                "symbol": "symbol_bc885bcd2bc8",
+                "baseline_self_percent": 1.7751,
+                "candidate_self_percent": 1.1561,
+                "delta_percentage_points": -0.619
+              },
+              {
+                "symbol": "symbol_0cdf8fb96d23",
+                "baseline_self_percent": 0.5917,
+                "candidate_self_percent": 0,
+                "delta_percentage_points": -0.5917
+              },
+              {
+                "symbol": "symbol_71e15ccc5acf",
+                "baseline_self_percent": 0.5917,
+                "candidate_self_percent": 0,
+                "delta_percentage_points": -0.5917
+              },
+              {
+                "symbol": "symbol_898635e811c7",
+                "baseline_self_percent": 0.5917,
+                "candidate_self_percent": 0,
+                "delta_percentage_points": -0.5917
+              },
+              {
+                "symbol": "symbol_69345aff5cb8",
+                "baseline_self_percent": 0,
+                "candidate_self_percent": 0.578,
+                "delta_percentage_points": 0.578
+              },
+              {
+                "symbol": "symbol_40c0680ea37b",
+                "baseline_self_percent": 0.5917,
+                "candidate_self_percent": 0.289,
+                "delta_percentage_points": -0.3027
+              }
+            ],
+            "limitations": [
+              "重复采样只检验现象复现；未实施受控代码或配置干预，不能确认因果根因。",
+              "百分比差值不是请求延迟或CPU利用率变化；需同一负载并记录业务指标。",
+              "样本数不足1000或单位不是采样计数；只展示描述差异，不给统计显著性结论。",
+              "Top表未出现的符号按0显示仅指已返回热点表，不证明实际没有执行。"
+            ],
+            "baseline_weight": 169,
+            "candidate_weight": 346,
+            "root_cause_status": "not_tested"
+          },
+          "candidate_report": {
+            "model": "deepseek-flash",
+            "engine": "model",
+            "summary": "复测与原采集可比（同为JAVA_CPU，单位samples），rank1热点symbol_2d2f6eea43f3在两次采集中都占绝对主导：原采集self 91.716%，复测self 89.3064%（-2.41个百分点），因此“该叶帧主导CPU采样权重”这一现象在本次复测中复现。但compare_profiles的outcome为insufficient_evidence、root_cause_status为not_tested，且两次样本量分别为169和346（均<1000），所以只能说明描述性差异，不能确认根因，也不能把权重解读为请求延迟或CPU利用率。调用链显示该热点有2处独立出现位置（self_weight 11与298），均无子调用（top_callees为空），其祖先链包含symbol_5ef5ef0364b6、symbol_52e7346f0537、symbol_e6715d73b8c6、symbol_487a155e91ef等，本次遍历未发生截断（tree_truncated=false，ancestors/callees/occurrences_truncated均为false），但这只代表本次采集树。rank3 symbol_6fe8768faa3e（hint=scheduler）从0升至2.3121%，rank2 symbol_482931a757fb从2.9586%升至4.6243%，rank4 symbol_bc885bcd2bc8（hint=lock_or_wait）从1.7751%降至1.1561%；这些变化可能来自采样随机性、负载或环境差异，不能据此判定噪声或缺陷。symbol_hint仅为本地词形启发式，不构成锁等待或调度瓶颈的证据。",
+            "hypotheses": [
+              {
+                "claim": "rank1叶帧symbol_2d2f6eea43f3（self≈89-92%）是本次采集窗口内CPU采样权重的主要集中点，且该集中在复测中复现；但其具体语义与是否为性能瓶颈尚未确定（symbol_hint=unknown，无子调用帧）。",
+                "evidence_ids": [
+                  "E1",
+                  "E2",
+                  "E4",
+                  "E5"
+                ],
+                "verification": "在相同负载与相同采集参数下做受控复测：保持duration_seconds=10、frequency_hz=99，重复3次以上，记录每次rank1的self_percent与样本量；同时在同一窗口采集业务请求延迟、吞吐与错误率作为对照指标。验收判据（待协商示例）：rank1在多数复测中仍居首位且self_percent区间不与业务指标恶化同步变化，则支持“权重集中复现”；若业务指标与rank1占比同向变化，才进一步讨论其与性能的关联。需在平台按哈希symbol_2d2f6eea43f3查原符号以确认语义。"
+              },
+              {
+                "claim": "rank1热点存在两处独立调用位置（self_weight 11与298），分别挂在不同的祖先链下，说明该叶帧可能由至少两条不同调用路径进入；但两条路径的语义与相对重要性未知。",
+                "evidence_ids": [
+                  "E4"
+                ],
+                "verification": "对rank1再次调用调用链检查，确认两处occurrence的祖先链是否稳定复现，并核对matched_occurrences是否仍为2；若复测中两处位置稳定出现，则支持“多路径进入”的描述性结论。验收判据（待协商示例）：多次采集中两处occurrence均出现且权重排序一致。注意inclusive权重不可相加，不能据此推算总耗时。"
+              },
+              {
+                "claim": "rank3 symbol_6fe8768faa3e（hint=scheduler）与rank2 symbol_482931a757fb的占比上升、rank4 symbol_bc885bcd2bc8（hint=lock_or_wait）的占比下降，可能只是采样随机性或负载/环境差异，而非行为变化或缺陷。",
+                "evidence_ids": [
+                  "E2",
+                  "E5"
+                ],
+                "verification": "在固定负载下重复采集并比较各符号self_percent的波动范围；若这些符号的占比在多次复测中跨越原/复测两值，则支持“漂移属采样波动”；若稳定单向偏移，再考虑负载或行为变化。验收判据（待协商示例）：同一符号多次复测self_percent极差小于其两次采集差值。symbol_hint不作为锁等待或调度瓶颈的证据。"
+              },
+              {
+                "claim": "当前证据不足以确认任何因果根因；原假设只能停留在“现象复现”层面，需受控干预才能检验因果。",
+                "evidence_ids": [
+                  "E3",
+                  "E5"
+                ],
+                "verification": "设计受控对照：在保持负载与采集参数一致的前提下，对rank1对应代码路径做单一变量干预（如替换/旁路该叶帧逻辑），对比干预前后同一采集器的rank1 self_percent与业务延迟/吞吐/错误率；只有干预后热点权重与业务指标同向改善且可重复，才可提出因果性结论。未做干预前不得声称根因确认或优化收益。"
+              }
+            ],
+            "limitations": [
+              "两次采集样本量分别为169与346（均<1000），compare_profiles判定insufficient_evidence，未给出统计显著性。",
+              "未采集业务请求延迟、吞吐、错误率，无法把采样权重映射为性能影响。",
+              "未采集源码、符号地址映射与丢样率，symbol_hint仅为本地词形启发式，rank1语义未知。",
+              "仅单次快照与一次复测，不能代表其他时段或其他负载下的调用路径。",
+              "未实施受控代码或配置干预，root_cause_status为not_tested，因果未验证。",
+              "调用链仅覆盖本次采集树（未截断），但ancestors/callees/occurrences上限内的上下文仍可能省略其他路径。",
+              "模型结论为待验证假设，不代表已确认缺陷；不提供未经符号映射验证的源码行号。",
+              "原始profile、原符号、主机、PID、路径和凭据不发送模型；问题文本会发送，请勿填入敏感信息。"
+            ]
+          },
+          "baseline_diagnosis_id": "19",
+          "candidate_diagnosis_id": "20"
+        },
+        "created_at": "2026-10-20T05:03:41.214187Z",
+        "updated_at": "2026-10-20T05:04:12.041009Z"
+      },
+      "passed": true,
+      "elapsed_seconds": 42.5
+    }
+  ]
+}

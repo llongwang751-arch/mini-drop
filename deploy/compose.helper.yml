@@ -1,0 +1,99 @@
+# Merge AFTER compose.perf.yml / compose.tools.yml. The mTLS Agent has no
+# capability; only the isolated collector helper owns sampling capabilities.
+services:
+  agent:
+    image: drop-agent:${RELEASE_TAG:-build}
+    user: '10001:10001'
+    cap_add: !reset []
+    cap_drop: [ALL]
+    security_opt: !override [no-new-privileges:true]
+    environment:
+      COLLECTOR_HELPER_SOCKET: /run/drop-helper/control.sock
+      COLLECTOR_HELPER_INCOMING_DIR: /run/drop-helper-incoming
+      COLLECTOR_HELPER_DISK_BYTES: '2147483648'
+      COLLECTOR_HELPER_REQUIRE_BOUNDED_FS: 'true'
+      NATIVE_CONTROL_ROOT: /run/drop-helper-incoming/native-control
+    volumes:
+      - agent_perf_data:/var/lib/drop-agent
+      - helper_socket:/run/drop-helper:ro
+      - helper_incoming:/run/drop-helper-incoming
+    depends_on:
+      agent-permission-init: {condition: service_completed_successfully}
+    mem_limit: 192m
+    memswap_limit: 192m
+    cpus: 0.3
+    pids_limit: 64
+  agent-permission-init:
+    image: ubuntu:24.04
+    entrypoint: [sh, -ec]
+    command: ['chown -R 10001:10001 /data && chmod 700 /data']
+    user: '0:0'
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER]
+    security_opt: [no-new-privileges:true]
+    read_only: true
+    volumes: [agent_perf_data:/data]
+    network_mode: none
+    restart: 'no'
+    mem_limit: 48m
+    memswap_limit: 48m
+    cpus: 0.1
+    pids_limit: 16
+    logging: {driver: json-file, options: {max-size: 1m, max-file: '1'}}
+  collector-helper:
+    image: drop-agent:${RELEASE_TAG:-build}
+    entrypoint: [/usr/local/bin/drop_collector_helper]
+    user: '0:10001'
+    # Sharing the Agent's container namespaces is sufficient for the explicitly
+    # controlled target. No host PID/network namespace or Docker socket.
+    pid: service:agent
+    network_mode: service:agent
+    depends_on: {agent: {condition: service_started}}
+    restart: unless-stopped
+    init: true
+    environment:
+      COLLECTOR_HELPER_SOCKET: /run/drop-helper/control.sock
+      COLLECTOR_HELPER_AGENT_UID: '10001'
+      COLLECTOR_HELPER_AGENT_GID: '10001'
+      COLLECTOR_HELPER_WORK_DIR: /var/lib/drop-helper
+      COLLECTOR_HELPER_INCOMING_DIR: /run/drop-helper-incoming
+      COLLECTOR_HELPER_DISK_BYTES: '2147483648'
+      COLLECTOR_HELPER_REQUIRE_BOUNDED_FS: 'true'
+      COLLECTOR_HELPER_RETENTION_SECONDS: '86400'
+      ALLOW_HOST_PROCESSES: 'false'
+      ALLOW_CONTAINERS: 'false'
+      ALLOW_HOST_RESOURCES: 'false'
+      ALLOWED_TARGET_UIDS: '10001'
+      NATIVE_CONTROL_ROOT: /run/drop-helper-incoming/native-control
+    # No Secret, TLS key, URL or long-lived object-store credential is mounted.
+    volumes:
+      - helper_socket:/run/drop-helper
+      - helper_data:/var/lib/drop-helper
+      - helper_incoming:/run/drop-helper-incoming
+    cap_drop: [ALL]
+    # KILL permits GDB to stop/resume different-UID target threads inside only
+    # the Agent PID namespace; the typed target identity remains fenced.
+    cap_add: [PERFMON, SYS_PTRACE, DAC_READ_SEARCH, KILL]
+    security_opt: [no-new-privileges:true, seccomp=./seccomp/agent-perfmon.json]
+    read_only: true
+    tmpfs: ['/tmp:size=128m,mode=1777']
+    mem_limit: 512m
+    memswap_limit: 512m
+    cpus: 0.65
+    pids_limit: 96
+    logging: {driver: json-file, options: {max-size: 5m, max-file: '2'}}
+volumes:
+  agent_perf_data:
+  helper_socket:
+  helper_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DROP_HELPER_SPOOL_ROOT:?Prepare a dedicated helper spool and set DROP_HELPER_SPOOL_ROOT}/cache
+  helper_incoming:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DROP_HELPER_SPOOL_ROOT:?Prepare a dedicated helper spool and set DROP_HELPER_SPOOL_ROOT}/incoming

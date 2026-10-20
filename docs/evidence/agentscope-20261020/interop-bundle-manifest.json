@@ -1,0 +1,71 @@
+{
+  "protocol": "drop-agent-runtime interop fixture",
+  "go_source_sha256": "19872fb863c36e08d7b1a11a3a6a66b568558653171890baed1a4d9382adf707",
+  "expected_sdk": "agentscope==2.0.10",
+  "files": {
+    "fixture_server.py": "097f6c5636bf2af8d9abb08028a04ff19d7f76c470486057d5e2bdd11ba16263",
+    "interop-service.test": "35ce9bc89a1e81bf5739d2003202be14648588b1b4c40129334043f984dcb998",
+    "interop_source_test.go": "1ec6f9a12964f0f16870ca1a72982abedf1e84e12fab0c3a243437809d9535ae",
+    "run_interop.py": "e4add77fc10c98282cdfd2ec0e4ededa4be8c927112b064bfc7f3643a950c30c"
+  },
+  "identities": {
+    "launcher": 0,
+    "go": 10001,
+    "python": 10002,
+    "supplementary_gid": 10003
+  },
+  "actual_components": [
+    "AgentRunner.Run and actual Go UDS callback server",
+    "AgentScope Agent 2.0.10 real tool and model middleware loop",
+    "SO_PEERCRED in both directions",
+    "imported synthetic provider injected only by test process MockTransport"
+  ],
+  "cases": [
+    "diagnosis valid tools and Go evidence reference validation",
+    "planning accepted terminal tool",
+    "repair actual tool order and fixture location acceptance",
+    "three rejected reports then format-only fifth call",
+    "three tools in one reply rejected before any Go execution",
+    "Go lease fence cancellation terminates actual SDK provider task",
+    "next session succeeds after cancellation"
+  ],
+  "limitations": [
+    "Synthetic provider responses, tools and repair-location acceptance; no real model or source benchmark",
+    "Go domain/SQL authority covered separately by fresh PostgreSQL suite",
+    "Production image and external provider acceptance remain separate checks"
+  ],
+  "docker_argv": [
+    "docker",
+    "run",
+    "--rm",
+    "--network",
+    "none",
+    "--read-only",
+    "--user",
+    "0:0",
+    "--cap-drop",
+    "ALL",
+    "--cap-add",
+    "SETUID",
+    "--cap-add",
+    "SETGID",
+    "--cap-add",
+    "CHOWN",
+    "--cap-add",
+    "FOWNER",
+    "--pids-limit",
+    "64",
+    "--memory",
+    "768m",
+    "--cpus",
+    "1",
+    "--tmpfs",
+    "/tmp:rw,exec,nosuid,size=128m",
+    "--mount",
+    "type=bind,src=<absolute unpacked bundle directory>,dst=/interop,readonly",
+    "--entrypoint",
+    "python",
+    "<new agentscope runtime image>",
+    "/interop/run_interop.py"
+  ]
+}

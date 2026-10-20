@@ -1,0 +1,234 @@
+@layer workspace {
+  .task-table-wrap {
+    overflow-x: auto;
+  }
+  .task-table {
+    table-layout: fixed;
+    min-width: 0;
+  }
+  .task-table .task-identity-cell {
+    width: 37%;
+    padding-right: 14px;
+  }
+  .task-table .task-type-cell {
+    width: 16%;
+    padding-left: 8px;
+    padding-right: 8px;
+    white-space: normal;
+  }
+  .task-table .task-target-cell {
+    width: 17%;
+    padding-left: 8px;
+    padding-right: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .task-table .task-status-cell {
+    width: 90px;
+    padding-left: 8px;
+    padding-right: 8px;
+    white-space: normal;
+  }
+  .task-table .badge {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .task-table .task-created-cell {
+    width: 118px;
+    padding-left: 8px;
+    padding-right: 8px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .task-table .task-open-cell {
+    width: 42px;
+    padding: 0;
+  }
+  .task-table.compact .task-identity-cell {
+    width: 46%;
+  }
+  .task-table.compact .task-type-cell {
+    width: 19%;
+  }
+  .task-table.compact .task-status-cell {
+    width: 82px;
+  }
+  .task-table.compact .task-created-cell {
+    width: 112px;
+  }
+  .task-table.compact .task-open-cell {
+    width: 35px;
+  }
+  .task-identity {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    min-height: 48px;
+    min-width: 0;
+  }
+  .task-name-copy {
+    display: grid;
+    min-width: 0;
+    gap: 7px;
+    width: 100%;
+  }
+  .task-title {
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .task-identity:hover .task-title {
+    color: var(--accent);
+  }
+  .task-meta {
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--faint);
+    margin: 0;
+  }
+  .task-meta > span {
+    margin: 0;
+  }
+  .task-meta > span[aria-hidden] {
+    padding: 0 5px;
+  }
+  .kind-label {
+    font-size: 12px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  @media (min-width: 601px) and (max-width: 1200px) {
+    .task-table.full .task-target-cell {
+      display: none;
+    }
+    .task-table.full .task-identity-cell {
+      width: 42%;
+    }
+    .task-table.full .task-type-cell {
+      width: 20%;
+    }
+    .task-table.compact .task-created-cell {
+      display: none;
+    }
+    .task-table.compact .task-identity-cell {
+      width: 57%;
+    }
+    .task-table.compact .task-type-cell {
+      width: 23%;
+    }
+  }
+  @media (max-width: 600px) {
+    .task-table-wrap {
+      overflow: visible;
+    }
+    .table-scroll .task-table {
+      display: block;
+      min-width: 0;
+      width: 100%;
+      white-space: normal;
+    }
+    .task-table thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      clip: rect(0, 0, 0, 0);
+      overflow: hidden;
+    }
+    .task-table tbody {
+      display: block;
+    }
+    .task-table tbody tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 9px 12px;
+      padding: 18px;
+      border-top: 1px solid var(--border);
+    }
+    .task-table td {
+      display: block;
+      height: auto;
+      border: 0;
+      min-width: 0;
+    }
+    .task-table .task-identity-cell,
+    .task-table.compact .task-identity-cell {
+      width: auto;
+      padding: 0 calc(4.2em + 24px) 0 0;
+      grid-area: 1/1/2/3;
+    }
+    .task-table .task-status-cell,
+    .task-table.compact .task-status-cell {
+      width: auto;
+      padding: 2px 0 0;
+      grid-area: 1/2;
+      align-self: start;
+      justify-self: end;
+    }
+    .task-table .task-type-cell,
+    .task-table.compact .task-type-cell {
+      width: auto;
+      padding: 0;
+      grid-area: 2/1;
+      align-self: center;
+    }
+    .task-table .task-created-cell,
+    .task-table.compact .task-created-cell {
+      width: auto;
+      padding: 0;
+      grid-area: 2/2;
+      text-align: right;
+      align-self: center;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .task-table .task-target-cell {
+      display: block;
+      width: auto;
+      padding: 0;
+      grid-area: 3/1/4/3;
+      font-size: 11px;
+    }
+    .task-table .task-target-cell .mono {
+      font-size: 11px;
+    }
+    .task-table .task-target-cell::before {
+      content: "目标 · ";
+      color: var(--faint);
+    }
+    .task-table .task-open-cell,
+    .task-table.compact .task-open-cell {
+      display: none;
+    }
+    .task-identity {
+      min-height: 44px;
+      align-items: start;
+    }
+    .task-name-copy {
+      gap: 6px;
+    }
+    .task-title {
+      font-size: 14px;
+      line-height: 1.6;
+      white-space: normal;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .task-meta {
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .kind-label {
+      font-size: 11px;
+    }
+  }
+}

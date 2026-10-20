@@ -1,0 +1,569 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-18T05:32:34.159904+00:00",
+  "release": "20261016.1",
+  "compose_project": "drop",
+  "public_url": "http://120.24.187.205",
+  "read_only_capture": true,
+  "configured_user_is_runtime_identity_proof": false,
+  "services": [
+    {
+      "service": "agent",
+      "container_id": "4f947b40f13489072219110f6ea65fda0e3e60450dadc780ad73b7a38a942956",
+      "image_id": "sha256:5c167462baf513671ad9eac5dc9f441e7d889539dd1f1096ea423a392e8792cd",
+      "image_reference": "drop-core:20261016.1",
+      "state": "running",
+      "health": "not_configured",
+      "restart_count": 0,
+      "oom_killed": false,
+      "started_at": "2026-10-16T12:21:06.766844335Z",
+      "configured_user": "0:0",
+      "cap_add": [
+        "PERFMON"
+      ],
+      "cap_drop": [
+        "ALL"
+      ],
+      "read_only_rootfs": true,
+      "privileged": false,
+      "pid_mode": "private",
+      "security": {
+        "no_new_privileges": true,
+        "seccomp": {
+          "mode": "custom",
+          "option_sha256": "ab4b223b71bb402a8250717c0e817117bed701cee82a884b7e3bd9c898bc34aa"
+        }
+      },
+      "network": {
+        "mode": "project_network",
+        "names": [
+          "drop_control"
+        ]
+      },
+      "limits": {
+        "memory_bytes": 201326592,
+        "memory_swap_bytes": 402653184,
+        "cpu_nano": 650000000,
+        "cpu_quota": 0,
+        "cpu_period": 0,
+        "pids": 0
+      },
+      "named_volumes": [
+        {
+          "name": "drop_agent_perf_data",
+          "read_only": false
+        }
+      ],
+      "published_ports": []
+    },
+    {
+      "service": "analyzer",
+      "container_id": "3db53c854de2dd55abbc6633c1ff9f2948c5927556c257e4f7ba33f49cb82622",
+      "image_id": "sha256:154375d094cf279e843ea47b346771edae897901e88f2e1f5db0b4a3b438871d",
+      "image_reference": "drop-analyzer:20261016.1",
+      "state": "running",
+      "health": "healthy",
+      "restart_count": 0,
+      "oom_killed": false,
+      "started_at": "2026-10-16T12:21:57.086977533Z",
+      "configured_user": "10001:10001",
+      "cap_add": [],
+      "cap_drop": [
+        "ALL"
+      ],
+      "read_only_rootfs": true,
+      "privileged": false,
+      "pid_mode": "private",
+      "security": {
+        "no_new_privileges": true,
+        "seccomp": {
+          "mode": "runtime_default"
+        }
+      },
+      "network": {
+        "mode": "project_network",
+        "names": [
+          "drop_control"
+        ]
+      },
+      "limits": {
+        "memory_bytes": 402653184,
+        "memory_swap_bytes": 805306368,
+        "cpu_nano": 650000000,
+        "cpu_quota": 0,
+        "cpu_period": 0,
+        "pids": 0
+      },
+      "named_volumes": [],
+      "published_ports": []
+    },
+    {
+      "service": "api",
+      "container_id": "bf6bfcb8c0f5d91f32bf442c4878c799fbccfbee513ea0e3654da80cfca62b90",
+      "image_id": "sha256:cf7e19fd00f9ade494522ddb4c185da4ac2eeb0db414dc184195354e42886023",
+      "image_reference": "drop-api:20261016.1",
+      "state": "running",
+      "health": "healthy",
+      "restart_count": 0,
+      "oom_killed": false,
+      "started_at": "2026-10-16T12:21:56.936361039Z",
+      "configured_user": "drop",
+      "cap_add": [],
+      "cap_drop": [
+        "ALL"
+      ],
+      "read_only_rootfs": true,
+      "privileged": false,
+      "pid_mode": "private",
+      "security": {
+        "no_new_privileges": true,
+        "seccomp": {
+          "mode": "runtime_default"
+        }
+      },
+      "network": {
+        "mode": "project_network",
+        "names": [
+          "drop_control"
+        ]
+      },
+      "limits": {
+        "memory_bytes": 268435456,
+        "memory_swap_bytes": 536870912,
+        "cpu_nano": 500000000,
+        "cpu_quota": 0,
+        "cpu_period": 0,
+        "pids": 0
+      },
+      "named_volumes": [],
+      "published_ports": []
+    },
+    {
+      "service": "drop-server",
+      "container_id": "5b020bb8f6b1f326b02b3cc5cba87e615a14fe550893f0543e3f1bfe337bcf55",
+      "image_id": "sha256:5c167462baf513671ad9eac5dc9f441e7d889539dd1f1096ea423a392e8792cd",
+      "image_reference": "drop-core:20261016.1",
+      "state": "running",
+      "health": "not_configured",
+      "restart_count": 0,
+      "oom_killed": false,
+      "started_at": "2026-10-16T12:21:56.914266474Z",
+      "configured_user": "10001:10001",
+      "cap_add": [],
+      "cap_drop": [
+        "ALL"
+      ],
+      "read_only_rootfs": true,
+      "privileged": false,
+      "pid_mode": "private",
+      "security": {
+        "no_new_privileges": true,
+        "seccomp": {
+          "mode": "runtime_default"
+        }
+      },
+      "network": {
+        "mode": "project_network",
+        "names": [
+          "drop_control"
+        ]
+      },
+      "limits": {
+        "memory_bytes": 268435456,
+        "memory_swap_bytes": 536870912,
+        "cpu_nano": 500000000,
+        "cpu_quota": 0,
+        "cpu_period": 0,
+        "pids": 0
+      },
+      "named_volumes": [],
+      "published_ports": []
+    },
+    {
+      "service": "migration",
+      "container_id": "dd285b0f2693abb2b49c202cdbb67a258020e49cb4467d19de150f1bd1a0ed37",
+      "image_id": "sha256:cf7e19fd00f9ade494522ddb4c185da4ac2eeb0db414dc184195354e42886023",
+      "image_reference": "drop-api:20261016.1",
+      "state": "exited",
+      "health": "unhealthy",
+      "restart_count": 0,
+      "oom_killed": false,
+      "started_at": "2026-10-16T12:21:58.392106782Z",
+      "configured_user": "drop",
+      "cap_add": [],
+      "cap_drop": [],
+      "read_only_rootfs": false,
+      "privileged": false,
+      "pid_mode": "private",
+      "security": {
+        "no_new_privileges": false,
+        "seccomp": {
+          "mode": "runtime_default"
+        }
+      },
+      "network": {
+        "mode": "project_network",
+        "names": [
+          "drop_control"
+        ]
+      },
+      "limits": {
+        "memory_bytes": 201326592,
+        "memory_swap_bytes": 402653184,
+        "cpu_nano": 0,
+        "cpu_quota": 0,
+        "cpu_period": 0,
+        "pids": 0
+      },
+      "named_volumes": [],
+      "published_ports": []
+    },
+    {
+      "service": "minio",
+      "container_id": "92fd3a050fb62d30d717d3201fc9392ad35b703c105d504419a00a75d60c62d7",
+      "image_id": "sha256:782bb89768cc87b7f95c18b95baa1af250e5d451f26794f59363540161147c01",
+      "image_reference": "nginxinc/nginx-unprivileged:1.30.6-alpine",
+      "state": "running",
+      "health": "healthy",
+      "restart_count": 0,
+      "oom_killed": false,
+      "started_at": "2026-10-16T12:22:18.336296126Z",
+      "configured_user": "101",
+      "cap_add": [],
+      "cap_drop": [
+        "ALL"
+      ],
+      "read_only_rootfs": true,
+      "privileged": false,
+      "pid_mode": "private",
+      "security": {
+        "no_new_privileges": true,
+        "seccomp": {
+          "mode": "runtime_default"
+        }
+      },
+      "network": {
+        "mode": "project_network",
+        "names": [
+          "drop_control",
+          "drop_storage"
+        ]
+      },
+      "limits": {
+        "memory_bytes": 50331648,
+        "memory_swap_bytes": 100663296,
+        "cpu_nano": 150000000,
+        "cpu_quota": 0,
+        "cpu_period": 0,
+        "pids": 0
+      },
+      "named_volumes": [],
+      "published_ports": []
+    },
+    {
+      "service": "permission-init",
+      "container_id": "249bbe408823244c1fe4498b50f05e8e87fe936a77aeeca2fcb5b453d8a814ab",
+      "image_id": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "image_reference": "postgres:17.11-alpine",
+      "state": "exited",
+      "health": "not_configured",
+      "restart_count": 0,
+      "oom_killed": false,
+      "started_at": "2026-10-16T12:21:59.066210134Z",
+      "configured_user": "0",
+      "cap_add": [],
+      "cap_drop": [],
+      "read_only_rootfs": false,
+      "privileged": false,
+      "pid_mode": "private",
+      "security": {
+        "no_new_privileges": false,
+        "seccomp": {
+          "mode": "runtime_default"
+        }
+      },
+      "network": {
+        "mode": "project_network",
+        "names": [
+          "drop_control"
+        ]
+      },
+      "limits": {
+        "memory_bytes": 100663296,
+        "memory_swap_bytes": 201326592,
+        "cpu_nano": 0,
+        "cpu_quota": 0,
+        "cpu_period": 0,
+        "pids": 0
+      },
+      "named_volumes": [
+        {
+          "name": "111a1255572aa28c026e4702eaa8e39d715daffe656bca99c1a568f8cc0e88b4",
+          "read_only": false
+        }
+      ],
+      "published_ports": []
+    },
+    {
+      "service": "postgres",
+      "container_id": "0055a1d7176254025c6b76689b4510b9c5d6473958645ffa8de2dade8cf5b079",
+      "image_id": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "image_reference": "postgres:17.11-alpine",
+      "state": "running",
+      "health": "healthy",
+      "restart_count": 0,
+      "oom_killed": false,
+      "started_at": "2026-10-16T12:20:54.61373976Z",
+      "configured_user": "0",
+      "cap_add": [],
+      "cap_drop": [],
+      "read_only_rootfs": false,
+      "privileged": false,
+      "pid_mode": "private",
+      "security": {
+        "no_new_privileges": true,
+        "seccomp": {
+          "mode": "runtime_default"
+        }
+      },
+      "network": {
+        "mode": "project_network",
+        "names": [
+          "drop_control"
+        ]
+      },
+      "limits": {
+        "memory_bytes": 402653184,
+        "memory_swap_bytes": 805306368,
+        "cpu_nano": 500000000,
+        "cpu_quota": 0,
+        "cpu_period": 0,
+        "pids": 0
+      },
+      "named_volumes": [
+        {
+          "name": "drop_pg_data",
+          "read_only": false
+        }
+      ],
+      "published_ports": []
+    },
+    {
+      "service": "storage-backend",
+      "container_id": "9d76bf73e033fe1680e50ea9f44cee846298990d548d5f7972cb01578e5d2bb0",
+      "image_id": "sha256:d249d1fb6966de4d8ad26c04754b545205ff15a62e4fd19ebd0f26fa5baacbc0",
+      "image_reference": "minio/minio:RELEASE.2025-07-23T15-54-02Z",
+      "state": "running",
+      "health": "healthy",
+      "restart_count": 0,
+      "oom_killed": false,
+      "started_at": "2026-10-16T12:20:55.242097202Z",
+      "configured_user": "10001:10001",
+      "cap_add": [],
+      "cap_drop": [
+        "ALL"
+      ],
+      "read_only_rootfs": true,
+      "privileged": false,
+      "pid_mode": "private",
+      "security": {
+        "no_new_privileges": true,
+        "seccomp": {
+          "mode": "runtime_default"
+        }
+      },
+      "network": {
+        "mode": "project_network",
+        "names": [
+          "drop_storage"
+        ]
+      },
+      "limits": {
+        "memory_bytes": 536870912,
+        "memory_swap_bytes": 1073741824,
+        "cpu_nano": 500000000,
+        "cpu_quota": 0,
+        "cpu_period": 0,
+        "pids": 0
+      },
+      "named_volumes": [
+        {
+          "name": "drop_object_data",
+          "read_only": false
+        }
+      ],
+      "published_ports": []
+    },
+    {
+      "service": "storage-init",
+      "container_id": "d62b7caddf760057057cababba84f6a7706de9b3c7666dcb4f79c5391128abd7",
+      "image_id": "sha256:154375d094cf279e843ea47b346771edae897901e88f2e1f5db0b4a3b438871d",
+      "image_reference": "drop-analyzer:20261016.1",
+      "state": "exited",
+      "health": "unhealthy",
+      "restart_count": 0,
+      "oom_killed": false,
+      "started_at": "2026-10-16T12:21:59.605344158Z",
+      "configured_user": "10001:10001",
+      "cap_add": [],
+      "cap_drop": [],
+      "read_only_rootfs": false,
+      "privileged": false,
+      "pid_mode": "private",
+      "security": {
+        "no_new_privileges": false,
+        "seccomp": {
+          "mode": "runtime_default"
+        }
+      },
+      "network": {
+        "mode": "project_network",
+        "names": [
+          "drop_control"
+        ]
+      },
+      "limits": {
+        "memory_bytes": 134217728,
+        "memory_swap_bytes": 268435456,
+        "cpu_nano": 0,
+        "cpu_quota": 0,
+        "cpu_period": 0,
+        "pids": 0
+      },
+      "named_volumes": [],
+      "published_ports": []
+    },
+    {
+      "service": "storage-permission-init",
+      "container_id": "463c0da311210a7fdbc922b278a3366153f7c8e7eb7042a90f96b12b5dda5636",
+      "image_id": "sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55",
+      "image_reference": "ubuntu:24.04",
+      "state": "exited",
+      "health": "not_configured",
+      "restart_count": 0,
+      "oom_killed": false,
+      "started_at": "2026-10-16T12:21:57.899567425Z",
+      "configured_user": "0:0",
+      "cap_add": [
+        "CHOWN",
+        "DAC_OVERRIDE",
+        "FOWNER"
+      ],
+      "cap_drop": [
+        "ALL"
+      ],
+      "read_only_rootfs": true,
+      "privileged": false,
+      "pid_mode": "private",
+      "security": {
+        "no_new_privileges": true,
+        "seccomp": {
+          "mode": "runtime_default"
+        }
+      },
+      "network": {
+        "mode": "none",
+        "names": [
+          "none"
+        ]
+      },
+      "limits": {
+        "memory_bytes": 50331648,
+        "memory_swap_bytes": 100663296,
+        "cpu_nano": 0,
+        "cpu_quota": 0,
+        "cpu_period": 0,
+        "pids": 0
+      },
+      "named_volumes": [
+        {
+          "name": "drop_object_data",
+          "read_only": false
+        }
+      ],
+      "published_ports": []
+    },
+    {
+      "service": "web",
+      "container_id": "58d36985f50d6cd45814a09b0e25a441bef85d4cd24b6fb458cd91e7137a236d",
+      "image_id": "sha256:277f09361b6dd403e8c4c652185b9ffff7c14f1a95f8a063a88a68d1dfd8d092",
+      "image_reference": "drop-web:20261016.3",
+      "state": "running",
+      "health": "healthy",
+      "restart_count": 0,
+      "oom_killed": false,
+      "started_at": "2026-10-16T13:10:51.450496409Z",
+      "configured_user": "101",
+      "cap_add": [],
+      "cap_drop": [
+        "ALL"
+      ],
+      "read_only_rootfs": true,
+      "privileged": false,
+      "pid_mode": "private",
+      "security": {
+        "no_new_privileges": true,
+        "seccomp": {
+          "mode": "runtime_default"
+        }
+      },
+      "network": {
+        "mode": "project_network",
+        "names": [
+          "drop_control"
+        ]
+      },
+      "limits": {
+        "memory_bytes": 100663296,
+        "memory_swap_bytes": 201326592,
+        "cpu_nano": 300000000,
+        "cpu_quota": 0,
+        "cpu_period": 0,
+        "pids": 0
+      },
+      "named_volumes": [],
+      "published_ports": [
+        {
+          "container_port": 8080,
+          "protocol": "tcp",
+          "host_ip": "0.0.0.0",
+          "host_port": 80
+        },
+        {
+          "container_port": 8080,
+          "protocol": "tcp",
+          "host_ip": "::",
+          "host_port": 80
+        }
+      ]
+    }
+  ],
+  "missing_services": [],
+  "database": {
+    "schema_version": 1,
+    "table_counts": {
+      "agent_samples": 73772,
+      "agents": 1,
+      "analysis_jobs": 23,
+      "artifacts": 115,
+      "audit_logs": 73,
+      "outbox": 27,
+      "schedule_records": 1,
+      "schedules": 1,
+      "schema_migrations": 1,
+      "sessions": 17,
+      "suggestions": 0,
+      "task_attempts": 29,
+      "task_events": 271,
+      "tasks": 23,
+      "users": 7
+    },
+    "captured": true,
+    "consistency": "Exact table counts share a read-only statement snapshot; runtime inspect is a sequential observation."
+  },
+  "limitations": [
+    "No public HTTP/TLS, artifact, backup, or functional verification is performed.",
+    "Image IDs identify actual local images; release is a caller-provided label, not a verified signature.",
+    "Configured user and container limits are Docker configuration, not measured process UID, CPU or RSS."
+  ]
+}

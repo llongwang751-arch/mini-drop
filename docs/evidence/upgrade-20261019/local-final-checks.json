@@ -1,0 +1,59 @@
+{
+  "recorded_at": "2026-10-19T11:08:51.709854+00:00",
+  "scope": "checks actually run in this session; no remote CI execution claim",
+  "checks": [
+    {
+      "command": "python -m unittest discover -s scripts -p test_dev.py -v",
+      "passed": 8
+    },
+    {
+      "command": "python -m unittest discover -s scripts/validation -p test_stage_*.py -v",
+      "passed": 20
+    },
+    {
+      "command": "python -m unittest discover -s core/tests -p advanced_cleanup_test.py -v",
+      "passed": 4
+    },
+    {
+      "command": "python -m unittest discover -s deploy/tests -p test_helper_deployment.py -v",
+      "passed": 4
+    },
+    {
+      "command": "python scripts/check_contracts.py",
+      "task_kinds": 18,
+      "grpc_services": 4,
+      "passed": true
+    },
+    {
+      "command": "python api/tools/check_http_contract.py",
+      "routes": 61,
+      "schemas": 75,
+      "exact_catalog_schemas": 18,
+      "passed": true
+    },
+    {
+      "command": "python scripts/check_proto_compatibility.py",
+      "v1_preserved": true,
+      "negative_control_rejected": true
+    },
+    {
+      "command": "bash -n deploy/reload-proxies.sh",
+      "passed": true
+    },
+    {
+      "command": "bash -n deploy/rotate-internal-certs.sh",
+      "passed": true
+    }
+  ],
+  "source_files_sha256": {
+    "scripts/dev.py": "48de2605b454f290b36b8a9398ad5ccd1afbed35860de9165a9ff91658ce06f8",
+    "scripts/test_dev.py": "0d05142e0b0ee684e53348077bea5cc99e5477b35c1a932adaf29adf860fbe68",
+    "deploy/reload-proxies.sh": "5319b45aabdae62bf1fc4e926fe2eab913a9dd5093a4b612086dbcc54d315c9f",
+    "deploy/rotate-internal-certs.sh": "3b37f021de41706882d817e54d0cd1e759f90781437fc778f0a000a6cd56d0a2",
+    "deploy/compose.small.yml": "7a9f0d4379678a093a6e23d894f8aa9afb98c542f8e0bc09939aff047f08f0eb",
+    "deploy/compose.release-20261019.yml": "da80c894b334e7d8026ba060571421be0af35e6b4b32c6af0740d9ed532f0d92",
+    "ops/maintenance.py": "f923d56b4cb45135097b12e8734c4c8788b93011fdfe232c3959499003140899",
+    "ops/test_metrics.py": "8b7eb48c4b64a458dc9cc59603be28d8ba1d961fd07beb92e78a27bc3161f237",
+    ".github/workflows/ci.yml": "17f00e1d2992558254f2312a1e59e4510a62e2c1861b4bad944230e18942fc08"
+  }
+}

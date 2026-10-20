@@ -1,0 +1,3455 @@
+[
+  {
+    "id": "PERF_CPU",
+    "display_name": "CPU 火焰图 · perf",
+    "description": "CPU 火焰图 · perf",
+    "runner": "perf",
+    "analysis_pipeline": "folded_v1",
+    "input_format": "perf_script",
+    "input_formats": [
+      "perf_script",
+      "perf_data",
+      "folded"
+    ],
+    "raw_name": "profile.perf-script",
+    "raw_content_type": "text/plain",
+    "default_duration_seconds": 10,
+    "max_duration_seconds": 60,
+    "min_frequency_hz": 1,
+    "max_frequency_hz": 199,
+    "default_frequency_hz": 99,
+    "requires_pid": true,
+    "supported_os": [
+      "linux"
+    ],
+    "supported_arch": [
+      "amd64",
+      "arm64"
+    ],
+    "supported_targets": [
+      "process",
+      "container"
+    ],
+    "max_concurrency_per_agent": 1,
+    "max_file_bytes": 33554432,
+    "requires_capabilities": [
+      "PERFMON"
+    ],
+    "permission": {
+      "agent_policy": "explicit target UID/PID/container policy",
+      "requirements": [
+        "PERFMON"
+      ]
+    },
+    "tool_requirements": [
+      {
+        "name": "perf",
+        "location": "agent",
+        "default_path": "/usr/bin/perf",
+        "executable_env": "PERF_EXECUTABLE",
+        "sha256_env": "PERF_SHA256",
+        "probe_argv": [
+          "version"
+        ]
+      }
+    ],
+    "parameters": {
+      "pid": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2147483647
+      },
+      "duration_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 60
+      },
+      "frequency_hz": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 199
+      }
+    },
+    "parameter_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 2147483647
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "frequency_hz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 199
+        },
+        "scope": {
+          "enum": [
+            "process",
+            "host",
+            "container"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "process",
+                "host",
+                "container"
+              ]
+            },
+            "pid": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "start_time_ticks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "container_id": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{12,64}$"
+            },
+            "runtime": {
+              "enum": [
+                "docker",
+                "containerd"
+              ]
+            },
+            "container_pid": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "expected_uid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "check_uid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_file_bytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 536870912
+            },
+            "max_address_space_bytes": {
+              "type": "integer",
+              "minimum": 67108864,
+              "maximum": 8589934592
+            },
+            "max_cpu_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "max_processes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "event": {
+              "enum": [
+                "cpu-clock",
+                "cycles",
+                "instructions"
+              ]
+            },
+            "call_graph": {
+              "enum": [
+                "fp",
+                "dwarf"
+              ]
+            }
+          }
+        },
+        "traceparent": {
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "maxLength": 55,
+          "type": "string"
+        }
+      }
+    },
+    "auxiliary_artifacts": [],
+    "legacy_raw_names": {
+      "folded": "profile.folded",
+      "perf_data": "profile.perf.data"
+    }
+  },
+  {
+    "id": "PROC_CPU",
+    "display_name": "线程 CPU 诊断 · procfs",
+    "description": "读取线程 CPU tick，明确仅线程级，不代表函数栈。",
+    "runner": "procfs",
+    "analysis_pipeline": "folded_v1",
+    "input_format": "folded",
+    "input_formats": [
+      "folded"
+    ],
+    "raw_name": "profile.folded",
+    "raw_content_type": "text/plain",
+    "default_duration_seconds": 10,
+    "max_duration_seconds": 60,
+    "min_frequency_hz": 1,
+    "max_frequency_hz": 10,
+    "default_frequency_hz": 10,
+    "requires_pid": true,
+    "supported_os": [
+      "linux"
+    ],
+    "supported_arch": [
+      "amd64",
+      "arm64"
+    ],
+    "supported_targets": [
+      "process",
+      "container"
+    ],
+    "max_concurrency_per_agent": 1,
+    "max_file_bytes": 33554432,
+    "requires_capabilities": [],
+    "permission": {
+      "agent_policy": "explicit target UID/PID/container policy",
+      "requirements": []
+    },
+    "tool_requirements": [],
+    "parameters": {
+      "pid": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2147483647
+      },
+      "duration_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 60
+      },
+      "frequency_hz": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 10
+      }
+    },
+    "parameter_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 2147483647
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "frequency_hz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "scope": {
+          "enum": [
+            "process",
+            "host",
+            "container"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "process",
+                "host",
+                "container"
+              ]
+            },
+            "pid": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "start_time_ticks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "container_id": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{12,64}$"
+            },
+            "runtime": {
+              "enum": [
+                "docker",
+                "containerd"
+              ]
+            },
+            "container_pid": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "expected_uid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "check_uid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_file_bytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 536870912
+            },
+            "max_address_space_bytes": {
+              "type": "integer",
+              "minimum": 67108864,
+              "maximum": 8589934592
+            },
+            "max_cpu_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "max_processes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "traceparent": {
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "maxLength": 55,
+          "type": "string"
+        }
+      }
+    },
+    "auxiliary_artifacts": []
+  },
+  {
+    "id": "JAVA_CPU",
+    "display_name": "Java CPU / 分配 / 锁分析",
+    "description": "Java CPU / 分配 / 锁分析",
+    "runner": "async-profiler",
+    "analysis_pipeline": "java_cpu_v1",
+    "input_format": "folded",
+    "input_formats": [
+      "folded",
+      "jfr"
+    ],
+    "raw_name": "java.folded",
+    "raw_content_type": "text/plain",
+    "default_duration_seconds": 10,
+    "max_duration_seconds": 60,
+    "min_frequency_hz": 1,
+    "max_frequency_hz": 199,
+    "default_frequency_hz": 99,
+    "requires_pid": true,
+    "supported_os": [
+      "linux"
+    ],
+    "supported_arch": [
+      "amd64",
+      "arm64"
+    ],
+    "supported_targets": [
+      "process",
+      "container"
+    ],
+    "max_concurrency_per_agent": 1,
+    "max_file_bytes": 33554432,
+    "requires_capabilities": [
+      "JVM_ATTACH"
+    ],
+    "permission": {
+      "agent_policy": "explicit target UID/PID/container policy",
+      "requirements": [
+        "JVM_ATTACH"
+      ]
+    },
+    "tool_requirements": [
+      {
+        "name": "asprof",
+        "location": "agent",
+        "default_path": "/opt/drop/tools/asprof/bin/asprof",
+        "executable_env": "ASPROF_EXECUTABLE",
+        "sha256_env": "ASPROF_SHA256",
+        "probe_argv": [
+          "--version"
+        ]
+      }
+    ],
+    "parameters": {
+      "pid": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2147483647
+      },
+      "duration_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 60
+      },
+      "frequency_hz": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 199
+      }
+    },
+    "parameter_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 2147483647
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "frequency_hz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 199
+        },
+        "scope": {
+          "enum": [
+            "process",
+            "host",
+            "container"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "process",
+                "host",
+                "container"
+              ]
+            },
+            "pid": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "start_time_ticks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "container_id": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{12,64}$"
+            },
+            "runtime": {
+              "enum": [
+                "docker",
+                "containerd"
+              ]
+            },
+            "container_pid": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "expected_uid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "check_uid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_file_bytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 536870912
+            },
+            "max_address_space_bytes": {
+              "type": "integer",
+              "minimum": 67108864,
+              "maximum": 8589934592
+            },
+            "max_cpu_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "max_processes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "event": {
+              "enum": [
+                "cpu",
+                "alloc",
+                "lock"
+              ]
+            }
+          }
+        },
+        "traceparent": {
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "maxLength": 55,
+          "type": "string"
+        }
+      }
+    },
+    "auxiliary_artifacts": []
+  },
+  {
+    "id": "GO_CPU",
+    "display_name": "Go CPU pprof",
+    "description": "Go CPU pprof",
+    "runner": "pprof-http",
+    "analysis_pipeline": "pprof_cpu_v1",
+    "input_format": "pprof",
+    "input_formats": [
+      "pprof"
+    ],
+    "raw_name": "cpu.pprof",
+    "raw_content_type": "application/octet-stream",
+    "default_duration_seconds": 10,
+    "max_duration_seconds": 60,
+    "min_frequency_hz": 1,
+    "max_frequency_hz": 199,
+    "default_frequency_hz": 99,
+    "requires_pid": true,
+    "supported_os": [
+      "linux"
+    ],
+    "supported_arch": [
+      "amd64",
+      "arm64"
+    ],
+    "supported_targets": [
+      "process",
+      "container"
+    ],
+    "max_concurrency_per_agent": 1,
+    "max_file_bytes": 33554432,
+    "requires_capabilities": [
+      "TARGET_PPROF_ENDPOINT"
+    ],
+    "permission": {
+      "agent_policy": "explicit target UID/PID/container policy",
+      "requirements": [
+        "TARGET_PPROF_ENDPOINT"
+      ]
+    },
+    "tool_requirements": [],
+    "parameters": {
+      "pid": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2147483647
+      },
+      "duration_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 60
+      },
+      "frequency_hz": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 199
+      }
+    },
+    "parameter_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 2147483647
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "frequency_hz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 199
+        },
+        "scope": {
+          "enum": [
+            "process",
+            "host",
+            "container"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "process",
+                "host",
+                "container"
+              ]
+            },
+            "pid": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "start_time_ticks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "container_id": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{12,64}$"
+            },
+            "runtime": {
+              "enum": [
+                "docker",
+                "containerd"
+              ]
+            },
+            "container_pid": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "expected_uid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "check_uid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_file_bytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 536870912
+            },
+            "max_address_space_bytes": {
+              "type": "integer",
+              "minimum": 67108864,
+              "maximum": 8589934592
+            },
+            "max_cpu_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "max_processes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            "path": {
+              "enum": [
+                "/debug/pprof/profile"
+              ]
+            },
+            "profile_type": {
+              "enum": [
+                "cpu"
+              ]
+            },
+            "debug": {
+              "enum": [
+                0
+              ]
+            },
+            "gc": {
+              "type": "boolean"
+            },
+            "sample_type": {
+              "enum": [
+                "cpu",
+                "samples"
+              ],
+              "type": "string"
+            },
+            "include": {
+              "maxLength": 256,
+              "type": "string"
+            },
+            "exclude": {
+              "maxLength": 256,
+              "type": "string"
+            },
+            "label_filter": {
+              "type": "object",
+              "maxProperties": 32,
+              "additionalProperties": {
+                "maxLength": 256,
+                "type": "string"
+              }
+            }
+          }
+        },
+        "traceparent": {
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "maxLength": 55,
+          "type": "string"
+        }
+      }
+    },
+    "auxiliary_artifacts": []
+  },
+  {
+    "id": "GO_HEAP",
+    "display_name": "Go Heap pprof",
+    "description": "Go Heap pprof",
+    "runner": "pprof-http",
+    "analysis_pipeline": "pprof_heap_v1",
+    "input_format": "pprof",
+    "input_formats": [
+      "pprof"
+    ],
+    "raw_name": "heap.pprof",
+    "raw_content_type": "application/octet-stream",
+    "default_duration_seconds": 10,
+    "max_duration_seconds": 60,
+    "min_frequency_hz": 1,
+    "max_frequency_hz": 199,
+    "default_frequency_hz": 99,
+    "requires_pid": true,
+    "supported_os": [
+      "linux"
+    ],
+    "supported_arch": [
+      "amd64",
+      "arm64"
+    ],
+    "supported_targets": [
+      "process",
+      "container"
+    ],
+    "max_concurrency_per_agent": 1,
+    "max_file_bytes": 33554432,
+    "requires_capabilities": [
+      "TARGET_PPROF_ENDPOINT"
+    ],
+    "permission": {
+      "agent_policy": "explicit target UID/PID/container policy",
+      "requirements": [
+        "TARGET_PPROF_ENDPOINT"
+      ]
+    },
+    "tool_requirements": [],
+    "parameters": {
+      "pid": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2147483647
+      },
+      "duration_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 60
+      },
+      "frequency_hz": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 199
+      }
+    },
+    "parameter_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 2147483647
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "frequency_hz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 199
+        },
+        "scope": {
+          "enum": [
+            "process",
+            "host",
+            "container"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "process",
+                "host",
+                "container"
+              ]
+            },
+            "pid": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "start_time_ticks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "container_id": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{12,64}$"
+            },
+            "runtime": {
+              "enum": [
+                "docker",
+                "containerd"
+              ]
+            },
+            "container_pid": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "expected_uid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "check_uid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_file_bytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 536870912
+            },
+            "max_address_space_bytes": {
+              "type": "integer",
+              "minimum": 67108864,
+              "maximum": 8589934592
+            },
+            "max_cpu_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "max_processes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            "path": {
+              "enum": [
+                "/debug/pprof/heap"
+              ]
+            },
+            "profile_type": {
+              "enum": [
+                "heap"
+              ]
+            },
+            "debug": {
+              "enum": [
+                0
+              ]
+            },
+            "gc": {
+              "type": "boolean"
+            },
+            "sample_type": {
+              "enum": [
+                "alloc_space",
+                "alloc_objects",
+                "inuse_space",
+                "inuse_objects"
+              ],
+              "type": "string"
+            },
+            "include": {
+              "maxLength": 256,
+              "type": "string"
+            },
+            "exclude": {
+              "maxLength": 256,
+              "type": "string"
+            },
+            "label_filter": {
+              "type": "object",
+              "maxProperties": 32,
+              "additionalProperties": {
+                "maxLength": 256,
+                "type": "string"
+              }
+            }
+          }
+        },
+        "traceparent": {
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "maxLength": 55,
+          "type": "string"
+        }
+      }
+    },
+    "auxiliary_artifacts": []
+  },
+  {
+    "id": "PYTHON_CPU",
+    "display_name": "Python CPU 调用栈",
+    "description": "Python CPU 调用栈",
+    "runner": "py-spy",
+    "analysis_pipeline": "python_cpu_v1",
+    "input_format": "folded",
+    "input_formats": [
+      "folded"
+    ],
+    "raw_name": "python.folded",
+    "raw_content_type": "text/plain",
+    "default_duration_seconds": 10,
+    "max_duration_seconds": 60,
+    "min_frequency_hz": 1,
+    "max_frequency_hz": 199,
+    "default_frequency_hz": 99,
+    "requires_pid": true,
+    "supported_os": [
+      "linux"
+    ],
+    "supported_arch": [
+      "amd64",
+      "arm64"
+    ],
+    "supported_targets": [
+      "process",
+      "container"
+    ],
+    "max_concurrency_per_agent": 1,
+    "max_file_bytes": 33554432,
+    "requires_capabilities": [
+      "SYS_PTRACE"
+    ],
+    "permission": {
+      "agent_policy": "explicit target UID/PID/container policy",
+      "requirements": [
+        "SYS_PTRACE"
+      ]
+    },
+    "tool_requirements": [
+      {
+        "name": "py-spy",
+        "location": "agent",
+        "default_path": "/usr/local/bin/py-spy",
+        "executable_env": "PY_SPY_EXECUTABLE",
+        "sha256_env": "PY_SPY_SHA256",
+        "probe_argv": [
+          "--version"
+        ]
+      }
+    ],
+    "parameters": {
+      "pid": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2147483647
+      },
+      "duration_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 60
+      },
+      "frequency_hz": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 199
+      }
+    },
+    "parameter_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 2147483647
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "frequency_hz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 199
+        },
+        "scope": {
+          "enum": [
+            "process",
+            "host",
+            "container"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "process",
+                "host",
+                "container"
+              ]
+            },
+            "pid": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "start_time_ticks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "container_id": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{12,64}$"
+            },
+            "runtime": {
+              "enum": [
+                "docker",
+                "containerd"
+              ]
+            },
+            "container_pid": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "expected_uid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "check_uid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_file_bytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 536870912
+            },
+            "max_address_space_bytes": {
+              "type": "integer",
+              "minimum": 67108864,
+              "maximum": 8589934592
+            },
+            "max_cpu_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "max_processes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "native": {
+              "type": "boolean"
+            }
+          }
+        },
+        "traceparent": {
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "maxLength": 55,
+          "type": "string"
+        }
+      }
+    },
+    "auxiliary_artifacts": []
+  },
+  {
+    "id": "PYTHON_MEMORY",
+    "display_name": "Python Memory / 分配追踪",
+    "description": "Python Memory / 分配追踪",
+    "runner": "memray",
+    "analysis_pipeline": "memray_v1",
+    "input_format": "memray",
+    "input_formats": [
+      "memray"
+    ],
+    "raw_name": "allocations.bin",
+    "raw_content_type": "application/octet-stream",
+    "default_duration_seconds": 10,
+    "max_duration_seconds": 60,
+    "min_frequency_hz": 1,
+    "max_frequency_hz": 199,
+    "default_frequency_hz": 99,
+    "requires_pid": true,
+    "supported_os": [
+      "linux"
+    ],
+    "supported_arch": [
+      "amd64",
+      "arm64"
+    ],
+    "supported_targets": [
+      "process",
+      "container"
+    ],
+    "max_concurrency_per_agent": 1,
+    "max_file_bytes": 268435456,
+    "requires_capabilities": [
+      "SYS_PTRACE"
+    ],
+    "permission": {
+      "agent_policy": "explicit target UID/PID/container policy",
+      "requirements": [
+        "SYS_PTRACE"
+      ]
+    },
+    "tool_requirements": [
+      {
+        "name": "memray",
+        "location": "agent",
+        "default_path": "/usr/local/bin/memray",
+        "executable_env": "MEMRAY_EXECUTABLE",
+        "sha256_env": "MEMRAY_SHA256",
+        "probe_argv": [
+          "--version"
+        ]
+      },
+      {
+        "location": "agent",
+        "sha256_env": "GDB_SHA256",
+        "default_path": "/usr/bin/gdb",
+        "executable_env": "GDB_EXECUTABLE",
+        "name": "gdb",
+        "probe_argv": [
+          "--version"
+        ]
+      }
+    ],
+    "parameters": {
+      "pid": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2147483647
+      },
+      "duration_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 60
+      },
+      "frequency_hz": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 199
+      }
+    },
+    "parameter_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 2147483647
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "frequency_hz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 199
+        },
+        "scope": {
+          "enum": [
+            "process",
+            "host",
+            "container"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "process",
+                "host",
+                "container"
+              ]
+            },
+            "pid": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "start_time_ticks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "container_id": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{12,64}$"
+            },
+            "runtime": {
+              "enum": [
+                "docker",
+                "containerd"
+              ]
+            },
+            "container_pid": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "expected_uid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "check_uid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_file_bytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 536870912
+            },
+            "max_address_space_bytes": {
+              "type": "integer",
+              "minimum": 67108864,
+              "maximum": 8589934592
+            },
+            "max_cpu_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "max_processes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "native": {
+              "type": "boolean"
+            }
+          }
+        },
+        "traceparent": {
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "maxLength": 55,
+          "type": "string"
+        }
+      }
+    },
+    "auxiliary_artifacts": []
+  },
+  {
+    "id": "JAVA_HEAP",
+    "display_name": "Java Heap / 支配树",
+    "description": "Java Heap / 支配树",
+    "runner": "asprof-jcmd",
+    "analysis_pipeline": "hprof_v1",
+    "input_format": "hprof",
+    "input_formats": [
+      "hprof"
+    ],
+    "raw_name": "heap.hprof",
+    "raw_content_type": "application/octet-stream",
+    "default_duration_seconds": 10,
+    "max_duration_seconds": 60,
+    "min_frequency_hz": 1,
+    "max_frequency_hz": 199,
+    "default_frequency_hz": 99,
+    "requires_pid": true,
+    "supported_os": [
+      "linux"
+    ],
+    "supported_arch": [
+      "amd64",
+      "arm64"
+    ],
+    "supported_targets": [
+      "process",
+      "container"
+    ],
+    "max_concurrency_per_agent": 1,
+    "max_file_bytes": 268435456,
+    "requires_capabilities": [
+      "JVM_ATTACH"
+    ],
+    "permission": {
+      "agent_policy": "explicit target UID/PID/container policy",
+      "requirements": [
+        "JVM_ATTACH"
+      ]
+    },
+    "tool_requirements": [
+      {
+        "name": "asprof",
+        "location": "agent",
+        "default_path": "/opt/drop/tools/asprof/bin/asprof",
+        "executable_env": "ASPROF_EXECUTABLE",
+        "sha256_env": "ASPROF_SHA256",
+        "probe_argv": [
+          "--version"
+        ]
+      }
+    ],
+    "parameters": {
+      "pid": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2147483647
+      },
+      "duration_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 60
+      },
+      "frequency_hz": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 199
+      }
+    },
+    "parameter_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 2147483647
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "frequency_hz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 199
+        },
+        "scope": {
+          "enum": [
+            "process",
+            "host",
+            "container"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "process",
+                "host",
+                "container"
+              ]
+            },
+            "pid": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "start_time_ticks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "container_id": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{12,64}$"
+            },
+            "runtime": {
+              "enum": [
+                "docker",
+                "containerd"
+              ]
+            },
+            "container_pid": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "expected_uid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "check_uid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_file_bytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 536870912
+            },
+            "max_address_space_bytes": {
+              "type": "integer",
+              "minimum": 67108864,
+              "maximum": 8589934592
+            },
+            "max_cpu_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "max_processes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "live": {
+              "type": "boolean"
+            },
+            "format": {
+              "enum": [
+                "hprof"
+              ]
+            }
+          }
+        },
+        "traceparent": {
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "maxLength": 55,
+          "type": "string"
+        }
+      }
+    },
+    "auxiliary_artifacts": []
+  },
+  {
+    "id": "IO_TRACE",
+    "display_name": "I/O 延迟与调用链",
+    "description": "I/O 延迟与调用链",
+    "runner": "bpftrace",
+    "analysis_pipeline": "io_trace_v1",
+    "input_format": "jsonl",
+    "input_formats": [
+      "jsonl"
+    ],
+    "raw_name": "io.jsonl",
+    "raw_content_type": "application/x-ndjson",
+    "default_duration_seconds": 10,
+    "max_duration_seconds": 60,
+    "min_frequency_hz": 1,
+    "max_frequency_hz": 199,
+    "default_frequency_hz": 99,
+    "requires_pid": true,
+    "supported_os": [
+      "linux"
+    ],
+    "supported_arch": [
+      "amd64",
+      "arm64"
+    ],
+    "supported_targets": [
+      "process",
+      "container"
+    ],
+    "max_concurrency_per_agent": 1,
+    "max_file_bytes": 67108864,
+    "requires_capabilities": [
+      "BPF",
+      "PERFMON",
+      "TRACEFS_READ"
+    ],
+    "permission": {
+      "agent_policy": "explicit target UID/PID/container policy",
+      "requirements": [
+        "BPF",
+        "PERFMON",
+        "TRACEFS_READ"
+      ]
+    },
+    "tool_requirements": [
+      {
+        "name": "bpftrace",
+        "location": "agent",
+        "default_path": "/usr/bin/bpftrace",
+        "executable_env": "BPFTRACE_EXECUTABLE",
+        "sha256_env": "BPFTRACE_SHA256",
+        "probe_argv": [
+          "--version"
+        ]
+      }
+    ],
+    "parameters": {
+      "pid": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2147483647
+      },
+      "duration_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 60
+      },
+      "frequency_hz": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 199
+      }
+    },
+    "parameter_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 2147483647
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "frequency_hz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 199
+        },
+        "scope": {
+          "enum": [
+            "process",
+            "host",
+            "container"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "process",
+                "host",
+                "container"
+              ]
+            },
+            "pid": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "start_time_ticks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "container_id": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{12,64}$"
+            },
+            "runtime": {
+              "enum": [
+                "docker",
+                "containerd"
+              ]
+            },
+            "container_pid": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "expected_uid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "check_uid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_file_bytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 536870912
+            },
+            "max_address_space_bytes": {
+              "type": "integer",
+              "minimum": 67108864,
+              "maximum": 8589934592
+            },
+            "max_cpu_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "max_processes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "min_duration_us": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000000
+            },
+            "max_events": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000
+            },
+            "stack_depth": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "category": {
+              "enum": [
+                "syscalls",
+                "vfs",
+                "block"
+              ]
+            }
+          }
+        },
+        "traceparent": {
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "maxLength": 55,
+          "type": "string"
+        }
+      }
+    },
+    "auxiliary_artifacts": []
+  },
+  {
+    "id": "MEMORY_TRACE",
+    "display_name": "虚拟内存 / 页故障 / 分配追踪",
+    "description": "虚拟内存 / 页故障 / 分配追踪",
+    "runner": "bpftrace",
+    "analysis_pipeline": "memory_trace_v1",
+    "input_format": "jsonl",
+    "input_formats": [
+      "jsonl"
+    ],
+    "raw_name": "memory.jsonl",
+    "raw_content_type": "application/x-ndjson",
+    "default_duration_seconds": 10,
+    "max_duration_seconds": 60,
+    "min_frequency_hz": 1,
+    "max_frequency_hz": 199,
+    "default_frequency_hz": 99,
+    "requires_pid": true,
+    "supported_os": [
+      "linux"
+    ],
+    "supported_arch": [
+      "amd64",
+      "arm64"
+    ],
+    "supported_targets": [
+      "process",
+      "container"
+    ],
+    "max_concurrency_per_agent": 1,
+    "max_file_bytes": 67108864,
+    "requires_capabilities": [
+      "BPF",
+      "PERFMON",
+      "TRACEFS_READ"
+    ],
+    "permission": {
+      "agent_policy": "explicit target UID/PID/container policy",
+      "requirements": [
+        "BPF",
+        "PERFMON",
+        "TRACEFS_READ"
+      ]
+    },
+    "tool_requirements": [
+      {
+        "name": "bpftrace",
+        "location": "agent",
+        "default_path": "/usr/bin/bpftrace",
+        "executable_env": "BPFTRACE_EXECUTABLE",
+        "sha256_env": "BPFTRACE_SHA256",
+        "probe_argv": [
+          "--version"
+        ]
+      }
+    ],
+    "parameters": {
+      "pid": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2147483647
+      },
+      "duration_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 60
+      },
+      "frequency_hz": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 199
+      }
+    },
+    "parameter_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 2147483647
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "frequency_hz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 199
+        },
+        "scope": {
+          "enum": [
+            "process",
+            "host",
+            "container"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "process",
+                "host",
+                "container"
+              ]
+            },
+            "pid": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "start_time_ticks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "container_id": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{12,64}$"
+            },
+            "runtime": {
+              "enum": [
+                "docker",
+                "containerd"
+              ]
+            },
+            "container_pid": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "expected_uid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "check_uid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_file_bytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 536870912
+            },
+            "max_address_space_bytes": {
+              "type": "integer",
+              "minimum": 67108864,
+              "maximum": 8589934592
+            },
+            "max_cpu_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "max_processes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_events": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000
+            },
+            "stack_depth": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "category": {
+              "enum": [
+                "pagefault",
+                "alloc",
+                "mmap"
+              ]
+            }
+          }
+        },
+        "traceparent": {
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "maxLength": 55,
+          "type": "string"
+        }
+      }
+    },
+    "auxiliary_artifacts": []
+  },
+  {
+    "id": "GPERF_CPU",
+    "display_name": "gperftools CPU",
+    "description": "连接目标进程受控 Unix socket，调用真实 ProfilerStart/Stop、HeapProfiler 或 jemalloc mallctl；需要目标预集成。",
+    "runner": "native-profiler-control",
+    "analysis_pipeline": "gperf_cpu_v1",
+    "input_format": "gperf_cpu",
+    "input_formats": [
+      "gperf_cpu"
+    ],
+    "raw_name": "native.profile",
+    "raw_content_type": "application/octet-stream",
+    "default_duration_seconds": 10,
+    "max_duration_seconds": 60,
+    "min_frequency_hz": 1,
+    "max_frequency_hz": 199,
+    "default_frequency_hz": 99,
+    "requires_pid": true,
+    "supported_os": [
+      "linux"
+    ],
+    "supported_arch": [
+      "amd64",
+      "arm64"
+    ],
+    "supported_targets": [
+      "process",
+      "container"
+    ],
+    "max_concurrency_per_agent": 1,
+    "max_file_bytes": 268435456,
+    "requires_capabilities": [
+      "TARGET_NATIVE_PROFILER_CONTROL"
+    ],
+    "permission": {
+      "agent_policy": "explicit target UID/PID/container policy",
+      "requirements": [
+        "TARGET_NATIVE_PROFILER_CONTROL"
+      ]
+    },
+    "tool_requirements": [],
+    "parameters": {
+      "pid": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2147483647
+      },
+      "duration_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 60
+      },
+      "frequency_hz": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 199
+      }
+    },
+    "parameter_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 2147483647
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "frequency_hz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 199
+        },
+        "scope": {
+          "enum": [
+            "process",
+            "host",
+            "container"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "process",
+                "host",
+                "container"
+              ]
+            },
+            "pid": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "start_time_ticks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "container_id": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{12,64}$"
+            },
+            "runtime": {
+              "enum": [
+                "docker",
+                "containerd"
+              ]
+            },
+            "container_pid": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "expected_uid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "check_uid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_file_bytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 536870912
+            },
+            "max_address_space_bytes": {
+              "type": "integer",
+              "minimum": 67108864,
+              "maximum": 8589934592
+            },
+            "max_cpu_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "max_processes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "enum": [
+                "cpu"
+              ]
+            },
+            "include_binary": {
+              "type": "boolean"
+            }
+          }
+        },
+        "traceparent": {
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "maxLength": 55,
+          "type": "string"
+        }
+      }
+    },
+    "auxiliary_artifacts": [
+      {
+        "name": "target.elf",
+        "kind": "BINARY",
+        "format": "elf",
+        "required": false,
+        "max_file_bytes": 268435456
+      }
+    ]
+  },
+  {
+    "id": "GPERF_HEAP",
+    "display_name": "gperftools Heap",
+    "description": "连接目标进程受控 Unix socket，调用真实 ProfilerStart/Stop、HeapProfiler 或 jemalloc mallctl；需要目标预集成。",
+    "runner": "native-profiler-control",
+    "analysis_pipeline": "gperf_heap_v1",
+    "input_format": "gperf_heap",
+    "input_formats": [
+      "gperf_heap"
+    ],
+    "raw_name": "native.profile",
+    "raw_content_type": "application/octet-stream",
+    "default_duration_seconds": 10,
+    "max_duration_seconds": 60,
+    "min_frequency_hz": 1,
+    "max_frequency_hz": 199,
+    "default_frequency_hz": 99,
+    "requires_pid": true,
+    "supported_os": [
+      "linux"
+    ],
+    "supported_arch": [
+      "amd64",
+      "arm64"
+    ],
+    "supported_targets": [
+      "process",
+      "container"
+    ],
+    "max_concurrency_per_agent": 1,
+    "max_file_bytes": 268435456,
+    "requires_capabilities": [
+      "TARGET_NATIVE_PROFILER_CONTROL"
+    ],
+    "permission": {
+      "agent_policy": "explicit target UID/PID/container policy",
+      "requirements": [
+        "TARGET_NATIVE_PROFILER_CONTROL"
+      ]
+    },
+    "tool_requirements": [],
+    "parameters": {
+      "pid": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2147483647
+      },
+      "duration_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 60
+      },
+      "frequency_hz": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 199
+      }
+    },
+    "parameter_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 2147483647
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "frequency_hz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 199
+        },
+        "scope": {
+          "enum": [
+            "process",
+            "host",
+            "container"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "process",
+                "host",
+                "container"
+              ]
+            },
+            "pid": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "start_time_ticks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "container_id": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{12,64}$"
+            },
+            "runtime": {
+              "enum": [
+                "docker",
+                "containerd"
+              ]
+            },
+            "container_pid": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "expected_uid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "check_uid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_file_bytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 536870912
+            },
+            "max_address_space_bytes": {
+              "type": "integer",
+              "minimum": 67108864,
+              "maximum": 8589934592
+            },
+            "max_cpu_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "max_processes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "enum": [
+                "heap"
+              ]
+            },
+            "include_binary": {
+              "type": "boolean"
+            }
+          }
+        },
+        "traceparent": {
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "maxLength": 55,
+          "type": "string"
+        }
+      }
+    },
+    "auxiliary_artifacts": [
+      {
+        "name": "target.elf",
+        "kind": "BINARY",
+        "format": "elf",
+        "required": false,
+        "max_file_bytes": 268435456
+      }
+    ]
+  },
+  {
+    "id": "JEPROF_HEAP",
+    "display_name": "jemalloc Heap / jeprof",
+    "description": "连接目标进程受控 Unix socket，调用真实 ProfilerStart/Stop、HeapProfiler 或 jemalloc mallctl；需要目标预集成。",
+    "runner": "native-profiler-control",
+    "analysis_pipeline": "jeprof_heap_v1",
+    "input_format": "jeprof_heap",
+    "input_formats": [
+      "jeprof_heap"
+    ],
+    "raw_name": "native.profile",
+    "raw_content_type": "application/octet-stream",
+    "default_duration_seconds": 10,
+    "max_duration_seconds": 60,
+    "min_frequency_hz": 1,
+    "max_frequency_hz": 199,
+    "default_frequency_hz": 99,
+    "requires_pid": true,
+    "supported_os": [
+      "linux"
+    ],
+    "supported_arch": [
+      "amd64",
+      "arm64"
+    ],
+    "supported_targets": [
+      "process",
+      "container"
+    ],
+    "max_concurrency_per_agent": 1,
+    "max_file_bytes": 268435456,
+    "requires_capabilities": [
+      "TARGET_NATIVE_PROFILER_CONTROL"
+    ],
+    "permission": {
+      "agent_policy": "explicit target UID/PID/container policy",
+      "requirements": [
+        "TARGET_NATIVE_PROFILER_CONTROL"
+      ]
+    },
+    "tool_requirements": [],
+    "parameters": {
+      "pid": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2147483647
+      },
+      "duration_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 60
+      },
+      "frequency_hz": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 199
+      }
+    },
+    "parameter_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 2147483647
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "frequency_hz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 199
+        },
+        "scope": {
+          "enum": [
+            "process",
+            "host",
+            "container"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "process",
+                "host",
+                "container"
+              ]
+            },
+            "pid": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "start_time_ticks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "container_id": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{12,64}$"
+            },
+            "runtime": {
+              "enum": [
+                "docker",
+                "containerd"
+              ]
+            },
+            "container_pid": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "expected_uid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "check_uid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_file_bytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 536870912
+            },
+            "max_address_space_bytes": {
+              "type": "integer",
+              "minimum": 67108864,
+              "maximum": 8589934592
+            },
+            "max_cpu_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "max_processes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "enum": [
+                "jemalloc"
+              ]
+            },
+            "include_binary": {
+              "type": "boolean"
+            }
+          }
+        },
+        "traceparent": {
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "maxLength": 55,
+          "type": "string"
+        }
+      }
+    },
+    "auxiliary_artifacts": [
+      {
+        "name": "target.elf",
+        "kind": "BINARY",
+        "format": "elf",
+        "required": false,
+        "max_file_bytes": 268435456
+      }
+    ]
+  },
+  {
+    "id": "BOLT_PROFILE",
+    "display_name": "BOLT 采样与二进制优化",
+    "description": "BOLT 采样与二进制优化",
+    "runner": "perf+perf2bolt",
+    "analysis_pipeline": "bolt_v1",
+    "input_format": "bolt_fdata",
+    "input_formats": [
+      "bolt_fdata"
+    ],
+    "raw_name": "profile.fdata",
+    "raw_content_type": "text/plain",
+    "default_duration_seconds": 10,
+    "max_duration_seconds": 60,
+    "min_frequency_hz": 1,
+    "max_frequency_hz": 199,
+    "default_frequency_hz": 99,
+    "requires_pid": true,
+    "supported_os": [
+      "linux"
+    ],
+    "supported_arch": [
+      "amd64",
+      "arm64"
+    ],
+    "supported_targets": [
+      "process",
+      "container"
+    ],
+    "max_concurrency_per_agent": 1,
+    "max_file_bytes": 268435456,
+    "requires_capabilities": [
+      "PERFMON"
+    ],
+    "permission": {
+      "agent_policy": "explicit target UID/PID/container policy",
+      "requirements": [
+        "PERFMON"
+      ]
+    },
+    "tool_requirements": [
+      {
+        "name": "perf",
+        "location": "agent",
+        "default_path": "/usr/bin/perf",
+        "executable_env": "PERF_EXECUTABLE",
+        "sha256_env": "PERF_SHA256",
+        "probe_argv": [
+          "version"
+        ]
+      },
+      {
+        "name": "perf2bolt",
+        "location": "agent",
+        "default_path": "/usr/bin/perf2bolt",
+        "executable_env": "PERF2BOLT_EXECUTABLE",
+        "sha256_env": "PERF2BOLT_SHA256",
+        "probe_argv": [
+          "--version"
+        ]
+      }
+    ],
+    "parameters": {
+      "pid": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2147483647
+      },
+      "duration_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 60
+      },
+      "frequency_hz": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 199
+      }
+    },
+    "parameter_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 2147483647
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "frequency_hz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 199
+        },
+        "scope": {
+          "enum": [
+            "process",
+            "host",
+            "container"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "process",
+                "host",
+                "container"
+              ]
+            },
+            "pid": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "start_time_ticks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "container_id": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{12,64}$"
+            },
+            "runtime": {
+              "enum": [
+                "docker",
+                "containerd"
+              ]
+            },
+            "container_pid": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "expected_uid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "check_uid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_file_bytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 536870912
+            },
+            "max_address_space_bytes": {
+              "type": "integer",
+              "minimum": 67108864,
+              "maximum": 8589934592
+            },
+            "max_cpu_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "max_processes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "optimize": {
+              "type": "boolean"
+            },
+            "include_binary": {
+              "enum": [
+                true
+              ]
+            }
+          }
+        },
+        "traceparent": {
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "maxLength": 55,
+          "type": "string"
+        }
+      }
+    },
+    "auxiliary_artifacts": [
+      {
+        "name": "target.elf",
+        "kind": "BINARY",
+        "format": "elf",
+        "required": true,
+        "max_file_bytes": 268435456
+      }
+    ]
+  },
+  {
+    "id": "SCRIPT",
+    "display_name": "受控诊断模板",
+    "description": "仅编译期允许的模板，不接受 shell / 任意 argv 或文件路径。",
+    "runner": "native-templates",
+    "analysis_pipeline": "script_v1",
+    "input_format": "json",
+    "input_formats": [
+      "json"
+    ],
+    "raw_name": "script.json",
+    "raw_content_type": "application/json",
+    "default_duration_seconds": 10,
+    "max_duration_seconds": 60,
+    "min_frequency_hz": 1,
+    "max_frequency_hz": 199,
+    "default_frequency_hz": 99,
+    "requires_pid": true,
+    "supported_os": [
+      "linux"
+    ],
+    "supported_arch": [
+      "amd64",
+      "arm64"
+    ],
+    "supported_targets": [
+      "process",
+      "container"
+    ],
+    "max_concurrency_per_agent": 1,
+    "max_file_bytes": 33554432,
+    "requires_capabilities": [],
+    "permission": {
+      "agent_policy": "explicit target UID/PID/container policy",
+      "requirements": []
+    },
+    "tool_requirements": [],
+    "parameters": {
+      "pid": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2147483647
+      },
+      "duration_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 60
+      },
+      "frequency_hz": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 199
+      }
+    },
+    "parameter_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 2147483647
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "frequency_hz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 199
+        },
+        "scope": {
+          "enum": [
+            "process",
+            "host",
+            "container"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "process",
+                "host",
+                "container"
+              ]
+            },
+            "pid": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "start_time_ticks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "container_id": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{12,64}$"
+            },
+            "runtime": {
+              "enum": [
+                "docker",
+                "containerd"
+              ]
+            },
+            "container_pid": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "expected_uid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "check_uid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_file_bytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 536870912
+            },
+            "max_address_space_bytes": {
+              "type": "integer",
+              "minimum": 67108864,
+              "maximum": 8589934592
+            },
+            "max_cpu_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "max_processes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "template_id": {
+              "enum": [
+                "process_status",
+                "process_limits",
+                "open_files",
+                "mapped_libraries",
+                "network_counters"
+              ]
+            }
+          }
+        },
+        "traceparent": {
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "maxLength": 55,
+          "type": "string"
+        }
+      }
+    },
+    "auxiliary_artifacts": []
+  },
+  {
+    "id": "RESOURCE_SNAPSHOT",
+    "display_name": "资源快照与差分",
+    "description": "资源快照与差分",
+    "runner": "procfs-resources",
+    "analysis_pipeline": "resources_v1",
+    "input_format": "json",
+    "input_formats": [
+      "json"
+    ],
+    "raw_name": "resources.json",
+    "raw_content_type": "application/json",
+    "default_duration_seconds": 10,
+    "max_duration_seconds": 60,
+    "min_frequency_hz": 1,
+    "max_frequency_hz": 10,
+    "default_frequency_hz": 2,
+    "requires_pid": false,
+    "supported_os": [
+      "linux"
+    ],
+    "supported_arch": [
+      "amd64",
+      "arm64"
+    ],
+    "supported_targets": [
+      "process",
+      "container",
+      "host"
+    ],
+    "max_concurrency_per_agent": 1,
+    "max_file_bytes": 33554432,
+    "requires_capabilities": [],
+    "permission": {
+      "agent_policy": "explicit target UID/PID/container policy",
+      "requirements": []
+    },
+    "tool_requirements": [],
+    "parameters": {
+      "pid": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2147483647
+      },
+      "duration_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 60
+      },
+      "frequency_hz": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 10
+      }
+    },
+    "parameter_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 2147483647
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "frequency_hz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "scope": {
+          "enum": [
+            "process",
+            "host",
+            "container"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "process",
+                "host",
+                "container"
+              ]
+            },
+            "pid": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "start_time_ticks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "container_id": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{12,64}$"
+            },
+            "runtime": {
+              "enum": [
+                "docker",
+                "containerd"
+              ]
+            },
+            "container_pid": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "expected_uid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "check_uid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_file_bytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 536870912
+            },
+            "max_address_space_bytes": {
+              "type": "integer",
+              "minimum": 67108864,
+              "maximum": 8589934592
+            },
+            "max_cpu_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "max_processes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "traceparent": {
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "maxLength": 55,
+          "type": "string"
+        }
+      }
+    },
+    "auxiliary_artifacts": []
+  },
+  {
+    "id": "IMPORT_COLLAPSED",
+    "display_name": "导入折叠调用栈",
+    "description": "导入折叠调用栈",
+    "runner": "import",
+    "analysis_pipeline": "folded_v1",
+    "input_format": "folded",
+    "input_formats": [
+      "folded"
+    ],
+    "raw_name": "profile.folded",
+    "raw_content_type": "text/plain",
+    "default_duration_seconds": 1,
+    "max_duration_seconds": 1,
+    "min_frequency_hz": 1,
+    "max_frequency_hz": 1,
+    "default_frequency_hz": 1,
+    "requires_pid": false,
+    "supported_os": [
+      "linux"
+    ],
+    "supported_arch": [
+      "amd64",
+      "arm64"
+    ],
+    "supported_targets": [
+      "import"
+    ],
+    "max_concurrency_per_agent": 1,
+    "max_file_bytes": 33554432,
+    "requires_capabilities": [],
+    "permission": {
+      "agent_policy": "explicit target UID/PID/container policy",
+      "requirements": []
+    },
+    "tool_requirements": [],
+    "parameters": {
+      "pid": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2147483647
+      },
+      "duration_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 1
+      },
+      "frequency_hz": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 1
+      }
+    },
+    "parameter_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 2147483647
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1
+        },
+        "frequency_hz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1
+        },
+        "scope": {
+          "enum": [
+            "process",
+            "host",
+            "container"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "process",
+                "host",
+                "container"
+              ]
+            },
+            "pid": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "start_time_ticks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "container_id": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{12,64}$"
+            },
+            "runtime": {
+              "enum": [
+                "docker",
+                "containerd"
+              ]
+            },
+            "container_pid": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "expected_uid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "check_uid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_file_bytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 536870912
+            },
+            "max_address_space_bytes": {
+              "type": "integer",
+              "minimum": 67108864,
+              "maximum": 8589934592
+            },
+            "max_cpu_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "max_processes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "traceparent": {
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "maxLength": 55,
+          "type": "string"
+        }
+      }
+    },
+    "auxiliary_artifacts": []
+  },
+  {
+    "id": "COMPOSITE",
+    "display_name": "综合诊断 / DAG 编排",
+    "description": "综合诊断 / DAG 编排",
+    "runner": "api-orchestrator",
+    "analysis_pipeline": "composite_v1",
+    "input_format": "composite",
+    "input_formats": [
+      "composite"
+    ],
+    "raw_name": "manifest.json",
+    "raw_content_type": "application/json",
+    "default_duration_seconds": 10,
+    "max_duration_seconds": 60,
+    "min_frequency_hz": 1,
+    "max_frequency_hz": 199,
+    "default_frequency_hz": 99,
+    "requires_pid": false,
+    "supported_os": [
+      "linux"
+    ],
+    "supported_arch": [
+      "amd64",
+      "arm64"
+    ],
+    "supported_targets": [
+      "orchestration"
+    ],
+    "max_concurrency_per_agent": 1,
+    "max_file_bytes": 33554432,
+    "requires_capabilities": [],
+    "permission": {
+      "agent_policy": "explicit target UID/PID/container policy",
+      "requirements": []
+    },
+    "tool_requirements": [],
+    "parameters": {
+      "pid": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2147483647
+      },
+      "duration_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 60
+      },
+      "frequency_hz": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 199
+      }
+    },
+    "parameter_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 2147483647
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "frequency_hz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 199
+        },
+        "scope": {
+          "enum": [
+            "process",
+            "host",
+            "container"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "process",
+                "host",
+                "container"
+              ]
+            },
+            "pid": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "start_time_ticks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "container_id": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{12,64}$"
+            },
+            "runtime": {
+              "enum": [
+                "docker",
+                "containerd"
+              ]
+            },
+            "container_pid": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "expected_uid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "check_uid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_file_bytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 536870912
+            },
+            "max_address_space_bytes": {
+              "type": "integer",
+              "minimum": 67108864,
+              "maximum": 8589934592
+            },
+            "max_cpu_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "max_processes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64
+            },
+            "max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "traceparent": {
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "maxLength": 55,
+          "type": "string"
+        }
+      }
+    },
+    "auxiliary_artifacts": [],
+    "agent_runner": false
+  }
+]

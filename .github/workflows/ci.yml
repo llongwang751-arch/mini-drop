@@ -1,138 +1,123 @@
-name: CI
-
-on:
-  push:
-    branches: [main, master]
-  pull_request:
-
+name: quality
+on: [push, pull_request, workflow_dispatch, workflow_call]
+permissions:
+  contents: read
 jobs:
-  quality:
-    name: Repository quality
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Whitespace errors in pull request
-        if: github.event_name == 'pull_request'
-        run: git diff --check "${{ github.event.pull_request.base.sha }}...${{ github.sha }}"
-      - name: Whitespace errors in push
-        if: github.event_name == 'push'
-        run: git diff --check "${{ github.event.before }}" "${{ github.sha }}"
-      - name: Validate Compose configuration
-        run: docker compose config --quiet
-
-  python:
-    name: Python (pytest)
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: "pip"
-      - name: Install
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
-      - name: Tests
-        run: python -m pytest tests -q
-      - name: Generated contract drift
-        run: |
-          python scripts/generate_taskkind_contracts.py --check
-          python scripts/generate_status_contracts.py --check
-          python scripts/generate_error_code_contracts.py --check
-          python scripts/check_openapi_routes.py
-      - name: Lint (compileall)
-        run: python -m compileall -q server analyzer
-
-  business:
-    name: Business HTTP acceptance and test-plan traceability
-    runs-on: ubuntu-22.04
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - run: pip install 'pydantic>=2,<3'
-      - name: Check generated business contracts
-        run: python scripts/generate_business_contracts.py --check
-      - name: Validate current plan
-        run: python scripts/check_business_test_plan.py --output output/business-plan.json
-      - name: PR change impact
-        if: github.event_name == 'pull_request'
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.sha }}
-        run: python scripts/check_business_test_plan.py --base "$BASE_SHA" --head "$HEAD_SHA" --output output/business-impact.json
-      - name: Real HTTP workload and quality gates
-        run: python scripts/run_business_acceptance.py --output output/business-campaign.json --require-outcomes
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: business-measurements-${{ github.sha }}
-          path: output/business*
-
-  go:
-    name: Go (apiserver)
-    runs-on: ubuntu-22.04
-    defaults:
-      run:
-        working-directory: apiserver
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: "1.23"
-          cache: true
-      - name: Vet
-        run: go vet ./...
-      - name: Test
-        run: go test ./...
-
   web:
-    name: Web (React)
-    runs-on: ubuntu-22.04
-    defaults:
-      run:
-        working-directory: web
+    runs-on: ubuntu-24.04
+    defaults: {run: {working-directory: web}}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: web/package-lock.json
-      - name: Install
-        run: npm ci
-      - name: Test
-        run: npx vitest run
-      - name: Production dependency audit
-        run: npm run audit:prod
-      - name: Build
-        run: npm run build:check
-
-  native:
-    name: Native (C++ ${{ matrix.component }})
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        component: [control, agent]
+        with: {node-version: '24.15.0', cache: npm, cache-dependency-path: web/package-lock.json}
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: npm audit --audit-level=high
+      - run: npm exec -- prettier --check src
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test --config playwright.preview.config.ts
+      - run: npx playwright test --config playwright.diagnosis.config.ts
+  api:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17.11-alpine
+        env: {POSTGRES_USER: drop_test, POSTGRES_PASSWORD: ci-ephemeral-test-password, POSTGRES_DB: drop_test}
+        ports: ['5432:5432']
+        options: --health-cmd='pg_isready -U drop_test -d drop_test' --health-interval=10s --health-timeout=5s --health-retries=10
+    defaults: {run: {working-directory: api}}
     steps:
       - uses: actions/checkout@v4
-      - name: Install toolchain
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            build-essential cmake libgrpc++-dev libprotobuf-dev libpqxx-dev \
-            nlohmann-json3-dev pkg-config protobuf-compiler protobuf-compiler-grpc
-      - name: Configure
-        run: cmake -S native/${{ matrix.component }} -B /tmp/build-${{ matrix.component }} -DCMAKE_BUILD_TYPE=Release
-      - name: Build
-        run: cmake --build /tmp/build-${{ matrix.component }} --parallel
-      - name: Test
-        run: ctest --test-dir /tmp/build-${{ matrix.component }} --output-on-failure
+      - uses: actions/setup-go@v5
+        with: {go-version: '1.26.9', cache-dependency-path: api/go.sum}
+      - run: go test -race ./...
+        env:
+          TEST_DATABASE_URL: postgresql://drop_test:ci-ephemeral-test-password@localhost:5432/drop_test?sslmode=disable
+          TEST_MIGRATION_FILE: ${{ github.workspace }}/db/migrations/001_initial.sql
+      - run: go vet ./...
+      - run: go run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...
+      - run: test -z "$(gofmt -l .)"
+  core:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build --target build -t drop-core-test -f core/Dockerfile .
+  analyzer:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t drop-analyzer:build -f analyzer/Dockerfile .
+      - run: sh analyzer/scripts/run-isolated-integration.sh
+  agent-runtime:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: agent_runtime/requirements.lock
+      - run: |
+          python -m pip install --only-binary=:all: --require-hashes -r agent_runtime/requirements.lock
+      - run: python -m pip check
+      - name: Native AgentScope ReAct and Linux Unix-socket regressions (imported fixtures)
+        run: python -m unittest discover -s agent_runtime/tests -v
+  contracts:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: agent_runtime/requirements.lock
+      # Reuse the verified lock containing PyYAML/jsonschema and their closure.
+      # Contract verification must not depend on runner-preinstalled packages.
+      - run: |
+          python -m pip install --only-binary=:all: --require-hashes -r agent_runtime/requirements.lock
+      - run: python -m pip check
+      - run: python scripts/check_contracts.py
+      - run: python -m unittest discover -s scripts -p test_dev.py -v
+      - name: Portable external source packaging (imported synthetic repositories)
+        run: python -m unittest discover -s scripts -p test_integration_packages.py -v
+      - run: python scripts/check_proto_compatibility.py
+      - run: python api/tools/check_http_contract.py
+  maintenance:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: docker/setup-compose-action@v2.0.0
+        with: {version: 'v2.40.3'}
+      - run: docker compose version
+      - run: pip install --require-hashes -r ops/requirements.lock
+      - run: pip install PyYAML==6.0.3
+      - name: Ops native configuration and bounded logging
+        run: python -m unittest discover -s ops -p test_runtime_config.py -v
+      - name: Source patch context and sandbox boundary regressions
+        run: python -m unittest discover -s ops -p test_code_executor.py -v
+      - name: Python output types must survive performance optimization
+        run: python -m unittest discover -s integrations/crm-python/tests -v
+      - name: Optional monitoring status cannot break real HTTP metrics
+        run: python -m unittest discover -s ops -p test_metrics.py -v
+      - name: Owned helper cleanup recovery
+        run: python -m unittest discover -s core/tests -p advanced_cleanup_test.py -v
+      - name: Stage validation safety boundaries
+        run: python -m unittest discover -s scripts/validation -p test_stage_*.py -v
+      - run: python -m unittest discover -s ops -p test_isolated_runner.py
+      - run: python -m unittest discover -s analyzer/scripts -p test_integration_runner.py
+      - run: python -m unittest discover -s deploy/tests -p test_backup_metadata.py
+      - run: python -m unittest discover -s deploy/tests -p test_s3_encryption_probe.py
+      - run: python -m unittest discover -s deploy/tests -p test_capture_release_evidence.py
+      - run: python -m unittest discover -s deploy/tests -p test_helper_deployment.py
+      - name: AgentScope complete Compose merge and hostile overlay boundaries (imported fixtures)
+        run: python -m unittest discover -s deploy/tests -p test_agentscope_deployment.py -v
+      - name: Helper spool provisioning boundaries (fake mount commands)
+        run: python -m unittest discover -s deploy/tests -p test_helper_spool.py -v
+      - run: docker build -t drop-ops:ci -f ops/Dockerfile .
+      - run: OPS_TEST_IMAGE=drop-ops:ci bash ops/run-isolated-integration.sh
+      - run: python scripts/render_kubernetes.py && git diff --exit-code -- deploy/kubernetes
+      - run: docker run --rm -v "$PWD/deploy/observability:/etc/prometheus:ro" --entrypoint promtool prom/prometheus:v3.15.0 check config /etc/prometheus/prometheus.yml
+      - run: docker run --rm -v "$PWD/deploy/observability:/etc/prometheus:ro" --entrypoint promtool prom/prometheus:v3.15.0 test rules /etc/prometheus/alerts.test.yml

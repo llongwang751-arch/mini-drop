@@ -1,0 +1,386 @@
+{
+  "provenance": "Actual isolated Linux test run; no production database or data volumes.",
+  "image": "sha256:326427a3996a4b2b383e4ee25d9218e6cb728bb72a49066e5836d0672ff01e31",
+  "python": "3.12.12",
+  "uid": 10001,
+  "postgres": "17.11",
+  "minio": "RELEASE.2025-07-23T15-54-02Z",
+  "log_file": "integration-v22-perf612-linux.log",
+  "log_sha256": "15d5dd68c38c8631d505e5c9f5973d836805bec114f05b4564d909022bbf8e83",
+  "tests_run": 92,
+  "duration_seconds": 58.459,
+  "passed": 92,
+  "skipped": 0,
+  "failed": 0,
+  "success": true,
+  "cases": [
+    {
+      "name": "test_actual_child_is_killed_for_combined_disk_usage (test_disk.DiskBudgetTests.test_actual_child_is_killed_for_combined_disk_usage)",
+      "result": "ok"
+    },
+    {
+      "name": "test_checkpoint_baseline_is_not_new_download_or_disk_growth (test_disk.DiskBudgetTests.test_checkpoint_baseline_is_not_new_download_or_disk_growth)",
+      "result": "ok"
+    },
+    {
+      "name": "test_download_checks_space_before_each_chunk_and_closes_response (test_disk.DiskBudgetTests.test_download_checks_space_before_each_chunk_and_closes_response)",
+      "result": "ok"
+    },
+    {
+      "name": "test_download_preserves_encoded_object_bytes_for_integrity (test_disk.DiskBudgetTests.test_download_preserves_encoded_object_bytes_for_integrity)",
+      "result": "ok"
+    },
+    {
+      "name": "test_fifo_is_rejected_without_opening_it (test_disk.DiskBudgetTests.test_fifo_is_rejected_without_opening_it)",
+      "result": "ok"
+    },
+    {
+      "name": "test_free_space_is_checked_before_incoming_write (test_disk.DiskBudgetTests.test_free_space_is_checked_before_incoming_write)",
+      "result": "ok"
+    },
+    {
+      "name": "test_in_job_index_is_counted_once (test_disk.DiskBudgetTests.test_in_job_index_is_counted_once)",
+      "result": "ok"
+    },
+    {
+      "name": "test_multiple_files_are_counted_together (test_disk.DiskBudgetTests.test_multiple_files_are_counted_together)",
+      "result": "ok"
+    },
+    {
+      "name": "test_replaced_root_directory_is_rejected (test_disk.DiskBudgetTests.test_replaced_root_directory_is_rejected)",
+      "result": "ok"
+    },
+    {
+      "name": "test_symlink_is_rejected_without_reading_its_target (test_disk.DiskBudgetTests.test_symlink_is_rejected_without_reading_its_target)",
+      "result": "ok"
+    },
+    {
+      "name": "test_accepted_unicode_spaces_crlf_and_final_newline (test_folded.FoldedTests.test_accepted_unicode_spaces_crlf_and_final_newline)",
+      "result": "ok"
+    },
+    {
+      "name": "test_default_node_limit_accepts_100k_and_rejects_next (test_folded.FoldedTests.test_default_node_limit_accepts_100k_and_rejects_next)",
+      "result": "ok"
+    },
+    {
+      "name": "test_duplicate_stacks_and_stable_output (test_folded.FoldedTests.test_duplicate_stacks_and_stable_output)",
+      "result": "ok"
+    },
+    {
+      "name": "test_golden_tree_weights_and_top (test_folded.FoldedTests.test_golden_tree_weights_and_top)",
+      "result": "ok"
+    },
+    {
+      "name": "test_gzip_hash_size_and_expansion_limits (test_folded.FoldedTests.test_gzip_hash_size_and_expansion_limits)",
+      "result": "ok"
+    },
+    {
+      "name": "test_insufficient_evidence_does_not_recommend (test_folded.FoldedTests.test_insufficient_evidence_does_not_recommend)",
+      "result": "ok"
+    },
+    {
+      "name": "test_invalid_input_is_permanent (test_folded.FoldedTests.test_invalid_input_is_permanent)",
+      "result": "ok"
+    },
+    {
+      "name": "test_outputs_and_evidence_based_rules (test_folded.FoldedTests.test_outputs_and_evidence_based_rules)",
+      "result": "ok"
+    },
+    {
+      "name": "test_recursive_function_counted_once_per_sample_in_top (test_folded.FoldedTests.test_recursive_function_counted_once_per_sample_in_top)",
+      "result": "ok"
+    },
+    {
+      "name": "test_resource_boundaries (test_folded.FoldedTests.test_resource_boundaries)",
+      "result": "ok"
+    },
+    {
+      "name": "test_hprof_dominator_shared_references_and_index_resume (test_hprof_native.HprofNativeTests.test_hprof_dominator_shared_references_and_index_resume)",
+      "result": "ok"
+    },
+    {
+      "name": "test_hprof_index_version_upgrade_and_corruption_rebuild (test_hprof_native.HprofNativeTests.test_hprof_index_version_upgrade_and_corruption_rebuild)",
+      "result": "ok"
+    },
+    {
+      "name": "test_hprof_limit_corruption_and_recovery (test_hprof_native.HprofNativeTests.test_hprof_limit_corruption_and_recovery)",
+      "result": "ok"
+    },
+    {
+      "name": "test_native_cpu_binary_endianness_and_truncation (test_hprof_native.HprofNativeTests.test_native_cpu_binary_endianness_and_truncation)",
+      "result": "ok"
+    },
+    {
+      "name": "test_native_heap_truncation_does_not_become_empty_success (test_hprof_native.HprofNativeTests.test_native_heap_truncation_does_not_become_empty_success)",
+      "result": "ok"
+    },
+    {
+      "name": "test_native_heaps_and_bolt_real_format (test_hprof_native.HprofNativeTests.test_native_heaps_and_bolt_real_format)",
+      "result": "ok"
+    },
+    {
+      "name": "test_100k_nodes_fit_default_child_budget_and_next_is_rejected (test_isolation_registry.IsolationRegistryTests.test_100k_nodes_fit_default_child_budget_and_next_is_rejected)",
+      "result": "ok"
+    },
+    {
+      "name": "test_actual_process_tree_accounting_and_group_cleanup (test_isolation_registry.IsolationRegistryTests.test_actual_process_tree_accounting_and_group_cleanup)",
+      "result": "ok"
+    },
+    {
+      "name": "test_address_space_budget_fails_without_publishing_result (test_isolation_registry.IsolationRegistryTests.test_address_space_budget_fails_without_publishing_result)",
+      "result": "ok"
+    },
+    {
+      "name": "test_all_public_collection_kinds_have_unique_registry_entry (test_isolation_registry.IsolationRegistryTests.test_all_public_collection_kinds_have_unique_registry_entry)",
+      "result": "ok"
+    },
+    {
+      "name": "test_cache_scavenger_preserves_unrelated_files (test_isolation_registry.IsolationRegistryTests.test_cache_scavenger_preserves_unrelated_files)",
+      "result": "ok"
+    },
+    {
+      "name": "test_every_pipeline_enforces_input_budget_before_decoding (test_isolation_registry.IsolationRegistryTests.test_every_pipeline_enforces_input_budget_before_decoding)",
+      "result": "ok"
+    },
+    {
+      "name": "test_every_pipeline_rejects_invalid_native_format (test_isolation_registry.IsolationRegistryTests.test_every_pipeline_rejects_invalid_native_format)",
+      "result": "ok"
+    },
+    {
+      "name": "test_isolation_wall_budget_kills_child (test_isolation_registry.IsolationRegistryTests.test_isolation_wall_budget_kills_child)",
+      "result": "ok"
+    },
+    {
+      "name": "test_real_subprocess_result_and_decoder_error_classification (test_isolation_registry.IsolationRegistryTests.test_real_subprocess_result_and_decoder_error_classification)",
+      "result": "ok"
+    },
+    {
+      "name": "test_actual_thread_identity_dso_and_nanosecond_times_are_retained (test_perf.PerfTests.test_actual_thread_identity_dso_and_nanosecond_times_are_retained)",
+      "result": "ok"
+    },
+    {
+      "name": "test_complete_native_proof_is_required_for_zero_loss (test_perf.PerfTests.test_complete_native_proof_is_required_for_zero_loss)",
+      "result": "ok"
+    },
+    {
+      "name": "test_conflicting_loss_evidence_cannot_report_zero (test_perf.PerfTests.test_conflicting_loss_evidence_cannot_report_zero)",
+      "result": "ok"
+    },
+    {
+      "name": "test_corrupt_truncated_and_overdeep_script_is_rejected (test_perf.PerfTests.test_corrupt_truncated_and_overdeep_script_is_rejected)",
+      "result": "ok"
+    },
+    {
+      "name": "test_inline_ip_and_repeated_first_callchain_frame_count_once (test_perf.PerfTests.test_inline_ip_and_repeated_first_callchain_frame_count_once)",
+      "result": "ok"
+    },
+    {
+      "name": "test_native_loss_scan_is_bounded_endian_aware_and_not_sample_invention (test_perf.PerfTests.test_native_loss_scan_is_bounded_endian_aware_and_not_sample_invention)",
+      "result": "ok"
+    },
+    {
+      "name": "test_perf_data_uses_only_trusted_bounded_converter_and_same_parser (test_perf.PerfTests.test_perf_data_uses_only_trusted_bounded_converter_and_same_parser)",
+      "result": "ok"
+    },
+    {
+      "name": "test_perf_script_crosses_actual_child_process_boundary (test_perf.PerfTests.test_perf_script_crosses_actual_child_process_boundary)",
+      "result": "ok"
+    },
+    {
+      "name": "test_io_quantiles_queue_hotspots (test_pprof_events.ProfileEventsTests.test_io_quantiles_queue_hotspots)",
+      "result": "ok"
+    },
+    {
+      "name": "test_io_syscall_errors_are_not_bytes_and_missing_latency_is_unknown (test_pprof_events.ProfileEventsTests.test_io_syscall_errors_are_not_bytes_and_missing_latency_is_unknown)",
+      "result": "ok"
+    },
+    {
+      "name": "test_memory_lifetimes_not_claimed_as_leaks (test_pprof_events.ProfileEventsTests.test_memory_lifetimes_not_claimed_as_leaks)",
+      "result": "ok"
+    },
+    {
+      "name": "test_memory_partial_unmap_realloc_and_unknown_faults (test_pprof_events.ProfileEventsTests.test_memory_partial_unmap_realloc_and_unknown_faults)",
+      "result": "ok"
+    },
+    {
+      "name": "test_pprof_real_wire_tables_and_label_filter (test_pprof_events.ProfileEventsTests.test_pprof_real_wire_tables_and_label_filter)",
+      "result": "ok"
+    },
+    {
+      "name": "test_resource_and_script_validation (test_pprof_events.ProfileEventsTests.test_resource_and_script_validation)",
+      "result": "ok"
+    },
+    {
+      "name": "test_resource_network_context_switches_overhead_and_kernel_log_status (test_pprof_events.ProfileEventsTests.test_resource_network_context_switches_overhead_and_kernel_log_status)",
+      "result": "ok"
+    },
+    {
+      "name": "test_fast_child_emits_all_stages_once_through_actual_process_boundary (test_progress.AnalysisProgressTests.test_fast_child_emits_all_stages_once_through_actual_process_boundary)",
+      "result": "ok"
+    },
+    {
+      "name": "test_hprof_stages_are_ordered_for_fresh_and_resumed_indexes (test_progress.AnalysisProgressTests.test_hprof_stages_are_ordered_for_fresh_and_resumed_indexes)",
+      "result": "ok"
+    },
+    {
+      "name": "test_progress_reader_is_bounded_and_rejects_unregistered_stages (test_progress.AnalysisProgressTests.test_progress_reader_is_bounded_and_rejects_unregistered_stages)",
+      "result": "ok"
+    },
+    {
+      "name": "test_manifest_integrity_for_all_imported_tool_captures (test_real_profiles.RealProfileTests.test_manifest_integrity_for_all_imported_tool_captures)",
+      "result": "ok"
+    },
+    {
+      "name": "test_real_bolt_generates_elf_without_running_it (test_real_profiles.RealProfileTests.test_real_bolt_generates_elf_without_running_it)",
+      "result": "ok"
+    },
+    {
+      "name": "test_real_bolt_instrumentation_profile (test_real_profiles.RealProfileTests.test_real_bolt_instrumentation_profile)",
+      "result": "ok"
+    },
+    {
+      "name": "test_real_go_cpu_and_heap_types (test_real_profiles.RealProfileTests.test_real_go_cpu_and_heap_types)",
+      "result": "ok"
+    },
+    {
+      "name": "test_real_hprof_object_graph_retention_and_recovery (test_real_profiles.RealProfileTests.test_real_hprof_object_graph_retention_and_recovery)",
+      "result": "ok"
+    },
+    {
+      "name": "test_real_hprof_sigkill_resumes_checkpointed_index (test_real_profiles.RealProfileTests.test_real_hprof_sigkill_resumes_checkpointed_index)",
+      "result": "ok"
+    },
+    {
+      "name": "test_real_jfr_execution_samples (test_real_profiles.RealProfileTests.test_real_jfr_execution_samples)",
+      "result": "ok"
+    },
+    {
+      "name": "test_real_memray_reader (test_real_profiles.RealProfileTests.test_real_memray_reader)",
+      "result": "ok"
+    },
+    {
+      "name": "test_real_native_profiles (test_real_profiles.RealProfileTests.test_real_native_profiles)",
+      "result": "ok"
+    },
+    {
+      "name": "test_all_native_kinds_through_actual_storage_and_transaction (test_repository_integration.RepositoryIntegrationTests.test_all_native_kinds_through_actual_storage_and_transaction)",
+      "result": "ok"
+    },
+    {
+      "name": "test_cancellation_and_new_collection_attempt_fence_old_job (test_repository_integration.RepositoryIntegrationTests.test_cancellation_and_new_collection_attempt_fence_old_job)",
+      "result": "ok"
+    },
+    {
+      "name": "test_expired_lease_recovers_and_late_publish_is_rejected (test_repository_integration.RepositoryIntegrationTests.test_expired_lease_recovers_and_late_publish_is_rejected)",
+      "result": "ok"
+    },
+    {
+      "name": "test_last_attempt_crash_is_dead_lettered (test_repository_integration.RepositoryIntegrationTests.test_last_attempt_crash_is_dead_lettered)",
+      "result": "ok"
+    },
+    {
+      "name": "test_lease_expiry_during_publish_rolls_back_artifacts (test_repository_integration.RepositoryIntegrationTests.test_lease_expiry_during_publish_rolls_back_artifacts)",
+      "result": "ok"
+    },
+    {
+      "name": "test_minio_raw_to_result_round_trip (test_repository_integration.RepositoryIntegrationTests.test_minio_raw_to_result_round_trip)",
+      "result": "ok"
+    },
+    {
+      "name": "test_permanent_corruption_is_not_retried (test_repository_integration.RepositoryIntegrationTests.test_permanent_corruption_is_not_retried)",
+      "result": "ok"
+    },
+    {
+      "name": "test_progress_event_expiry_during_insert_rolls_back (test_repository_integration.RepositoryIntegrationTests.test_progress_event_expiry_during_insert_rolls_back)",
+      "result": "ok"
+    },
+    {
+      "name": "test_progress_events_are_fenced_by_owner_attempt_expiry_and_cancellation (test_repository_integration.RepositoryIntegrationTests.test_progress_events_are_fenced_by_owner_attempt_expiry_and_cancellation)",
+      "result": "ok"
+    },
+    {
+      "name": "test_result_metadata_and_status_commit_atomically (test_repository_integration.RepositoryIntegrationTests.test_result_metadata_and_status_commit_atomically)",
+      "result": "ok"
+    },
+    {
+      "name": "test_retry_backoff_then_dead_letter (test_repository_integration.RepositoryIntegrationTests.test_retry_backoff_then_dead_letter)",
+      "result": "ok"
+    },
+    {
+      "name": "test_rule_configuration_is_loaded_and_controls_evidence (test_repository_integration.RepositoryIntegrationTests.test_rule_configuration_is_loaded_and_controls_evidence)",
+      "result": "ok"
+    },
+    {
+      "name": "test_same_worker_id_still_fenced_by_attempt (test_repository_integration.RepositoryIntegrationTests.test_same_worker_id_still_fenced_by_attempt)",
+      "result": "ok"
+    },
+    {
+      "name": "test_skip_locked_and_exclusive_claim (test_repository_integration.RepositoryIntegrationTests.test_skip_locked_and_exclusive_claim)",
+      "result": "ok"
+    },
+    {
+      "name": "test_small_and_high_memory_workers_claim_only_their_queue (test_repository_integration.RepositoryIntegrationTests.test_small_and_high_memory_workers_claim_only_their_queue)",
+      "result": "ok"
+    },
+    {
+      "name": "test_worker_sigkill_and_automatic_lease_recovery (test_repository_integration.RepositoryIntegrationTests.test_worker_sigkill_and_automatic_lease_recovery)",
+      "result": "ok"
+    },
+    {
+      "name": "test_contract_result_and_weights (test_result.ResultTests.test_contract_result_and_weights)",
+      "result": "ok"
+    },
+    {
+      "name": "test_import_is_labelled_and_rule_has_numeric_confidence (test_result.ResultTests.test_import_is_labelled_and_rule_has_numeric_confidence)",
+      "result": "ok"
+    },
+    {
+      "name": "test_imported_native_kinds_never_claim_live_duration_or_frequency (test_result.ResultTests.test_imported_native_kinds_never_claim_live_duration_or_frequency)",
+      "result": "ok"
+    },
+    {
+      "name": "test_procfs_does_not_make_function_claims (test_result.ResultTests.test_procfs_does_not_make_function_claims)",
+      "result": "ok"
+    },
+    {
+      "name": "test_actual_metrics_http_contains_bounded_labels (test_telemetry.TelemetryTests.test_actual_metrics_http_contains_bounded_labels)",
+      "result": "ok"
+    },
+    {
+      "name": "test_actual_otlp_span_contains_task_link (test_telemetry.TelemetryTests.test_actual_otlp_span_contains_task_link)",
+      "result": "ok"
+    },
+    {
+      "name": "test_combined_download_budget_is_checked_before_any_download (test_worker.WorkerTests.test_combined_download_budget_is_checked_before_any_download)",
+      "result": "ok"
+    },
+    {
+      "name": "test_lease_guard_detects_lost_ownership (test_worker.WorkerTests.test_lease_guard_detects_lost_ownership)",
+      "result": "ok"
+    },
+    {
+      "name": "test_low_disk_space_never_downloads_or_publishes_and_cleans_workdir (test_worker.WorkerTests.test_low_disk_space_never_downloads_or_publishes_and_cleans_workdir)",
+      "result": "ok"
+    },
+    {
+      "name": "test_scavenger_and_health (test_worker.WorkerTests.test_scavenger_and_health)",
+      "result": "ok"
+    },
+    {
+      "name": "test_stale_owner_cannot_commit_after_upload (test_worker.WorkerTests.test_stale_owner_cannot_commit_after_upload)",
+      "result": "ok"
+    },
+    {
+      "name": "test_storage_failure_never_publishes_success (test_worker.WorkerTests.test_storage_failure_never_publishes_success)",
+      "result": "ok"
+    },
+    {
+      "name": "test_task_byte_budget_is_enforced_before_analysis_and_publication (test_worker.WorkerTests.test_task_byte_budget_is_enforced_before_analysis_and_publication)",
+      "result": "ok"
+    },
+    {
+      "name": "test_upload_all_outputs_before_commit_and_cleanup (test_worker.WorkerTests.test_upload_all_outputs_before_commit_and_cleanup)",
+      "result": "ok"
+    }
+  ]
+}

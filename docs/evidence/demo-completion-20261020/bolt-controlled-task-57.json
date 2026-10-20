@@ -1,0 +1,191 @@
+{
+  "kind": "BOLT_PROFILE",
+  "target": "demo-bolt deterministic integer CPU",
+  "include_binary": true,
+  "optimize": true,
+  "binary_matching_unchanged": true,
+  "target_source_sha256": "0e922124b60f432d50c4d95cb85dc00d43062b8f965f93259584d053937e62dc",
+  "target_image_id": "sha256:d26b03c4163ea6e390917f2711a813b7b64ab3eec8b43856d8704044a84e8fbe",
+  "validation_harness_sha256": "01e68e377773b7ee46af1d48aa90d16ab6042969a01da6ed413ff113ddc3028a",
+  "task_id": "57",
+  "total_samples": 145,
+  "node_count": 3,
+  "optimization": {
+    "status": "generated_requires_regression_validation",
+    "output_size": 6298512,
+    "output_file": "optimized.elf"
+  },
+  "artifacts": [
+    {
+      "kind": "LOG",
+      "name": "runner.log",
+      "size": 275,
+      "sha256": "300577b20b7f00239e365a87d1fb6f4fbce68cb2df85233f2f4ffe0e91b32fa9",
+      "download_verified": true
+    },
+    {
+      "kind": "RAW",
+      "name": "profile.fdata",
+      "size": 471,
+      "sha256": "414196b5c0a2810fc34bdf72a4caff374c0bc9ff0611285a412a446a4232d92c",
+      "download_verified": true
+    },
+    {
+      "kind": "BINARY",
+      "name": "target.elf",
+      "size": 95656,
+      "sha256": "516a7e58137ec7bc016560d04bcb3cc44f9e5b3737ac41442af51fd4a12d4eb8",
+      "download_verified": true
+    },
+    {
+      "kind": "MANIFEST",
+      "name": "collection-manifest.json",
+      "size": 1304,
+      "sha256": "fb0c8e1c1e883cc59affe6857072306743264fe3b4733c131dbc8e3cf65e97ba",
+      "download_verified": true
+    },
+    {
+      "kind": "RESULT",
+      "name": "flamegraph.json.gz",
+      "size": 128,
+      "sha256": "1700f9b44250520c71fa5e4c9810d7df92c1e6523e600367196961f5a910e99a",
+      "download_verified": true
+    },
+    {
+      "kind": "RESULT",
+      "name": "top.json",
+      "size": 849,
+      "sha256": "430e66791de22c797db48803ef2e60dd343bb33db07654a42b5b3b22ed80e851",
+      "download_verified": true
+    },
+    {
+      "kind": "RESULT",
+      "name": "report.json",
+      "size": 9132,
+      "sha256": "ea6e6ea150ee5db2b940b8a96c75489a5b0077c7ecd04429ac0a98f72357b330",
+      "download_verified": true
+    },
+    {
+      "kind": "MANIFEST",
+      "name": "manifest.json",
+      "size": 11948,
+      "sha256": "13277ff37ee6b7ec22fe64d6189ce8e6495be7af8dbb2538bcc510f34b61a03a",
+      "download_verified": true
+    },
+    {
+      "kind": "RESULT",
+      "name": "optimized.elf",
+      "size": 6298512,
+      "sha256": "48f69702773fa3552855df9411d120a69c8c8dd5036bee98adb93e732f30498b",
+      "download_verified": true
+    }
+  ],
+  "collection_identity": {
+    "binary_sha256": "516a7e58137ec7bc016560d04bcb3cc44f9e5b3737ac41442af51fd4a12d4eb8",
+    "target_build_id": "b69360eef9d8c44a66a076b8f5631154c157df26",
+    "recorded_perf_sha256": "a69af0290e21c689a46a923bd5ff53d6ed338975ef09703862b0bf3857317463",
+    "target_mmap_identity_verified": true,
+    "build_id_supplemented": true,
+    "sampling_event": "cycles:u",
+    "branch_history": "not_collected_no_lbr"
+  },
+  "passed": true,
+  "collection_analysis_elapsed_seconds": 26.3,
+  "comparison": {
+    "source": "freshly compiled controlled integer workload, live perf fdata and actual llvm-bolt output; no imported profile",
+    "original_sha256": "516a7e58137ec7bc016560d04bcb3cc44f9e5b3737ac41442af51fd4a12d4eb8",
+    "optimized_sha256": "48f69702773fa3552855df9411d120a69c8c8dd5036bee98adb93e732f30498b",
+    "functional_equivalence_for_frozen_input": true,
+    "paired_runs": [
+      {
+        "original": {
+          "output_sha256": "bc63a12afdbb9580bcdb41227bedbced6c1cc4dc74db518cb78f4e416db73570",
+          "cpu_ns": 31112000,
+          "wall_ns": 90821780,
+          "exit_code": 0
+        },
+        "optimized": {
+          "output_sha256": "bc63a12afdbb9580bcdb41227bedbced6c1cc4dc74db518cb78f4e416db73570",
+          "cpu_ns": 31287000,
+          "wall_ns": 45796366,
+          "exit_code": 0
+        }
+      },
+      {
+        "optimized": {
+          "output_sha256": "bc63a12afdbb9580bcdb41227bedbced6c1cc4dc74db518cb78f4e416db73570",
+          "cpu_ns": 31015000,
+          "wall_ns": 62348103,
+          "exit_code": 0
+        },
+        "original": {
+          "output_sha256": "bc63a12afdbb9580bcdb41227bedbced6c1cc4dc74db518cb78f4e416db73570",
+          "cpu_ns": 30848000,
+          "wall_ns": 73414319,
+          "exit_code": 0
+        }
+      },
+      {
+        "original": {
+          "output_sha256": "bc63a12afdbb9580bcdb41227bedbced6c1cc4dc74db518cb78f4e416db73570",
+          "cpu_ns": 30982000,
+          "wall_ns": 59690019,
+          "exit_code": 0
+        },
+        "optimized": {
+          "output_sha256": "bc63a12afdbb9580bcdb41227bedbced6c1cc4dc74db518cb78f4e416db73570",
+          "cpu_ns": 31335000,
+          "wall_ns": 58014528,
+          "exit_code": 0
+        }
+      },
+      {
+        "optimized": {
+          "output_sha256": "bc63a12afdbb9580bcdb41227bedbced6c1cc4dc74db518cb78f4e416db73570",
+          "cpu_ns": 31027000,
+          "wall_ns": 43950085,
+          "exit_code": 0
+        },
+        "original": {
+          "output_sha256": "bc63a12afdbb9580bcdb41227bedbced6c1cc4dc74db518cb78f4e416db73570",
+          "cpu_ns": 30992000,
+          "wall_ns": 62643319,
+          "exit_code": 0
+        }
+      },
+      {
+        "original": {
+          "output_sha256": "bc63a12afdbb9580bcdb41227bedbced6c1cc4dc74db518cb78f4e416db73570",
+          "cpu_ns": 30917000,
+          "wall_ns": 65654810,
+          "exit_code": 0
+        },
+        "optimized": {
+          "output_sha256": "bc63a12afdbb9580bcdb41227bedbced6c1cc4dc74db518cb78f4e416db73570",
+          "cpu_ns": 31088000,
+          "wall_ns": 50159177,
+          "exit_code": 0
+        }
+      },
+      {
+        "optimized": {
+          "output_sha256": "bc63a12afdbb9580bcdb41227bedbced6c1cc4dc74db518cb78f4e416db73570",
+          "cpu_ns": 30880000,
+          "wall_ns": 100998238,
+          "exit_code": 0
+        },
+        "original": {
+          "output_sha256": "bc63a12afdbb9580bcdb41227bedbced6c1cc4dc74db518cb78f4e416db73570",
+          "cpu_ns": 30091000,
+          "wall_ns": 60509964,
+          "exit_code": 0
+        }
+      }
+    ],
+    "cpu_median_ratio": 0.996522579087177,
+    "wall_median_ratio": 1.1860380394662455,
+    "performance_claim": "descriptive six-pair measurements only; no whole-service or statistical benefit guarantee"
+  },
+  "equivalence_passed": true,
+  "elapsed_seconds": 27.7
+}

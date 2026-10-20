@@ -1,0 +1,118 @@
+{
+  "model": "deepseek-flash",
+  "provider": "deepseek",
+  "report": {
+    "model": "deepseek-flash",
+    "engine": "model",
+    "summary": "离线导入的折叠采样快照，共4个节点、总采样权重1000，单位未知。rank1符号symbol_3f0919466224的self占80%、total占90%，rank2符号symbol_4fb62348858c的self与total均为20%；两者symbol_hint均为unknown，无法判断语义。采集时长与频率均为0，仅表示未记录或不适用，不能据此判定采集故障。该快照不能证明请求延迟、CPU利用率、回退幅度或因果，也不能确认根因。",
+    "hypotheses": [
+      {
+        "claim": "rank1符号symbol_3f0919466224在本次采样中占主导权重（self 80%、total 90%），其自身叶帧权重是主要构成，而非由子调用累积。",
+        "evidence_ids": [
+          "E1",
+          "E2"
+        ],
+        "verification": "用同种采集器在受控负载下复测，观察rank1的self占比是否仍显著高于其他符号；验收指标为self占比与排名的稳定性，具体容差待协商，且不视为因果确认。"
+      },
+      {
+        "claim": "rank2符号symbol_4fb62348858c的total等于self（20%），说明本次采集中它没有可见的子调用权重，但这只反映本次采集树。",
+        "evidence_ids": [
+          "E1",
+          "E2"
+        ],
+        "verification": "复测后检查该符号的调用者/被调用者上下文是否出现子帧权重；若仍无子帧，仅描述本次采集树形态，不推断实现结构。"
+      },
+      {
+        "claim": "当前证据不足以把热点权重解释为性能回退或缺陷，因为缺少业务延迟、吞吐、错误率与丢样信息。",
+        "evidence_ids": [
+          "E1",
+          "E3"
+        ],
+        "verification": "补充关联业务请求延迟、吞吐与错误率指标，并核对丢样率与采集时钟；在获得这些指标前，不将采样权重换算为耗时或调用次数。"
+      }
+    ],
+    "limitations": [
+      "采样权重单位未知，不能换算为耗时、CPU时间或调用次数。",
+      "symbol_hint为unknown，且原符号被哈希脱敏，无法定位源码或语义。",
+      "离线导入数据，无法核实现场负载、采集时钟与丢样。",
+      "未关联业务请求延迟、吞吐和错误率。",
+      "单次快照，无复测对比，verification_available为false。",
+      "模型结论为待验证假设，不代表已确认缺陷；不提供未经符号映射验证的源码行号。",
+      "原始profile、原符号、主机、PID、路径和凭据不发送模型；问题文本会发送，请勿填入敏感信息。"
+    ]
+  },
+  "source": "explicit_imported_test_fixture",
+  "status": "success",
+  "trace": [
+    {
+      "tool": "read_profile_summary",
+      "evidence_id": "E1",
+      "observation": {
+        "kind": "IMPORT_COLLAPSED",
+        "node_count": 4,
+        "limitations": [
+          "Sample weights are not request latency; no root cause or improvement is proven.",
+          "Raw profiles and symbol names are excluded. Symbol hashes are pseudonyms, not a guarantee of anonymization."
+        ],
+        "stack_scope": "profile_dependent",
+        "total_weight": 1000,
+        "top_functions": [
+          {
+            "symbol": "symbol_3f0919466224",
+            "self_percent": 80,
+            "total_percent": 90
+          },
+          {
+            "symbol": "symbol_4fb62348858c",
+            "self_percent": 20,
+            "total_percent": 20
+          }
+        ],
+        "schema_version": 1,
+        "measurement_unit": "unknown",
+        "verification_available": false
+      }
+    },
+    {
+      "tool": "inspect_hotspots",
+      "evidence_id": "E2",
+      "observation": {
+        "hint_source": "local_symbol_heuristic_v1",
+        "top_functions": [
+          {
+            "rank": 1,
+            "symbol": "symbol_3f0919466224",
+            "symbol_hint": "unknown",
+            "self_percent": 80,
+            "total_percent": 90
+          },
+          {
+            "rank": 2,
+            "symbol": "symbol_4fb62348858c",
+            "symbol_hint": "unknown",
+            "self_percent": 20,
+            "total_percent": 20
+          }
+        ],
+        "interpretation": "self为叶帧权重，total为包含子调用权重；symbol_hint为本地符号词形分类，仅作线索，不能证明锁等待或根因。比例不证明请求延迟或因果。原符号仅保留在授权结果页面。"
+      }
+    },
+    {
+      "tool": "check_collection_quality",
+      "evidence_id": "E3",
+      "observation": {
+        "kind": "IMPORT_COLLAPSED",
+        "issues": [
+          "离线导入数据：无法核实现场负载、采集时钟和丢样"
+        ],
+        "unknowns": [
+          "未关联业务请求延迟、吞吐和错误率",
+          "单次快照不能证明性能回退或修复收益",
+          "未采集源码、符号地址映射及丢样率，不输出文件行号"
+        ],
+        "frequency_hz": 0,
+        "duration_seconds": 0
+      }
+    }
+  ]
+}

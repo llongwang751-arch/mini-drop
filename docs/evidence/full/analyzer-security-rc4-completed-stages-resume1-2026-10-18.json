@@ -1,0 +1,141 @@
+{
+  "actual_saved_container_resources": {
+    "runtime": {
+      "hostconfig": {
+        "CapAdd": null,
+        "CapDrop": [
+          "ALL"
+        ],
+        "CpuPeriod": 0,
+        "CpuQuota": 0,
+        "Memory": 201326592,
+        "MemorySwap": 201326592,
+        "NanoCpus": 500000000,
+        "NetworkMode": "none",
+        "PidMode": "",
+        "PidsLimit": 64,
+        "Privileged": false,
+        "ReadonlyRootfs": true,
+        "SecurityOpt": [
+          "no-new-privileges"
+        ]
+      },
+      "hostconfig_sha256": "aa29bf6fc66cc97a2112ee6c3f892a0fad87c9931edded9a9f3de5e106115399",
+      "state": {
+        "ExitCode": 0,
+        "FinishedAt": "2026-10-18T08:48:12.799011462Z",
+        "OOMKilled": false,
+        "Running": false,
+        "StartedAt": "2026-10-18T08:48:11.804136665Z",
+        "Status": "exited"
+      },
+      "state_sha256": "a0de5d2caa0dae0e043a464190e7182fbe59de7ccc402becb37d3a28ca5780c1"
+    },
+    "tools": {
+      "hostconfig": {
+        "CapAdd": null,
+        "CapDrop": [
+          "ALL"
+        ],
+        "CpuPeriod": 0,
+        "CpuQuota": 0,
+        "Memory": 536870912,
+        "MemorySwap": 536870912,
+        "NanoCpus": 500000000,
+        "NetworkMode": "none",
+        "PidMode": "",
+        "PidsLimit": 64,
+        "Privileged": false,
+        "ReadonlyRootfs": true,
+        "SecurityOpt": [
+          "no-new-privileges"
+        ]
+      },
+      "hostconfig_sha256": "d6e972df92ec677a60cfeb363f992d2be0d8ac8a2c8456c47a3c8a2842e50efe",
+      "state": {
+        "ExitCode": 0,
+        "FinishedAt": "2026-10-18T08:48:16.756830529Z",
+        "OOMKilled": false,
+        "Running": false,
+        "StartedAt": "2026-10-18T08:48:13.122508455Z",
+        "Status": "exited"
+      },
+      "state_sha256": "c46e32b13c12ae4a6a729c18f16388ec8adf0f8a55ed99b32a7954d119d2a8b5"
+    }
+  },
+  "completed_stages": [
+    "runtime_probe",
+    "tool_inventory",
+    "real_postgresql_s3_121_tests"
+  ],
+  "context_sha256": "9913fbb6692b5ca74130edd5453eec286cec6275600bca7508d5efd361257e73",
+  "exporter_sha256": "f6d45abe8ca400c7b48460aa5d8218b420fd0fa47d529b4abe260217d37d8660",
+  "failed_driver_file": "copy_perf.py",
+  "failed_driver_line": 8,
+  "failure_class": "DRIVER_CWD_ASSERTION_BEFORE_HISTORICAL_INPUT_COPY",
+  "full_validation_completed": false,
+  "image": "sha256:b9e6b659e0494e5002ed5f49a43812a73c3eb7b966d050b2e325b5990e9af136",
+  "integration_resource_evidence": {
+    "kind": "FROZEN_EXECUTED_RUNNER_CONFIG_NOT_SAVED_CONTAINER_INSPECT",
+    "limitation": "Isolated test containers were removed by their runner; no saved test HostConfig is asserted.",
+    "runner_sha256": "ed097ea0c51f04d7abbba02c05f5241c2d449911b21aa026416bc932ad34252c"
+  },
+  "raw_diagnostics_exported": false,
+  "recorded_at": "2026-10-18T08:57:51.163092+00:00",
+  "remaining_at_source_failure": [
+    "historical_perf_crosscheck",
+    "18_format_checks",
+    "512MiB_scale",
+    "fresh_compiler_toy",
+    "BOLT19_equivalence",
+    "final_proof_gate",
+    "security_scan"
+  ],
+  "runtime": {
+    "architecture": "x86_64",
+    "component": "analyzer",
+    "effective_capabilities_zero": true,
+    "effective_gid": 10001,
+    "effective_uid": 10001,
+    "libpq_runtime_version": 170011,
+    "no_new_privileges": true,
+    "pq_implementation": "python",
+    "psycopg": "3.3.6",
+    "python": "3.12.15",
+    "status": "RUNTIME_INPUTS_VERIFIED"
+  },
+  "schema_version": 1,
+  "scope": "ACTUAL_SAME_IMAGE_COMPLETED_STAGES_ONLY_NOT_FULL_VALIDATION_OR_SECURITY_CLEARANCE",
+  "security_gate_pass_claimed": false,
+  "source_reports_sha256": {
+    "integration-linux.json": "0ed3f468f8adaedca44842fd3381e91011dcda235f461c8b2610c5ca9087558d",
+    "runtime-hostconfig.json": "aa29bf6fc66cc97a2112ee6c3f892a0fad87c9931edded9a9f3de5e106115399",
+    "runtime-probe.json": "e272ad211944db23de6b6162bb48c1cc70da2fdd5989324eedec71c5203c6ad0",
+    "runtime-state.json": "a0de5d2caa0dae0e043a464190e7182fbe59de7ccc402becb37d3a28ca5780c1",
+    "test-summary.json": "3c8ca1025f14cdf0019be4e0ee2f832d4fddf53fc24b49ed9fe25d4cae9bf1eb",
+    "tools-hostconfig.json": "d6e972df92ec677a60cfeb363f992d2be0d8ac8a2c8456c47a3c8a2842e50efe",
+    "tools-inventory.json": "cdc017e4170404c66f94bcdd4cc9b3816b0f2ba8686ebcd99784740d1a629ff5",
+    "tools-state.json": "c46e32b13c12ae4a6a729c18f16388ec8adf0f8a55ed99b32a7954d119d2a8b5"
+  },
+  "source_root": "/opt/drop-build/analyzer-security-20261018-rc4-resume1",
+  "source_tree_sha256": "b96265bd83ebdbecba437154569e7bb2e9b6581d63da158af351b6fb95aeec2c",
+  "source_validation_archive_sha256": "9ec6a5746458b975c446ea662f5528123a7af9b22c6e2ca00f136412b88cc262",
+  "status": "PARTIAL_VALIDATION_RUNTIME_TOOLS_AND_121_TESTS_COMPLETE_REMAINING_PENDING",
+  "test_log_sha256": "985bc794ac9e974fc17bbbfd24de21717a935e54d8ee03665ff501cf65bbe1a7",
+  "tests": {
+    "duration_seconds": 64.033,
+    "failed": 0,
+    "image": "sha256:b9e6b659e0494e5002ed5f49a43812a73c3eb7b966d050b2e325b5990e9af136",
+    "libpq_runtime_version": 170011,
+    "minio": "RELEASE.2025-07-23T15-54-02Z",
+    "passed": 121,
+    "postgres": "17.11",
+    "pq_implementation": "python",
+    "psycopg": "3.3.6",
+    "python": "3.12.15",
+    "skipped": 0,
+    "success": true,
+    "tests_run": 121,
+    "uid": 10001
+  }
+}

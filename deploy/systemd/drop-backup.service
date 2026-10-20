@@ -1,0 +1,12 @@
+[Unit]
+Description=Online Drop database and artifact backup
+After=docker.service
+Requires=docker.service
+[Service]
+Type=oneshot
+ExecStart=/opt/drop/deploy/backup.sh /opt/drop-backups
+ExecStartPost=/opt/drop/deploy/backup-offsite.sh
+User=root
+UMask=0077
+Nice=10
+IOSchedulingClass=idle

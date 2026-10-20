@@ -1,0 +1,109 @@
+{
+  "source": "actual public UI operation, real DeepSeek and real enrolled Saber FTS5 component; all indexed documents/queries synthetic",
+  "started_at": "2026-10-20T07:05:19.056Z",
+  "attempt": "saber-live-2026-10-20T07-05-19-055Z",
+  "milestones": [
+    {
+      "state": "submit_from_browser",
+      "elapsed_seconds": 2.1
+    },
+    {
+      "state": "planning",
+      "elapsed_seconds": 4.3
+    },
+    {
+      "state": "awaiting_confirmation",
+      "elapsed_seconds": 6.5
+    },
+    {
+      "state": "plan_confirmed_from_browser",
+      "elapsed_seconds": 6.8
+    },
+    {
+      "state": "collecting",
+      "elapsed_seconds": 8.9
+    },
+    {
+      "state": "diagnosing",
+      "elapsed_seconds": 21.3
+    },
+    {
+      "state": "verifying",
+      "elapsed_seconds": 33.8
+    },
+    {
+      "state": "source_running_steps_0",
+      "elapsed_seconds": 58.5
+    },
+    {
+      "state": "source_running_steps_2",
+      "elapsed_seconds": 60.6
+    },
+    {
+      "state": "source_running_steps_4",
+      "elapsed_seconds": 62.8
+    },
+    {
+      "state": "source_running_steps_5",
+      "elapsed_seconds": 71.2
+    },
+    {
+      "state": "success",
+      "elapsed_seconds": 75.5
+    },
+    {
+      "state": "source_success_steps_5",
+      "elapsed_seconds": 75.6
+    }
+  ],
+  "passed": false,
+  "auth": "one explicit login, persisted for reuse",
+  "project_id": "saber-python",
+  "source_revision": "9245ce09fa2e2adceafebb669ee4605f94a2bb05153d5844d24888fb61d4f402",
+  "target": {
+    "agent_id": "tencent-local",
+    "pid": 23821,
+    "uid": 10001,
+    "start_time_ticks": 8738209
+  },
+  "goal": "面试实时演示：调查Python Saber知识库FTS5长查询的CPU开销。根据节点实际能力选择Python CPU调用栈采集10秒、99Hz，关闭native扩展（native=false），检查热点、调用上下文及采集质量；自动复测并再次诊断。继续使用绑定版本的真实源码定位、生成最小优化补丁，在隔离副本运行原功能回归、冻结语义与用户隔离检查、严格输出比较及多组交替CPU对照。只依据实际证据判断，不把重复采样当根因确认。 2026-10-20T07:05:20.928Z",
+  "investigation_id": "8",
+  "plan": {
+    "kind": "PYTHON_CPU",
+    "options": {
+      "native": false
+    },
+    "rationale": "首轮低成本采集：按用户要求用PYTHON_CPU对绑定进程做10秒、99Hz的Python调用栈采样，并关闭native扩展（native=false），只取Python层热点与调用上下文，避免native符号解析开销。局限：native=false看不到C层（如sqlite3/FTS5）帧，若热点落在C扩展内则只能看到Python调用点，需后续用PERF_CPU等通用采集补充；单次采样不能作为根因确认，需复测与对照。",
+    "frequency_hz": 99,
+    "duration_seconds": 10
+  },
+  "baseline_task_id": "55",
+  "repair_id": "6",
+  "candidate_task_id": "56",
+  "verification_id": "11",
+  "fresh_measurements": [
+    {
+      "tool": "profile_business_flow",
+      "cache_hit": false,
+      "job_key": "42164b9d4e7f98253eefc8207e0f3f1815f11fb905ef1b26a74eaef2365f5e99"
+    },
+    {
+      "tool": "test_patch",
+      "cache_hit": false,
+      "job_key": "37cb5bbc63c52c823b5e2975990f40621268d5819c4c4ebf0c19232e32d9c7c6"
+    }
+  ],
+  "cpu_speedup": 1.5047860863440297,
+  "output_parity_cases": 384,
+  "improved_pairs": 6,
+  "original_tests": 2,
+  "frozen_contract_tests": 6,
+  "root_cause_status": "validated_in_controlled_saber_benchmark",
+  "elapsed_seconds": 75.9,
+  "completed_at": "2026-10-20T07:06:34.965Z",
+  "browser_errors": 0,
+  "backend_pipeline_passed": true,
+  "source_render_verified": false,
+  "presentation_error": "STALE_SOURCE_RECORD_RENDER",
+  "audit": "Original driver checked backend API and heading only. Original source-result.png and rehearsal.webm show old CRM repair5, not selected Saber repair6. Preserved for audit. New Web9 read-only presentation acceptance must be separate."
+}

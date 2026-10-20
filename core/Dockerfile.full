@@ -1,0 +1,20 @@
+# Build the tested minimal runtime first. The tools base is cached separately
+# from application sources so a C++ edit never redownloads the profiler bundle.
+ARG CORE_IMAGE=drop-core-runtime:v2
+ARG TOOLS_BASE=drop-core-full-tools-base:v2
+FROM ${CORE_IMAGE} AS core
+FROM ${TOOLS_BASE} AS full-agent
+USER root
+COPY core/tools-install.py /tmp/drop-tools-install.py
+COPY --from=core /usr/local/bin/ /usr/local/bin/
+COPY --from=core /usr/local/lib/ /usr/local/lib/
+COPY --from=core /usr/local/include/ /usr/local/include/
+COPY --from=core /etc/drop/task-kinds.json /etc/drop/task-kinds.json
+RUN if test -x /opt/drop-tools/venv/bin/memray; then python3 /tmp/drop-tools-install.py --manifest-only; else python3 /tmp/drop-tools-install.py; fi && rm /tmp/drop-tools-install.py
+RUN ldconfig
+ENV ASPROF_EXECUTABLE=/opt/drop-tools/async-profiler/bin/asprof \
+    PY_SPY_EXECUTABLE=/opt/drop-tools/venv/bin/py-spy \
+    MEMRAY_EXECUTABLE=/opt/drop-tools/venv/bin/memray \
+    PERF2BOLT_EXECUTABLE=/usr/bin/perf2bolt-16
+USER 10001:10001
+ENTRYPOINT ["/usr/local/bin/drop_server"]

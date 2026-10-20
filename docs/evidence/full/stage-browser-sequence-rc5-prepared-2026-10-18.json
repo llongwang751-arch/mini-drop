@@ -1,0 +1,86 @@
+{
+  "recorded_at": "2026-10-18T07:55:44.194242+00:00",
+  "scope": "Local runner preparation with imported metadata and fake subprocesses only",
+  "candidate": "20261018.1-rc5",
+  "source_manifest_sha256": "2074f6eb31ab849315d4ee4d41c45883c61a4aef367cb742444fcdc034569631",
+  "bundle_manifest_sha256": "f82e7712ee926e791cbe4150ced6dcba09c06012d6a83845e9ef944925edff52",
+  "web_freeze_sha256": "deaf392ce08110dedb6a5759b6e513774bab6c37c8c83d2d27427ed9b5bcebc5",
+  "source_files_verified": 98,
+  "built_files_verified": 14,
+  "pure_tests_passed": 10,
+  "checks": [
+    {
+      "command": [
+        "D:\\\u6d1b\u4f26\u5179\u529b\u4e0d\u505a\u529f\\Desktop\\1\\python.exe",
+        "-m",
+        "unittest",
+        "-v",
+        "test_stage_sequence.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "D:\\\u6d1b\u4f26\u5179\u529b\u4e0d\u505a\u529f\\Desktop\\1\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        ".local/run_stage_sequence.py",
+        ".local/test_stage_sequence.py",
+        ".local/run_stage_browser_rc2.py",
+        ".local/run_stage_flame_rc2.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "D:\\\u6d1b\u4f26\u5179\u529b\u4e0d\u505a\u529f\\Desktop\\1\\python.exe",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        ".local/run_stage_sequence.py",
+        ".local/test_stage_sequence.py",
+        ".local/run_stage_browser_rc2.py",
+        ".local/run_stage_flame_rc2.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "D:\\\u6d1b\u4f26\u5179\u529b\u4e0d\u505a\u529f\\Desktop\\1\\python.exe",
+        "-m",
+        "py_compile",
+        ".local/run_stage_sequence.py",
+        ".local/test_stage_sequence.py",
+        ".local/run_stage_browser_rc2.py",
+        ".local/run_stage_flame_rc2.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "C:\\Program Files\\nodejs\\node.EXE",
+        "--check",
+        "scripts/validation/browser_ce_gzip.mjs"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "helpers": {
+    ".local/run_stage_sequence.py": "c9fc428b138dfc575d8d494fd9c745c599dbc686f6b4a0d41f297f0ecd2070b1",
+    ".local/test_stage_sequence.py": "22e327563bf2c12dcba885465916b71405e804197ad4143187f17ee7657d105e",
+    ".local/run_stage_browser_rc2.py": "ad10a372b714b7181a1882550965baaf2847c72cf3cc2f8161f4ad70e9a64387",
+    ".local/run_stage_flame_rc2.py": "e0f5f61c4dbf13f8b600aa50f59f0463a1693e59279292369461c56c0adefc5d"
+  },
+  "ce_browser_script_sha256": "b31f72fc1e0f6e735b4d2a43e0396fc8688b879c8acde049e60e2efbcbe62258",
+  "image_pins_complete": false,
+  "unbuilt_image_preflight_code": "STAGE_IMAGE_ID_NOT_FROZEN",
+  "test_image_ids_are_synthetic": true,
+  "test_writes_only_temporary_directories": true,
+  "actual_stage_browser_executed": false,
+  "credentials_opened": false,
+  "servers_started": false,
+  "production_changed": false,
+  "runtime_or_bundle_changed": false
+}

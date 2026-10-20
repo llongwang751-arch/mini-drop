@@ -1,0 +1,591 @@
+[WebServer] (node:37548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 11 tests using 1 worker
+
+(node:20296) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 e2e\event-stream.spec.ts:177:3 › imported SSE lifecycle fixtures › aborts a hidden stream, suspends reconnects, resumes and cancels on navigation (2.5s)
+  ok  2 e2e\event-stream.spec.ts:232:3 › imported SSE lifecycle fixtures › retains exact Last-Event-ID with exponential reconnects and stops on forbidden (1.3s)
+  ok  3 e2e\flame-explorer.spec.ts:12:3 › imported flame interaction fixtures › preserves evidence through thread/system/self filters and TopN navigation (5.4s)
+  ok  4 e2e\flame-scale.spec.ts:284:5 › real Worker imported flame scale baselines › 10000 nodes retain every Worker node and remain interactive (3.9s)
+  ok  5 e2e\flame-scale.spec.ts:284:5 › real Worker imported flame scale baselines › 50000 nodes retain every Worker node and remain interactive (5.7s)
+  ok  6 e2e\flame-scale.spec.ts:284:5 › real Worker imported flame scale baselines › 100000 nodes retain every Worker node and remain interactive (8.2s)
+  ok  7 e2e\request-lifecycle.spec.ts:165:3 › imported request lifecycle fixtures › backs off between failed polling cycles and resets after success (3.9s)
+  ok  8 e2e\request-lifecycle.spec.ts:229:3 › imported request lifecycle fixtures › hidden document suspends polling and visible document resumes (640ms)
+  ok  9 e2e\request-lifecycle.spec.ts:261:3 › imported request lifecycle fixtures › deduplicates a pending poll and aborts its native fetch on route exit (855ms)
+  ok 10 e2e\request-lifecycle.spec.ts:319:3 › imported request lifecycle fixtures › stops terminal task polling and permanent forbidden retries (669ms)
+  ok 11 e2e\safe-markdown.spec.ts:7:1 › renders bounded safe Markdown in real task rule/model/stream views (3.3s)
+
+  11 passed (42.9s)
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "E:\\tx-drop\\web\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config=playwright.preview.config.ts",
+      "--reporter=list,json"
+    ],
+    "configFile": "E:\\tx-drop\\web\\playwright.preview.config.ts",
+    "rootDir": "E:/tx-drop/web/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "E:/tx-drop/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "E:/tx-drop/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "flame-explorer.spec.ts",
+          "flame-scale.spec.ts",
+          "request-lifecycle.spec.ts",
+          "event-stream.spec.ts",
+          "safe-markdown.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "E:\\tx-drop\\web\\test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "E:\\tx-drop\\web\\e2e",
+        "snapshotDir": "E:\\tx-drop\\web\\e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "flame-explorer.spec.ts",
+          "flame-scale.spec.ts",
+          "request-lifecycle.spec.ts",
+          "event-stream.spec.ts",
+          "safe-markdown.spec.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:4178",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "actionTimeout": 15000
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4178 --strictPort",
+      "url": "http://127.0.0.1:4178",
+      "timeout": 30000,
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "event-stream.spec.ts",
+      "file": "event-stream.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "imported SSE lifecycle fixtures",
+          "file": "event-stream.spec.ts",
+          "line": 138,
+          "column": 6,
+          "specs": [
+            {
+              "title": "aborts a hidden stream, suspends reconnects, resumes and cancels on navigation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2518,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:34:54.206Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ed0e05b1af190b7b3bde-6760f322da112c64e626",
+              "file": "event-stream.spec.ts",
+              "line": 177,
+              "column": 3
+            },
+            {
+              "title": "retains exact Last-Event-ID with exponential reconnects and stops on forbidden",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1279,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:34:59.671Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ed0e05b1af190b7b3bde-604781913854fa739652",
+              "file": "event-stream.spec.ts",
+              "line": 232,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "flame-explorer.spec.ts",
+      "file": "flame-explorer.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "imported flame interaction fixtures",
+          "file": "flame-explorer.spec.ts",
+          "line": 7,
+          "column": 6,
+          "specs": [
+            {
+              "title": "preserves evidence through thread/system/self filters and TopN navigation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5356,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:35:01.070Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7dc6bfaf0a1d973af192-df11302a61a330564538",
+              "file": "flame-explorer.spec.ts",
+              "line": 12,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "flame-scale.spec.ts",
+      "file": "flame-scale.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "real Worker imported flame scale baselines",
+          "file": "flame-scale.spec.ts",
+          "line": 230,
+          "column": 6,
+          "specs": [
+            {
+              "title": "10000 nodes retain every Worker node and remain interactive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3911,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:35:06.467Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dc3a5b8dc0bc95235c34-6be847a998bb2b0039c4",
+              "file": "flame-scale.spec.ts",
+              "line": 284,
+              "column": 5
+            },
+            {
+              "title": "50000 nodes retain every Worker node and remain interactive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5696,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:35:10.395Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dc3a5b8dc0bc95235c34-72ad8c1832fb3b6c2994",
+              "file": "flame-scale.spec.ts",
+              "line": 284,
+              "column": 5
+            },
+            {
+              "title": "100000 nodes retain every Worker node and remain interactive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8192,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:35:16.106Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dc3a5b8dc0bc95235c34-c9fff34e3a6d4b5d3061",
+              "file": "flame-scale.spec.ts",
+              "line": 284,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "request-lifecycle.spec.ts",
+      "file": "request-lifecycle.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "imported request lifecycle fixtures",
+          "file": "request-lifecycle.spec.ts",
+          "line": 126,
+          "column": 6,
+          "specs": [
+            {
+              "title": "backs off between failed polling cycles and resets after success",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3912,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:35:24.355Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "94035169f15c54982216-8c598cdb69bb2c629c4a",
+              "file": "request-lifecycle.spec.ts",
+              "line": 165,
+              "column": 3
+            },
+            {
+              "title": "hidden document suspends polling and visible document resumes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 640,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:35:28.280Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "94035169f15c54982216-a5855ab6ebb75085d102",
+              "file": "request-lifecycle.spec.ts",
+              "line": 229,
+              "column": 3
+            },
+            {
+              "title": "deduplicates a pending poll and aborts its native fetch on route exit",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 855,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:35:28.932Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "94035169f15c54982216-56bcec78d560cb4eb603",
+              "file": "request-lifecycle.spec.ts",
+              "line": 261,
+              "column": 3
+            },
+            {
+              "title": "stops terminal task polling and permanent forbidden retries",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 669,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-17T17:35:29.797Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "94035169f15c54982216-2f3ba890edd00c47347a",
+              "file": "request-lifecycle.spec.ts",
+              "line": 319,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "safe-markdown.spec.ts",
+      "file": "safe-markdown.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "renders bounded safe Markdown in real task rule/model/stream views",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3265,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T17:35:30.507Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9cfb833f75f68079d4a2-b368a6adfd509f16086f",
+          "file": "safe-markdown.spec.ts",
+          "line": 7,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-17T17:34:52.500Z",
+    "duration": 42941.791999999994,
+    "expected": 11,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

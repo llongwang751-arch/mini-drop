@@ -1,0 +1,382 @@
+{
+  "recorded_at": "2026-10-19T12:15:04.770312+00:00",
+  "scope": "Actual locked dropfullstage Agent main process; no active Task at both boundaries",
+  "project": "dropfullstage",
+  "containers": {
+    "agent": {
+      "container_id": "61cd0fe7ddc8675a305dfc785ad65ff5b4ee26fe249c9dfd7099eaa5443c82e4",
+      "init_pid": 4025558,
+      "init_comm": "docker-init",
+      "init_starttime_ticks": 371078413
+    },
+    "postgres": {
+      "container_id": "9a8ac7146e49a4567faddd71946d1944c27a187f3842131d6cf0f9d56669ab05",
+      "init_pid": 4024627,
+      "init_comm": "docker-init",
+      "init_starttime_ticks": 371077127
+    }
+  },
+  "task_counts": {
+    "before": {
+      "collection": 0,
+      "analysis": 0
+    },
+    "after": {
+      "collection": 0,
+      "analysis": 0
+    }
+  },
+  "clock_ticks_per_second": 100,
+  "agent_main": {
+    "elapsed_seconds": 60.000428,
+    "cpu_ticks_delta": 5,
+    "single_core_cpu_percent": 0.083333,
+    "before": {
+      "pid": 4025596,
+      "comm": "drop_agent",
+      "state": "S",
+      "ppid": 4025558,
+      "utime_ticks": 11,
+      "stime_ticks": 8,
+      "starttime_ticks": 371078423,
+      "rss_pages": 7629,
+      "uids": [
+        10001,
+        10001,
+        10001,
+        10001
+      ],
+      "hwm_bytes": 31420416,
+      "status_rss_bytes": 31420416,
+      "rss_bytes": 31248384,
+      "monotonic_ns": 3710818619449210
+    },
+    "after": {
+      "pid": 4025596,
+      "comm": "drop_agent",
+      "state": "S",
+      "ppid": 4025558,
+      "utime_ticks": 15,
+      "stime_ticks": 9,
+      "starttime_ticks": 371078423,
+      "rss_pages": 7629,
+      "uids": [
+        10001,
+        10001,
+        10001,
+        10001
+      ],
+      "hwm_bytes": 31440896,
+      "status_rss_bytes": 31440896,
+      "rss_bytes": 31248384,
+      "monotonic_ns": 3710878619877700
+    }
+  },
+  "controlled_workload_direct_child": {
+    "observed": true,
+    "measurement": {
+      "elapsed_seconds": 60.000465,
+      "cpu_ticks_delta": 1795,
+      "single_core_cpu_percent": 29.916435,
+      "before": {
+        "pid": 4025597,
+        "comm": "drop_workload",
+        "state": "S",
+        "ppid": 4025596,
+        "utime_ticks": 968,
+        "stime_ticks": 3,
+        "starttime_ticks": 371078425,
+        "rss_pages": 896,
+        "uids": [
+          10001,
+          10001,
+          10001,
+          10001
+        ],
+        "hwm_bytes": 3764224,
+        "status_rss_bytes": 3764224,
+        "rss_bytes": 3670016,
+        "monotonic_ns": 3710818619606361
+      },
+      "after": {
+        "pid": 4025597,
+        "comm": "drop_workload",
+        "state": "S",
+        "ppid": 4025596,
+        "utime_ticks": 2760,
+        "stime_ticks": 6,
+        "starttime_ticks": 371078425,
+        "rss_pages": 896,
+        "uids": [
+          10001,
+          10001,
+          10001,
+          10001
+        ],
+        "hwm_bytes": 3764224,
+        "status_rss_bytes": 3764224,
+        "rss_bytes": 3670016,
+        "monotonic_ns": 3710878620071551
+      }
+    }
+  },
+  "container_aggregate": {
+    "elapsed_seconds": 61.023247,
+    "single_core_cpu_percent": 29.997288,
+    "before": {
+      "docker_stats": {
+        "cpu_percent": 30.22,
+        "memory_percent": 5.38,
+        "memory_usage_bytes": 10831790,
+        "memory_limit_bytes": 201326592,
+        "pids": 12
+      },
+      "cgroup_v2": {
+        "monotonic_ns": 3710818619110240,
+        "memory": {
+          "memory.current": 34648064,
+          "memory.peak": 63987712,
+          "memory.max": 201326592,
+          "memory.swap.current": 0,
+          "memory.swap.max": 0
+        },
+        "cpu": {
+          "usage_usec": 10346377,
+          "user_usec": 10121780,
+          "system_usec": 224597,
+          "nr_periods": 345,
+          "nr_throttled": 334,
+          "throttled_usec": 9944502
+        },
+        "memory_breakdown": {
+          "anon": 8470528,
+          "file": 23937024,
+          "kernel": 2240512,
+          "sock": 0,
+          "slab": 1719160
+        },
+        "pressure": {
+          "cpu": {
+            "some": {
+              "avg10": 12.12,
+              "avg60": 6.67,
+              "avg300": 1.79,
+              "total_microseconds": 5899896
+            },
+            "full": {
+              "avg10": 12.11,
+              "avg60": 6.63,
+              "avg300": 1.78,
+              "total_microseconds": 5828892
+            }
+          },
+          "memory": {
+            "some": {
+              "avg10": 0.0,
+              "avg60": 0.0,
+              "avg300": 0.0,
+              "total_microseconds": 0
+            },
+            "full": {
+              "avg10": 0.0,
+              "avg60": 0.0,
+              "avg300": 0.0,
+              "total_microseconds": 0
+            }
+          },
+          "io": {
+            "some": {
+              "avg10": 0.0,
+              "avg60": 0.0,
+              "avg300": 0.0,
+              "total_microseconds": 9203
+            },
+            "full": {
+              "avg10": 0.0,
+              "avg60": 0.0,
+              "avg300": 0.0,
+              "total_microseconds": 8314
+            }
+          }
+        }
+      },
+      "host_pressure": {
+        "cpu": {
+          "some": {
+            "avg10": 36.92,
+            "avg60": 35.35,
+            "avg300": 33.7,
+            "total_microseconds": 152990149108
+          },
+          "full": {
+            "avg10": 0.0,
+            "avg60": 0.0,
+            "avg300": 0.0,
+            "total_microseconds": 0
+          }
+        },
+        "memory": {
+          "some": {
+            "avg10": 0.01,
+            "avg60": 0.08,
+            "avg300": 0.26,
+            "total_microseconds": 6377381883
+          },
+          "full": {
+            "avg10": 0.01,
+            "avg60": 0.04,
+            "avg300": 0.18,
+            "total_microseconds": 3519773096
+          }
+        },
+        "io": {
+          "some": {
+            "avg10": 0.58,
+            "avg60": 2.16,
+            "avg300": 3.77,
+            "total_microseconds": 24310431447
+          },
+          "full": {
+            "avg10": 0.13,
+            "avg60": 0.94,
+            "avg300": 2.1,
+            "total_microseconds": 17182956044
+          }
+        }
+      }
+    },
+    "after": {
+      "docker_stats": {
+        "cpu_percent": 30.07,
+        "memory_percent": 5.39,
+        "memory_usage_bytes": 10852762,
+        "memory_limit_bytes": 201326592,
+        "pids": 12
+      },
+      "cgroup_v2": {
+        "monotonic_ns": 3710879642357001,
+        "memory": {
+          "memory.current": 34144256,
+          "memory.peak": 63987712,
+          "memory.max": 201326592,
+          "memory.swap.current": 0,
+          "memory.swap.max": 0
+        },
+        "cpu": {
+          "usage_usec": 28651696,
+          "user_usec": 28381169,
+          "system_usec": 270526,
+          "nr_periods": 955,
+          "nr_throttled": 943,
+          "throttled_usec": 23592174
+        },
+        "memory_breakdown": {
+          "anon": 8491008,
+          "file": 23412736,
+          "kernel": 2240512,
+          "sock": 0,
+          "slab": 1719160
+        },
+        "pressure": {
+          "cpu": {
+            "some": {
+              "avg10": 12.35,
+              "avg60": 10.28,
+              "avg300": 3.77,
+              "total_microseconds": 13779297
+            },
+            "full": {
+              "avg10": 12.35,
+              "avg60": 10.27,
+              "avg300": 3.76,
+              "total_microseconds": 13684674
+            }
+          },
+          "memory": {
+            "some": {
+              "avg10": 0.0,
+              "avg60": 0.0,
+              "avg300": 0.0,
+              "total_microseconds": 0
+            },
+            "full": {
+              "avg10": 0.0,
+              "avg60": 0.0,
+              "avg300": 0.0,
+              "total_microseconds": 0
+            }
+          },
+          "io": {
+            "some": {
+              "avg10": 0.0,
+              "avg60": 0.0,
+              "avg300": 0.0,
+              "total_microseconds": 9203
+            },
+            "full": {
+              "avg10": 0.0,
+              "avg60": 0.0,
+              "avg300": 0.0,
+              "total_microseconds": 8314
+            }
+          }
+        }
+      },
+      "host_pressure": {
+        "cpu": {
+          "some": {
+            "avg10": 32.33,
+            "avg60": 33.64,
+            "avg300": 33.49,
+            "total_microseconds": 153010363654
+          },
+          "full": {
+            "avg10": 0.0,
+            "avg60": 0.0,
+            "avg300": 0.0,
+            "total_microseconds": 0
+          }
+        },
+        "memory": {
+          "some": {
+            "avg10": 0.0,
+            "avg60": 0.02,
+            "avg300": 0.2,
+            "total_microseconds": 6377391763
+          },
+          "full": {
+            "avg10": 0.0,
+            "avg60": 0.01,
+            "avg300": 0.14,
+            "total_microseconds": 3519778028
+          }
+        },
+        "io": {
+          "some": {
+            "avg10": 0.13,
+            "avg60": 1.13,
+            "avg300": 3.17,
+            "total_microseconds": 24310994258
+          },
+          "full": {
+            "avg10": 0.05,
+            "avg60": 0.49,
+            "avg300": 1.75,
+            "total_microseconds": 17183232789
+          }
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Main-process CPU excludes its controlled workload child; the child can remain CPU-active despite zero Tasks.",
+    "Docker/cgroup data aggregates this Agent container, including that child; it is not main-process idle CPU/RSS or helper-container usage.",
+    "VmHWM is since process start and cgroup memory.peak since cgroup creation, not a reset 60-second-window peak.",
+    "Docker stats CPU and rolling PSI are endpoint snapshots; cgroup CPU uses its own measured elapsed span.",
+    "Only zero Tasks at before/after boundaries is proven; no continuous DB observation or production SLA is asserted."
+  ],
+  "production_changed": false,
+  "source_sha256": "fa2150a46b8956724067baeaefae1ae437925c96481411d2d1800278ca983434",
+  "image_id": "sha256:a5db5216584e7e441ec9ca985b568aa1425004b36b71975c887930449157314f",
+  "measured_after_priority_production_release": true
+}

@@ -1,0 +1,17 @@
+# Merge AFTER compose.release-20261019.yml. Preserves other images and volumes.
+# API requires additive SQL migration 006.
+services:
+  migration:
+    image: drop-api:20261020.1
+  api:
+    image: drop-api:20261020.1
+    environment:
+      AI_ENDPOINT: ${AI_ENDPOINT:-https://api.deepseek.com/chat/completions}
+      AI_MODEL: ${AI_MODEL:-deepseek-flash}
+      AI_API_KEY_FILE: /run/secrets/ai_api_key
+    secrets: [ai_api_key]
+  web:
+    image: drop-web:20261020.1
+secrets:
+  ai_api_key:
+    file: ./secrets/ai_api_key

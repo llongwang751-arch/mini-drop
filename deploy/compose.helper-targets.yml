@@ -1,0 +1,47 @@
+# Merge last. Keep capability-free Agent identity reads and all enrolled targets
+# in explicit AppArmor roles. UID, namespaces, mounts and limits are unchanged.
+services:
+  agent:
+    security_opt: !override
+      - no-new-privileges:true
+      - apparmor=drop-agent-controller
+  demo-go:
+    security_opt: !override
+      - no-new-privileges:true
+      - apparmor=drop-diagnostic-target
+  demo-bolt:
+    security_opt: !override
+      - no-new-privileges:true
+      - apparmor=drop-diagnostic-target
+  demo-java:
+    security_opt: !override
+      - no-new-privileges:true
+      - apparmor=drop-diagnostic-target
+  demo-python:
+    security_opt: !override
+      - no-new-privileges:true
+      - apparmor=drop-diagnostic-target
+  demo-io:
+    security_opt: !override
+      - no-new-privileges:true
+      - apparmor=drop-diagnostic-target
+  demo-gperf-cpu:
+    security_opt: !override
+      - no-new-privileges:true
+      - apparmor=drop-diagnostic-target
+  demo-gperf-heap:
+    security_opt: !override
+      - no-new-privileges:true
+      - apparmor=drop-diagnostic-target
+  demo-jemalloc:
+    security_opt: !override
+      - no-new-privileges:true
+      - apparmor=drop-diagnostic-target
+  crm-workload:
+    security_opt: !override
+      - no-new-privileges:true
+      - apparmor=drop-diagnostic-target
+  saber-workload:
+    security_opt: !override
+      - no-new-privileges:true
+      - apparmor=drop-diagnostic-target

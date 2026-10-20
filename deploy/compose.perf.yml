@@ -1,0 +1,16 @@
+# Optional, explicitly approved perf capability for the controlled Agent only.
+# docker compose -f compose.yml -f compose.perf.yml up -d --no-deps agent
+services:
+  agent:
+    user: '0:0'
+    cap_add: [PERFMON]
+    security_opt:
+      - seccomp=./seccomp/agent-perfmon.json
+    volumes:
+      - type: volume
+        source: agent_perf_data
+        target: /var/lib/drop-agent
+        volume:
+          nocopy: true
+volumes:
+  agent_perf_data:

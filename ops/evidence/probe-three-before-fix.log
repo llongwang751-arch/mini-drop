@@ -1,0 +1,27 @@
+test_cli_unexpected_failure_output_has_no_exception_secret (test_s3_encryption_probe.ProbeTests.test_cli_unexpected_failure_output_has_no_exception_secret) ... ok
+test_encoded_roundtrip_checks_exact_bytes_and_system_metadata (test_s3_encryption_probe.ProbeTests.test_encoded_roundtrip_checks_exact_bytes_and_system_metadata) ... ok
+test_encoded_roundtrip_rejects_missing_system_metadata (test_s3_encryption_probe.ProbeTests.test_encoded_roundtrip_rejects_missing_system_metadata) ... ok
+test_exact_minio_release_builtin_kms_error_is_accepted (test_s3_encryption_probe.ProbeTests.test_exact_minio_release_builtin_kms_error_is_accepted) ... ok
+test_fixture_is_real_two_mib_payload_and_automatic_put_has_no_sse_arg (test_s3_encryption_probe.ProbeTests.test_fixture_is_real_two_mib_payload_and_automatic_put_has_no_sse_arg) ... ok
+test_generic_auth_missing_and_service_errors_fail_closed (test_s3_encryption_probe.ProbeTests.test_generic_auth_missing_and_service_errors_fail_closed) ... ok
+test_kms_default_is_not_mislabeled_as_sse_s3 (test_s3_encryption_probe.ProbeTests.test_kms_default_is_not_mislabeled_as_sse_s3) ... ok
+test_legacy_phase_proves_absent_encryption_before_restart (test_s3_encryption_probe.ProbeTests.test_legacy_phase_proves_absent_encryption_before_restart) ... ok
+test_missing_current_key_functionality_does_not_publish_refusal (test_s3_encryption_probe.ProbeTests.test_missing_current_key_functionality_does_not_publish_refusal) ... ok
+test_timeout_does_not_count_as_decryption_refusal (test_s3_encryption_probe.ProbeTests.test_timeout_does_not_count_as_decryption_refusal) ... ok
+test_unhealthy_service_after_error_does_not_publish_success (test_s3_encryption_probe.ProbeTests.test_unhealthy_service_after_error_does_not_publish_success) ... ok
+test_unknown_header_is_sanitized (test_s3_encryption_probe.ProbeTests.test_unknown_header_is_sanitized) ... ok
+test_wrong_key_requires_specific_error_for_all_historical_objects (test_s3_encryption_probe.ProbeTests.test_wrong_key_requires_specific_error_for_all_historical_objects) ... FAIL
+
+======================================================================
+FAIL: test_wrong_key_requires_specific_error_for_all_historical_objects (test_s3_encryption_probe.ProbeTests.test_wrong_key_requires_specific_error_for_all_historical_objects)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "E:\tx-drop\deploy\tests\test_s3_encryption_probe.py", line 165, in test_wrong_key_requires_specific_error_for_all_historical_objects
+    self.assertEqual(result["refused_object_count"], 3)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 3
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.030s
+
+FAILED (failures=1)

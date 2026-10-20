@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-18",
+  "provenance": "Actual local Windows selected tests; S3 is synthetic and PostgreSQL has its own real integration report.",
+  "cases": [
+    {
+      "name": "migration",
+      "argv": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "ops",
+        "-p",
+        "test_encrypt_existing.py",
+        "-v"
+      ],
+      "passed": 26,
+      "skipped": 0,
+      "exit_code": 0,
+      "elapsed_seconds": 0.68387,
+      "log_file": "encryption-migration-offline-v3.log",
+      "log_sha256": "40029847a10b9508a37a0c872a514eff485deb5e13ab35e2c2fc51b66f9e67f8"
+    },
+    {
+      "name": "probe",
+      "argv": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "deploy/tests",
+        "-p",
+        "test_s3_encryption_probe.py",
+        "-v"
+      ],
+      "passed": 13,
+      "skipped": 0,
+      "exit_code": 0,
+      "elapsed_seconds": 0.509539,
+      "log_file": "encryption-probe-offline-v3.log",
+      "log_sha256": "1064dc4f5b86f26eb21aaa56faca96d606a5fb57b351c3d590704eea1cfafa5c"
+    }
+  ]
+}

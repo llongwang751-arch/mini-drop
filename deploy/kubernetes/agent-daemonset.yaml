@@ -1,0 +1,119 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: drop-agents
+  labels:
+    drop.io/agents: 'true'
+    pod-security.kubernetes.io/enforce: privileged
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata: {name: drop-agent, namespace: drop-agents}
+spec:
+  selector: {matchLabels: {app: drop-agent}}
+  updateStrategy: {type: RollingUpdate, rollingUpdate: {maxUnavailable: 1}}
+  template:
+    metadata: {labels: {app: drop-agent}}
+    spec:
+      automountServiceAccountToken: false
+      hostPID: true
+      nodeSelector: {drop.io/agent: 'enabled'}
+      terminationGracePeriodSeconds: 90
+      initContainers:
+        - name: agent-work-permissions
+          image: drop-agent:20261018.1
+          command: [sh, -ec, 'chown -R 10001:10001 /data && chmod 700 /data']
+          securityContext:
+            runAsUser: 0
+            privileged: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL], add: [CHOWN, DAC_OVERRIDE, FOWNER]}
+          resources:
+            requests: {cpu: 10m, memory: 16Mi}
+            limits: {cpu: 100m, memory: 48Mi}
+          volumeMounts:
+            - {name: work, mountPath: /data}
+      containers:
+        - name: agent
+          image: drop-agent:20261018.1
+          command: [/usr/local/bin/drop_agent]
+          env:
+            - {name: AGENT_ID, valueFrom: {fieldRef: {fieldPath: spec.nodeName}}}
+            - {name: AGENT_HOSTNAME, valueFrom: {fieldRef: {fieldPath: spec.nodeName}}}
+            - {name: DROP_SERVER_ADDRESS, value: 'drop-server.drop.svc.cluster.local:50051'}
+            - {name: TLS_CA_FILE, value: /etc/drop/tls/ca.crt}
+            - {name: TLS_CERT_FILE, value: /etc/drop/tls/agent.crt}
+            - {name: TLS_KEY_FILE, value: /etc/drop/tls/agent.key}
+            - {name: ALLOW_HOST_PROCESSES, value: 'true'}
+            - {name: ALLOWED_TARGET_UIDS, value: '10001'}
+            - {name: ALLOW_CONTAINERS, value: 'false'}
+            - {name: ALLOW_HOST_RESOURCES, value: 'true'}
+            - {name: WORK_DIR, value: /var/lib/drop-agent}
+            - {name: COLLECTOR_HELPER_SOCKET, value: /run/drop-helper/control.sock}
+            - {name: COLLECTOR_HELPER_INCOMING_DIR, value: /run/drop-helper-incoming}
+            - {name: COLLECTOR_HELPER_DISK_BYTES, value: '2147483648'}
+            - {name: COLLECTOR_HELPER_REQUIRE_BOUNDED_FS, value: 'true'}
+            - {name: NATIVE_CONTROL_ROOT, value: /run/drop-helper-incoming/native-control}
+          securityContext:
+            runAsUser: 10001
+            runAsGroup: 10001
+            runAsNonRoot: true
+            privileged: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+            seccompProfile: {type: RuntimeDefault}
+          resources:
+            requests: {cpu: 100m, memory: 128Mi, ephemeral-storage: 128Mi}
+            limits: {cpu: 300m, memory: 192Mi, ephemeral-storage: 512Mi}
+          volumeMounts:
+            - {name: tls, subPath: ca.crt, mountPath: /etc/drop/tls/ca.crt, readOnly: true}
+            - {name: tls, subPath: agent.crt, mountPath: /etc/drop/tls/agent.crt, readOnly: true}
+            - {name: tls, subPath: agent.key, mountPath: /etc/drop/tls/agent.key, readOnly: true}
+            - {name: work, mountPath: /var/lib/drop-agent}
+            - {name: tmp, mountPath: /tmp}
+            - {name: helper-socket, mountPath: /run/drop-helper, readOnly: true}
+            - {name: helper-incoming, mountPath: /run/drop-helper-incoming}
+        - name: collector-helper
+          image: drop-agent:20261018.1
+          command: [/usr/local/bin/drop_collector_helper]
+          env:
+            - {name: COLLECTOR_HELPER_SOCKET, value: /run/drop-helper/control.sock}
+            - {name: COLLECTOR_HELPER_AGENT_UID, value: '10001'}
+            - {name: COLLECTOR_HELPER_AGENT_GID, value: '10001'}
+            - {name: COLLECTOR_HELPER_WORK_DIR, value: /var/lib/drop-helper}
+            - {name: COLLECTOR_HELPER_INCOMING_DIR, value: /run/drop-helper-incoming}
+            - {name: COLLECTOR_HELPER_DISK_BYTES, value: '2147483648'}
+            - {name: COLLECTOR_HELPER_REQUIRE_BOUNDED_FS, value: 'true'}
+            - {name: COLLECTOR_HELPER_RETENTION_SECONDS, value: '86400'}
+            - {name: ALLOW_HOST_PROCESSES, value: 'true'}
+            - {name: ALLOWED_TARGET_UIDS, value: '10001'}
+            - {name: ALLOW_CONTAINERS, value: 'false'}
+            - {name: ALLOW_HOST_RESOURCES, value: 'false'}
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 10001
+            privileged: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL], add: [PERFMON, SYS_PTRACE, DAC_READ_SEARCH]}
+            seccompProfile: {type: Localhost, localhostProfile: drop-agent-perfmon.json}
+          resources:
+            requests: {cpu: 100m, memory: 128Mi, ephemeral-storage: 128Mi}
+            limits: {cpu: 650m, memory: 512Mi, ephemeral-storage: 256Mi}
+          volumeMounts:
+            - {name: helper-socket, mountPath: /run/drop-helper}
+            - {name: helper-cache, mountPath: /var/lib/drop-helper}
+            - {name: helper-incoming, mountPath: /run/drop-helper-incoming}
+            - {name: helper-tmp, mountPath: /tmp}
+      volumes:
+        - {name: tls, hostPath: {path: /etc/drop/tls, type: Directory}}
+        - {name: work, hostPath: {path: /var/lib/drop-agent, type: DirectoryOrCreate}}
+        - {name: tmp, emptyDir: {sizeLimit: 256Mi}}
+        - {name: helper-socket, emptyDir: {sizeLimit: 1Mi}}
+        # Provision this bounded filesystem on each approved node first.
+        # Directory (not DirectoryOrCreate) refuses silent host-root fallback.
+        - {name: helper-cache, hostPath: {path: /opt/drop-runtime/helper-spool/cache, type: Directory}}
+        - {name: helper-incoming, hostPath: {path: /opt/drop-runtime/helper-spool/incoming, type: Directory}}
+        - {name: helper-tmp, emptyDir: {sizeLimit: 128Mi}}

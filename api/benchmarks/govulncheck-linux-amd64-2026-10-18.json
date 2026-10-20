@@ -1,0 +1,27 @@
+{
+  "provenance": "Actual govulncheck v1.1.4 source scan and go list of Linux/amd64, CGO0, nomsgpack; no image scan or native execution",
+  "target": {
+    "GOOS": "linux",
+    "GOARCH": "amd64",
+    "CGO_ENABLED": "0",
+    "tags": "nomsgpack"
+  },
+  "source_files_verified_against": "api/benchmarks/release-cross-build-2026-10-17.json",
+  "called_vulnerability_findings": 0,
+  "imported_package_findings": 0,
+  "required_module_only_findings": [
+    {
+      "osv": "GO-2026-5932",
+      "trace": [
+        {
+          "module": "golang.org/x/crypto",
+          "version": "v0.58.0"
+        }
+      ]
+    }
+  ],
+  "openpgp_is_imported": false,
+  "required_module_advisory": "https://pkg.go.dev/vuln/GO-2026-5932",
+  "assessment": "The official advisory covers unmaintained OpenPGP packages. None is imported; API uses bcrypt and other crypto packages. Do not claim zero module advisories. No fixed OpenPGP version exists in the official report.",
+  "raw_report_sha256": "e9420c263db2ac73c87d2f1cacc518518835a1e2e4855c0c54b75d778d7e61bb"
+}

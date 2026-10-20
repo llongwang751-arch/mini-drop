@@ -1,0 +1,24 @@
+[Unit]
+Description=Typed tx-drop source and isolated test executor
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+UMask=0027
+ExecStart=/usr/bin/python3 /opt/drop-current/ops/code_executor.py --root /opt/drop-code-executor --socket /opt/drop-code-executor/run/control.sock
+Restart=on-failure
+RestartSec=3
+MemoryMax=256M
+TasksMax=64
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/opt/drop-code-executor
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,10 @@
+# Optional, explicitly selected after compose.helper.yml. Only the helper
+# receives BPF capability and a read-only trace filesystem.
+services:
+  collector-helper:
+    cap_add: [PERFMON, SYS_PTRACE, DAC_READ_SEARCH, KILL, BPF]
+    security_opt: !override [no-new-privileges:true, seccomp=./seccomp/agent-ebpf.json]
+    ulimits:
+      memlock: {soft: 134217728, hard: 134217728}
+    volumes:
+      - /sys/kernel/tracing:/sys/kernel/tracing:ro

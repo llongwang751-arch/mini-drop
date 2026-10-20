@@ -1,0 +1,3608 @@
+{
+  "investigation": {
+    "id": "6",
+    "requested_by": "77f0de20-54bb-4142-9cfc-474d9c7df79e",
+    "agent_id": "tencent-local",
+    "goal": "面试现场彩排：定位Python CRM品牌配色预览的CPU热点，选择Python调用栈采集10秒99Hz并关闭native扩展，聚焦Python函数；自动复测，再定位绑定源码，生成保持Python返回类型和可变对象隔离的最小优化补丁，执行原功能回归与多组CPU对照。 2026-10-20T04:48:29.884Z",
+    "parameters": {
+      "pid": 32,
+      "scope": "process",
+      "target": {
+        "pid": 32,
+        "type": "process",
+        "check_uid": true,
+        "expected_uid": 10001,
+        "start_time_ticks": 4232800
+      }
+    },
+    "consent": true,
+    "input_digest": "6cb304453fb302a433e5c98742e20266ec858bab876b28b33ffb212bb7a852a6",
+    "status": "success",
+    "plan": {
+      "kind": "PYTHON_CPU",
+      "options": {
+        "native": false
+      },
+      "rationale": "按需求用PYTHON_CPU采集10秒、99Hz，options.native=false关闭native扩展采样，使样本聚焦Python函数调用栈，用于定位品牌配色预览的CPU热点。局限：仅覆盖Python层，C扩展/内核态热点会被忽略；单次10秒样本量有限，需复测确认稳定性。目标已绑定为process，无需也不提供PID等标识。",
+      "frequency_hz": 99,
+      "duration_seconds": 10
+    },
+    "trace": [
+      {
+        "tool": "list_collectors",
+        "evidence_id": "P1",
+        "observation": {
+          "collectors": [
+            {
+              "kind": "BOLT_PROFILE",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "optimize": {
+                        "type": "boolean"
+                      },
+                      "include_binary": {
+                        "enum": [
+                          true
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "GO_CPU",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "gc": {
+                        "type": "boolean"
+                      },
+                      "path": {
+                        "enum": [
+                          "/debug/pprof/profile"
+                        ]
+                      },
+                      "port": {
+                        "type": "integer",
+                        "maximum": 65535,
+                        "minimum": 1
+                      },
+                      "debug": {
+                        "enum": [
+                          0
+                        ]
+                      },
+                      "exclude": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "include": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "sample_type": {
+                        "enum": [
+                          "cpu",
+                          "samples"
+                        ],
+                        "type": "string"
+                      },
+                      "label_filter": {
+                        "type": "object",
+                        "maxProperties": 32,
+                        "additionalProperties": {
+                          "type": "string",
+                          "maxLength": 256
+                        }
+                      },
+                      "profile_type": {
+                        "enum": [
+                          "cpu"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "GO_HEAP",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "gc": {
+                        "type": "boolean"
+                      },
+                      "path": {
+                        "enum": [
+                          "/debug/pprof/heap"
+                        ]
+                      },
+                      "port": {
+                        "type": "integer",
+                        "maximum": 65535,
+                        "minimum": 1
+                      },
+                      "debug": {
+                        "enum": [
+                          0
+                        ]
+                      },
+                      "exclude": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "include": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "sample_type": {
+                        "enum": [
+                          "alloc_space",
+                          "alloc_objects",
+                          "inuse_space",
+                          "inuse_objects"
+                        ],
+                        "type": "string"
+                      },
+                      "label_filter": {
+                        "type": "object",
+                        "maxProperties": 32,
+                        "additionalProperties": {
+                          "type": "string",
+                          "maxLength": 256
+                        }
+                      },
+                      "profile_type": {
+                        "enum": [
+                          "heap"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "GPERF_CPU",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "mode": {
+                        "enum": [
+                          "cpu"
+                        ]
+                      },
+                      "include_binary": {
+                        "type": "boolean"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "GPERF_HEAP",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "mode": {
+                        "enum": [
+                          "heap"
+                        ]
+                      },
+                      "include_binary": {
+                        "type": "boolean"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "IO_TRACE",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "category": {
+                        "enum": [
+                          "syscalls",
+                          "vfs",
+                          "block"
+                        ]
+                      },
+                      "max_events": {
+                        "type": "integer",
+                        "maximum": 100000,
+                        "minimum": 1
+                      },
+                      "stack_depth": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "min_duration_us": {
+                        "type": "integer",
+                        "maximum": 10000000,
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "JAVA_CPU",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "event": {
+                        "enum": [
+                          "cpu",
+                          "alloc",
+                          "lock"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "JAVA_HEAP",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "live": {
+                        "type": "boolean"
+                      },
+                      "format": {
+                        "enum": [
+                          "hprof"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "JEPROF_HEAP",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "mode": {
+                        "enum": [
+                          "jemalloc"
+                        ]
+                      },
+                      "include_binary": {
+                        "type": "boolean"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "MEMORY_TRACE",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "category": {
+                        "enum": [
+                          "pagefault",
+                          "alloc",
+                          "mmap"
+                        ]
+                      },
+                      "max_events": {
+                        "type": "integer",
+                        "maximum": 100000,
+                        "minimum": 1
+                      },
+                      "stack_depth": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "PERF_CPU",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "event": {
+                        "enum": [
+                          "cpu-clock",
+                          "cycles",
+                          "instructions"
+                        ]
+                      },
+                      "call_graph": {
+                        "enum": [
+                          "fp",
+                          "dwarf"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "PROC_CPU",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 10,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "PYTHON_CPU",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "native": {
+                        "type": "boolean"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "PYTHON_MEMORY",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "native": {
+                        "type": "boolean"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "RESOURCE_SNAPSHOT",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 2,
+              "default_duration_seconds": 10
+            },
+            {
+              "kind": "SCRIPT",
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": 2
+                  },
+                  "scope": {
+                    "enum": [
+                      "process",
+                      "host",
+                      "container"
+                    ]
+                  },
+                  "budget": {
+                    "type": "object",
+                    "properties": {
+                      "max_processes": {
+                        "type": "integer",
+                        "maximum": 64,
+                        "minimum": 1
+                      },
+                      "max_file_bytes": {
+                        "type": "integer",
+                        "maximum": 536870912,
+                        "minimum": 1024
+                      },
+                      "max_concurrency": {
+                        "type": "integer",
+                        "maximum": 1,
+                        "minimum": 1
+                      },
+                      "max_cpu_seconds": {
+                        "type": "integer",
+                        "maximum": 300,
+                        "minimum": 1
+                      },
+                      "max_address_space_bytes": {
+                        "type": "integer",
+                        "maximum": 8589934592,
+                        "minimum": 67108864
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 2
+                      },
+                      "type": {
+                        "enum": [
+                          "process",
+                          "host",
+                          "container"
+                        ]
+                      },
+                      "runtime": {
+                        "enum": [
+                          "docker",
+                          "containerd"
+                        ]
+                      },
+                      "check_uid": {
+                        "type": "boolean"
+                      },
+                      "container_id": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{12,64}$"
+                      },
+                      "expected_uid": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "container_pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "start_time_ticks": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "template_id": {
+                        "enum": [
+                          "process_status",
+                          "process_limits",
+                          "open_files",
+                          "mapped_libraries",
+                          "network_counters"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "traceparent": {
+                    "type": "string",
+                    "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+                    "maxLength": 55
+                  },
+                  "frequency_hz": {
+                    "type": "integer",
+                    "maximum": 199,
+                    "minimum": 1
+                  },
+                  "duration_seconds": {
+                    "type": "integer",
+                    "maximum": 60,
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default_frequency_hz": 99,
+              "default_duration_seconds": 10
+            }
+          ]
+        }
+      },
+      {
+        "tool": "propose_collection",
+        "evidence_id": "P2",
+        "observation": {
+          "plan": {
+            "kind": "PYTHON_CPU",
+            "options": {
+              "native": false
+            },
+            "rationale": "按需求用PYTHON_CPU采集10秒、99Hz，options.native=false关闭native扩展采样，使样本聚焦Python函数调用栈，用于定位品牌配色预览的CPU热点。局限：仅覆盖Python层，C扩展/内核态热点会被忽略；单次10秒样本量有限，需复测确认稳定性。目标已绑定为process，无需也不提供PID等标识。",
+            "frequency_hz": 99,
+            "duration_seconds": 10
+          },
+          "validated": true
+        }
+      }
+    ],
+    "report": {
+      "comparison": {
+        "kind": "PYTHON_CPU",
+        "unit": "samples",
+        "outcome": "insufficient_evidence",
+        "comparable": true,
+        "differences": [
+          {
+            "symbol": "symbol_1393bb56aa5f",
+            "baseline_self_percent": 10.7287,
+            "candidate_self_percent": 8.8146,
+            "delta_percentage_points": -1.9140999999999995
+          },
+          {
+            "symbol": "symbol_44d054535e52",
+            "baseline_self_percent": 2.6316,
+            "candidate_self_percent": 1.1145,
+            "delta_percentage_points": -1.5171000000000001
+          },
+          {
+            "symbol": "symbol_05de95427f2d",
+            "baseline_self_percent": 2.3279,
+            "candidate_self_percent": 3.7487,
+            "delta_percentage_points": 1.4207999999999998
+          },
+          {
+            "symbol": "symbol_6125ef45be18",
+            "baseline_self_percent": 7.2874,
+            "candidate_self_percent": 6.079,
+            "delta_percentage_points": -1.2084000000000001
+          },
+          {
+            "symbol": "symbol_9db888ac9b41",
+            "baseline_self_percent": 17.8138,
+            "candidate_self_percent": 18.9463,
+            "delta_percentage_points": 1.1325000000000003
+          },
+          {
+            "symbol": "symbol_db621560ea44",
+            "baseline_self_percent": 9.1093,
+            "candidate_self_percent": 10.233,
+            "delta_percentage_points": 1.1237000000000013
+          },
+          {
+            "symbol": "symbol_8e3b5b11ae7d",
+            "baseline_self_percent": 3.3401,
+            "candidate_self_percent": 4.2553,
+            "delta_percentage_points": 0.9152
+          },
+          {
+            "symbol": "symbol_c54a9eeee047",
+            "baseline_self_percent": 0.9109,
+            "candidate_self_percent": 0,
+            "delta_percentage_points": -0.9109
+          },
+          {
+            "symbol": "symbol_36801c958f7f",
+            "baseline_self_percent": 1.0121,
+            "candidate_self_percent": 0.1013,
+            "delta_percentage_points": -0.9108
+          },
+          {
+            "symbol": "symbol_65d95d3ce362",
+            "baseline_self_percent": 1.2146,
+            "candidate_self_percent": 0.304,
+            "delta_percentage_points": -0.9105999999999999
+          }
+        ],
+        "limitations": [
+          "重复采样只检验现象复现；未实施受控代码或配置干预，不能确认因果根因。",
+          "百分比差值不是请求延迟或CPU利用率变化；需同一负载并记录业务指标。",
+          "样本数不足1000或单位不是采样计数；只展示描述差异，不给统计显著性结论。",
+          "Top表未出现的符号按0显示仅指已返回热点表，不证明实际没有执行。"
+        ],
+        "baseline_weight": 988,
+        "candidate_weight": 987,
+        "root_cause_status": "not_tested"
+      },
+      "code_validation": {
+        "model": "deepseek-flash",
+        "engine": "model",
+        "summary": "在登记的 CRM 品牌配色预览服务上，用 cProfile 采集真实热点（S1）：linear 被调用 127294 次、耗时 0.239s，其内部 genexpr 被调用 509176 次；contrast 被调用 55449 次、总耗时 0.544s；from_lch 被调用 16706 次、总耗时 0.291s。这些函数都是纯函数，输入为字符串或数值，返回 tuple 或 float，因此适合做有界缓存。最小补丁只给 linear、lch、from_lch 加上 @lru_cache(maxsize=4096)，并把 contrast 内的 luminance 闭包提取为模块级 _luminance 并加同样缓存；contrast 的签名、返回 float 的语义、ramp 返回 list、derive 的 deepcopy 隔离、对外集合类型均未改动，也未触碰测试、鉴权、限流或网络。test_patch 实际应用成功：success=true、accepted=true，原功能回归 passed，384 例输出逐类型逐值一致（含 list/tuple 区分）；6 组交替 A/B 全部改善，中位 CPU 加速 4.43x（基线约 400–476ms，候选约 88–111ms）。结论仅代表该登记纯计算模块在合成新品牌种子下的受控基准，不等于全 CRM 或生产 P95/P99 改善。",
+        "locations": [
+          {
+            "line": 31,
+            "path": "crm/services/brand_palette.py",
+            "reason": "profile 中 linear 自身耗时 0.239s、调用 127294 次，是最大自身热点，已加有界缓存"
+          },
+          {
+            "line": 32,
+            "path": "crm/services/brand_palette.py",
+            "reason": "linear 内 genexpr 调用 509176 次、耗时 0.159s，缓存后不再重复计算"
+          },
+          {
+            "line": 96,
+            "path": "crm/services/brand_palette.py",
+            "reason": "contrast 调用 55449 次、总耗时 0.544s，其内部 luminance 重复调用 linear，已提取为缓存函数"
+          },
+          {
+            "line": 59,
+            "path": "crm/services/brand_palette.py",
+            "reason": "from_lch 调用 16706 次、总耗时 0.291s，纯数值函数，已加有界缓存"
+          },
+          {
+            "line": 54,
+            "path": "crm/services/brand_palette.py",
+            "reason": "lch 调用 11304 次，依赖 linear 与 lab，已加有界缓存以复用结果"
+          }
+        ],
+        "validation": {
+          "uid": 10001,
+          "gate": {
+            "minimum_median_speedup": 1.1,
+            "total_alternating_pairs": 6,
+            "minimum_pairs_above_1_05": 5
+          },
+          "pairs": [
+            {
+              "cases": 64,
+              "baseline_ns": 476423849,
+              "candidate_ns": 100120914,
+              "output_sha256": "59a2a5652e6a276e750075b707df8f2a61672ad70a908b0997101bb04ccf5dfc",
+              "baseline_cpu_ns": 471855024,
+              "candidate_cpu_ns": 99980132
+            },
+            {
+              "cases": 64,
+              "baseline_ns": 458444393,
+              "candidate_ns": 96549565,
+              "output_sha256": "62b511afc352ed15aee27dad3c95fc3b9b053acec939d892dd55a4c89343c68b",
+              "baseline_cpu_ns": 457869620,
+              "candidate_cpu_ns": 96539692
+            },
+            {
+              "cases": 64,
+              "baseline_ns": 453590483,
+              "candidate_ns": 87741605,
+              "output_sha256": "517328c34043a7a2cbb491684ce8f7819f13fa14ef3c51f94ae30d5631d9a6bd",
+              "baseline_cpu_ns": 453523742,
+              "candidate_cpu_ns": 87725967
+            },
+            {
+              "cases": 64,
+              "baseline_ns": 400411187,
+              "candidate_ns": 107065567,
+              "output_sha256": "8a46f1dd21548bd950a18647fcfeb33672bef119584b37b19c46f14c7f191520",
+              "baseline_cpu_ns": 399876979,
+              "candidate_cpu_ns": 105772363
+            },
+            {
+              "cases": 64,
+              "baseline_ns": 441305092,
+              "candidate_ns": 111208234,
+              "output_sha256": "5afb688b5f828dca8521f831fbc73fb9943b6a93d3f2f0663cff1b62c8afd720",
+              "baseline_cpu_ns": 440844444,
+              "candidate_cpu_ns": 110817894
+            },
+            {
+              "cases": 64,
+              "baseline_ns": 416637676,
+              "candidate_ns": 100592372,
+              "output_sha256": "4b990c8190cc1c45455f9172fef268530ff14eca8f285895ef84f2dfd6d8fe01",
+              "baseline_cpu_ns": 416424546,
+              "candidate_cpu_ns": 100567293
+            }
+          ],
+          "patch": [
+            {
+              "new": "@lru_cache(maxsize=4096)\ndef linear(hex_value):\n    rgb = tuple(int(hex_value[i:i+2], 16)/255 for i in (1, 3, 5))\n    return tuple(v/12.92 if v <= .04045 else ((v+.055)/1.055)**2.4 for v in rgb)\n",
+              "old": "def linear(hex_value):\n    rgb = tuple(int(hex_value[i:i+2], 16)/255 for i in (1, 3, 5))\n    return tuple(v/12.92 if v <= .04045 else ((v+.055)/1.055)**2.4 for v in rgb)\n",
+              "path": "crm/services/brand_palette.py",
+              "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d"
+            },
+            {
+              "new": "@lru_cache(maxsize=4096)\ndef lch(hex_value):\n    lightness, aa, bb = lab(linear(hex_value))",
+              "old": "def lch(hex_value):\n    lightness, aa, bb = lab(linear(hex_value))",
+              "path": "crm/services/brand_palette.py",
+              "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d"
+            },
+            {
+              "new": "@lru_cache(maxsize=4096)\ndef _luminance(color):\n    r, g, bb = linear(color)\n    return .2126*r+.7152*g+.0722*bb\n\n\ndef contrast(a, b):\n    la, lb = _luminance(a), _luminance(b)\n    return (max(la, lb)+.05)/(min(la, lb)+.05)",
+              "old": "def contrast(a, b):\n    def luminance(color):\n        r, g, bb = linear(color)\n        return .2126*r+.7152*g+.0722*bb\n    la, lb = luminance(a), luminance(b)\n    return (max(la, lb)+.05)/(min(la, lb)+.05)",
+              "path": "crm/services/brand_palette.py",
+              "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d"
+            },
+            {
+              "new": "@lru_cache(maxsize=4096)\ndef from_lch(lightness, chroma, hue):\n    lightness = max(0., min(1., lightness))",
+              "old": "def from_lch(lightness, chroma, hue):\n    lightness = max(0., min(1., lightness))",
+              "path": "crm/services/brand_palette.py",
+              "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d"
+            }
+          ],
+          "scope": "isolated CRM palette service with synthetic novel seeds; not production P95/P99 or all CRM functions",
+          "job_key": "c2e084699910b06a7082f5c4659bd4cb9d14f7700bbdbed9de15ab79bc7a0191",
+          "network": "none",
+          "success": true,
+          "accepted": true,
+          "cache_hit": false,
+          "project_id": "crm-python",
+          "improved_pairs": 6,
+          "candidate_files": {
+            "crm/services/brand_palette.py": "7810f439b09f3bab91694219ed313909b358910fae51d3e1a2a85445bcb92c2f"
+          },
+          "elapsed_seconds": 10.574,
+          "runner_image_id": "sha256:dc12e7ab31dd44f09b27bd6cd7dc8f4b2b86ac458dada37424ba45a46ed5b439",
+          "source_revision": "20eb8592d7a6c9b959113417de45ef99ec2c6b2125b9c635b9c15cd574cf12a5",
+          "candidate_profile": {
+            "cases": 64,
+            "scope": "actual CRM palette service, synthetic novel brand seeds; not production request latency",
+            "cpu_ns": 337047860,
+            "hotspots": [
+              {
+                "line": 105,
+                "path": "crm/services/brand_palette.py",
+                "calls": 57759,
+                "function": "contrast",
+                "self_seconds": 0.045377166000000003,
+                "total_seconds": 0.08552485900000001
+              },
+              {
+                "line": 122,
+                "path": "crm/services/brand_palette.py",
+                "calls": 21488,
+                "function": "<genexpr>",
+                "self_seconds": 0.023551637,
+                "total_seconds": 0.058082413000000006
+              },
+              {
+                "line": 127,
+                "path": "crm/services/brand_palette.py",
+                "calls": 75988,
+                "function": "<genexpr>",
+                "self_seconds": 0.020286108,
+                "total_seconds": 0.104381235
+              },
+              {
+                "line": 86,
+                "path": "crm/services/brand_palette.py",
+                "calls": 1473,
+                "function": "ramp",
+                "self_seconds": 0.017159585,
+                "total_seconds": 0.08046270100000001
+              },
+              {
+                "line": 122,
+                "path": "crm/services/brand_palette.py",
+                "calls": 64464,
+                "function": "<genexpr>",
+                "self_seconds": 0.011243847000000001,
+                "total_seconds": 0.011243847000000001
+              },
+              {
+                "line": 126,
+                "path": "crm/services/brand_palette.py",
+                "calls": 1727,
+                "function": "role",
+                "self_seconds": 0.010927096,
+                "total_seconds": 0.146749022
+              },
+              {
+                "line": 120,
+                "path": "crm/services/brand_palette.py",
+                "calls": 5372,
+                "function": "simulated",
+                "self_seconds": 0.010310037000000001,
+                "total_seconds": 0.07702286300000001
+              },
+              {
+                "line": 61,
+                "path": "crm/services/brand_palette.py",
+                "calls": 2101,
+                "function": "from_lch",
+                "self_seconds": 0.009538063000000001,
+                "total_seconds": 0.054469002
+              },
+              {
+                "line": 65,
+                "path": "crm/services/brand_palette.py",
+                "calls": 8001,
+                "function": "rgb",
+                "self_seconds": 0.008458001,
+                "total_seconds": 0.01095127
+              },
+              {
+                "line": 45,
+                "path": "crm/services/brand_palette.py",
+                "calls": 6774,
+                "function": "lab",
+                "self_seconds": 0.007588633000000001,
+                "total_seconds": 0.010977961000000001
+              },
+              {
+                "line": 38,
+                "path": "crm/services/brand_palette.py",
+                "calls": 6303,
+                "function": "channel",
+                "self_seconds": 0.0069340700000000005,
+                "total_seconds": 0.014784164
+              },
+              {
+                "line": 136,
+                "path": "crm/services/brand_palette.py",
+                "calls": 9595,
+                "function": "<lambda>",
+                "self_seconds": 0.005403715,
+                "total_seconds": 0.011207642
+              },
+              {
+                "line": 139,
+                "path": "crm/services/brand_palette.py",
+                "calls": 384,
+                "function": "semantic",
+                "self_seconds": 0.005180041000000001,
+                "total_seconds": 0.258056905
+              },
+              {
+                "line": 31,
+                "path": "crm/services/brand_palette.py",
+                "calls": 1942,
+                "function": "linear",
+                "self_seconds": 0.004989987,
+                "total_seconds": 0.010230865
+              },
+              {
+                "line": 42,
+                "path": "crm/services/brand_palette.py",
+                "calls": 8404,
+                "function": "<genexpr>",
+                "self_seconds": 0.004631364000000001,
+                "total_seconds": 0.019415528
+              },
+              {
+                "line": 33,
+                "path": "crm/services/brand_palette.py",
+                "calls": 7768,
+                "function": "<genexpr>",
+                "self_seconds": 0.003325885,
+                "total_seconds": 0.003325885
+              },
+              {
+                "line": 123,
+                "path": "crm/services/brand_palette.py",
+                "calls": 4029,
+                "function": "<genexpr>",
+                "self_seconds": 0.003142918,
+                "total_seconds": 0.08087390900000001
+              },
+              {
+                "line": 79,
+                "path": "crm/services/brand_palette.py",
+                "calls": 16473,
+                "function": "<genexpr>",
+                "self_seconds": 0.003046524,
+                "total_seconds": 0.003046524
+              },
+              {
+                "line": 116,
+                "path": "crm/services/brand_palette.py",
+                "calls": 2048,
+                "function": "<genexpr>",
+                "self_seconds": 0.0025010830000000003,
+                "total_seconds": 0.002724867
+              },
+              {
+                "line": 55,
+                "path": "crm/services/brand_palette.py",
+                "calls": 1402,
+                "function": "lch",
+                "self_seconds": 0.0021776390000000003,
+                "total_seconds": 0.006572057
+              }
+            ],
+            "elapsed_ns": 337903037,
+            "p95_case_ns": 10439169,
+            "profile_unit": "seconds",
+            "output_sha256": "59a2a5652e6a276e750075b707df8f2a61672ad70a908b0997101bb04ccf5dfc",
+            "source_sha256": "7810f439b09f3bab91694219ed313909b358910fae51d3e1a2a85445bcb92c2f",
+            "median_case_ns": 3686706.5,
+            "profile_source": "actual cProfile execution with exact source-file SHA",
+            "output_comparison": "recursive exact Python types and values, including list versus tuple"
+          },
+          "executor_contract": 3,
+          "root_cause_status": "validated_in_controlled_crm_benchmark",
+          "median_cpu_speedup": 4.430121576601776,
+          "credentials_mounted": false,
+          "output_parity_cases": 384,
+          "functional_regression": "passed"
+        },
+        "evidence_ids": [
+          "S1",
+          "S2",
+          "S3",
+          "S4",
+          "S5"
+        ],
+        "source_project": "crm-python",
+        "source_revision": "20eb8592d7a6c9b959113417de45ef99ec2c6b2125b9c635b9c15cd574cf12a5",
+        "patch_applied_to": "isolated_snapshot",
+        "production_deployed": false
+      },
+      "candidate_report": {
+        "model": "deepseek-flash",
+        "engine": "model",
+        "summary": "复测与原采集可比（同为PYTHON_CPU，单位samples，基线权重988、复测权重987），热点排序结构基本复现：rank1 symbol_9db888ac9b41（self 17.81%→18.95%，+1.13pp）、rank2 symbol_db621560ea44（9.11%→10.23%，+1.12pp）、rank3 symbol_1393bb56aa5f（self 10.73%→8.81%，-1.91pp，total 27.76%）在两次采集中都处于前列，说明“这些函数是主要采样权重集中点”这一现象层面结论仍受支持。调用链显示 rank1 的13处独立出现位置中，多数经 symbol_1393bb56aa5f 及其上层链（含 symbol_0aa0c7f23b2f、symbol_478ad1d34d16、symbol_e9f33ed7c65c、symbol_02670bbe583a）进入，rank3 的部分出现位置直接以 rank1 为被调用者，提示两者存在调用关系上的耦合，但这只是本次采集树中的结构，不构成因果。compare_profiles 的 outcome 为 insufficient_evidence、root_cause_status 为 not_tested，且样本量不足1000，因此只能判定“现象复现”，不能判定根因；所有百分比均为采样权重占比，不代表请求延迟、CPU利用率或回退幅度。采集质量无 issues，但未关联业务延迟/吞吐/错误率，也未记录丢样率与符号映射。",
+        "hypotheses": [
+          {
+            "claim": "rank1 symbol_9db888ac9b41 与 rank3 symbol_1393bb56aa5f 构成稳定的高权重调用组合（rank3 作为 rank1 的上层调用者之一），该组合在两次采集中都占据主要采样权重，属于可复现的热点结构而非单次采样偶然。",
+            "evidence_ids": [
+              "E1",
+              "E2",
+              "E4",
+              "E5",
+              "E6"
+            ],
+            "verification": "在相同负载与相同采集参数下做受控复测（建议时长30s、频率99Hz，需经TaskKind契约校验），并同时记录业务延迟/吞吐/错误率；验收指标：rank1 与 rank3 仍位于Top5、rank1 self 占比与本次18.95%的差异在待协商示例容差±3pp内、且 rank3→rank1 的调用边在调用树中仍存在；若差异超出容差需先排除采样随机性与负载差异，不得直接判为噪声或缺陷。"
+          },
+          {
+            "claim": "rank1 的高 self 权重可能来自其自身叶帧执行，而非仅由上层调用放大；但当前证据无法区分是算法开销、I/O 等待还是解释器开销，symbol_hint 全为 unknown，不能据此推断锁等待或内存压力。",
+            "evidence_ids": [
+              "E2",
+              "E4",
+              "E5"
+            ],
+            "verification": "对 rank1 做受控干预对照：在隔离环境分别以“保持原逻辑”和“替换/短路该函数内部实现”两版运行同一基准负载，各采集≥3次并记录业务指标；验收指标为 rank1 self 采样权重占比与端到端业务延迟是否同向变化，仅当两者在受控对照下同向且可重复时才可提出因果结论。"
+          },
+          {
+            "claim": "rank2 symbol_db621560ea44 与 rank5 symbol_8e3b5b11ae7d 的占比小幅上升（+1.12pp、+0.92pp）可能只是采样随机性或负载差异，尚不足以判定为性能回退。",
+            "evidence_ids": [
+              "E1",
+              "E6"
+            ],
+            "verification": "以相同参数重复采集≥3次并计算各次占比的离散程度，同时固定负载与输入；验收指标：若多次复测中该差值方向一致且幅度稳定超出待协商示例容差±2pp，才升级为待查回退信号，否则按采样波动处理。"
+          },
+          {
+            "claim": "本次采集未覆盖业务侧指标，因此“热点集中”与用户感知的性能问题之间是否存在因果链尚未被检验。",
+            "evidence_ids": [
+              "E3",
+              "E6"
+            ],
+            "verification": "在同一时间窗口内并行采集 PYTHON_CPU 与业务侧延迟/吞吐/错误率指标，做时间对齐对照；验收指标：热点占比变化与业务延迟变化是否在多个窗口内同向，若不同向则说明热点集中不解释用户感知问题，需另找证据。"
+          }
+        ],
+        "limitations": [
+          "compare_profiles 判定 outcome=insufficient_evidence、root_cause_status=not_tested，样本量不足1000，未给出统计显著性。",
+          "未实施受控代码或配置干预，重复采样只能检验现象复现，不能确认因果根因。",
+          "未关联业务请求延迟、吞吐与错误率，无法把采样权重换算为性能影响。",
+          "调用链上下文被截断：rank1 与 rank3 的 ancestors_truncated 与 occurrences_truncated 均为 true，未返回的祖先路径与出现位置不可推断。",
+          "symbol_hint 全为 unknown，且未采集源码、符号地址映射与丢样率，无法定位到具体函数语义或源码位置。",
+          "Top 表未出现的符号按0显示仅指已返回热点表，不证明实际未执行。",
+          "模型结论为待验证假设，不代表已确认缺陷；不提供未经符号映射验证的源码行号。",
+          "原始profile、原符号、主机、PID、路径和凭据不发送模型；问题文本会发送，请勿填入敏感信息。"
+        ]
+      },
+      "root_cause_status": "validated_in_controlled_crm_benchmark",
+      "baseline_diagnosis_id": "13",
+      "candidate_diagnosis_id": "14"
+    },
+    "baseline_task_id": "15",
+    "diagnosis_id": "13",
+    "verification_id": "6",
+    "code_project_id": "crm-python",
+    "code_source_revision": "20eb8592d7a6c9b959113417de45ef99ec2c6b2125b9c635b9c15cd574cf12a5",
+    "code_repair_id": "5",
+    "created_at": "2026-10-20T04:48:29.987303Z",
+    "updated_at": "2026-10-20T04:49:46.920973Z"
+  },
+  "repair": {
+    "id": "5",
+    "requested_by": "77f0de20-54bb-4142-9cfc-474d9c7df79e",
+    "project_id": "crm-python",
+    "source_revision": "20eb8592d7a6c9b959113417de45ef99ec2c6b2125b9c635b9c15cd574cf12a5",
+    "goal": "面试现场彩排：定位Python CRM品牌配色预览的CPU热点，选择Python调用栈采集10秒99Hz并关闭native扩展，聚焦Python函数；自动复测，再定位绑定源码，生成保持Python返回类型和可变对象隔离的最小优化补丁，执行原功能回归与多组CPU对照。 2026-10-20T04:48:29.884Z\n针对绑定CRM业务函数定位源码热点、生成优化补丁并运行原功能回归和交替CPU对照；明确结论的受控基准范围。",
+    "input_digest": "1018164835713d2d95677530f15f7e30fb39df3f84b8fabada286e336f0fc202",
+    "status": "success",
+    "trace": [
+      {
+        "tool": "profile_business_flow",
+        "evidence_id": "S1",
+        "observation": {
+          "uid": 10001,
+          "cases": 64,
+          "scope": "actual CRM palette service, synthetic novel brand seeds; not production request latency",
+          "cpu_ns": 1112659138,
+          "job_key": "1432aa2f56ef606cdefd1210b4a2ede94a05f2b2b2747168096eb0d33fe96335",
+          "network": "none",
+          "success": true,
+          "hotspots": [
+            {
+              "line": 31,
+              "path": "crm/services/brand_palette.py",
+              "calls": 127294,
+              "function": "linear",
+              "self_seconds": 0.23903986200000002,
+              "total_seconds": 0.48279454000000005
+            },
+            {
+              "line": 32,
+              "path": "crm/services/brand_palette.py",
+              "calls": 509176,
+              "function": "<genexpr>",
+              "self_seconds": 0.15902443800000002,
+              "total_seconds": 0.15902443800000002
+            },
+            {
+              "line": 33,
+              "path": "crm/services/brand_palette.py",
+              "calls": 509176,
+              "function": "<genexpr>",
+              "self_seconds": 0.08473024000000001,
+              "total_seconds": 0.08473024000000001
+            },
+            {
+              "line": 96,
+              "path": "crm/services/brand_palette.py",
+              "calls": 55449,
+              "function": "contrast",
+              "self_seconds": 0.053429517,
+              "total_seconds": 0.543662376
+            },
+            {
+              "line": 97,
+              "path": "crm/services/brand_palette.py",
+              "calls": 110898,
+              "function": "luminance",
+              "self_seconds": 0.047465932,
+              "total_seconds": 0.46377873300000005
+            },
+            {
+              "line": 37,
+              "path": "crm/services/brand_palette.py",
+              "calls": 50118,
+              "function": "channel",
+              "self_seconds": 0.046666083000000004,
+              "total_seconds": 0.099554851
+            },
+            {
+              "line": 59,
+              "path": "crm/services/brand_palette.py",
+              "calls": 16706,
+              "function": "from_lch",
+              "self_seconds": 0.044163939000000006,
+              "total_seconds": 0.290707398
+            },
+            {
+              "line": 62,
+              "path": "crm/services/brand_palette.py",
+              "calls": 35856,
+              "function": "rgb",
+              "self_seconds": 0.03323549,
+              "total_seconds": 0.043369976000000005
+            },
+            {
+              "line": 41,
+              "path": "crm/services/brand_palette.py",
+              "calls": 66824,
+              "function": "<genexpr>",
+              "self_seconds": 0.030136290000000003,
+              "total_seconds": 0.129691141
+            },
+            {
+              "line": 121,
+              "path": "crm/services/brand_palette.py",
+              "calls": 72908,
+              "function": "<genexpr>",
+              "self_seconds": 0.021935293,
+              "total_seconds": 0.557496871
+            },
+            {
+              "line": 116,
+              "path": "crm/services/brand_palette.py",
+              "calls": 20368,
+              "function": "<genexpr>",
+              "self_seconds": 0.019045571,
+              "total_seconds": 0.047236395
+            },
+            {
+              "line": 54,
+              "path": "crm/services/brand_palette.py",
+              "calls": 11304,
+              "function": "lch",
+              "self_seconds": 0.016224913,
+              "total_seconds": 0.084320878
+            },
+            {
+              "line": 83,
+              "path": "crm/services/brand_palette.py",
+              "calls": 1403,
+              "function": "ramp",
+              "self_seconds": 0.016123419,
+              "total_seconds": 0.30721805500000005
+            },
+            {
+              "line": 44,
+              "path": "crm/services/brand_palette.py",
+              "calls": 16396,
+              "function": "lab",
+              "self_seconds": 0.015566824000000002,
+              "total_seconds": 0.022834422
+            },
+            {
+              "line": 36,
+              "path": "crm/services/brand_palette.py",
+              "calls": 16706,
+              "function": "to_hex",
+              "self_seconds": 0.011088307,
+              "total_seconds": 0.156265796
+            },
+            {
+              "line": 120,
+              "path": "crm/services/brand_palette.py",
+              "calls": 1657,
+              "function": "role",
+              "self_seconds": 0.009556033,
+              "total_seconds": 0.6598588780000001
+            },
+            {
+              "line": 114,
+              "path": "crm/services/brand_palette.py",
+              "calls": 5092,
+              "function": "simulated",
+              "self_seconds": 0.009356089,
+              "total_seconds": 0.084235637
+            },
+            {
+              "line": 71,
+              "path": "crm/services/brand_palette.py",
+              "calls": 64782,
+              "function": "<genexpr>",
+              "self_seconds": 0.008743867,
+              "total_seconds": 0.008743867
+            },
+            {
+              "line": 116,
+              "path": "crm/services/brand_palette.py",
+              "calls": 61104,
+              "function": "<genexpr>",
+              "self_seconds": 0.008663386,
+              "total_seconds": 0.008663386
+            },
+            {
+              "line": 76,
+              "path": "crm/services/brand_palette.py",
+              "calls": 51593,
+              "function": "<genexpr>",
+              "self_seconds": 0.008331944,
+              "total_seconds": 0.008331944
+            }
+          ],
+          "cache_hit": false,
+          "elapsed_ns": 1115032734,
+          "project_id": "crm-python",
+          "p95_case_ns": 33354779,
+          "profile_unit": "seconds",
+          "output_sha256": "74de52fa547a8c1621564df76cf50a307ea6785d81a8f639d06827e48422da2b",
+          "source_sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d",
+          "median_case_ns": 16684578,
+          "profile_source": "actual cProfile execution with exact source-file SHA",
+          "elapsed_seconds": 1.218,
+          "runner_image_id": "sha256:dc12e7ab31dd44f09b27bd6cd7dc8f4b2b86ac458dada37424ba45a46ed5b439",
+          "source_revision": "20eb8592d7a6c9b959113417de45ef99ec2c6b2125b9c635b9c15cd574cf12a5",
+          "executor_contract": 3,
+          "output_comparison": "recursive exact Python types and values, including list versus tuple",
+          "credentials_mounted": false
+        }
+      },
+      {
+        "tool": "read_source",
+        "evidence_id": "S2",
+        "observation": {
+          "path": "crm/services/brand_palette.py",
+          "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d",
+          "content": "\"\"\"Brand identity, accessible UI roles and color-vision checks are separate.\n\nThe seed remains exact at ramp stop 600. Only UI roles move along the OKLCH\nramp. These pairs describe the actual React surfaces in workspace.css; a\nredesign must update the surfaces and the measured acceptance fixtures.\n\"\"\"\nimport copy\nimport math\nimport re\nfrom functools import lru_cache\n\nLIGHTNESS = (.9695, .9317, .8597, .7634, .6718, .5899, .5015, .4303, .3772, .339, .2278)\nCHROMA = (.11, .247, .486, .765, 1.021, 1.111, 1., .789, .63, .508, .334)\nSURFACES = {\n    \"light\": (\"#f7f8fa\", \"#ffffff\", \"#eef0f3\"),\n    \"dark\": (\"#13171c\", \"#1b2028\", \"#252c35\"),\n}\nDEFAULT = \"#ba352c\"\nMACHADO = (\n    ((.367322, .860646, -.227968), (.280085, .672501, .047413), (-.011820, .042940, .968881)),\n    ((.152286, 1.052583, -.204868), (.114503, .786281, .099216), (-.003882, -.048116, 1.051998)),\n)\n\n\ndef normalize(value):\n    if not isinstance(value, str) or not re.fullmatch(r\"#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?\", value):\n        return None\n    return (\"#\"+\"\".join(c*2 for c in value[1:]) if len(value) == 4 else value).lower()\n\n\ndef linear(hex_value):\n    rgb = tuple(int(hex_value[i:i+2], 16)/255 for i in (1, 3, 5))\n    return tuple(v/12.92 if v <= .04045 else ((v+.055)/1.055)**2.4 for v in rgb)\n\n\ndef to_hex(rgb):\n    def channel(value):\n        value = max(0., min(1., value))\n        encoded = 12.92*value if value <= .0031308 else 1.055*value**(1/2.4)-.055\n        return max(0, min(255, math.floor(encoded*255+.5)))\n    return \"#\"+\"\".join(f\"{channel(v):02x}\" for v in rgb)\n\n\ndef lab(rgb):\n    r, g, b = rgb\n    ll = math.cbrt(.4122214708*r+.5363325363*g+.0514459929*b)\n    mm = math.cbrt(.2119034982*r+.6806995451*g+.1073969566*b)\n    ss = math.cbrt(.0883024619*r+.2817188376*g+.6299787005*b)\n    return (.2104542553*ll+.793617785*mm-.0040720468*ss,\n        1.9779984951*ll-2.428592205*mm+.4505937099*ss,\n        .0259040371*ll+.7827717662*mm-.808675766*ss)\n\n\ndef lch(hex_value):\n    lightness, aa, bb = lab(linear(hex_value))\n    return lightness, math.hypot(aa, bb), math.degrees(math.atan2(bb, aa)) % 360\n\n\ndef from_lch(lightness, chroma, hue):\n    lightness = max(0., min(1., lightness))\n    hue = math.radians(hue)\n    def rgb(c):\n        aa, bb = c*math.cos(hue), c*math.sin(hue)\n        ll = (lightness+.3963377774*aa+.2158037573*bb)**3\n        mm = (lightness-.1055613458*aa-.0638541728*bb)**3\n        ss = (lightness-.0894841775*aa-1.291485548*bb)**3\n        return (4.0767416621*ll-3.3077115913*mm+.2309699292*ss,\n            -1.2684380046*ll+2.6097574011*mm-.3413193965*ss,\n            -.0041960863*ll-.7034186147*mm+1.707614701*ss)\n    candidate = rgb(chroma)\n    if all(-1e-7 <= v <= 1+1e-7 for v in candidate):\n        return to_hex(candidate)\n    low, high = 0., chroma\n    for _ in range(24):\n        middle = (low+high)/2\n        if all(0 <= v <= 1 for v in rgb(middle)):\n            low = middle\n        else:\n            high = middle\n    return to_hex(rgb(low))\n\n\ndef ramp(seed):\n    seed = normalize(seed)\n    if seed is None:\n        raise ValueError(\"invalid_brand_seed\")\n    ls, cs, hue = lch(seed)\n    stops = []\n    for i, value in enumerate(LIGHTNESS):\n        li = LIGHTNESS[0]+(value-LIGHTNESS[0])*(ls-LIGHTNESS[0])/(LIGHTNESS[6]-LIGHTNESS[0]) if i <= 6 else ls+(value-LIGHTNESS[6])*(LIGHTNESS[10]-ls)/(LIGHTNESS[10]-LIGHTNESS[6])\n        stops.append(from_lch(li, cs*CHROMA[i], hue))\n    stops[6] = seed\n    return stops\n\n\ndef contrast(a, b):\n    def luminance(color):\n        r, g, bb = linear(color)\n        return .2126*r+.7152*g+.0722*bb\n    la, lb = luminance(a), luminance(b)\n    return (max(la, lb)+.05)/(min(la, lb)+.05)\n\n\ndef foreground(background):\n    return max((\"#ffffff\", \"#000000\"), key=lambda value: contrast(value, background))\n\n\ndef mix(color, opacity, background):\n    # Browser alpha composition happens in encoded sRGB, not linear light.\n    return \"#\"+\"\".join(f\"{math.floor(int(color[i:i+2], 16)*opacity+int(background[i:i+2], 16)*(1-opacity)+.5):02x}\" for i in (1, 3, 5))\n\n\ndef simulated_distance(a, b):\n    def simulated(color, matrix):\n        rgb = linear(color)\n        return lab(tuple(max(0., min(1., sum(m*v for m, v in zip(row, rgb, strict=True)))) for row in matrix))\n    return min(math.dist(simulated(a, m), simulated(b, m)) for m in MACHADO)\n\n\ndef role(stops, surfaces, *, target, minimum=4.5):\n    valid = [color for color in stops if min(contrast(color, surface) for surface in surfaces) >= minimum]\n    # Include gamut-mapped lightness samples for extreme seeds whose original\n    # ramp has no suitable stop. Hue and chroma remain the brand's input.\n    if not valid:\n        _, chroma, hue = lch(stops[6])\n        valid = [from_lch(i/100, chroma, hue) for i in range(4, 97, 2)\n            if min(contrast(from_lch(i/100, chroma, hue), surface) for surface in surfaces) >= minimum]\n    if not valid:\n        raise ValueError(\"accessible_role_unavailable\")\n    return min(valid, key=lambda color: abs(lch(color)[0]-target))\n\n\ndef semantic(seed, surfaces, accent):\n    lightness, chroma, hue = lch(seed)\n    variants = []\n    for rotation in (0, *[sign*step for step in range(5, 61, 5) for sign in (1, -1)]):\n        candidate = from_lch(lightness, chroma, hue+rotation)\n        chosen = role(ramp(candidate), surfaces, target=lightness)\n        distance = simulated_distance(chosen, accent)\n        variants.append((chosen, distance, rotation))\n",
+          "end_line": 140,
+          "start_line": 1,
+          "total_lines": 192,
+          "source_revision": "20eb8592d7a6c9b959113417de45ef99ec2c6b2125b9c635b9c15cd574cf12a5"
+        }
+      },
+      {
+        "tool": "read_source",
+        "evidence_id": "S3",
+        "observation": {
+          "path": "tests/test_brand_palette.py",
+          "sha256": "cbf66e93c06870fdf89d22ea3cb6b21cbe95068758abf301c706f19994e97e50",
+          "content": "\"\"\"Acceptance pairs measure rendered roles, independently of color derivation.\"\"\"\nimport asyncio\nimport copy\n\nimport pytest\nfrom fastapi.testclient import TestClient\n\nfrom crm.auth import Identity\nfrom crm.config import Settings\nfrom crm.main import create_app\nfrom crm.seed import DEMO_ORG, DEMO_USER, create_demo_repository\nfrom crm.services.brand_palette import SURFACES, contrast, derive, ramp\nfrom crm.services.ui_context import resolve_branding\n\n\n@pytest.mark.parametrize(\"seed\", [\"#506d48\", \"#0f172a\", \"#1a1f36\", \"#ffffff\", \"#000000\", \"#808080\", \"#ffff00\", \"#00ffff\", \"#7f8c3a\", \"#1abc9c\", \"#ff0000\", \"#0000ff\"])\ndef test_brand_identity_exact_and_all_live_text_focus_button_pairs_readable(seed):\n    palette = derive(seed)\n    assert palette[\"brand\"] == seed and ramp(seed)[6] == seed\n    for theme, surfaces in SURFACES.items():\n        tokens = palette[theme]\n        for surface in surfaces:\n            assert contrast(tokens[\"primary\"], surface) >= 4.5, (seed, theme, \"text\")\n            assert contrast(tokens[\"focus\"], surface) >= 3, (seed, theme, \"focus\")\n        for background in (\"primary\", \"primary-hover\"):\n            assert contrast(tokens[\"on-primary\"], tokens[background]) >= 4.5, (seed, theme, background)\n        for name in (\"success\", \"warning\", \"danger\"):\n            assert contrast(tokens[name], tokens[name+\"-bg\"]) >= 4.5, (seed, theme, name)\n        assert all(len(color) == 7 and color.startswith(\"#\") for color in tokens.values())\n\n\ndef test_cached_palette_does_not_share_mutable_data_and_invalid_css_cannot_escape():\n    first = derive(\"#123456\")\n    first[\"dark\"][\"primary\"] = \"red;display:none\"\n    assert derive(\"#123456\")[\"dark\"][\"primary\"] != \"red;display:none\"\n    assert derive(\"#fff;background:url(https://invalid)\")[\"brand\"] == \"#ba352c\"\n\n\ndef test_installation_rejection_is_persistent_safe_and_clears_after_fix_without_tenant_color_leak():\n    async def exercise():\n        repo = create_demo_repository()\n        row = {\"id\": 1, \"accent_hex\": \"invalid CSS\", \"fallback_at\": None, \"fallback_reason\": None}\n        repo.tables[\"platform_branding\"] = [row]\n        identity = Identity(DEMO_USER, DEMO_ORG, \"admin\")\n        first = await resolve_branding(repo, Settings(), identity)\n        assert first[\"accent_hex\"] == \"#b83d30\"\n        assert row[\"fallback_reason\"] == \"semente_invalida\" and row[\"fallback_at\"]\n        assert len(repo.tables[\"api_audit_log\"]) == 1\n        await resolve_branding(repo, Settings(), identity)\n        assert len(repo.tables[\"api_audit_log\"]) == 1\n        row[\"accent_hex\"] = \"#ffff00\"\n        await resolve_branding(repo, Settings(), identity)\n        assert row[\"fallback_reason\"] is None and row[\"fallback_at\"] is None\n        assert len(repo.tables[\"api_audit_log\"]) == 2\n        assert \"#b83d30\" not in str(repo.tables[\"api_audit_log\"])\n    asyncio.run(exercise())\n\n\ndef test_preview_requires_identity_and_does_not_save_unsaved_color():\n    repo = create_demo_repository()\n    app = create_app(Settings(environment=\"test\", repository_backend=\"memory\"), repo,\n        lambda _: Identity(DEMO_USER, DEMO_ORG, \"viewer\"))\n    before = copy.deepcopy(repo.tables)\n    with TestClient(app) as client:\n        response = client.post(\"/api/v1/ui/branding/preview\", json={\"accent_hex\": \"#ffff00\"})\n        assert response.status_code == 200 and response.json()[\"data\"][\"brand\"] == \"#ffff00\"\n        assert client.post(\"/api/v1/ui/branding/preview\", json={\"accent_hex\": \"red;display:none\"}).status_code == 422\n    assert repo.tables == before\n    with TestClient(create_app(Settings(environment=\"test\", repository_backend=\"memory\"), create_demo_repository())) as client:\n        assert client.post(\"/api/v1/ui/branding/preview\", json={\"accent_hex\": \"#123456\"}).status_code == 401\n",
+          "end_line": 70,
+          "start_line": 1,
+          "total_lines": 70,
+          "source_revision": "20eb8592d7a6c9b959113417de45ef99ec2c6b2125b9c635b9c15cd574cf12a5"
+        }
+      },
+      {
+        "tool": "read_source",
+        "evidence_id": "S4",
+        "observation": {
+          "path": "crm/services/brand_palette.py",
+          "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d",
+          "content": "        variants.append((chosen, distance, rotation))\n        if distance >= .05:\n            return chosen, False\n    return max(variants, key=lambda item: item[1])[0], True\n\n\n@lru_cache(maxsize=128)\ndef _derive(seed):\n    identity = normalize(seed) or DEFAULT\n    stops = ramp(identity)\n    warnings = []\n    # Achromatic identity is retained for logos, while controls keep the\n    # product's distinct accent, matching the original role separation.\n    achromatic = lch(identity)[1] < .01\n    if achromatic:\n        stops = ramp(DEFAULT)\n        warnings.append(\"semente_acromatica\")\n    result = {\"brand\": identity, \"ramp\": ramp(identity), \"warnings\": warnings}\n    for theme, surfaces in SURFACES.items():\n        primary = role(stops, surfaces, target=.68 if theme == \"dark\" else lch(identity)[0])\n        primary_hover = role(stops, surfaces, target=lch(primary)[0]+(.06 if theme == \"dark\" else -.06))\n        # The same foreground must stay readable while hovering the button.\n        on_primary = foreground(primary)\n        if contrast(on_primary, primary_hover) < 4.5:\n            primary_hover = primary\n        focus = role(stops, surfaces, target=lch(primary)[0], minimum=3.)\n        tokens = {\"primary\": primary, \"primary-hover\": primary_hover, \"on-primary\": on_primary,\n            \"focus\": focus, \"accent-soft\": mix(primary, .12, surfaces[1]), \"brand\": identity}\n        bases = {\"success\": \"#356849\", \"warning\": \"#84580e\", \"danger\": \"#a13e35\"} if theme == \"light\" else {\"success\": \"#a4d4b5\", \"warning\": \"#f0c889\", \"danger\": \"#f0aaa4\"}\n        for name, base in bases.items():\n            color, degraded = semantic(base, surfaces, primary)\n            background = mix(color, .10, surfaces[1])\n            if contrast(color, background) < 4.5:\n                color = role(ramp(color), (*surfaces, background), target=lch(color)[0])\n            tokens[name], tokens[name+\"-bg\"] = color, background\n            if degraded:\n                warnings.append(\"semantica_sem_separacao:\"+theme+\":\"+name)\n        result[theme] = tokens\n    return result\n\n\ndef derive(seed=None):\n    # Callers may attach presentation fields; never mutate cached data shared\n    # by unrelated organizations with the same public brand color.\n    return copy.deepcopy(_derive(normalize(seed) or DEFAULT))\n\n\ndef emergency_palette():\n    light = {\"primary\": \"#9c3028\", \"primary-hover\": \"#80261f\", \"on-primary\": \"#ffffff\", \"focus\": \"#9c3028\", \"accent-soft\": \"#f6e7e5\", \"brand\": DEFAULT,\n        \"success\": \"#356849\", \"success-bg\": \"#eaf2ed\", \"warning\": \"#84580e\", \"warning-bg\": \"#fbf2df\", \"danger\": \"#a13e35\", \"danger-bg\": \"#f9ebe9\"}\n    dark = {\"primary\": \"#ffaaa0\", \"primary-hover\": \"#ffc2bb\", \"on-primary\": \"#000000\", \"focus\": \"#ffaaa0\", \"accent-soft\": \"#402522\", \"brand\": DEFAULT,\n        \"success\": \"#a4d4b5\", \"success-bg\": \"#253e2e\", \"warning\": \"#f0c889\", \"warning-bg\": \"#3e3323\", \"danger\": \"#f0aaa4\", \"danger-bg\": \"#462a28\"}\n    return {\"brand\": DEFAULT, \"ramp\": [], \"warnings\": [\"derivacao_falhou\"], \"light\": light, \"dark\": dark}\n",
+          "end_line": 192,
+          "start_line": 140,
+          "total_lines": 192,
+          "source_revision": "20eb8592d7a6c9b959113417de45ef99ec2c6b2125b9c635b9c15cd574cf12a5"
+        }
+      },
+      {
+        "tool": "test_patch",
+        "evidence_id": "S5",
+        "observation": {
+          "uid": 10001,
+          "gate": {
+            "minimum_median_speedup": 1.1,
+            "total_alternating_pairs": 6,
+            "minimum_pairs_above_1_05": 5
+          },
+          "pairs": [
+            {
+              "cases": 64,
+              "baseline_ns": 476423849,
+              "candidate_ns": 100120914,
+              "output_sha256": "59a2a5652e6a276e750075b707df8f2a61672ad70a908b0997101bb04ccf5dfc",
+              "baseline_cpu_ns": 471855024,
+              "candidate_cpu_ns": 99980132
+            },
+            {
+              "cases": 64,
+              "baseline_ns": 458444393,
+              "candidate_ns": 96549565,
+              "output_sha256": "62b511afc352ed15aee27dad3c95fc3b9b053acec939d892dd55a4c89343c68b",
+              "baseline_cpu_ns": 457869620,
+              "candidate_cpu_ns": 96539692
+            },
+            {
+              "cases": 64,
+              "baseline_ns": 453590483,
+              "candidate_ns": 87741605,
+              "output_sha256": "517328c34043a7a2cbb491684ce8f7819f13fa14ef3c51f94ae30d5631d9a6bd",
+              "baseline_cpu_ns": 453523742,
+              "candidate_cpu_ns": 87725967
+            },
+            {
+              "cases": 64,
+              "baseline_ns": 400411187,
+              "candidate_ns": 107065567,
+              "output_sha256": "8a46f1dd21548bd950a18647fcfeb33672bef119584b37b19c46f14c7f191520",
+              "baseline_cpu_ns": 399876979,
+              "candidate_cpu_ns": 105772363
+            },
+            {
+              "cases": 64,
+              "baseline_ns": 441305092,
+              "candidate_ns": 111208234,
+              "output_sha256": "5afb688b5f828dca8521f831fbc73fb9943b6a93d3f2f0663cff1b62c8afd720",
+              "baseline_cpu_ns": 440844444,
+              "candidate_cpu_ns": 110817894
+            },
+            {
+              "cases": 64,
+              "baseline_ns": 416637676,
+              "candidate_ns": 100592372,
+              "output_sha256": "4b990c8190cc1c45455f9172fef268530ff14eca8f285895ef84f2dfd6d8fe01",
+              "baseline_cpu_ns": 416424546,
+              "candidate_cpu_ns": 100567293
+            }
+          ],
+          "patch": [
+            {
+              "new": "@lru_cache(maxsize=4096)\ndef linear(hex_value):\n    rgb = tuple(int(hex_value[i:i+2], 16)/255 for i in (1, 3, 5))\n    return tuple(v/12.92 if v <= .04045 else ((v+.055)/1.055)**2.4 for v in rgb)\n",
+              "old": "def linear(hex_value):\n    rgb = tuple(int(hex_value[i:i+2], 16)/255 for i in (1, 3, 5))\n    return tuple(v/12.92 if v <= .04045 else ((v+.055)/1.055)**2.4 for v in rgb)\n",
+              "path": "crm/services/brand_palette.py",
+              "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d"
+            },
+            {
+              "new": "@lru_cache(maxsize=4096)\ndef lch(hex_value):\n    lightness, aa, bb = lab(linear(hex_value))",
+              "old": "def lch(hex_value):\n    lightness, aa, bb = lab(linear(hex_value))",
+              "path": "crm/services/brand_palette.py",
+              "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d"
+            },
+            {
+              "new": "@lru_cache(maxsize=4096)\ndef _luminance(color):\n    r, g, bb = linear(color)\n    return .2126*r+.7152*g+.0722*bb\n\n\ndef contrast(a, b):\n    la, lb = _luminance(a), _luminance(b)\n    return (max(la, lb)+.05)/(min(la, lb)+.05)",
+              "old": "def contrast(a, b):\n    def luminance(color):\n        r, g, bb = linear(color)\n        return .2126*r+.7152*g+.0722*bb\n    la, lb = luminance(a), luminance(b)\n    return (max(la, lb)+.05)/(min(la, lb)+.05)",
+              "path": "crm/services/brand_palette.py",
+              "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d"
+            },
+            {
+              "new": "@lru_cache(maxsize=4096)\ndef from_lch(lightness, chroma, hue):\n    lightness = max(0., min(1., lightness))",
+              "old": "def from_lch(lightness, chroma, hue):\n    lightness = max(0., min(1., lightness))",
+              "path": "crm/services/brand_palette.py",
+              "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d"
+            }
+          ],
+          "scope": "isolated CRM palette service with synthetic novel seeds; not production P95/P99 or all CRM functions",
+          "job_key": "c2e084699910b06a7082f5c4659bd4cb9d14f7700bbdbed9de15ab79bc7a0191",
+          "network": "none",
+          "success": true,
+          "accepted": true,
+          "cache_hit": false,
+          "project_id": "crm-python",
+          "improved_pairs": 6,
+          "candidate_files": {
+            "crm/services/brand_palette.py": "7810f439b09f3bab91694219ed313909b358910fae51d3e1a2a85445bcb92c2f"
+          },
+          "elapsed_seconds": 10.574,
+          "runner_image_id": "sha256:dc12e7ab31dd44f09b27bd6cd7dc8f4b2b86ac458dada37424ba45a46ed5b439",
+          "source_revision": "20eb8592d7a6c9b959113417de45ef99ec2c6b2125b9c635b9c15cd574cf12a5",
+          "candidate_profile": {
+            "cases": 64,
+            "scope": "actual CRM palette service, synthetic novel brand seeds; not production request latency",
+            "cpu_ns": 337047860,
+            "hotspots": [
+              {
+                "line": 105,
+                "path": "crm/services/brand_palette.py",
+                "calls": 57759,
+                "function": "contrast",
+                "self_seconds": 0.045377166000000003,
+                "total_seconds": 0.08552485900000001
+              },
+              {
+                "line": 122,
+                "path": "crm/services/brand_palette.py",
+                "calls": 21488,
+                "function": "<genexpr>",
+                "self_seconds": 0.023551637,
+                "total_seconds": 0.058082413000000006
+              },
+              {
+                "line": 127,
+                "path": "crm/services/brand_palette.py",
+                "calls": 75988,
+                "function": "<genexpr>",
+                "self_seconds": 0.020286108,
+                "total_seconds": 0.104381235
+              },
+              {
+                "line": 86,
+                "path": "crm/services/brand_palette.py",
+                "calls": 1473,
+                "function": "ramp",
+                "self_seconds": 0.017159585,
+                "total_seconds": 0.08046270100000001
+              },
+              {
+                "line": 122,
+                "path": "crm/services/brand_palette.py",
+                "calls": 64464,
+                "function": "<genexpr>",
+                "self_seconds": 0.011243847000000001,
+                "total_seconds": 0.011243847000000001
+              },
+              {
+                "line": 126,
+                "path": "crm/services/brand_palette.py",
+                "calls": 1727,
+                "function": "role",
+                "self_seconds": 0.010927096,
+                "total_seconds": 0.146749022
+              },
+              {
+                "line": 120,
+                "path": "crm/services/brand_palette.py",
+                "calls": 5372,
+                "function": "simulated",
+                "self_seconds": 0.010310037000000001,
+                "total_seconds": 0.07702286300000001
+              },
+              {
+                "line": 61,
+                "path": "crm/services/brand_palette.py",
+                "calls": 2101,
+                "function": "from_lch",
+                "self_seconds": 0.009538063000000001,
+                "total_seconds": 0.054469002
+              },
+              {
+                "line": 65,
+                "path": "crm/services/brand_palette.py",
+                "calls": 8001,
+                "function": "rgb",
+                "self_seconds": 0.008458001,
+                "total_seconds": 0.01095127
+              },
+              {
+                "line": 45,
+                "path": "crm/services/brand_palette.py",
+                "calls": 6774,
+                "function": "lab",
+                "self_seconds": 0.007588633000000001,
+                "total_seconds": 0.010977961000000001
+              },
+              {
+                "line": 38,
+                "path": "crm/services/brand_palette.py",
+                "calls": 6303,
+                "function": "channel",
+                "self_seconds": 0.0069340700000000005,
+                "total_seconds": 0.014784164
+              },
+              {
+                "line": 136,
+                "path": "crm/services/brand_palette.py",
+                "calls": 9595,
+                "function": "<lambda>",
+                "self_seconds": 0.005403715,
+                "total_seconds": 0.011207642
+              },
+              {
+                "line": 139,
+                "path": "crm/services/brand_palette.py",
+                "calls": 384,
+                "function": "semantic",
+                "self_seconds": 0.005180041000000001,
+                "total_seconds": 0.258056905
+              },
+              {
+                "line": 31,
+                "path": "crm/services/brand_palette.py",
+                "calls": 1942,
+                "function": "linear",
+                "self_seconds": 0.004989987,
+                "total_seconds": 0.010230865
+              },
+              {
+                "line": 42,
+                "path": "crm/services/brand_palette.py",
+                "calls": 8404,
+                "function": "<genexpr>",
+                "self_seconds": 0.004631364000000001,
+                "total_seconds": 0.019415528
+              },
+              {
+                "line": 33,
+                "path": "crm/services/brand_palette.py",
+                "calls": 7768,
+                "function": "<genexpr>",
+                "self_seconds": 0.003325885,
+                "total_seconds": 0.003325885
+              },
+              {
+                "line": 123,
+                "path": "crm/services/brand_palette.py",
+                "calls": 4029,
+                "function": "<genexpr>",
+                "self_seconds": 0.003142918,
+                "total_seconds": 0.08087390900000001
+              },
+              {
+                "line": 79,
+                "path": "crm/services/brand_palette.py",
+                "calls": 16473,
+                "function": "<genexpr>",
+                "self_seconds": 0.003046524,
+                "total_seconds": 0.003046524
+              },
+              {
+                "line": 116,
+                "path": "crm/services/brand_palette.py",
+                "calls": 2048,
+                "function": "<genexpr>",
+                "self_seconds": 0.0025010830000000003,
+                "total_seconds": 0.002724867
+              },
+              {
+                "line": 55,
+                "path": "crm/services/brand_palette.py",
+                "calls": 1402,
+                "function": "lch",
+                "self_seconds": 0.0021776390000000003,
+                "total_seconds": 0.006572057
+              }
+            ],
+            "elapsed_ns": 337903037,
+            "p95_case_ns": 10439169,
+            "profile_unit": "seconds",
+            "output_sha256": "59a2a5652e6a276e750075b707df8f2a61672ad70a908b0997101bb04ccf5dfc",
+            "source_sha256": "7810f439b09f3bab91694219ed313909b358910fae51d3e1a2a85445bcb92c2f",
+            "median_case_ns": 3686706.5,
+            "profile_source": "actual cProfile execution with exact source-file SHA",
+            "output_comparison": "recursive exact Python types and values, including list versus tuple"
+          },
+          "executor_contract": 3,
+          "root_cause_status": "validated_in_controlled_crm_benchmark",
+          "median_cpu_speedup": 4.430121576601776,
+          "credentials_mounted": false,
+          "output_parity_cases": 384,
+          "functional_regression": "passed"
+        }
+      }
+    ],
+    "report": {
+      "model": "deepseek-flash",
+      "engine": "model",
+      "summary": "在登记的 CRM 品牌配色预览服务上，用 cProfile 采集真实热点（S1）：linear 被调用 127294 次、耗时 0.239s，其内部 genexpr 被调用 509176 次；contrast 被调用 55449 次、总耗时 0.544s；from_lch 被调用 16706 次、总耗时 0.291s。这些函数都是纯函数，输入为字符串或数值，返回 tuple 或 float，因此适合做有界缓存。最小补丁只给 linear、lch、from_lch 加上 @lru_cache(maxsize=4096)，并把 contrast 内的 luminance 闭包提取为模块级 _luminance 并加同样缓存；contrast 的签名、返回 float 的语义、ramp 返回 list、derive 的 deepcopy 隔离、对外集合类型均未改动，也未触碰测试、鉴权、限流或网络。test_patch 实际应用成功：success=true、accepted=true，原功能回归 passed，384 例输出逐类型逐值一致（含 list/tuple 区分）；6 组交替 A/B 全部改善，中位 CPU 加速 4.43x（基线约 400–476ms，候选约 88–111ms）。结论仅代表该登记纯计算模块在合成新品牌种子下的受控基准，不等于全 CRM 或生产 P95/P99 改善。",
+      "locations": [
+        {
+          "line": 31,
+          "path": "crm/services/brand_palette.py",
+          "reason": "profile 中 linear 自身耗时 0.239s、调用 127294 次，是最大自身热点，已加有界缓存"
+        },
+        {
+          "line": 32,
+          "path": "crm/services/brand_palette.py",
+          "reason": "linear 内 genexpr 调用 509176 次、耗时 0.159s，缓存后不再重复计算"
+        },
+        {
+          "line": 96,
+          "path": "crm/services/brand_palette.py",
+          "reason": "contrast 调用 55449 次、总耗时 0.544s，其内部 luminance 重复调用 linear，已提取为缓存函数"
+        },
+        {
+          "line": 59,
+          "path": "crm/services/brand_palette.py",
+          "reason": "from_lch 调用 16706 次、总耗时 0.291s，纯数值函数，已加有界缓存"
+        },
+        {
+          "line": 54,
+          "path": "crm/services/brand_palette.py",
+          "reason": "lch 调用 11304 次，依赖 linear 与 lab，已加有界缓存以复用结果"
+        }
+      ],
+      "validation": {
+        "uid": 10001,
+        "gate": {
+          "minimum_median_speedup": 1.1,
+          "total_alternating_pairs": 6,
+          "minimum_pairs_above_1_05": 5
+        },
+        "pairs": [
+          {
+            "cases": 64,
+            "baseline_ns": 476423849,
+            "candidate_ns": 100120914,
+            "output_sha256": "59a2a5652e6a276e750075b707df8f2a61672ad70a908b0997101bb04ccf5dfc",
+            "baseline_cpu_ns": 471855024,
+            "candidate_cpu_ns": 99980132
+          },
+          {
+            "cases": 64,
+            "baseline_ns": 458444393,
+            "candidate_ns": 96549565,
+            "output_sha256": "62b511afc352ed15aee27dad3c95fc3b9b053acec939d892dd55a4c89343c68b",
+            "baseline_cpu_ns": 457869620,
+            "candidate_cpu_ns": 96539692
+          },
+          {
+            "cases": 64,
+            "baseline_ns": 453590483,
+            "candidate_ns": 87741605,
+            "output_sha256": "517328c34043a7a2cbb491684ce8f7819f13fa14ef3c51f94ae30d5631d9a6bd",
+            "baseline_cpu_ns": 453523742,
+            "candidate_cpu_ns": 87725967
+          },
+          {
+            "cases": 64,
+            "baseline_ns": 400411187,
+            "candidate_ns": 107065567,
+            "output_sha256": "8a46f1dd21548bd950a18647fcfeb33672bef119584b37b19c46f14c7f191520",
+            "baseline_cpu_ns": 399876979,
+            "candidate_cpu_ns": 105772363
+          },
+          {
+            "cases": 64,
+            "baseline_ns": 441305092,
+            "candidate_ns": 111208234,
+            "output_sha256": "5afb688b5f828dca8521f831fbc73fb9943b6a93d3f2f0663cff1b62c8afd720",
+            "baseline_cpu_ns": 440844444,
+            "candidate_cpu_ns": 110817894
+          },
+          {
+            "cases": 64,
+            "baseline_ns": 416637676,
+            "candidate_ns": 100592372,
+            "output_sha256": "4b990c8190cc1c45455f9172fef268530ff14eca8f285895ef84f2dfd6d8fe01",
+            "baseline_cpu_ns": 416424546,
+            "candidate_cpu_ns": 100567293
+          }
+        ],
+        "patch": [
+          {
+            "new": "@lru_cache(maxsize=4096)\ndef linear(hex_value):\n    rgb = tuple(int(hex_value[i:i+2], 16)/255 for i in (1, 3, 5))\n    return tuple(v/12.92 if v <= .04045 else ((v+.055)/1.055)**2.4 for v in rgb)\n",
+            "old": "def linear(hex_value):\n    rgb = tuple(int(hex_value[i:i+2], 16)/255 for i in (1, 3, 5))\n    return tuple(v/12.92 if v <= .04045 else ((v+.055)/1.055)**2.4 for v in rgb)\n",
+            "path": "crm/services/brand_palette.py",
+            "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d"
+          },
+          {
+            "new": "@lru_cache(maxsize=4096)\ndef lch(hex_value):\n    lightness, aa, bb = lab(linear(hex_value))",
+            "old": "def lch(hex_value):\n    lightness, aa, bb = lab(linear(hex_value))",
+            "path": "crm/services/brand_palette.py",
+            "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d"
+          },
+          {
+            "new": "@lru_cache(maxsize=4096)\ndef _luminance(color):\n    r, g, bb = linear(color)\n    return .2126*r+.7152*g+.0722*bb\n\n\ndef contrast(a, b):\n    la, lb = _luminance(a), _luminance(b)\n    return (max(la, lb)+.05)/(min(la, lb)+.05)",
+            "old": "def contrast(a, b):\n    def luminance(color):\n        r, g, bb = linear(color)\n        return .2126*r+.7152*g+.0722*bb\n    la, lb = luminance(a), luminance(b)\n    return (max(la, lb)+.05)/(min(la, lb)+.05)",
+            "path": "crm/services/brand_palette.py",
+            "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d"
+          },
+          {
+            "new": "@lru_cache(maxsize=4096)\ndef from_lch(lightness, chroma, hue):\n    lightness = max(0., min(1., lightness))",
+            "old": "def from_lch(lightness, chroma, hue):\n    lightness = max(0., min(1., lightness))",
+            "path": "crm/services/brand_palette.py",
+            "sha256": "4c72a5853abef39e59c7b8df392e140333da4659f76ddea944a20e83528e3e9d"
+          }
+        ],
+        "scope": "isolated CRM palette service with synthetic novel seeds; not production P95/P99 or all CRM functions",
+        "job_key": "c2e084699910b06a7082f5c4659bd4cb9d14f7700bbdbed9de15ab79bc7a0191",
+        "network": "none",
+        "success": true,
+        "accepted": true,
+        "cache_hit": false,
+        "project_id": "crm-python",
+        "improved_pairs": 6,
+        "candidate_files": {
+          "crm/services/brand_palette.py": "7810f439b09f3bab91694219ed313909b358910fae51d3e1a2a85445bcb92c2f"
+        },
+        "elapsed_seconds": 10.574,
+        "runner_image_id": "sha256:dc12e7ab31dd44f09b27bd6cd7dc8f4b2b86ac458dada37424ba45a46ed5b439",
+        "source_revision": "20eb8592d7a6c9b959113417de45ef99ec2c6b2125b9c635b9c15cd574cf12a5",
+        "candidate_profile": {
+          "cases": 64,
+          "scope": "actual CRM palette service, synthetic novel brand seeds; not production request latency",
+          "cpu_ns": 337047860,
+          "hotspots": [
+            {
+              "line": 105,
+              "path": "crm/services/brand_palette.py",
+              "calls": 57759,
+              "function": "contrast",
+              "self_seconds": 0.045377166000000003,
+              "total_seconds": 0.08552485900000001
+            },
+            {
+              "line": 122,
+              "path": "crm/services/brand_palette.py",
+              "calls": 21488,
+              "function": "<genexpr>",
+              "self_seconds": 0.023551637,
+              "total_seconds": 0.058082413000000006
+            },
+            {
+              "line": 127,
+              "path": "crm/services/brand_palette.py",
+              "calls": 75988,
+              "function": "<genexpr>",
+              "self_seconds": 0.020286108,
+              "total_seconds": 0.104381235
+            },
+            {
+              "line": 86,
+              "path": "crm/services/brand_palette.py",
+              "calls": 1473,
+              "function": "ramp",
+              "self_seconds": 0.017159585,
+              "total_seconds": 0.08046270100000001
+            },
+            {
+              "line": 122,
+              "path": "crm/services/brand_palette.py",
+              "calls": 64464,
+              "function": "<genexpr>",
+              "self_seconds": 0.011243847000000001,
+              "total_seconds": 0.011243847000000001
+            },
+            {
+              "line": 126,
+              "path": "crm/services/brand_palette.py",
+              "calls": 1727,
+              "function": "role",
+              "self_seconds": 0.010927096,
+              "total_seconds": 0.146749022
+            },
+            {
+              "line": 120,
+              "path": "crm/services/brand_palette.py",
+              "calls": 5372,
+              "function": "simulated",
+              "self_seconds": 0.010310037000000001,
+              "total_seconds": 0.07702286300000001
+            },
+            {
+              "line": 61,
+              "path": "crm/services/brand_palette.py",
+              "calls": 2101,
+              "function": "from_lch",
+              "self_seconds": 0.009538063000000001,
+              "total_seconds": 0.054469002
+            },
+            {
+              "line": 65,
+              "path": "crm/services/brand_palette.py",
+              "calls": 8001,
+              "function": "rgb",
+              "self_seconds": 0.008458001,
+              "total_seconds": 0.01095127
+            },
+            {
+              "line": 45,
+              "path": "crm/services/brand_palette.py",
+              "calls": 6774,
+              "function": "lab",
+              "self_seconds": 0.007588633000000001,
+              "total_seconds": 0.010977961000000001
+            },
+            {
+              "line": 38,
+              "path": "crm/services/brand_palette.py",
+              "calls": 6303,
+              "function": "channel",
+              "self_seconds": 0.0069340700000000005,
+              "total_seconds": 0.014784164
+            },
+            {
+              "line": 136,
+              "path": "crm/services/brand_palette.py",
+              "calls": 9595,
+              "function": "<lambda>",
+              "self_seconds": 0.005403715,
+              "total_seconds": 0.011207642
+            },
+            {
+              "line": 139,
+              "path": "crm/services/brand_palette.py",
+              "calls": 384,
+              "function": "semantic",
+              "self_seconds": 0.005180041000000001,
+              "total_seconds": 0.258056905
+            },
+            {
+              "line": 31,
+              "path": "crm/services/brand_palette.py",
+              "calls": 1942,
+              "function": "linear",
+              "self_seconds": 0.004989987,
+              "total_seconds": 0.010230865
+            },
+            {
+              "line": 42,
+              "path": "crm/services/brand_palette.py",
+              "calls": 8404,
+              "function": "<genexpr>",
+              "self_seconds": 0.004631364000000001,
+              "total_seconds": 0.019415528
+            },
+            {
+              "line": 33,
+              "path": "crm/services/brand_palette.py",
+              "calls": 7768,
+              "function": "<genexpr>",
+              "self_seconds": 0.003325885,
+              "total_seconds": 0.003325885
+            },
+            {
+              "line": 123,
+              "path": "crm/services/brand_palette.py",
+              "calls": 4029,
+              "function": "<genexpr>",
+              "self_seconds": 0.003142918,
+              "total_seconds": 0.08087390900000001
+            },
+            {
+              "line": 79,
+              "path": "crm/services/brand_palette.py",
+              "calls": 16473,
+              "function": "<genexpr>",
+              "self_seconds": 0.003046524,
+              "total_seconds": 0.003046524
+            },
+            {
+              "line": 116,
+              "path": "crm/services/brand_palette.py",
+              "calls": 2048,
+              "function": "<genexpr>",
+              "self_seconds": 0.0025010830000000003,
+              "total_seconds": 0.002724867
+            },
+            {
+              "line": 55,
+              "path": "crm/services/brand_palette.py",
+              "calls": 1402,
+              "function": "lch",
+              "self_seconds": 0.0021776390000000003,
+              "total_seconds": 0.006572057
+            }
+          ],
+          "elapsed_ns": 337903037,
+          "p95_case_ns": 10439169,
+          "profile_unit": "seconds",
+          "output_sha256": "59a2a5652e6a276e750075b707df8f2a61672ad70a908b0997101bb04ccf5dfc",
+          "source_sha256": "7810f439b09f3bab91694219ed313909b358910fae51d3e1a2a85445bcb92c2f",
+          "median_case_ns": 3686706.5,
+          "profile_source": "actual cProfile execution with exact source-file SHA",
+          "output_comparison": "recursive exact Python types and values, including list versus tuple"
+        },
+        "executor_contract": 3,
+        "root_cause_status": "validated_in_controlled_crm_benchmark",
+        "median_cpu_speedup": 4.430121576601776,
+        "credentials_mounted": false,
+        "output_parity_cases": 384,
+        "functional_regression": "passed"
+      },
+      "evidence_ids": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5"
+      ],
+      "source_project": "crm-python",
+      "source_revision": "20eb8592d7a6c9b959113417de45ef99ec2c6b2125b9c635b9c15cd574cf12a5",
+      "patch_applied_to": "isolated_snapshot",
+      "production_deployed": false
+    },
+    "created_at": "2026-10-20T04:49:23.950248Z",
+    "updated_at": "2026-10-20T04:49:46.364533Z"
+  },
+  "verification": {
+    "id": "6",
+    "diagnosis_id": "13",
+    "baseline_task_id": "15",
+    "candidate_task_id": "16",
+    "requested_by": "77f0de20-54bb-4142-9cfc-474d9c7df79e",
+    "candidate_diagnosis_id": "14",
+    "status": "success",
+    "report": {
+      "comparison": {
+        "kind": "PYTHON_CPU",
+        "unit": "samples",
+        "outcome": "insufficient_evidence",
+        "comparable": true,
+        "differences": [
+          {
+            "symbol": "symbol_1393bb56aa5f",
+            "baseline_self_percent": 10.7287,
+            "candidate_self_percent": 8.8146,
+            "delta_percentage_points": -1.9140999999999995
+          },
+          {
+            "symbol": "symbol_44d054535e52",
+            "baseline_self_percent": 2.6316,
+            "candidate_self_percent": 1.1145,
+            "delta_percentage_points": -1.5171000000000001
+          },
+          {
+            "symbol": "symbol_05de95427f2d",
+            "baseline_self_percent": 2.3279,
+            "candidate_self_percent": 3.7487,
+            "delta_percentage_points": 1.4207999999999998
+          },
+          {
+            "symbol": "symbol_6125ef45be18",
+            "baseline_self_percent": 7.2874,
+            "candidate_self_percent": 6.079,
+            "delta_percentage_points": -1.2084000000000001
+          },
+          {
+            "symbol": "symbol_9db888ac9b41",
+            "baseline_self_percent": 17.8138,
+            "candidate_self_percent": 18.9463,
+            "delta_percentage_points": 1.1325000000000003
+          },
+          {
+            "symbol": "symbol_db621560ea44",
+            "baseline_self_percent": 9.1093,
+            "candidate_self_percent": 10.233,
+            "delta_percentage_points": 1.1237000000000013
+          },
+          {
+            "symbol": "symbol_8e3b5b11ae7d",
+            "baseline_self_percent": 3.3401,
+            "candidate_self_percent": 4.2553,
+            "delta_percentage_points": 0.9152
+          },
+          {
+            "symbol": "symbol_c54a9eeee047",
+            "baseline_self_percent": 0.9109,
+            "candidate_self_percent": 0,
+            "delta_percentage_points": -0.9109
+          },
+          {
+            "symbol": "symbol_36801c958f7f",
+            "baseline_self_percent": 1.0121,
+            "candidate_self_percent": 0.1013,
+            "delta_percentage_points": -0.9108
+          },
+          {
+            "symbol": "symbol_65d95d3ce362",
+            "baseline_self_percent": 1.2146,
+            "candidate_self_percent": 0.304,
+            "delta_percentage_points": -0.9105999999999999
+          }
+        ],
+        "limitations": [
+          "重复采样只检验现象复现；未实施受控代码或配置干预，不能确认因果根因。",
+          "百分比差值不是请求延迟或CPU利用率变化；需同一负载并记录业务指标。",
+          "样本数不足1000或单位不是采样计数；只展示描述差异，不给统计显著性结论。",
+          "Top表未出现的符号按0显示仅指已返回热点表，不证明实际没有执行。"
+        ],
+        "baseline_weight": 988,
+        "candidate_weight": 987,
+        "root_cause_status": "not_tested"
+      },
+      "candidate_report": {
+        "model": "deepseek-flash",
+        "engine": "model",
+        "summary": "复测与原采集可比（同为PYTHON_CPU，单位samples，基线权重988、复测权重987），热点排序结构基本复现：rank1 symbol_9db888ac9b41（self 17.81%→18.95%，+1.13pp）、rank2 symbol_db621560ea44（9.11%→10.23%，+1.12pp）、rank3 symbol_1393bb56aa5f（self 10.73%→8.81%，-1.91pp，total 27.76%）在两次采集中都处于前列，说明“这些函数是主要采样权重集中点”这一现象层面结论仍受支持。调用链显示 rank1 的13处独立出现位置中，多数经 symbol_1393bb56aa5f 及其上层链（含 symbol_0aa0c7f23b2f、symbol_478ad1d34d16、symbol_e9f33ed7c65c、symbol_02670bbe583a）进入，rank3 的部分出现位置直接以 rank1 为被调用者，提示两者存在调用关系上的耦合，但这只是本次采集树中的结构，不构成因果。compare_profiles 的 outcome 为 insufficient_evidence、root_cause_status 为 not_tested，且样本量不足1000，因此只能判定“现象复现”，不能判定根因；所有百分比均为采样权重占比，不代表请求延迟、CPU利用率或回退幅度。采集质量无 issues，但未关联业务延迟/吞吐/错误率，也未记录丢样率与符号映射。",
+        "hypotheses": [
+          {
+            "claim": "rank1 symbol_9db888ac9b41 与 rank3 symbol_1393bb56aa5f 构成稳定的高权重调用组合（rank3 作为 rank1 的上层调用者之一），该组合在两次采集中都占据主要采样权重，属于可复现的热点结构而非单次采样偶然。",
+            "evidence_ids": [
+              "E1",
+              "E2",
+              "E4",
+              "E5",
+              "E6"
+            ],
+            "verification": "在相同负载与相同采集参数下做受控复测（建议时长30s、频率99Hz，需经TaskKind契约校验），并同时记录业务延迟/吞吐/错误率；验收指标：rank1 与 rank3 仍位于Top5、rank1 self 占比与本次18.95%的差异在待协商示例容差±3pp内、且 rank3→rank1 的调用边在调用树中仍存在；若差异超出容差需先排除采样随机性与负载差异，不得直接判为噪声或缺陷。"
+          },
+          {
+            "claim": "rank1 的高 self 权重可能来自其自身叶帧执行，而非仅由上层调用放大；但当前证据无法区分是算法开销、I/O 等待还是解释器开销，symbol_hint 全为 unknown，不能据此推断锁等待或内存压力。",
+            "evidence_ids": [
+              "E2",
+              "E4",
+              "E5"
+            ],
+            "verification": "对 rank1 做受控干预对照：在隔离环境分别以“保持原逻辑”和“替换/短路该函数内部实现”两版运行同一基准负载，各采集≥3次并记录业务指标；验收指标为 rank1 self 采样权重占比与端到端业务延迟是否同向变化，仅当两者在受控对照下同向且可重复时才可提出因果结论。"
+          },
+          {
+            "claim": "rank2 symbol_db621560ea44 与 rank5 symbol_8e3b5b11ae7d 的占比小幅上升（+1.12pp、+0.92pp）可能只是采样随机性或负载差异，尚不足以判定为性能回退。",
+            "evidence_ids": [
+              "E1",
+              "E6"
+            ],
+            "verification": "以相同参数重复采集≥3次并计算各次占比的离散程度，同时固定负载与输入；验收指标：若多次复测中该差值方向一致且幅度稳定超出待协商示例容差±2pp，才升级为待查回退信号，否则按采样波动处理。"
+          },
+          {
+            "claim": "本次采集未覆盖业务侧指标，因此“热点集中”与用户感知的性能问题之间是否存在因果链尚未被检验。",
+            "evidence_ids": [
+              "E3",
+              "E6"
+            ],
+            "verification": "在同一时间窗口内并行采集 PYTHON_CPU 与业务侧延迟/吞吐/错误率指标，做时间对齐对照；验收指标：热点占比变化与业务延迟变化是否在多个窗口内同向，若不同向则说明热点集中不解释用户感知问题，需另找证据。"
+          }
+        ],
+        "limitations": [
+          "compare_profiles 判定 outcome=insufficient_evidence、root_cause_status=not_tested，样本量不足1000，未给出统计显著性。",
+          "未实施受控代码或配置干预，重复采样只能检验现象复现，不能确认因果根因。",
+          "未关联业务请求延迟、吞吐与错误率，无法把采样权重换算为性能影响。",
+          "调用链上下文被截断：rank1 与 rank3 的 ancestors_truncated 与 occurrences_truncated 均为 true，未返回的祖先路径与出现位置不可推断。",
+          "symbol_hint 全为 unknown，且未采集源码、符号地址映射与丢样率，无法定位到具体函数语义或源码位置。",
+          "Top 表未出现的符号按0显示仅指已返回热点表，不证明实际未执行。",
+          "模型结论为待验证假设，不代表已确认缺陷；不提供未经符号映射验证的源码行号。",
+          "原始profile、原符号、主机、PID、路径和凭据不发送模型；问题文本会发送，请勿填入敏感信息。"
+        ]
+      },
+      "baseline_diagnosis_id": "13",
+      "candidate_diagnosis_id": "14"
+    },
+    "created_at": "2026-10-20T04:48:58.925822Z",
+    "updated_at": "2026-10-20T04:49:22.932745Z"
+  }
+}

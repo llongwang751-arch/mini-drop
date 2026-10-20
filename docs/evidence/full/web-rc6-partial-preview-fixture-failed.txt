@@ -1,0 +1,74 @@
+
+
+Running 5 tests using 1 worker
+
+
+
+[1/5] e2e\partial-analysis.spec.ts:248:1 › partial analysis shows only this failed run as escaped readable data at 375 and 1440
+[2/5] e2e\partial-analysis.spec.ts:335:1 › partial analysis rejects stale runs and inputs and handles no-checkpoint/forbidden without retries
+[3/5] e2e\partial-analysis.spec.ts:369:1 › reanalyze and native retry/cancel clear partial presentation and never reuse its cache
+[4/5] e2e\partial-analysis.spec.ts:402:1 › leaving a task cancels its pending partial request and returning reads a fresh checkpoint
+  1) e2e\partial-analysis.spec.ts:402:1 › leaving a task cancels its pending partial request and returning reads a fresh checkpoint 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: '诊断任务', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: '诊断任务', exact: true }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: '诊断任务', exact: true })
+
+
+      409 |   await expect(
+      410 |     page.getByRole("heading", { name: "诊断任务", exact: true }),
+    > 411 |   ).toBeVisible();
+          |     ^
+      412 |   await expect.poll(data.aborted).toBeGreaterThan(0);
+      413 |   data.setMode("valid");
+      414 |   data.release();
+        at E:\tx-drop\web\e2e\partial-analysis.spec.ts:411:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results-rc6-partial\partial-analysis-leaving-a-51ec5-ng-reads-a-fresh-checkpoint\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results-rc6-partial\partial-analysis-leaving-a-51ec5-ng-reads-a-fresh-checkpoint\error-context.md
+
+
+
+
+[5/5] e2e\partial-analysis.spec.ts:427:1 › a failed run with no checkpoint cannot render a cached successful result
+  2) e2e\partial-analysis.spec.ts:427:1 › a failed run with no checkpoint cannot render a cached successful result 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "UNHANDLED_FIXTURE_ENDPOINT",
+    + ]
+
+      444 |     data.calls.filter((value) => value === "/tasks/7/result"),
+      445 |   ).toHaveLength(1);
+    > 446 |   expect(data.errors).toEqual([]);
+          |                       ^
+      447 | });
+      448 |
+        at E:\tx-drop\web\e2e\partial-analysis.spec.ts:446:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results-rc6-partial\partial-analysis-a-failed--af0c6--a-cached-successful-result\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results-rc6-partial\partial-analysis-a-failed--af0c6--a-cached-successful-result\error-context.md
+
+
+  2 failed
+    e2e\partial-analysis.spec.ts:402:1 › leaving a task cancels its pending partial request and returning reads a fresh checkpoint 
+    e2e\partial-analysis.spec.ts:427:1 › a failed run with no checkpoint cannot render a cached successful result 
+  3 passed (24.0s)

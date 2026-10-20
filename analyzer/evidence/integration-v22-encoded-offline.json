@@ -1,0 +1,48 @@
+{
+  "provenance": "Actual local Windows regression run; no remote host, Docker, database or S3 service. perf-script fixtures are synthetic imports; perf_data conversion argv was mocked, not a real perf tool execution. New exact gzip object download regression uses the actual urllib3 HTTPResponse, without a network server.",
+  "analyzer_version": "0.2.2",
+  "platform": "Windows",
+  "python": "3.14.0",
+  "architecture": "AMD64",
+  "source_tree_sha256": "36f726fdf62ee5262160ed8ea95fe8b959f61ba0e5274e02ddc44e60b92db8d9",
+  "source_files": 25,
+  "modules": [
+    "test_disk",
+    "test_folded",
+    "test_hprof_native",
+    "test_isolation_registry",
+    "test_perf",
+    "test_progress",
+    "test_worker"
+  ],
+  "tests_run": 54,
+  "passed": 49,
+  "skipped": 5,
+  "failed": 0,
+  "success": true,
+  "duration_seconds": 4.579358,
+  "log_file": "integration-v22-encoded-offline.log",
+  "log_sha256": "5f0c3a335c90c0679eb0f4ec609a01c60badea8773d20f642eab93b25df5f0be",
+  "skipped_cases": [
+    {
+      "name": "test_disk.DiskBudgetTests.test_fifo_is_rejected_without_opening_it",
+      "reason": "POSIX special file fixture"
+    },
+    {
+      "name": "test_disk.DiskBudgetTests.test_symlink_is_rejected_without_reading_its_target",
+      "reason": "OS disallows fixture symlink: 22"
+    },
+    {
+      "name": "test_isolation_registry.IsolationRegistryTests.test_100k_nodes_fit_default_child_budget_and_next_is_rejected",
+      "reason": "Linux RLIMIT_AS is required"
+    },
+    {
+      "name": "test_isolation_registry.IsolationRegistryTests.test_actual_process_tree_accounting_and_group_cleanup",
+      "reason": "Linux process group accounting required"
+    },
+    {
+      "name": "test_isolation_registry.IsolationRegistryTests.test_address_space_budget_fails_without_publishing_result",
+      "reason": "Linux RLIMIT_AS is required"
+    }
+  ]
+}

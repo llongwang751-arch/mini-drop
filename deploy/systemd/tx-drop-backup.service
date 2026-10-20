@@ -1,0 +1,13 @@
+[Unit]
+Description=Verified local tx-drop database and object backup
+After=docker.service
+Requires=docker.service
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/drop-current/deploy
+ExecStart=/bin/bash /opt/drop-current/deploy/backup.sh /opt/drop-backups
+User=root
+UMask=0077
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=900

@@ -1,0 +1,67 @@
+{
+  "provenance": "Only this script's freshly compiled deterministic checksum toy was executed in an isolated network-none container; no uploaded or business executable was run.",
+  "limitations": "Three alternating runs on a shared single CPU quota are a smoke benchmark, not an optimization benefit claim or an SLA. Only checksum/exit-code equivalence is established.",
+  "source_sha256": "bbe52ebf0c8bcbfb841cb3258e07f6b56da1569091a27a0961a02b78dd128d0f",
+  "elf_sha256": "5141400a693a70d49535a7a9238cbc3e546930d727708ac7f4a0c1ef85c77793",
+  "optimized_sha256": "c19ebdcb867a7ab4226300b8be4d49f87a7dd1510069caed59df67118c8622b8",
+  "profile_sha256": "9e9414379b7c41b19ae875c310edcdecc3a7d360d8b7cf734d57d32fad571b74",
+  "profile_bytes": 733,
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "bolt_version": "Ubuntu LLVM version 16.0.6\n  Optimized build.\nBOLT revision <unknown>\n\n  Registered Targets:\n    aarch64     - AArch64 (little endian)\n    aarch64_32  - AArch64 (little endian ILP32)\n    aarch64_be  - AArch64 (big endian)\n    amdgcn      - AMD GCN GPUs\n    arm         - ARM\n    arm64       - ARM64 (little endian)\n    arm64_32    - ARM64 (little endian ILP32)\n    armeb       - ARM (big endian)\n    avr         - Atmel AVR Microcontroller\n    bpf         - BPF (host endian)\n    bpfeb       - BPF (big endian)\n    bpfel       - BPF (little endian)\n    hexagon     - Hexagon\n    lanai       - Lanai\n    loongarch32 - 32-bit LoongArch\n    loongarch64 - 64-bit LoongArch\n    m68k        - Motorola 68000 family\n    mips        - MIPS (32-bit big endian)\n    mips64      - MIPS (64-bit big endian)\n    mips64el    - MIPS (64-bit little endian)\n    mipsel      - MIPS (32-bit little endian)\n    msp430      - MSP430 [experimental]\n    nvptx       - NVIDIA PTX 32-bit\n    nvptx64     - NVIDIA PTX 64-bit\n    ppc32       - PowerPC 32\n    ppc32le     - PowerPC 32 LE\n    ppc64       - PowerPC 64\n    ppc64le     - PowerPC 64 LE\n    r600        - AMD GPUs HD2XXX-HD6XXX\n    riscv32     - 32-bit RISC-V\n    riscv64     - 64-bit RISC-V\n    sparc       - Sparc\n    sparcel     - Sparc LE\n    sparcv9     - Sparc V9\n    systemz     - SystemZ\n    thumb       - Thumb\n    thumbeb     - Thumb (big endian)\n    ve          - VE\n    wasm32      - WebAssembly 32-bit\n    wasm64      - WebAssembly 64-bit\n    x86         - 32-bit X86: Pentium-Pro and above\n    x86-64      - 64-bit X86: EM64T and AMD64\n    xcore       - XCore\n    xtensa      - Xtensa 32",
+  "optimization": {
+    "output_file": "optimized.elf",
+    "output_size": 6297216,
+    "tool": "llvm-bolt-16",
+    "tool_report": "BOLT-INFO: Target architecture: x86_64\nBOLT-INFO: BOLT version: <unknown>\nBOLT-INFO: first alloc address is 0x400000\nBOLT-INFO: creating new program header table at address 0x600000, offset 0x200000\nBOLT-INFO: enabling relocation mode\nBOLT-INFO: enabling lite mode\nBOLT-INFO: pre-processing profile using branch profile reader\nBOLT-INFO: 7 out of 11 functions in the binary (63.6%) have non-empty execution profile\nBOLT-INFO: 2 functions with profile could not be optimized\nBOLT-INFO: profile for 1 objects was ignored\nBOLT-INFO: 0 instructions were shortened\nBOLT-INFO: removed 4 empty blocks\nBOLT-INFO: basic block reordering modified layout of 1 functions (14.29% of profiled, 8.33% of total)\nBOLT-INFO: UCE removed 0 blocks and 0 bytes of code.\nBOLT-INFO: 0 Functions were reordered by LoopInversionPass\nBOLT-INFO: hfsort+ reduced the number of chains from 9 to 6\nBOLT-INFO: program-wide dynostats after all optimizations before SCTC and FOP:\n\n            30000002 : executed forward branches\n                   2 : taken forward branches\n            30000000 : executed backward branches\n            29062500 : taken backward branches\n              937501 : executed unconditional branches\n                   6 : all function calls\n                   2 : indirect calls\n                   1 : PLT calls\n           300000055 : executed instructions\n                   6 : executed load instructions\n                   4 : executed store instructions\n                   0 : taken jump table branches\n                   0 : taken unknown indirect branches\n            60937503 : total branches\n            30000003 : taken branches\n            30937500 : non-taken conditional branches\n            29062502 : taken conditional branches\n            60000002 : all conditional branches\n\n            30000002 : executed forward branches (=)\n                   1 : taken forward branches (-50.0%)\n            30000000 : executed backward branches (=)\n            29062500 : taken backward branches (=)\n              937501 : executed unconditional branches (=)\n                   6 : all function calls (=)\n                   2 : indirect calls (=)\n                   1 : PLT calls (=)\n           300000055 : executed instructions (=)\n                   6 : executed load instructions (=)\n                   4 : executed store instructions (=)\n                   0 : taken jump table branches (=)\n                   0 : taken unknown indirect branches (=)\n            60937503 : total branches (=)\n            30000002 : taken branches (-0.0%)\n            30937501 : non-taken conditional branches (+0.0%)\n            29062501 : taken conditional branches (-0.0%)\n            60000002 : all conditional branches (=)\n\nBOLT-INFO: SCTC: patched 0 tail calls (0 forward) tail calls (0 backward) from a total of 0 while removing 0 double jumps and removing 0 basic blocks totalling 0 bytes of code. CTCs total execution count is 0 and the number of times CTCs are taken is 0.\nBOLT-INFO: padding code to 0xa00000 to accommodate hot text\nBOLT-INFO: setting _end to 0xa00164\nBOLT-INFO: setting __hot_start to 0x800000\nBOLT-INFO: setting __hot_end to 0x800182\nBOLT-INFO: patched build-id (flipped last bit)\n",
+    "status": "generated_requires_regression_validation"
+  },
+  "runs": [
+    {
+      "iteration": 1,
+      "binary": "toy",
+      "exit_code": 0,
+      "stdout": "5606594941379096865",
+      "elapsed_seconds": 0.080981
+    },
+    {
+      "iteration": 1,
+      "binary": "optimized.elf",
+      "exit_code": 0,
+      "stdout": "5606594941379096865",
+      "elapsed_seconds": 0.058256
+    },
+    {
+      "iteration": 2,
+      "binary": "toy",
+      "exit_code": 0,
+      "stdout": "5606594941379096865",
+      "elapsed_seconds": 0.058081
+    },
+    {
+      "iteration": 2,
+      "binary": "optimized.elf",
+      "exit_code": 0,
+      "stdout": "5606594941379096865",
+      "elapsed_seconds": 0.043931
+    },
+    {
+      "iteration": 3,
+      "binary": "toy",
+      "exit_code": 0,
+      "stdout": "5606594941379096865",
+      "elapsed_seconds": 0.09346
+    },
+    {
+      "iteration": 3,
+      "binary": "optimized.elf",
+      "exit_code": 0,
+      "stdout": "5606594941379096865",
+      "elapsed_seconds": 0.077654
+    }
+  ],
+  "median_seconds": {
+    "toy": 0.080981,
+    "optimized.elf": 0.058256
+  },
+  "functionally_equivalent_for_toy_input": true
+}

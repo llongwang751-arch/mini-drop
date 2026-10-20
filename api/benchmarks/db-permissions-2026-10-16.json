@@ -1,0 +1,28 @@
+{
+  "postgres_image": "postgres:17.11-alpine",
+  "isolated_network": "none",
+  "public_ports": [],
+  "passed": true,
+  "checks": [
+    "non-superuser login role with no database/role/replication/RLS elevation",
+    "secret file trailing LF is trimmed before SCRAM password assignment",
+    "table SELECT/INSERT/UPDATE/DELETE and sequence USAGE/SELECT succeed",
+    "CREATE ROLE denied",
+    "CREATE TABLE denied",
+    "CREATE TEMP TABLE denied",
+    "pg_read_file denied",
+    "sequence UPDATE/setval denied",
+    "TRUNCATE denied",
+    "future migration-owner table/sequence default privileges succeed",
+    "stale privileged membership removed",
+    "stale schema CREATE removed",
+    "stale table TRUNCATE removed",
+    "repeated initialization is idempotent",
+    "secret file trailing CRLF is trimmed; rotation succeeds and previous password is rejected",
+    "PostgreSQL container logs contain no tested database passwords"
+  ],
+  "runtime_extra_privileges": [
+    "CONNECT on the application database"
+  ],
+  "sequence_update_granted": false
+}

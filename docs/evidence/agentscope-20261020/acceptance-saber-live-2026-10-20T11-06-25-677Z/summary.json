@@ -1,0 +1,218 @@
+{
+  "source": "actual public UI operation, actual AgentScope runner with real DeepSeek and real enrolled Saber FTS5 component; all indexed documents/queries synthetic",
+  "started_at": "2026-10-20T11:06:25.680Z",
+  "attempt": "acceptance-saber-live-2026-10-20T11-06-25-677Z",
+  "milestones": [
+    {
+      "state": "submit_from_browser",
+      "elapsed_seconds": 1.9
+    },
+    {
+      "state": "planning",
+      "elapsed_seconds": 4.3
+    },
+    {
+      "state": "awaiting_confirmation",
+      "elapsed_seconds": 6.5
+    },
+    {
+      "state": "plan_confirmed_from_browser",
+      "elapsed_seconds": 6.7
+    },
+    {
+      "state": "collecting",
+      "elapsed_seconds": 8.8
+    },
+    {
+      "state": "diagnosing",
+      "elapsed_seconds": 23.3
+    },
+    {
+      "state": "verifying",
+      "elapsed_seconds": 33.6
+    },
+    {
+      "state": "source_pending_steps_0",
+      "elapsed_seconds": 58.5
+    },
+    {
+      "state": "source_running_steps_0",
+      "elapsed_seconds": 60.6
+    },
+    {
+      "state": "source_running_steps_2",
+      "elapsed_seconds": 62.8
+    },
+    {
+      "state": "source_running_steps_4",
+      "elapsed_seconds": 64.9
+    },
+    {
+      "state": "source_running_steps_5",
+      "elapsed_seconds": 71.4
+    },
+    {
+      "state": "success",
+      "elapsed_seconds": 75.6
+    },
+    {
+      "state": "source_success_steps_5",
+      "elapsed_seconds": 75.6
+    }
+  ],
+  "passed": true,
+  "auth": "reused private existing session",
+  "project_id": "saber-python",
+  "source_revision": "9245ce09fa2e2adceafebb669ee4605f94a2bb05153d5844d24888fb61d4f402",
+  "target": {
+    "agent_id": "tencent-local",
+    "pid": 82,
+    "uid": 10001,
+    "start_time_ticks": 9040395
+  },
+  "goal": "面试实时演示：调查Python Saber知识库FTS5长查询的CPU开销。根据节点实际能力选择Python CPU调用栈采集10秒、99Hz，关闭native扩展（native=false），检查热点、调用上下文及采集质量；自动复测并再次诊断。继续使用绑定版本的真实源码定位、生成最小优化补丁，在隔离副本运行原功能回归、冻结语义与用户隔离检查、严格输出比较及多组交替CPU对照。只依据实际证据判断，不把重复采样当根因确认。 2026-10-20T11:06:27.276Z",
+  "investigation_id": "11",
+  "plan": {
+    "kind": "PYTHON_CPU",
+    "options": {
+      "native": false
+    },
+    "rationale": "目标为Python进程（Saber知识库FTS5长查询），目录中PYTHON_CPU支持process作用域、1-60秒、1-199Hz，且options.native可关闭，符合用户要求的10秒/99Hz/native=false。该采集器提供Python调用栈采样，用于定位热点函数与调用上下文；关闭native扩展意味着C层（如sqlite3/FTS5扩展）帧可能不可见或归并到解释器帧，因此热点若落在原生扩展内只能作为局限说明，不能据此断言根因。先做这一低成本单次采集，随后按计划复测一次（同样10秒/99Hz）以评估采样质量与稳定性，不把重复采样当作根因确认。",
+    "frequency_hz": 99,
+    "duration_seconds": 10
+  },
+  "planning_agent_runtime": {
+    "usage": {
+      "input_tokens": 23264,
+      "output_tokens": 303
+    },
+    "run_id": "18d468dc-2ee1-4e7a-ad67-19b481c64168",
+    "framework": "agentscope",
+    "elapsed_ms": 3513,
+    "tool_calls": 2,
+    "agent_class": "agentscope.agent.Agent",
+    "model_calls": 2,
+    "framework_version": "2.0.10"
+  },
+  "baseline_task_id": "86",
+  "repair_id": "9",
+  "candidate_task_id": "87",
+  "diagnoses": {
+    "baseline": {
+      "id": "29",
+      "task_id": "86",
+      "attempt_id": "87",
+      "analysis_job_id": "79",
+      "analysis_run": 1,
+      "runtime": {
+        "usage": {
+          "input_tokens": 12947,
+          "output_tokens": 1352
+        },
+        "run_id": "0c3cba8e-b583-435d-bf93-282597bddb2b",
+        "framework": "agentscope",
+        "elapsed_ms": 9597,
+        "tool_calls": 6,
+        "agent_class": "agentscope.agent.Agent",
+        "model_calls": 4,
+        "framework_version": "2.0.10"
+      },
+      "model": "deepseek-flash",
+      "evidence_count": 7,
+      "tools": {
+        "read_profile_summary": 1,
+        "inspect_hotspots": 1,
+        "check_collection_quality": 1,
+        "inspect_call_paths": 3,
+        "propose_verification": 1
+      },
+      "valid_report_references": true,
+      "created_at": "2026-10-20T11:06:46.767089Z",
+      "updated_at": "2026-10-20T11:06:57.575352Z"
+    },
+    "candidate": {
+      "id": "30",
+      "task_id": "87",
+      "attempt_id": "88",
+      "analysis_job_id": "80",
+      "analysis_run": 1,
+      "runtime": {
+        "usage": {
+          "input_tokens": 8604,
+          "output_tokens": 1147
+        },
+        "run_id": "317da541-ba7b-472b-b865-059bcc011f97",
+        "framework": "agentscope",
+        "elapsed_ms": 8053,
+        "tool_calls": 4,
+        "agent_class": "agentscope.agent.Agent",
+        "model_calls": 3,
+        "framework_version": "2.0.10"
+      },
+      "model": "deepseek-flash",
+      "evidence_count": 5,
+      "tools": {
+        "read_profile_summary": 1,
+        "inspect_hotspots": 1,
+        "check_collection_quality": 1,
+        "inspect_call_paths": 1,
+        "compare_profiles": 1
+      },
+      "valid_report_references": true,
+      "created_at": "2026-10-20T11:07:12.773169Z",
+      "updated_at": "2026-10-20T11:07:21.951373Z"
+    },
+    "distinct_tasks_diagnoses_and_runtime": true
+  },
+  "source_agent_runtime": {
+    "usage": {
+      "input_tokens": 29449,
+      "output_tokens": 1314
+    },
+    "run_id": "e42aee22-4a63-42e1-a3d2-eb2127083fae",
+    "framework": "agentscope",
+    "elapsed_ms": 14777,
+    "tool_calls": 5,
+    "agent_class": "agentscope.agent.Agent",
+    "model_calls": 4,
+    "framework_version": "2.0.10"
+  },
+  "distinct_framework_phase_invocations": true,
+  "verification_id": "14",
+  "fresh_measurements": [
+    {
+      "tool": "profile_business_flow",
+      "cache_hit": false,
+      "job_key": "2af0240cc71c1fb1b1ab6ea5ba9ec5ff214f9842084ab82be4bc659e24350047"
+    },
+    {
+      "tool": "test_patch",
+      "cache_hit": false,
+      "job_key": "145eadf6d4c24e8603bcb184b59eaa493c467e569695635bc1c4d7bf5270c293"
+    }
+  ],
+  "cpu_speedup": 1.558687787475209,
+  "output_parity_cases": 384,
+  "improved_pairs": 6,
+  "original_tests": 2,
+  "frozen_contract_tests": 6,
+  "root_cause_status": "validated_in_controlled_saber_benchmark",
+  "source_render_verified": true,
+  "no_page_reload_or_manual_repair_selection_after_link": true,
+  "actual_report_summary": "在绑定版本 9245ce09 上对登记业务函数做真实 cProfile：build_fts_query（第35行）self 0.0467s / total 0.2466s，占 search total 0.3729s 的约66%；第42行生成器被调用21582次（64次查询、最长6311字符），是主要CPU来源。根因是长查询下对每个中文片段用 re.fullmatch 重复做整段正则校验，并用生成器逐对拼接相邻字，再整体 dict.fromkeys 去重，且去重发生在截断到64个词元之前，因此对超长查询做了大量无用工作。最小补丁只改 build_fts_query：用首字符码点判断中文片段（等价于原 fullmatch 语义，因为 findall 的片段本身只含汉字），边生成边用 set 去重，并在达到64个词元时提前停止，保持词元顺序、去重语义、64上限、引号与保留字过滤、返回 str 类型不变；fts_tokenize、SQL、租户 user_id 过滤与测试均未改动。test_patch 实际应用成功：success=true、accepted=true，原测试2个与冻结契约测试6个全部通过，384例严格输出比较（MATCH 参数、tenant、命中ID/内容、BM25分数）一致，6/6交替对照均改善，中位CPU加速1.559x（候选 profile 中 build_fts_query total 0.2466s→0.0361s）。结论仅限该登记 FTS5 组件的受控合成基准（1K–8K查询+内存SQLite），不代表全项目或生产P95/P99。",
+  "actual_validation_scope": "Saber FTS5 component on synthetic 1K-8K long queries plus edge cases and real in-memory SQLite searches; excludes index construction and full app, not production P95/P99 or all Saber functions",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "width": 375,
+      "height": 900
+    }
+  ],
+  "mobile_horizontal_overflow": false,
+  "elapsed_seconds": 76.4,
+  "completed_at": "2026-10-20T11:07:42.093Z",
+  "browser_errors": 0
+}

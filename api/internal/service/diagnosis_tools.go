@@ -1,0 +1,341 @@
+package service
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"math"
+	"strings"
+
+	"drop/api/internal/domain"
+	"drop/api/internal/repository"
+	"gorm.io/gorm"
+)
+
+type DiagnosisStep struct {
+	EvidenceID  string          `json:"evidence_id"`
+	Tool        string          `json:"tool"`
+	Observation json.RawMessage `json:"observation"`
+}
+type DiagnosisHypothesis struct {
+	Claim        string   `json:"claim"`
+	EvidenceIDs  []string `json:"evidence_ids"`
+	Verification string   `json:"verification"`
+}
+type DiagnosisPlan struct {
+	Kind            string `json:"kind"`
+	DurationSeconds int    `json:"duration_seconds"`
+	FrequencyHz     int    `json:"frequency_hz"`
+	Reason          string `json:"reason"`
+}
+type DiagnosisReport struct {
+	Summary      string                `json:"summary"`
+	Hypotheses   []DiagnosisHypothesis `json:"hypotheses"`
+	Limitations  []string              `json:"limitations"`
+	Plan         *DiagnosisPlan        `json:"plan,omitempty"`
+	Engine       string                `json:"engine"`
+	Model        string                `json:"model,omitempty"`
+	AgentRuntime *AgentRuntime         `json:"agent_runtime,omitempty"`
+}
+
+func diagnosisToolNames() []string {
+	return []string{"read_profile_summary", "inspect_hotspots", "check_collection_quality", "inspect_call_paths", "propose_verification"}
+}
+
+// Semantic hints stay within a fixed enum. This is a local heuristic, never a
+// claim that a stack proves blocking, allocation pressure or an actual defect.
+func diagnosisSymbolHint(name string) string {
+	name = strings.ToLower(name)
+	for _, group := range []struct {
+		hint    string
+		matches []string
+	}{
+		{"lock_or_wait", []string{"futex", "mutex", "pthread_cond", "locksupport", "park", "semaphore"}},
+		{"garbage_collection", []string{"gcworker", "garbage", "g1collect", "zgc", "gc.collect", "runtime.gc"}},
+		{"allocation", []string{"malloc", "calloc", "realloc", "operator new", "allocobject", "runtime.mallocgc"}},
+		{"io_or_network", []string{"epoll", "poll_wait", "recv", "sendmsg", "read_syscall", "sys_read", "sys_write", "socket"}},
+		{"scheduler", []string{"schedule", "context_switch", "sched_yield", "runtime.gosched"}},
+	} {
+		for _, match := range group.matches {
+			if strings.Contains(name, match) {
+				return group.hint
+			}
+		}
+	}
+	return "unknown"
+}
+
+// Tools are bound to the authorized run's task/attempt. No model-supplied task,
+// URL, shell, path, SQL, PID or Agent identifier is accepted by this dispatcher.
+func diagnosisTool(name string, args json.RawMessage, raw json.RawMessage, task domain.Task) (json.RawMessage, *DiagnosisPlan, error) {
+	var params struct {
+		Kind            string `json:"kind,omitempty"`
+		DurationSeconds int    `json:"duration_seconds,omitempty"`
+		FrequencyHz     int    `json:"frequency_hz,omitempty"`
+		Rank            int    `json:"rank,omitempty"`
+	}
+	if len(args) > 1024 {
+		return nil, nil, domain.Fail("AI_TOOL_REJECTED", "工具参数过大")
+	}
+	dec := json.NewDecoder(strings.NewReader(string(args)))
+	dec.DisallowUnknownFields()
+	if len(args) == 0 || strings.TrimSpace(string(args)) == "null" || dec.Decode(&params) != nil {
+		return nil, nil, domain.Fail("AI_TOOL_REJECTED", "工具参数无效")
+	}
+	var extra any
+	if dec.Decode(&extra) != io.EOF {
+		return nil, nil, domain.Fail("AI_TOOL_REJECTED", "工具参数包含尾部数据")
+	}
+	if name != "propose_verification" && (params.Kind != "" || params.DurationSeconds != 0 || params.FrequencyHz != 0) {
+		return nil, nil, domain.Fail("AI_TOOL_REJECTED", "只读工具不接受采集参数")
+	}
+	if name != "inspect_call_paths" && params.Rank != 0 {
+		return nil, nil, domain.Fail("AI_TOOL_REJECTED", "该工具不接受热点排名")
+	}
+	var profile struct {
+		Kind         string `json:"kind"`
+		TotalSamples int64  `json:"total_samples"`
+		NodeCount    int64  `json:"node_count"`
+		Top          []struct {
+			Name         string  `json:"name"`
+			SelfPercent  float64 `json:"self_percent"`
+			TotalPercent float64 `json:"total_percent"`
+		} `json:"top_functions"`
+	}
+	if json.Unmarshal(raw, &profile) != nil {
+		return nil, nil, domain.Fail("RESULT_NOT_READY", "结果无法解析")
+	}
+	for _, f := range profile.Top {
+		if math.IsNaN(f.SelfPercent) || math.IsInf(f.SelfPercent, 0) || f.SelfPercent < 0 || f.SelfPercent > 100 || math.IsNaN(f.TotalPercent) || math.IsInf(f.TotalPercent, 0) || f.TotalPercent < 0 || f.TotalPercent > 100 {
+			return nil, nil, domain.Fail("INVALID_EVIDENCE", "热点比例超出范围")
+		}
+	}
+	marshal := func(v any) (json.RawMessage, *DiagnosisPlan, error) { b, e := json.Marshal(v); return b, nil, e }
+	switch name {
+	case "read_profile_summary":
+		b, e := RedactedSummary(raw)
+		if e != nil {
+			return nil, nil, e
+		}
+		var summary map[string]any
+		json.Unmarshal(b, &summary)
+		var meta struct {
+			Summary struct {
+				Unit string `json:"unit"`
+			} `json:"summary"`
+		}
+		json.Unmarshal(raw, &meta)
+		unit := "unknown"
+		for _, known := range []string{"samples", "cpu_ticks", "bytes", "objects", "allocations", "operations", "nanoseconds", "milliseconds", "count"} {
+			if meta.Summary.Unit == known {
+				unit = known
+			}
+		}
+		summary["measurement_unit"] = unit
+		summary["stack_scope"] = "profile_dependent"
+		if task.Kind == "PROC_CPU" {
+			summary["stack_scope"] = "process_and_thread_counters_only_no_function_stacks"
+		}
+		return marshal(summary)
+	case "inspect_call_paths":
+		rank := params.Rank
+		if rank == 0 {
+			rank = 1
+		}
+		if rank < 1 || rank > 10 {
+			return nil, nil, domain.Fail("AI_TOOL_REJECTED", "热点排名须为1–10")
+		}
+		if rank > len(profile.Top) {
+			return marshal(map[string]any{"available": false, "reason": "selected_hotspot_not_present"})
+		}
+		b, e := diagnosisCallPaths(raw, profile.Top[rank-1].Name)
+		return b, nil, e
+	case "inspect_hotspots":
+		top := []map[string]any{}
+		for i, f := range profile.Top {
+			if i >= 10 {
+				break
+			}
+			top = append(top, map[string]any{"rank": i + 1, "symbol": "symbol_" + repository.Digest(f.Name)[:12], "symbol_hint": diagnosisSymbolHint(f.Name), "self_percent": f.SelfPercent, "total_percent": f.TotalPercent})
+		}
+		return marshal(map[string]any{"top_functions": top, "hint_source": "local_symbol_heuristic_v1", "interpretation": "self为叶帧权重，total为包含子调用权重；symbol_hint为本地符号词形分类，仅作线索，不能证明锁等待或根因。比例不证明请求延迟或因果。原符号仅保留在授权结果页面。"})
+	case "check_collection_quality":
+		var p domain.Parameters
+		if err := json.Unmarshal(task.Parameters, &p); err != nil {
+			return nil, nil, err
+		}
+		issues := []string{}
+		if task.Kind == "PROC_CPU" {
+			issues = append(issues, "procfs仅提供进程/线程CPU tick，不提供函数调用栈；不能用线程名定位源码函数")
+		}
+		if profile.TotalSamples <= 0 {
+			issues = append(issues, "没有正采样权重，无法支持热点判断")
+		}
+		if p.DurationSeconds > 0 && p.DurationSeconds < 10 {
+			issues = append(issues, "采集窗口短于10秒，需在稳定负载下复测")
+		}
+		if p.Source == "import" || task.Kind == "IMPORT_COLLAPSED" {
+			issues = append(issues, "离线导入数据：无法核实现场负载、采集时钟和丢样")
+		}
+		return marshal(map[string]any{"kind": task.Kind, "duration_seconds": p.DurationSeconds, "frequency_hz": p.FrequencyHz, "issues": issues, "unknowns": []string{"未关联业务请求延迟、吞吐和错误率", "单次快照不能证明性能回退或修复收益", "未采集源码、符号地址映射及丢样率，不输出文件行号"}})
+	case "propose_verification":
+		if params.Kind != "" && params.Kind != task.Kind {
+			return nil, nil, domain.Fail("AI_TOOL_REJECTED", "复测采集类型不能跨越当前任务")
+		}
+		kind := params.Kind
+		var original domain.Parameters
+		if json.Unmarshal(task.Parameters, &original) != nil {
+			return nil, nil, domain.Fail("INVALID_EVIDENCE", "参数不可读")
+		}
+		if kind == "" {
+			kind = task.Kind
+		}
+		k, ok := domain.Kind(kind)
+		if original.Source == "import" || kind == "IMPORT_COLLAPSED" {
+			return marshal(map[string]any{"requires_manual_import": true, "next": "以同一负载和采集配置重新导入对照文件，再使用结果对比验证；不执行导入文件。"})
+		}
+		if !ok || !k.AgentRunner || kind == "COMPOSITE" || kind == "SCRIPT" || kind == "BOLT" {
+			return marshal(map[string]any{"requires_manual_configuration": true, "next": "请在任务表单审阅工具、依赖和完整配置，本轮不生成可自动提交的采集草案。"})
+		}
+		// Keep the same runner and target policy. Cross-kind collection requires the
+		// normal task form, where required language-specific options can be reviewed.
+		if kind != task.Kind {
+			return nil, nil, domain.Fail("AI_TOOL_REJECTED", "本轮复测仅允许相同采集类型，其他类型请在任务表单配置")
+		}
+		duration := params.DurationSeconds
+		if duration == 0 {
+			duration = k.DefaultDuration
+			if duration < 10 {
+				duration = 10
+			}
+		}
+		frequency := params.FrequencyHz
+		if duration < 1 || duration > 60 || frequency < 0 || frequency > 999 {
+			return nil, nil, domain.Fail("AI_TOOL_REJECTED", "复测预算超限")
+		}
+		if frequency == 0 {
+			frequency = k.DefaultFrequency
+		}
+		var p domain.Parameters
+		if json.Unmarshal(task.Parameters, &p) != nil {
+			return nil, nil, domain.Fail("INVALID_EVIDENCE", "参数不可读")
+		}
+		p.Source = ""
+		p.Traceparent = ""
+		p.DurationSeconds = duration
+		p.FrequencyHz = frequency
+		if err := domain.ValidateKindParameters(kind, p); err != nil {
+			return nil, nil, domain.Fail("AI_TOOL_REJECTED", "复测参数不符合采集契约")
+		}
+		plan := &DiagnosisPlan{Kind: kind, DurationSeconds: duration, FrequencyHz: frequency, Reason: "相同目标、稳定负载下复测，使用结果对比检查热点分布；请同时记录业务P95/P99、吞吐、错误率及采集开销。"}
+		b, e := json.Marshal(plan)
+		return b, plan, e
+	}
+	return nil, nil, domain.Fail("AI_TOOL_REJECTED", "未知诊断工具")
+}
+
+func (s *Suggestions) diagnose(ctx context.Context, run DiagnosisRun, owner string, trace *[]DiagnosisStep) (*DiagnosisReport, error) {
+	var task domain.Task
+	err := s.Repo.Context(ctx).Transaction(func(tx *gorm.DB) error { var e error; task, e = s.diagnosisFence(ctx, tx, run, owner); return e })
+	if err != nil {
+		return nil, err
+	}
+	raw, err := s.Repo.Result(ctx, run.TaskID)
+	if err != nil {
+		return nil, err
+	}
+	var plan *DiagnosisPlan
+	var verification VerificationRun
+	if err := s.Repo.Context(ctx).Where("candidate_diagnosis_id=?", run.ID).Limit(1).Find(&verification).Error; err != nil {
+		return nil, err
+	}
+	invoke := func(name string, args json.RawMessage) (json.RawMessage, error) {
+		if err := s.Repo.Context(ctx).Transaction(func(tx *gorm.DB) error { _, err := s.diagnosisFence(ctx, tx, run, owner); return err }); err != nil {
+			return nil, err
+		}
+		if len(*trace) >= 8 {
+			return nil, domain.Fail("AI_BUDGET_EXCEEDED", "最多执行8次诊断工具")
+		}
+		var observation json.RawMessage
+		var p *DiagnosisPlan
+		var err error
+		if name == "compare_profiles" {
+			var empty struct{}
+			decoder := json.NewDecoder(strings.NewReader(string(args)))
+			decoder.DisallowUnknownFields()
+			var tail any
+			if decoder.Decode(&empty) != nil || decoder.Decode(&tail) != io.EOF || strings.TrimSpace(string(args)) == "null" {
+				return nil, domain.Fail("AI_TOOL_REJECTED", "对比工具不接受参数")
+			}
+			if verification.ID == 0 {
+				observation = json.RawMessage(`{"available":false,"reason":"no_bound_verification"}`)
+			} else {
+				var comparison ProfileComparison
+				comparison, err = verificationComparison(ctx, s.Repo.Context(ctx), verification)
+				if err == nil {
+					observation, err = json.Marshal(comparison)
+				}
+			}
+		} else {
+			observation, p, err = diagnosisTool(name, args, raw, task)
+		}
+		if err != nil {
+			return nil, err
+		}
+		if name == "read_profile_summary" {
+			var summary map[string]any
+			_ = json.Unmarshal(observation, &summary)
+			summary["verification_available"] = verification.ID > 0
+			observation, _ = json.Marshal(summary)
+		}
+		if len(observation) > 16<<10 {
+			return nil, domain.Fail("AI_BUDGET_EXCEEDED", "工具输出过大")
+		}
+		step := DiagnosisStep{EvidenceID: fmt.Sprintf("E%d", len(*trace)+1), Tool: name, Observation: observation}
+		*trace = append(*trace, step)
+		if err := s.persistDiagnosisStep(ctx, run, owner, *trace); err != nil {
+			return nil, err
+		}
+		if p != nil {
+			plan = p
+		}
+		b, _ := json.Marshal(step)
+		return b, nil
+	}
+	first, err := invoke("read_profile_summary", json.RawMessage(`{}`))
+	if err != nil {
+		return nil, err
+	}
+	var report *DiagnosisReport
+	if run.Mode == "model" {
+		if !s.AgentAvailable() {
+			return nil, domain.Fail("AI_UNAVAILABLE", "未配置外部模型")
+		}
+		if s.Config.AgentBackend == "agentscope" {
+			report, err = s.diagnosisAgentScope(ctx, run, owner, first, invoke, trace)
+		} else {
+			report, err = s.diagnosisModel(ctx, run.Goal, first, invoke, trace)
+		}
+		if err != nil {
+			return nil, err
+		}
+		report.Engine = "model"
+		report.Model = s.Config.Model
+	} else {
+		for _, tool := range []string{"inspect_hotspots", "check_collection_quality", "inspect_call_paths", "propose_verification"} {
+			if _, err := invoke(tool, json.RawMessage(`{}`)); err != nil {
+				return nil, err
+			}
+		}
+		if verification.ID > 0 {
+			if _, err := invoke("compare_profiles", json.RawMessage(`{}`)); err != nil {
+				return nil, err
+			}
+		}
+		report = &DiagnosisReport{Engine: "evidence", Summary: "已完成本地证据检查。请结合热点与采集质量审阅定位线索；本模式不调用模型。", Hypotheses: []DiagnosisHypothesis{{Claim: "优先检查当前结果中self占比较高的叶函数及total占比较高的调用路径。", EvidenceIDs: []string{"E1", "E2"}, Verification: "在热点视图核对原符号及调用关系，再按相同负载复测，禁止把样本权重当作请求延迟。"}, {Claim: "当前证据不能独立证明业务瓶颈或修复收益。", EvidenceIDs: []string{"E3"}, Verification: "补齐业务P95/P99、吞吐、错误率、负载与采集开销；对照采集后使用结果对比。"}}, Limitations: []string{"本地规则检查，无模型推理、无因果验证。"}}
+	}
+	report.Plan = plan
+	report.Limitations = append(report.Limitations, "模型结论为待验证假设，不代表已确认缺陷；不提供未经符号映射验证的源码行号。", "原始profile、原符号、主机、PID、路径和凭据不发送模型；问题文本会发送，请勿填入敏感信息。")
+	return report, nil
+}

@@ -1,0 +1,35 @@
+# Consume cmake --install output and immutable tool manifests from the bounded
+# validation job. No compiler, package manager or network step runs in this build.
+ARG CORE_BASE=drop-core:20261016.1
+ARG TOOLS_BASE=drop-core-full-tools-base:v2
+FROM ${CORE_BASE} AS runtime
+USER root
+COPY runtime/bin/ /usr/local/bin/
+COPY runtime/lib/ /usr/local/lib/
+COPY runtime/include/ /usr/local/include/
+COPY task-kinds.json /etc/drop/task-kinds.json
+COPY core-manifest.json /opt/drop-tools/manifest.json
+COPY provenance.json /usr/share/drop/runtime-provenance.json
+RUN ldconfig
+ARG SOURCE_SHA256
+LABEL org.opencontainers.image.version="2.0.0" io.drop.source-sha256="${SOURCE_SHA256}"
+USER 10001:10001
+ENTRYPOINT ["/usr/local/bin/drop_server"]
+
+FROM ${TOOLS_BASE} AS full-agent
+USER root
+COPY runtime/bin/ /usr/local/bin/
+COPY runtime/lib/ /usr/local/lib/
+COPY runtime/include/ /usr/local/include/
+COPY task-kinds.json /etc/drop/task-kinds.json
+COPY tools-manifest.json /opt/drop-tools/manifest.json
+COPY provenance.json /usr/share/drop/runtime-provenance.json
+RUN ldconfig && mkdir -p /opt/drop-tools/gdb-bin && ln -sfn /usr/local/bin/drop_gdb_ptrace /opt/drop-tools/gdb-bin/gdb
+ENV ASPROF_EXECUTABLE=/opt/drop-tools/async-profiler/bin/asprof \
+    PY_SPY_EXECUTABLE=/opt/drop-tools/venv/bin/py-spy \
+    MEMRAY_EXECUTABLE=/opt/drop-tools/venv/bin/memray \
+    PERF2BOLT_EXECUTABLE=/usr/bin/perf2bolt-16
+ARG SOURCE_SHA256
+LABEL org.opencontainers.image.version="2.0.0" io.drop.source-sha256="${SOURCE_SHA256}"
+USER 10001:10001
+ENTRYPOINT ["/usr/local/bin/drop_server"]

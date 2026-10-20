@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "source": "offline validation of actual failed public browser run; no model/collection retries",
+  "passed": false,
+  "investigation_id": "10",
+  "task_ids": [
+    "84",
+    "85"
+  ],
+  "repair_id": "8",
+  "elapsed_seconds": 91.2,
+  "planning_agent_runtime": {
+    "usage": {
+      "input_tokens": 23264,
+      "output_tokens": 348
+    },
+    "run_id": "04844c27-7fd8-49df-bc71-84edb2a019cb",
+    "framework": "agentscope",
+    "elapsed_ms": 4170,
+    "tool_calls": 2,
+    "agent_class": "agentscope.agent.Agent",
+    "model_calls": 2,
+    "framework_version": "2.0.10"
+  },
+  "diagnoses": {
+    "baseline": {
+      "id": "27",
+      "task_id": "84",
+      "attempt_id": "85",
+      "analysis_job_id": "77",
+      "analysis_run": 1,
+      "runtime": {
+        "usage": {
+          "input_tokens": 12822,
+          "output_tokens": 1313
+        },
+        "run_id": "cd693f7d-6ee8-4240-b876-f320d89b0cf2",
+        "framework": "agentscope",
+        "elapsed_ms": 10136,
+        "tool_calls": 6,
+        "agent_class": "agentscope.agent.Agent",
+        "model_calls": 4,
+        "framework_version": "2.0.10"
+      },
+      "model": "deepseek-flash",
+      "evidence_count": 7,
+      "tools": {
+        "read_profile_summary": 1,
+        "inspect_hotspots": 1,
+        "check_collection_quality": 1,
+        "inspect_call_paths": 3,
+        "propose_verification": 1
+      },
+      "valid_report_references": true,
+      "created_at": "2026-10-20T10:53:08.095561Z",
+      "updated_at": "2026-10-20T10:53:19.339447Z"
+    },
+    "candidate": {
+      "id": "28",
+      "task_id": "85",
+      "attempt_id": "86",
+      "analysis_job_id": "78",
+      "analysis_run": 1,
+      "runtime": {
+        "usage": {
+          "input_tokens": 12843,
+          "output_tokens": 1532
+        },
+        "run_id": "da9572ea-e313-438d-b0a0-52d10abdaa5f",
+        "framework": "agentscope",
+        "elapsed_ms": 11200,
+        "tool_calls": 6,
+        "agent_class": "agentscope.agent.Agent",
+        "model_calls": 4,
+        "framework_version": "2.0.10"
+      },
+      "model": "deepseek-flash",
+      "evidence_count": 7,
+      "tools": {
+        "read_profile_summary": 1,
+        "inspect_hotspots": 1,
+        "check_collection_quality": 1,
+        "inspect_call_paths": 2,
+        "compare_profiles": 1,
+        "propose_verification": 1
+      },
+      "valid_report_references": true,
+      "created_at": "2026-10-20T10:53:34.172253Z",
+      "updated_at": "2026-10-20T10:53:46.412437Z"
+    },
+    "distinct_tasks_diagnoses_and_runtime": true
+  },
+  "three_distinct_completed_runtime_ids": true,
+  "source_runtime": null,
+  "all_four_phase_runtime_proofs": false,
+  "investigation_error_code": "CODE_REPAIR_FAILED",
+  "repair_error_code": "AGENT_RUNTIME_ERROR",
+  "repair_report_accepted": false,
+  "last_test_patch_observation": {
+    "success": true,
+    "accepted": true,
+    "functional_regression": "passed",
+    "original_tests": 2,
+    "frozen_contract_tests": 6,
+    "output_parity_cases": 384,
+    "median_cpu_speedup": 1.6012650022387165,
+    "improved_pairs": 6,
+    "cache_hit": false,
+    "root_cause_status": "validated_in_controlled_saber_benchmark"
+  },
+  "limitation": "The sandbox test accepted a measured patch, but the repair framework/report phase failed. This run is not an end-to-end success and has no accepted repair runtime proof."
+}

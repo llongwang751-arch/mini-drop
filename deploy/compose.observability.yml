@@ -1,0 +1,120 @@
+# Combine with compose.yml and the selected Agent profile. All administration
+# ports bind to localhost; access them through an SSH tunnel.
+services:
+  drop-server:
+    environment:
+      METRICS_LISTEN: '0.0.0.0:9101'
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4318/v1/traces
+  agent:
+    environment:
+      METRICS_LISTEN: '0.0.0.0:9103'
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4318/v1/traces
+  api:
+    mem_limit: 384m
+    environment:
+      GOMEMLIMIT: 300MiB
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+  analyzer:
+    environment:
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4318/v1/traces
+      ANALYZER_METRICS_PORT: '9102'
+      ANALYSIS_MEMORY_BYTES: '536870912'
+      ANALYZER_QUEUE: all
+    mem_limit: 768m
+    tmpfs: ['/tmp:size=256m,mode=1777']
+  maintenance:
+    image: drop-ops:${OPS_RELEASE_TAG:-${RELEASE_TAG:-build}}
+    build: {context: .., dockerfile: ops/Dockerfile}
+    restart: unless-stopped
+    environment:
+      DATABASE_URL_FILE: /run/secrets/database_url
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY_FILE: /run/secrets/s3_access_key
+      S3_SECRET_KEY_FILE: /run/secrets/s3_secret_key
+      S3_BUCKET: drop-artifacts
+      ALERT_WEBHOOK_TOKEN_FILE: /run/secrets/alert_webhook_token
+    secrets: [database_url, s3_access_key, s3_secret_key, alert_webhook_token]
+    volumes: [/opt/drop-monitoring:/var/drop-monitoring:ro]
+    networks: [control]
+    depends_on:
+      permission-init: {condition: service_completed_successfully}
+      storage-init: {condition: service_completed_successfully}
+    cap_drop: [ALL]
+    read_only: true
+    security_opt: [no-new-privileges:true]
+    tmpfs: ['/tmp:size=16m,mode=1777']
+    mem_limit: 96m
+    cpus: 0.15
+    logging: {driver: json-file, options: {max-size: 5m, max-file: '2'}}
+  prometheus:
+    image: prom/prometheus:v3.15.0
+    command: [--config.file=/etc/prometheus/prometheus.yml, --storage.tsdb.path=/prometheus, --storage.tsdb.retention.time=7d, --storage.tsdb.retention.size=512MB, --web.enable-lifecycle]
+    volumes: [./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro, ./observability/alerts.yml:/etc/prometheus/alerts.yml:ro, prometheus_data:/prometheus]
+    ports: ['127.0.0.1:9090:9090']
+    restart: unless-stopped
+    networks: [control]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 192m
+    cpus: 0.2
+  alertmanager:
+    image: prom/alertmanager:v0.34.1
+    command: [--config.file=/etc/alertmanager/alertmanager.yml, --storage.path=/alertmanager, --cluster.listen-address=]
+    volumes: [./observability/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro, alertmanager_data:/alertmanager]
+    secrets: [alert_webhook_token]
+    ports: ['127.0.0.1:9093:9093']
+    restart: unless-stopped
+    networks: [control]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 48m
+    cpus: 0.1
+  grafana:
+    image: grafana/grafana:13.2.4
+    environment:
+      GF_SECURITY_ADMIN_USER: drop-admin
+      GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_password
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_AUTH_ANONYMOUS_ENABLED: 'false'
+      GF_ANALYTICS_REPORTING_ENABLED: 'false'
+      GF_ANALYTICS_CHECK_FOR_UPDATES: 'false'
+      GF_NEWS_NEWS_FEED_ENABLED: 'false'
+    secrets: [grafana_password]
+    volumes: [./observability/grafana:/etc/grafana/provisioning:ro, ./observability/dashboards:/var/lib/grafana/dashboards:ro, grafana_data:/var/lib/grafana]
+    ports: ['127.0.0.1:3000:3000']
+    restart: unless-stopped
+    networks: [control]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 192m
+    cpus: 0.2
+  otel-collector:
+    image: otel/opentelemetry-collector:0.162.0
+    command: [--config=/etc/otel/config.yml]
+    volumes: [./observability/otel.yml:/etc/otel/config.yml:ro]
+    restart: unless-stopped
+    networks: [control]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 96m
+    cpus: 0.15
+  tempo:
+    image: grafana/tempo:3.1.0
+    command: [-config.file=/etc/tempo/config.yml]
+    volumes: [./observability/tempo.yml:/etc/tempo/config.yml:ro, tempo_data:/var/tempo]
+    ports: ['127.0.0.1:3200:3200']
+    restart: unless-stopped
+    networks: [control]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 192m
+    cpus: 0.2
+volumes:
+  prometheus_data:
+  alertmanager_data:
+  grafana_data:
+  tempo_data:
+secrets:
+  alert_webhook_token: {file: ./secrets/alert_webhook_token}
+  grafana_password: {file: ./secrets/grafana_password}

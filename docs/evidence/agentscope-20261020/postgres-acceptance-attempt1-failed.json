@@ -1,0 +1,130 @@
+{
+  "passed": false,
+  "recorded_at": "2026-10-20T10:39:55.595185+00:00",
+  "database": "fresh isolated PostgreSQL17 loopback cluster; independent temporary per-test schemas and all current migrations",
+  "provider": "real DeepSeek only for explicitly imported fixture; Agent/storage/protocol/model responses elsewhere are test fixtures",
+  "source_scope": "current local Go source, not production process-crash or deployment validation",
+  "go_source_sha256": "69a9cc593c76b4051ea388d36949dfb8050d84f18a6d1a2a96dbe077d34d5a82",
+  "source_unchanged_during_run": true,
+  "tests_passed": 46,
+  "tests_failed": 1,
+  "skipped": 0,
+  "elapsed_seconds": 249.75,
+  "log_sha256": "8f0f60d425ebf2d2a2985edb167cbff6ba7f1962e6cdf6c31fda2b7b8a889696",
+  "builds": [
+    {
+      "package": "service",
+      "binary_sha256": "db6d67ffb74164b290ac5be6cf3397d2d1921b45eb6c4d293a229a601819de3d",
+      "elapsed_seconds": 3.92
+    },
+    {
+      "package": "httpapi",
+      "binary_sha256": "4fa4fd10d8973ce145daf02eb5418224a8aa952e305588c5c45bd36586d5aca6",
+      "elapsed_seconds": 4.68
+    },
+    {
+      "package": "repository",
+      "binary_sha256": "0914d31eba7dff9565fc70caa7ab02ba24517ae7d5720823905ab8816e0a7a27",
+      "elapsed_seconds": 1.85
+    }
+  ],
+  "packages": [
+    {
+      "package": "service",
+      "selection": "TestDiagnosis|TestPostgres",
+      "passed": false,
+      "tests_passed": 1,
+      "tests_failed": 1,
+      "skipped": 0,
+      "elapsed_seconds": 242.66,
+      "log_sha256": "f852c04a99d12e115cabd33325325b00bec043cbed0442738e635eccff9bf2e6",
+      "passed_test_names": [
+        "TestPostgresAgentScopeDiagnosisAutomaticVerification"
+      ],
+      "failed_test_names": [
+        "TestPostgresAgentScopePlanningRepairsPlanBeforeConfirmation"
+      ],
+      "skipped_test_names": []
+    },
+    {
+      "package": "httpapi",
+      "selection": "TestPostgres",
+      "passed": true,
+      "tests_passed": 20,
+      "tests_failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 2.52,
+      "log_sha256": "c6d08f55e2f5eaec4d39f134a6d836299f193f5d5efd0fa8bea3acf26ead3c91",
+      "passed_test_names": [
+        "TestPostgresHTTPAuthorizationCoversEveryTaskSurface",
+        "TestPostgresPartialResultCurrentRunAndAuthorization",
+        "TestPostgresPartialResultCurrentRunAndAuthorization/bounded_UTF8_JSON_wire_output",
+        "TestPostgresPartialResultCurrentRunAndAuthorization/hidden_job_pending",
+        "TestPostgresPartialResultCurrentRunAndAuthorization/hidden_job_running",
+        "TestPostgresPartialResultCurrentRunAndAuthorization/hidden_job_retry",
+        "TestPostgresPartialResultCurrentRunAndAuthorization/hidden_job_success",
+        "TestPostgresPartialResultCurrentRunAndAuthorization/old_run",
+        "TestPostgresPartialResultCurrentRunAndAuthorization/cancel",
+        "TestPostgresPartialResultCurrentRunAndAuthorization/deleted_task",
+        "TestPostgresPartialResultCurrentRunAndAuthorization/lease_still_owned",
+        "TestPostgresPartialResultCurrentRunAndAuthorization/mismatched_input_digest",
+        "TestPostgresPartialResultCurrentRunAndAuthorization/mismatched_input_artifact_id",
+        "TestPostgresPartialResultCurrentRunAndAuthorization/mismatched_attempt_id",
+        "TestPostgresPartialResultCurrentRunAndAuthorization/mismatched_analysis_job_id",
+        "TestPostgresPartialResultCurrentRunAndAuthorization/mismatched_task_id",
+        "TestPostgresPartialResultCurrentRunAndAuthorization/mismatched_kind",
+        "TestPostgresPartialResultCurrentRunAndAuthorization/malformed_snapshot",
+        "TestPostgresPartialResultCurrentRunAndAuthorization/new_raw",
+        "TestPostgresPartialResultCurrentRunAndAuthorization/new_collection"
+      ],
+      "failed_test_names": [],
+      "skipped_test_names": []
+    },
+    {
+      "package": "repository",
+      "selection": "TestPostgres",
+      "passed": true,
+      "tests_passed": 25,
+      "tests_failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 4.55,
+      "log_sha256": "59d86343ee4eeb84ee0014102c4769bbc78f08cec84549e286e8949dbe8b4ae9",
+      "passed_test_names": [
+        "TestPostgresResourceAuthorizationAndSharedLimit",
+        "TestPostgresResourceAuthorizationAndSharedLimit/group_read_operate_and_stranger_isolation",
+        "TestPostgresResourceAuthorizationAndSharedLimit/private_shares_do_not_escalate_read_to_operate",
+        "TestPostgresResourceAuthorizationAndSharedLimit/shared_limiter_accepts_exactly_ten_concurrent_requests",
+        "TestPostgresResourceAuthorizationAndSharedLimit/group_administrator_can_delegate_only_existing_Agent_rights",
+        "TestPostgresResourceAuthorizationAndSharedLimit/different_shared_operators_cannot_bypass_owner_retry_quota",
+        "TestPostgresExhaustedDispatchCannotOverwriteConcurrentLifecycle",
+        "TestPostgresExhaustedDispatchCannotOverwriteConcurrentLifecycle/accepted",
+        "TestPostgresExhaustedDispatchCannotOverwriteConcurrentLifecycle/canceled",
+        "TestPostgresExhaustedDispatchCannotOverwriteConcurrentLifecycle/retried",
+        "TestPostgresCancelIsIdempotentForConcurrentAndTerminalRequests",
+        "TestPostgresRuntimeRefusesMissingDiagnosisMigration",
+        "TestPostgresAtomicWorkflow",
+        "TestPostgresAtomicWorkflow/concurrent_idempotency_preserves_atomic_task_attempt_event_outbox",
+        "TestPostgresAtomicWorkflow/owner_isolation_blocks_another_operator",
+        "TestPostgresAtomicWorkflow/cancel_retry_and_delayed_outbox_are_fenced_by_attempt",
+        "TestPostgresAtomicWorkflow/schedule_concurrent_ticks_create_a_single_record",
+        "TestPostgresAtomicWorkflow/distinct_concurrent_keys_cannot_exceed_owner_quota",
+        "TestPostgresAtomicWorkflow/overview_includes_active_analysis_and_excludes_canceled_pending_tasks",
+        "TestPostgresAtomicWorkflow/interrupted_import_becomes_an_explicit_failed_terminal",
+        "TestPostgresTerminalUploadGrantFencing",
+        "TestPostgresTerminalUploadGrantFencing/late_presign_blocked_by_an_in-flight_cancel_cannot_recreate_upload_permission",
+        "TestPostgresTerminalUploadGrantFencing/cancel_preserves_only_current_log_and_retry_clears_superseded_authorization",
+        "TestPostgresTerminalUploadGrantFencing/cleanup_enforces_grace_and_superseded_deleted_and_legacy_attempt_fencing",
+        "TestPostgresTerminalUploadGrantFencing/import_completion_and_import_timeout_never_retain_Agent_grants"
+      ],
+      "failed_test_names": [],
+      "skipped_test_names": []
+    }
+  ],
+  "required_test_names_missing": [
+    "TestDiagnosisLinkedSourceValidationRetainsProjectScope",
+    "TestPostgresDiagnosisLiveDeepSeek",
+    "TestPostgresExtendedTaskLifecycle",
+    "TestPostgresAdministrativeRecoveryAndAgentAudit"
+  ],
+  "scope": "diagnosis/Saber linked-source scope, tools and parser, lifecycle/idempotency, DAG restart/deadline, auth/shared quotas, cancellation, lease/reanalysis, concurrent dispatch recovery, terminal upload fences"
+}

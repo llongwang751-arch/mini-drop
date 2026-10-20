@@ -1,0 +1,542 @@
+{
+  "success": true,
+  "origin": "https://82.157.81.79",
+  "release": "20261020.3",
+  "host": "Tencent Ubuntu22.04 amd64 4CPU 8GB",
+  "containers": [
+    {
+      "service": "api",
+      "name": "txdrop-api-1",
+      "image": "drop-api:20261020.3",
+      "image_id": "sha256:7aa0a37a20cc4ba2d270b6b981e778725bf0016e38da9a91970d58a5dd0fd575",
+      "status": "running",
+      "health": "healthy",
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 402653184,
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "service": "collector-helper",
+      "name": "txdrop-collector-helper-1",
+      "image": "drop-agent:20261020.1",
+      "image_id": "sha256:ecc5982b4a268091f4fd8180e17270225ac1b1537cfa1a20a7d684fe7a6b0b72",
+      "status": "running",
+      "health": null,
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 536870912,
+      "cap_add": [
+        "CAP_BPF",
+        "CAP_DAC_READ_SEARCH",
+        "CAP_KILL",
+        "CAP_PERFMON",
+        "CAP_SYS_PTRACE"
+      ],
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "service": "agent",
+      "name": "txdrop-agent-1",
+      "image": "drop-agent:20261020.1",
+      "image_id": "sha256:ecc5982b4a268091f4fd8180e17270225ac1b1537cfa1a20a7d684fe7a6b0b72",
+      "status": "running",
+      "health": null,
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 268435456,
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "service": "drop-server",
+      "name": "txdrop-drop-server-1",
+      "image": "drop-core:20261020.1",
+      "image_id": "sha256:1d23cd3c20073c6bc9e062458e7f648477e88b882d4d40931ba3b8586062e59e",
+      "status": "running",
+      "health": null,
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 268435456,
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "service": "gateway",
+      "name": "txdrop-gateway-1",
+      "image": "drop-nginx:20261020.1",
+      "image_id": "sha256:05f8b534a7b5110bd2029db05edb635796b9ee4b9ed42751bd6e6a8a5eb9ec51",
+      "status": "running",
+      "health": null,
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 50331648,
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "service": "web",
+      "name": "txdrop-web-1",
+      "image": "drop-web:20261020.2",
+      "image_id": "sha256:566e2285b180df7f284ceb28e262ae3493f7c62ed9a1639eeabfc03ccdeb7ccb",
+      "status": "running",
+      "health": "healthy",
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 100663296,
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "service": "analyzer",
+      "name": "txdrop-analyzer-1",
+      "image": "drop-analyzer:20261020.1",
+      "image_id": "sha256:422d7c38049591c5c7ebefe1a2d07a89bb73523d1596aac312104ceeb4396b83",
+      "status": "running",
+      "health": "healthy",
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 805306368,
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "service": "maintenance",
+      "name": "txdrop-maintenance-1",
+      "image": "drop-ops:20261020.1",
+      "image_id": "sha256:a6fd23011abb3985b7fded24fe106ae8debf4011cc46811c89a3b07675356c4b",
+      "status": "running",
+      "health": "healthy",
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 100663296,
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "service": "storage-init",
+      "name": "txdrop-storage-init-1",
+      "image": "drop-analyzer:20261020.1",
+      "image_id": "sha256:422d7c38049591c5c7ebefe1a2d07a89bb73523d1596aac312104ceeb4396b83",
+      "status": "exited",
+      "health": "unhealthy",
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 134217728,
+      "cap_add": null,
+      "cap_drop": null
+    },
+    {
+      "service": "permission-init",
+      "name": "txdrop-permission-init-1",
+      "image": "postgres:17.11-alpine",
+      "image_id": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "status": "exited",
+      "health": null,
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 100663296,
+      "cap_add": null,
+      "cap_drop": null
+    },
+    {
+      "service": "minio",
+      "name": "txdrop-minio-1",
+      "image": "drop-nginx:20261020.1",
+      "image_id": "sha256:05f8b534a7b5110bd2029db05edb635796b9ee4b9ed42751bd6e6a8a5eb9ec51",
+      "status": "running",
+      "health": "healthy",
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 50331648,
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "service": "migration",
+      "name": "txdrop-migration-1",
+      "image": "drop-api:20261020.2",
+      "image_id": "sha256:df8f24ad26a2363a35b3cbc8f0b5265846ae9c934f673e48993c467ae5f0b59c",
+      "status": "exited",
+      "health": "unhealthy",
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 201326592,
+      "cap_add": null,
+      "cap_drop": null
+    },
+    {
+      "service": "storage-backend",
+      "name": "txdrop-storage-backend-1",
+      "image": "minio/minio:RELEASE.2025-07-23T15-54-02Z",
+      "image_id": "sha256:538f61309bcdefd4281929b281babbc9e4dd82562138505548d9e5f156fa23ac",
+      "status": "running",
+      "health": "healthy",
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 805306368,
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "service": "postgres",
+      "name": "txdrop-postgres-1",
+      "image": "postgres:17.11-alpine",
+      "image_id": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "status": "running",
+      "health": "healthy",
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 402653184,
+      "cap_add": null,
+      "cap_drop": null
+    },
+    {
+      "service": "tempo",
+      "name": "txdrop-tempo-1",
+      "image": "grafana/tempo:3.1.0",
+      "image_id": "sha256:3076b8dcdfb32fd6bc5ccef85e7b7313e6199b9cb84366257fc17ecb696db5fd",
+      "status": "running",
+      "health": null,
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 201326592,
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "service": "storage-permission-init",
+      "name": "txdrop-storage-permission-init-1",
+      "image": "ubuntu:24.04",
+      "image_id": "sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac",
+      "status": "exited",
+      "health": null,
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 50331648,
+      "cap_add": [
+        "CAP_CHOWN",
+        "CAP_DAC_OVERRIDE",
+        "CAP_FOWNER"
+      ],
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "service": "prometheus",
+      "name": "txdrop-prometheus-1",
+      "image": "prom/prometheus:v3.15.0",
+      "image_id": "sha256:efd719c99d83b060d9daefdcf00360461adf279f45ef5391f8d111892118753e",
+      "status": "running",
+      "health": null,
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 201326592,
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "service": "agent-permission-init",
+      "name": "txdrop-agent-permission-init-1",
+      "image": "ubuntu:24.04",
+      "image_id": "sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac",
+      "status": "exited",
+      "health": null,
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 50331648,
+      "cap_add": [
+        "CAP_CHOWN",
+        "CAP_DAC_OVERRIDE",
+        "CAP_FOWNER"
+      ],
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "service": "grafana",
+      "name": "txdrop-grafana-1",
+      "image": "grafana/grafana:13.2.4",
+      "image_id": "sha256:dbbc38ea21103cefb50396340cd88afec779c7e070b0a7bf5a75b4ce46651d3f",
+      "status": "running",
+      "health": null,
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 805306368,
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "service": "alertmanager",
+      "name": "txdrop-alertmanager-1",
+      "image": "prom/alertmanager:v0.34.1",
+      "image_id": "sha256:e9733bafb1bdef9b00e25a21f8f99dc26a22224bf16641ad754d1649f4c3357a",
+      "status": "running",
+      "health": null,
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 50331648,
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    },
+    {
+      "service": "otel-collector",
+      "name": "txdrop-otel-collector-1",
+      "image": "otel/opentelemetry-collector:0.162.0",
+      "image_id": "sha256:310a800ad69ee430e7c541796852a242c9c7db97aaad4daa5ccf843c525fbdb2",
+      "status": "running",
+      "health": null,
+      "exit_code": 0,
+      "oom_killed": false,
+      "restart_count": 0,
+      "privileged": false,
+      "host_pid": false,
+      "memory_limit": 100663296,
+      "cap_add": null,
+      "cap_drop": [
+        "ALL"
+      ]
+    }
+  ],
+  "running_containers": 16,
+  "schema_version": 6,
+  "endpoint_checks": {
+    "public_https": true,
+    "grafana": true,
+    "tempo": true
+  },
+  "prometheus_targets": [
+    {
+      "job": "agent",
+      "health": "up"
+    },
+    {
+      "job": "analyzer",
+      "health": "up"
+    },
+    {
+      "job": "api",
+      "health": "up"
+    },
+    {
+      "job": "core",
+      "health": "up"
+    },
+    {
+      "job": "maintenance",
+      "health": "up"
+    },
+    {
+      "job": "prometheus",
+      "health": "up"
+    },
+    {
+      "job": "tempo",
+      "health": "up"
+    }
+  ],
+  "agent_effective_capabilities": "0000000000000000",
+  "core_strict_release_werror_ctests": {
+    "passed": 16,
+    "failed": 0
+  },
+  "public_certificate": "issuer=C = US, O = Let's Encrypt, CN = YE1\nnotBefore=Oct 19 16:34:12 2026 GMT\nnotAfter=Oct 26 08:34:11 2026 GMT\nX509v3 Subject Alternative Name: critical\n    IP Address:82.157.81.79\n",
+  "backup_restore_check": {
+    "verified_at": "2026-10-19T17:41:53.990520+00:00",
+    "postgres_restore": "passed",
+    "database_counts": {
+      "audit_logs": 15,
+      "oidc_states": 0,
+      "rate_limits": 2,
+      "schema_migrations": 6,
+      "storage_maintenance_state": 1,
+      "artifacts": 28,
+      "agents": 1,
+      "agent_events": 12,
+      "agent_samples": 301,
+      "task_attempts": 4,
+      "ai_requests": 0,
+      "users": 1,
+      "tasks": 4,
+      "analysis_job_runs": 0,
+      "analysis_jobs": 4,
+      "composite_runs": 0,
+      "composite_nodes": 0,
+      "groups": 0,
+      "diagnosis_runs": 2,
+      "diagnostic_rules": 3,
+      "group_agents": 0,
+      "group_members": 0,
+      "oidc_identities": 0,
+      "outbox": 4,
+      "schedules": 0,
+      "schedule_records": 0,
+      "sessions": 3,
+      "suggestions": 0,
+      "suggestion_feedback": 0,
+      "task_events": 76,
+      "task_shares": 0,
+      "schema_version": 6
+    },
+    "referenced_artifacts_verified": 28,
+    "object_files_verified": 28,
+    "object_metadata_verified": true,
+    "isolated_s3_roundtrip": "passed",
+    "production_resources_modified": false,
+    "restore_duration_seconds": 4.991
+  },
+  "base_image_digests": {
+    "alpine:3.21.3": [
+      "alpine@sha256:a8560b36e8b8210634f77d9f7f9efd7ffa463e380b75e2e74aff4511df3ef88c"
+    ],
+    "nginxinc/nginx-unprivileged:1.30.6-alpine": [
+      "nginxinc/nginx-unprivileged@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03"
+    ],
+    "ubuntu:24.04": [
+      "ubuntu@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac"
+    ],
+    "python:3.12.15-slim-trixie@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1": [
+      "python:3.12.15-slim-trixie@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1"
+    ]
+  },
+  "api_binary_sha256": "179714094c1bb7e45a814b5e258b9f0416f18b1e344390442993c755483e4224",
+  "ops": {
+    "success": true,
+    "units": {
+      "backup": {
+        "service_success": true,
+        "timer_active": true
+      },
+      "tls-renew": {
+        "service_success": true,
+        "timer_active": true
+      },
+      "internal-tls": {
+        "service_success": true,
+        "timer_active": true
+      },
+      "monitoring-status": {
+        "service_success": true,
+        "timer_active": true
+      }
+    },
+    "helper_spool_boot_order_installed": true,
+    "actual_reboot_tested": false,
+    "offsite_backup_configured": false
+  },
+  "legacy_cleanup": {
+    "success": true,
+    "removed_containers": [
+      "drop-drop-api-1",
+      "drop-drop-agent-3-1",
+      "drop-drop-agent-1-1",
+      "drop-drop-agent-2-1",
+      "drop-analyzer-1",
+      "drop-drop-server-1",
+      "drop-migrate-1",
+      "drop-postgres-1"
+    ],
+    "removed_source": "/home/ubuntu/drop",
+    "backup_directory": "/opt/tx-drop-20261020/legacy-backup",
+    "backup_sha256": {
+      "database.dump": "f43e191ff171d5582cf974a3cc124d7171dfa5fdb4e9fb20a30600386113ef3d",
+      "source.tar.gz": "67b37491f1de31a92d83e22240ea506515737fbf8787cfe5cc918ae54be521bf"
+    },
+    "preserved_legacy_volume": "drop_drop-pg",
+    "named_release_images_preserved": true,
+    "compose_down_v_used": false
+  },
+  "final_images_security_scanned": false,
+  "all_sixteen_collectors_retested_on_this_host": false
+}

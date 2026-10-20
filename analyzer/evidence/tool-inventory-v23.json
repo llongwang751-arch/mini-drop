@@ -1,0 +1,86 @@
+{
+  "provenance": "Actual installed candidate tools, no production data/network access.",
+  "uid": 10001,
+  "architecture": "x86_64",
+  "tools": {
+    "python": {
+      "argv": [
+        "python",
+        "--version"
+      ],
+      "first_output_lines": [
+        "Python 3.12.12"
+      ],
+      "executable_sha256": "4dbf3143240288fb2170257ffaa7bd030cdda5d2703d1f5f30b627042267e2e3"
+    },
+    "perf": {
+      "argv": [
+        "perf",
+        "version"
+      ],
+      "first_output_lines": [
+        "perf version 6.12.95"
+      ],
+      "executable_sha256": "932bdb6a2bf85673ac86d08f3dc64df255770a86c6ead75aa16a76cfff5ead3f"
+    },
+    "jfr": {
+      "argv": [
+        "jfr",
+        "--version"
+      ],
+      "first_output_lines": [
+        "1.0"
+      ],
+      "executable_sha256": "ff226048a2272a5c61a6e217a2cbbbbd82c946b3b8437c530e3418cf0090f087"
+    },
+    "bolt": {
+      "argv": [
+        "llvm-bolt-16",
+        "--version"
+      ],
+      "first_output_lines": [
+        "Debian LLVM version 16.0.6",
+        "  Optimized build."
+      ],
+      "executable_sha256": "8180e0f5062f02b297ed4deac865f57715fd190b913762c038e38570670d762e"
+    },
+    "memray": {
+      "argv": [
+        "python",
+        "-m",
+        "memray",
+        "--version"
+      ],
+      "first_output_lines": [
+        "1.20.0"
+      ],
+      "executable_sha256": "4dbf3143240288fb2170257ffaa7bd030cdda5d2703d1f5f30b627042267e2e3"
+    },
+    "pip_check": {
+      "argv": [
+        "python",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "first_output_lines": [
+        "WARNING: The directory '/home/drop/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.",
+        "No broken requirements found."
+      ],
+      "executable_sha256": "4dbf3143240288fb2170257ffaa7bd030cdda5d2703d1f5f30b627042267e2e3"
+    },
+    "perf_package": {
+      "argv": [
+        "dpkg-query",
+        "-W",
+        "-f=${Version}",
+        "linux-perf"
+      ],
+      "first_output_lines": [
+        "6.12.95-1~bpo12+1"
+      ],
+      "executable_sha256": "d013ff1fddbe98da2bb9687ab3b86363098d9f6f716f7417609b60794da9855a"
+    }
+  },
+  "otel_sdk_imported": true
+}

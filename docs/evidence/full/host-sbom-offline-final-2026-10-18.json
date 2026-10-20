@@ -1,0 +1,18 @@
+{
+  "recorded_at": "2026-10-18T06:41:01.263752+00:00",
+  "environment": "Windows pure fixtures; no Docker/Syft runtime",
+  "tests": 22,
+  "passed": true,
+  "failures": 0,
+  "skipped": 0,
+  "duration_seconds": 0.15,
+  "new_negative_control": "A 1GiB image with 2GiB free was accepted before the fix; the new regression actually failed, then passed after reserve became 2x image size + 1GiB.",
+  "syft_internal_temporary_storage_source": "https://github.com/anchore/stereoscope/blob/main/pkg/image/docker/daemon_provider.go",
+  "ruff_format_check_passed": true,
+  "sources": {
+    "scripts/release/host_sbom.py": "a8ca7d196c12b137c55b7ee87ef18b5b658885c6801c75f4c46cc67b91769c23",
+    "scripts/release/test_host_sbom.py": "81762909e6935c5c2a1feaed4780a509d35015a416260d0c2446b41fd42da7e4"
+  },
+  "real_image_scans": "pending separate exact-image evidence",
+  "optional_platform_scope": "Six application components plus one explicitly allowlisted drop-nginx platform; no arbitrary image scope"
+}

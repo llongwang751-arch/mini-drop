@@ -1,0 +1,107 @@
+{
+  "source": "actual public UI operation, actual AgentScope runner with real DeepSeek and real enrolled Saber FTS5 component; all indexed documents/queries synthetic",
+  "started_at": "2026-10-20T10:52:42.827Z",
+  "attempt": "acceptance-saber-live-2026-10-20T10-52-42-826Z",
+  "milestones": [
+    {
+      "state": "submit_from_browser",
+      "elapsed_seconds": 2
+    },
+    {
+      "state": "planning",
+      "elapsed_seconds": 4.5
+    },
+    {
+      "state": "awaiting_confirmation",
+      "elapsed_seconds": 8.8
+    },
+    {
+      "state": "plan_confirmed_from_browser",
+      "elapsed_seconds": 9.1
+    },
+    {
+      "state": "collecting",
+      "elapsed_seconds": 11.2
+    },
+    {
+      "state": "diagnosing",
+      "elapsed_seconds": 25.8
+    },
+    {
+      "state": "verifying",
+      "elapsed_seconds": 38.2
+    },
+    {
+      "state": "source_pending_steps_0",
+      "elapsed_seconds": 65
+    },
+    {
+      "state": "source_running_steps_0",
+      "elapsed_seconds": 67.1
+    },
+    {
+      "state": "source_running_steps_2",
+      "elapsed_seconds": 69.2
+    },
+    {
+      "state": "source_running_steps_4",
+      "elapsed_seconds": 71.4
+    },
+    {
+      "state": "source_running_steps_5",
+      "elapsed_seconds": 73.7
+    },
+    {
+      "state": "source_running_steps_6",
+      "elapsed_seconds": 80.1
+    },
+    {
+      "state": "failed",
+      "elapsed_seconds": 90.7
+    },
+    {
+      "state": "source_failed_steps_6",
+      "elapsed_seconds": 90.8
+    }
+  ],
+  "passed": false,
+  "auth": "reused private existing session",
+  "project_id": "saber-python",
+  "source_revision": "9245ce09fa2e2adceafebb669ee4605f94a2bb05153d5844d24888fb61d4f402",
+  "target": {
+    "agent_id": "tencent-local",
+    "pid": 82,
+    "uid": 10001,
+    "start_time_ticks": 9040395
+  },
+  "goal": "面试实时演示：调查Python Saber知识库FTS5长查询的CPU开销。根据节点实际能力选择Python CPU调用栈采集10秒、99Hz，关闭native扩展（native=false），检查热点、调用上下文及采集质量；自动复测并再次诊断。继续使用绑定版本的真实源码定位、生成最小优化补丁，在隔离副本运行原功能回归、冻结语义与用户隔离检查、严格输出比较及多组交替CPU对照。只依据实际证据判断，不把重复采样当根因确认。 2026-10-20T10:52:44.578Z",
+  "investigation_id": "10",
+  "plan": {
+    "kind": "PYTHON_CPU",
+    "options": {
+      "native": false
+    },
+    "rationale": "按用户指定参数对绑定 Python 进程做首轮 Python CPU 调用栈采样：10 秒、99Hz、native=false（仅 Python 层帧，避免 native 扩展符号开销与干扰）。目的：在 FTS5 长查询负载下获取 Python 层热点函数与调用上下文，并评估采样质量（样本量、丢失/截断、栈深度）。局限：native=false 看不到 SQLite/FTS5 的 C 层耗时，若热点落在扩展内部，Python 帧只能显示调用点而非真实消耗点；10 秒窗口对偶发长查询可能样本不足，故后续需复测与对照，重复采样本身不构成根因确认。",
+    "frequency_hz": 99,
+    "duration_seconds": 10
+  },
+  "planning_agent_runtime": {
+    "usage": {
+      "input_tokens": 23264,
+      "output_tokens": 348
+    },
+    "run_id": "04844c27-7fd8-49df-bc71-84edb2a019cb",
+    "framework": "agentscope",
+    "elapsed_ms": 4170,
+    "tool_calls": 2,
+    "agent_class": "agentscope.agent.Agent",
+    "model_calls": 2,
+    "framework_version": "2.0.10"
+  },
+  "baseline_task_id": "84",
+  "repair_id": "8",
+  "error_code": "CODE_REPAIR_FAILED",
+  "elapsed_seconds": 91.2,
+  "completed_at": "2026-10-20T10:54:14.059Z",
+  "browser_errors": 0
+}

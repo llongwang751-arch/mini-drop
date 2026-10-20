@@ -1,0 +1,112 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-20T08:06:01.013475+00:00",
+  "origin": "https://82.157.81.79",
+  "readiness_http": 200,
+  "running_project_containers": 26,
+  "all_running_no_oom_or_unhealthy": true,
+  "schema": 8,
+  "agent": {
+    "id": "tencent-local",
+    "status": "online",
+    "capabilities": [
+      "BOLT_PROFILE",
+      "GO_CPU",
+      "GO_HEAP",
+      "GPERF_CPU",
+      "GPERF_HEAP",
+      "IO_TRACE",
+      "JAVA_CPU",
+      "JAVA_HEAP",
+      "JEPROF_HEAP",
+      "MEMORY_TRACE",
+      "PERF_CPU",
+      "PROC_CPU",
+      "PYTHON_CPU",
+      "PYTHON_MEMORY",
+      "RESOURCE_SNAPSHOT",
+      "SCRIPT"
+    ],
+    "last_seen_age_seconds": 1.937229
+  },
+  "monitor_targets": [
+    {
+      "job": "agent",
+      "health": "up"
+    },
+    {
+      "job": "analyzer",
+      "health": "up"
+    },
+    {
+      "job": "api",
+      "health": "up"
+    },
+    {
+      "job": "core",
+      "health": "up"
+    },
+    {
+      "job": "maintenance",
+      "health": "up"
+    },
+    {
+      "job": "prometheus",
+      "health": "up"
+    },
+    {
+      "job": "tempo",
+      "health": "up"
+    }
+  ],
+  "runtime": {
+    "api": {
+      "image": "drop-api:20261020.10",
+      "image_id": "sha256:6b7d8c048a3aeac911db2f400b11ae1ef4249713eacae31cb4405066c41e1e88"
+    },
+    "web": {
+      "image": "drop-web:20261020.10",
+      "image_id": "sha256:f80c6f3eb6d9cd330ce6f0c610528a4f74ab9073bda60d0be72c90305995552f"
+    },
+    "agent": {
+      "image": "drop-agent:20261020.3",
+      "image_id": "sha256:abb10f7f51f7f33e08248fde4c0d6ec0bbf200f5b4c9cde7248e8701cb25c4dc"
+    },
+    "collector-helper": {
+      "image": "drop-agent:20261020.3",
+      "image_id": "sha256:abb10f7f51f7f33e08248fde4c0d6ec0bbf200f5b4c9cde7248e8701cb25c4dc"
+    },
+    "saber-workload": {
+      "image": "drop-saber-sandbox:20261020.1",
+      "image_id": "sha256:88049fe37ad3146a2f3ede5adcefccc761fbf64d6928a83a07e28519611e6779"
+    }
+  },
+  "helper_caps": [
+    "CAP_BPF",
+    "CAP_DAC_READ_SEARCH",
+    "CAP_KILL",
+    "CAP_PERFMON",
+    "CAP_SYS_PTRACE"
+  ],
+  "trace_mounts": [
+    {
+      "destination": "/sys/kernel/tracing/uprobe_events",
+      "rw": true
+    },
+    {
+      "destination": "/sys/kernel/tracing",
+      "rw": false
+    }
+  ],
+  "profiles": {
+    "drop-collector-helper": "ceaeb5c9585f7da92953dd0b2043775d099fe0f632b46748d26016e9d4ffb855",
+    "drop-diagnostic-target": "f502c6cc6b22ec03a221843e0b918329bc81ccf66f7c01934a7e68117bd78c39",
+    "drop-agent-controller": "6305cb9b10b6e08b522ab118a1c5abe23a22afa4fac409778d70d135686e8748"
+  },
+  "code_executor_active": true,
+  "data_volumes_and_old_images_preserved": true,
+  "host_reboot_tested": false,
+  "limitations": [
+    "single-host controlled acceptance, no production latency/HA/offsite claim"
+  ]
+}

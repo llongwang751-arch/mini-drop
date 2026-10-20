@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "source": "actual local Docker Compose CLI configuration tests using explicitly imported fixture environment; no engine or network request",
+  "recorded_at": "2026-10-20T11:06:05.436626+00:00",
+  "command": "python -m unittest deploy.tests.test_agentscope_deployment -v",
+  "passed": true,
+  "tests": 5,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "actual_compose_negative_overlays": 28,
+  "compose_version": "5.5.0",
+  "engine_started": false,
+  "production_requests": 0,
+  "real_dotenv_or_secret_contents_read": false,
+  "test_file_sha256": "0dd30c52da498115d07d03fbd4df75644f65114ce5b4c92496b89f458a2fc4dd",
+  "scope": "complete current 13-overlay baseline plus compose.agentscope.yml; existing service preservation, runner credential/namespace/network/mount/UDS/resource boundaries, bounded root permission init, API original code-executor RO and group10003, frozen phase budgets",
+  "limitations": [
+    "Generated Compose model only; Linux UID/SO_PEERCRED, live socket ownership, actual egress reachability and production health require separate runtime evidence.",
+    "Configuration explicitly retains supplementary GID10003 for root init without FSETID; actual SGID retention still requires Linux runtime validation."
+  ],
+  "tested_input_sha256": {
+    "deploy/compose.yml": "10458a57f3b36086cefab92131416d7db9ce8f12478f5e63ae551bdf4b09546b",
+    "deploy/compose.tools.yml": "449ad6cb8455d04ac935ed2e83c8419587bba9eec0bb73489b1cd1f2529e17b1",
+    "deploy/compose.helper.yml": "51dab138e42300d234373057b5c02fa3dd2cfd17a61589b4c267c0ed132cbb66",
+    "deploy/compose.helper-ebpf.yml": "e8ce721f9a022512849513db948249365fc3b425ac21f833ae9e83b5eece55b9",
+    "deploy/compose.https.yml": "6610eb707d5507b3b27478276a6e78dd47975d47fe612eed6ec5efc266531bbf",
+    "deploy/compose.observability.yml": "7d11fecf318ddc83d26359c114c7f5b646ef74acc867192f9e7e45595548a85a",
+    "deploy/compose.tencent.yml": "14045f397444904f999022c70cc10d39e6234bdb2e5e23951279afcd6fd8adfa",
+    "deploy/compose.agent-v2.yml": "a23e079bc175d1de284af633857e02c5768626b789df111b23daa24927bac8ba",
+    "deploy/compose.demo.yml": "7db6b09e28d1cbbdbeddb6f96f97fecb2a489f53c7fc833c3f0eed1f3aea598a",
+    "deploy/compose.saber.yml": "50eb9c45cece2d234fab0ca41facd5fb571f14a400f9f5e015afc76aa6e3dc2d",
+    "deploy/compose.helper-targets.yml": "9bd53efd30e090f55d0e1cb55ad9e5b2da10cc9574f03a67190539257ca027b1",
+    "deploy/compose.helper-uprobes.yml": "765fa4506955d36dd82565b5818ea4685872dba1e3073c1b500293b85357e742",
+    "deploy/compose.completion.yml": "74dc3bfc2cf997f38daabb8f4d07513b9cc64cde557c156a803bf4d9de7afdee",
+    "deploy/compose.agentscope.yml": "a74b84c86248df4cd40af80a6f27263e5a714b95668a53b0cf2848983eda02c0",
+    "contracts/agent-runtime-v1.json": "f392ef51d9beef7f3f1272a373b58def1849a4ef63d6cf326a5a73332c541db9"
+  },
+  "init_supplementary_group": 10003,
+  "init_group_negative_overlays": [
+    "group_add !override []",
+    "group_add !override [10004]"
+  ],
+  "merged_default_release_images": {
+    "api": "drop-api:20261020.12",
+    "agent-runtime": "drop-agent-runtime:20261020.2"
+  }
+}

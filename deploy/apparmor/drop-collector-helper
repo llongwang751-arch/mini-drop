@@ -1,0 +1,54 @@
+# Drop's bounded collector helper. Keep the Agent and browser unprivileged.
+# The sole writable sysfs interface supports BCC's legacy single-uprobe attach
+# on kernels without uprobe_multi. The tracefs directory remains mounted RO.
+# No mount, SYS_ADMIN capability, Docker socket, or storage secret is granted.
+# Use with compose.helper-uprobes.yml, after loading via apparmor_parser -r.
+abi <abi/3.0>,
+#include <tunables/global>
+
+profile drop-collector-helper flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+  network,
+  capability,
+  umount,
+  deny mount,
+
+  # Read/execute the immutable image and inspect the pinned process namespace.
+  / r,
+  /** rixm,
+  /dev/null rw,
+  /dev/zero rw,
+  /dev/random r,
+  /dev/urandom r,
+  /tmp/ rw,
+  /tmp/** rwk,
+  /dev/shm/ rw,
+  /dev/shm/** rwk,
+  /var/lib/drop-helper/ rw,
+  /var/lib/drop-helper/** rwk,
+  /run/drop-helper/ rw,
+  /run/drop-helper/** rwk,
+  /run/drop-helper-incoming/ rw,
+  /run/drop-helper-incoming/** rwk,
+  /proc/[0-9]*/mem rw,
+
+  # All other /sys writes are absent from this allowlist. Bind only this file RW.
+  /sys/kernel/tracing/uprobe_events rw,
+
+  # Keep container runtime stop/kill and cross-UID collector cleanup functional.
+  signal (receive) peer=unconfined,
+  signal (receive) peer=runc,
+  signal (receive) peer=crun,
+  signal (send,receive) peer=drop-collector-helper,
+  signal (send) peer=drop-diagnostic-target,
+  signal (send) peer=drop-agent-controller,
+  ptrace (trace,tracedby,read,readby) peer=drop-collector-helper,
+  ptrace (trace,read) peer=drop-diagnostic-target,
+  ptrace (trace,read) peer=drop-agent-controller,
+
+  deny /proc/sysrq-trigger rwklx,
+  deny /proc/kcore rwklx,
+  deny /sys/kernel/security/** rwklx,
+  deny /sys/firmware/** rwklx,
+  deny /sys/devices/virtual/powercap/** rwklx,
+}

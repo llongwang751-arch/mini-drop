@@ -1,0 +1,8 @@
+[Unit]
+Description=Export Drop backup and public certificate health
+[Service]
+Type=oneshot
+ExecStart=/opt/drop/deploy/monitoring-status.sh
+User=root
+NoNewPrivileges=true
+PrivateTmp=true

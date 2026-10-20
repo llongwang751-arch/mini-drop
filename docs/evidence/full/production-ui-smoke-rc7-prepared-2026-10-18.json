@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "status": "prepared_only_not_executed",
+  "candidate": "20261018.1-rc7",
+  "origin": "http://120.24.187.205",
+  "runner_path": ".local/prod_ui_smoke.mjs",
+  "runner_sha256": "191d14e7d2ee942e5fb3cddc2ded642cf1d5724fdf39ada091f0cc7239acfd0e",
+  "tests_path": ".local/prod_ui_smoke.test.mjs",
+  "tests_sha256": "dbf4c650353fbd939d6f89c55719e5872baeec368af9e939b48679dfbae01c72d",
+  "expected_image_id": "sha256:f42925a097c8805d817efd8145b0ca95f2530020cf170d34602226ab251bfc41",
+  "actual_local_checks": {
+    "pure_tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_ms": 99.8201,
+    "node_syntax_check_exit_code": 0,
+    "frozen_input_check_exit_code": 0,
+    "sources_unchanged_from_rc6": 103,
+    "explicit_permission_recipe_changes": 2,
+    "bundle_files_unchanged": 14,
+    "inherited_freeze_sha256": "f5ef8cb7b15ab4abf5ebed573d75573e0732686a1d2472688b19a3b5d1c97b9b",
+    "bundle_manifest_sha256": "d73b79da367c1a536204f46c3ab979fd0ee7b501ce7b0c8d8a6fa2ba9808224e"
+  },
+  "prepared_checks": {
+    "requires_explicit_release_handoff_and_new_synthetic_task_id": true,
+    "synthetic_name_pattern": "^IMPORTED_RELEASE_SMOKE_[0-9a-f]{32}$",
+    "synthetic_must_be_recent_logged_in_owner_import_with_successful_analysis": true,
+    "pages": ["overview", "task_list", "agents", "new_task_without_submit", "new_synthetic_task_detail"],
+    "serial_viewport_widths": [1440, 375],
+    "maximum_browser_wall_seconds": 240,
+    "browser_contexts": 1,
+    "legacy_task_1_result_only": "No screenshot, body logging, RAW read or function-name output; result HTTP 200 and completed analysis component required",
+    "existing_task_node_user_identifiers_masked_in_screenshots": true,
+    "new_synthetic_detail_graph_visible": true,
+    "business_mutations": 0,
+    "route_or_mock": false,
+    "trace": false,
+    "har": false,
+    "video": false,
+    "storage_state_persisted": false
+  },
+  "actual_safety": {
+    "credentials_opened": false,
+    "browser_started": false,
+    "production_accessed": false,
+    "network_used": false,
+    "bundle_changed": false
+  },
+  "limitation": "Prepared script only. No production UI or legacy result compatibility success is claimed before actual execution."
+}

@@ -1,0 +1,12 @@
+# Artifact deployment on a small runtime host. Build and test web/dist locally
+# from the frozen source, then record its hashes before packaging this context.
+FROM nginxinc/nginx-unprivileged:1.30.6-alpine
+USER root
+RUN sed -i 's|dl-cdn[.]alpinelinux[.]org|mirrors.aliyun.com|g' /etc/apk/repositories \
+ && apk upgrade --no-cache zlib
+COPY web/nginx.conf /etc/nginx/nginx.conf
+COPY web/dist/ /usr/share/nginx/html/
+RUN find /usr/share/nginx/html -type d -exec chmod 0755 {} + \
+ && find /usr/share/nginx/html -type f -exec chmod 0644 {} +
+USER 101
+EXPOSE 8080

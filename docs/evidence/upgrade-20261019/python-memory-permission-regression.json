@@ -1,0 +1,36 @@
+{
+  "positive_and_negative_boundaries_passed": true,
+  "cases": [
+    {
+      "cross_uid_signal_permission": true,
+      "expected_result_observed": true,
+      "ok": true,
+      "size": 2695,
+      "sha256": "30b75796c5c2012a733cf8f3896c63773fb3e55ba977c5499af81d24a33801f5",
+      "target_resumption": {
+        "state": "R",
+        "tracer_pid": 0,
+        "cpu_ticks_before": 79,
+        "cpu_ticks_after": 89
+      },
+      "memray_reader": {
+        "records": 32,
+        "total_allocations": 32,
+        "fully_read": true
+      },
+      "acknowledged": true
+    },
+    {
+      "cross_uid_signal_permission": false,
+      "expected_result_observed": true,
+      "ok": false,
+      "error_code": "PROFILER_PERMISSION_DENIED",
+      "target_resumption": {
+        "state": "R",
+        "tracer_pid": 0,
+        "cpu_ticks_before": 26,
+        "cpu_ticks_after": 36
+      }
+    }
+  ]
+}

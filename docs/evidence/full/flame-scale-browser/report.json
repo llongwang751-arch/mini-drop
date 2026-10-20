@@ -1,0 +1,1122 @@
+{
+  "passed": true,
+  "source": "imported-synthetic-browser-fixtures",
+  "real_native_worker": true,
+  "analyzer_or_backend_verified": false,
+  "measured_at": "2026-10-18T05:47:21.143Z",
+  "environment": {
+    "node": "v24.15.0",
+    "platform": "win32",
+    "arch": "x64",
+    "os_release": "10.0.26200",
+    "cpu_model": "Intel(R) Core(TM) i7-14650HX",
+    "logical_cpus": 24,
+    "physical_memory_bytes": 16869285888,
+    "free_memory_at_report_bytes": 1160400896,
+    "node_options": "",
+    "playwright_workers": 1
+  },
+  "instrumentation": "Native Worker subclass forwards unchanged constructor/postMessage/terminate; observes actual message roundtrip. Imported API JSON is the only mocked data. DOM-ready is two requestAnimationFrame ticks after full-count SVG and keyboard frame exist. Timing includes structured cloning, scheduling and instrumentation.",
+  "limitations": [
+    "Local Chromium/headless/UI baseline, not Analyzer parse throughput, network, server capacity or a production SLA.",
+    "Main renderer JS heap/TaskDuration excludes dedicated Worker heap and is not an OS process RSS peak; browser process CPU snapshots include instrumentation and browser overhead.",
+    "A 96-deep spine with small leaves exercises depth and subpixel culling; other tree shapes can have different DOM and interaction costs."
+  ],
+  "sources_sha256_at_start": {
+    "web/src/components/Flamegraph.tsx": "c6c72a91acc59d87577f87b1143f7be30240acf21f4999e17c83d2542e95dfc1",
+    "web/src/components/flame.worker.ts": "b3e6d3c8259f033123c9a89389f03305410e6f53dcf1cd5deb89399eb774d149",
+    "web/src/components/flame-analysis.ts": "f0a4f3a45ca98d5758f636c0b4b54075e9b664ed32bc6ea1c7e7885b6af4f7af",
+    "web/src/views/TaskDetail.tsx": "0e2982506e3ea4c3431258ff360cf627d87fdfd7e64c858de1a6883db5f872cc"
+  },
+  "sources_sha256_at_end": {
+    "web/src/components/Flamegraph.tsx": "c6c72a91acc59d87577f87b1143f7be30240acf21f4999e17c83d2542e95dfc1",
+    "web/src/components/flame.worker.ts": "b3e6d3c8259f033123c9a89389f03305410e6f53dcf1cd5deb89399eb774d149",
+    "web/src/components/flame-analysis.ts": "f0a4f3a45ca98d5758f636c0b4b54075e9b664ed32bc6ea1c7e7885b6af4f7af",
+    "web/src/views/TaskDetail.tsx": "0e2982506e3ea4c3431258ff360cf627d87fdfd7e64c858de1a6883db5f872cc"
+  },
+  "sources_unchanged": true,
+  "built_assets_sha256": {
+    "web/dist/assets/flame.worker-CoQmBlvk.js": "1c4a6264b20f13968034c82a524ef385d362899541314fa112e3e81160ccb058",
+    "web/dist/assets/Flamegraph-B_ycafQQ.js": "a9039db65608c47eb79373685326a5a21d8114f65b0038a172490f3bdc2ccd6a",
+    "web/dist/assets/index-DCLKEvaI.css": "981b15fe9a40b160f03567ac011e12e045b436de35a0dfe750b792643fcaaca2",
+    "web/dist/assets/index-DL4Gc6cu.js": "f6b9ea596c173db7596ffd8c07c4b7a5ce63ee6749a03dbbc4b0e89a2be80489",
+    "web/dist/assets/profile.worker-CuRHNO7q.js": "92ee18518b4c4e09cf5d6f98e58abcb5937c1e373f0855b0c49e16d4724fa63b",
+    "web/dist/assets/SafeMarkdownContent-D5ZZnanw.js": "7ea97714f4e8fbc882d3f85f9ad3bbdf14163eaf95e694edb2d8f9f29a5f6198",
+    "web/dist/assets/vendor-B5GIBWiR.js": "1d6b87f7c71dd1ad94800c6c5cdb6c6ddd2f2cf814eef99e8df2e25499f71117"
+  },
+  "cases": [
+    {
+      "passed": true,
+      "input_nodes_including_root": 10000,
+      "max_depth": 97,
+      "input_json_bytes": 629398,
+      "input_sha256": "5a84f3a2c403477c7b16d75ebc5012323f5b0710883d51ddaafa925244efe79b",
+      "total_weight": 9999,
+      "native_worker_records": [
+        {
+          "id": 1,
+          "posted_at": 701.1999999880791,
+          "terminated": true
+        },
+        {
+          "id": 2,
+          "posted_at": 707.5999999940395,
+          "roundtrip_ms": 62,
+          "returned_nodes": 10000,
+          "terminated": true
+        },
+        {
+          "id": 3,
+          "posted_at": 1910.4000000059605,
+          "roundtrip_ms": 49.400000005960464,
+          "returned_nodes": 10000,
+          "terminated": true
+        },
+        {
+          "id": 4,
+          "posted_at": 2052.699999988079,
+          "roundtrip_ms": 50,
+          "returned_nodes": 10000,
+          "terminated": true
+        },
+        {
+          "id": 5,
+          "posted_at": 2400.9000000059605,
+          "roundtrip_ms": 27.799999982118607,
+          "returned_nodes": 1768,
+          "terminated": true
+        },
+        {
+          "id": 6,
+          "posted_at": 2565.300000011921,
+          "roundtrip_ms": 59.5,
+          "returned_nodes": 10000
+        }
+      ],
+      "initial_svg_frames": 23,
+      "focused_subtree_nodes": 1768,
+      "focused_svg_frames": 17,
+      "all_worker_nodes_retained": true,
+      "offscreen_search_match": true,
+      "focus_and_reset": true,
+      "expand_and_collapse_bottom_anchor": true,
+      "expand_and_collapse_middle_scroll_preserved": true,
+      "palette_and_sort_middle_scroll_preserved": true,
+      "keyboard_up_and_home": true,
+      "viewports": [
+        {
+          "width": 1440,
+          "rendered_svg_frames": 23,
+          "document_overflow": false,
+          "keyboard_home": true
+        }
+      ],
+      "timings_ms": {
+        "navigation_to_flame_dom_ready": 814.3000000119209,
+        "result_fetch_to_flame_dom_ready": 537.8000000119209,
+        "first_keyboard_observed_from_result_fetch": 1092.699999988079,
+        "search_input_to_matching_button": 1.7000000178813934,
+        "focus_click_to_subtree_dom_ready": 76.60000002384186,
+        "entire_test_wall": 3470
+      },
+      "main_renderer": {
+        "js_heap_used_before": 659056,
+        "js_heap_used_after": 14060188,
+        "js_heap_total_after": 37888000,
+        "cdp_heap_sampling_interval_ms": 100,
+        "sampled_peak_js_heap_used_bytes": 23938684,
+        "cdp_heap_samples": [
+          {
+            "at_ms": 3,
+            "used_bytes": 659056,
+            "total_bytes": 1310720
+          },
+          {
+            "at_ms": 141,
+            "used_bytes": 2509420,
+            "total_bytes": 3670016
+          },
+          {
+            "at_ms": 260,
+            "used_bytes": 3592300,
+            "total_bytes": 6098944
+          },
+          {
+            "at_ms": 375,
+            "used_bytes": 5062672,
+            "total_bytes": 7409664
+          },
+          {
+            "at_ms": 483,
+            "used_bytes": 5532652,
+            "total_bytes": 10555392
+          },
+          {
+            "at_ms": 599,
+            "used_bytes": 6037740,
+            "total_bytes": 10555392
+          },
+          {
+            "at_ms": 706,
+            "used_bytes": 6499376,
+            "total_bytes": 10555392
+          },
+          {
+            "at_ms": 815,
+            "used_bytes": 8727228,
+            "total_bytes": 14487552
+          },
+          {
+            "at_ms": 922,
+            "used_bytes": 8737908,
+            "total_bytes": 14487552
+          },
+          {
+            "at_ms": 1029,
+            "used_bytes": 8737908,
+            "total_bytes": 14487552
+          },
+          {
+            "at_ms": 1135,
+            "used_bytes": 8737908,
+            "total_bytes": 14487552
+          },
+          {
+            "at_ms": 1237,
+            "used_bytes": 9633636,
+            "total_bytes": 17895424
+          },
+          {
+            "at_ms": 1342,
+            "used_bytes": 13175704,
+            "total_bytes": 18751488
+          },
+          {
+            "at_ms": 1444,
+            "used_bytes": 10497508,
+            "total_bytes": 22421504
+          },
+          {
+            "at_ms": 1550,
+            "used_bytes": 13233876,
+            "total_bytes": 22421504
+          },
+          {
+            "at_ms": 1654,
+            "used_bytes": 16208932,
+            "total_bytes": 25305088
+          },
+          {
+            "at_ms": 1766,
+            "used_bytes": 12554096,
+            "total_bytes": 25567232
+          },
+          {
+            "at_ms": 1874,
+            "used_bytes": 14830024,
+            "total_bytes": 25567232
+          },
+          {
+            "at_ms": 1981,
+            "used_bytes": 15624852,
+            "total_bytes": 26091520
+          },
+          {
+            "at_ms": 2088,
+            "used_bytes": 14739628,
+            "total_bytes": 26353664
+          },
+          {
+            "at_ms": 2191,
+            "used_bytes": 17141572,
+            "total_bytes": 31072256
+          },
+          {
+            "at_ms": 2296,
+            "used_bytes": 20552856,
+            "total_bytes": 31072256
+          },
+          {
+            "at_ms": 2398,
+            "used_bytes": 23938684,
+            "total_bytes": 34217984
+          },
+          {
+            "at_ms": 2505,
+            "used_bytes": 19652168,
+            "total_bytes": 41820160
+          },
+          {
+            "at_ms": 2614,
+            "used_bytes": 11789056,
+            "total_bytes": 37888000
+          },
+          {
+            "at_ms": 2720,
+            "used_bytes": 18966640,
+            "total_bytes": 37888000
+          },
+          {
+            "at_ms": 2827,
+            "used_bytes": 18966640,
+            "total_bytes": 37888000
+          },
+          {
+            "at_ms": 2936,
+            "used_bytes": 18966640,
+            "total_bytes": 37888000
+          },
+          {
+            "at_ms": 3042,
+            "used_bytes": 18966640,
+            "total_bytes": 37888000
+          },
+          {
+            "at_ms": 3146,
+            "used_bytes": 21223080,
+            "total_bytes": 37888000
+          },
+          {
+            "at_ms": 3251,
+            "used_bytes": 13439700,
+            "total_bytes": 37888000
+          },
+          {
+            "at_ms": 3354,
+            "used_bytes": 13472368,
+            "total_bytes": 37888000
+          }
+        ],
+        "heap_sampling_errors": [],
+        "task_cpu_seconds_delta": 1.243598,
+        "script_cpu_seconds_delta": 0.288442,
+        "dom": {
+          "documents": 1,
+          "nodes": 2522,
+          "jsEventListeners": 293
+        }
+      },
+      "browser_process_cpu_seconds_delta": [
+        {
+          "type": "browser",
+          "seconds": 1.1327090000000002
+        },
+        {
+          "type": "renderer",
+          "seconds": 2.622306
+        },
+        {
+          "type": "GPU",
+          "seconds": 1.344121
+        },
+        {
+          "type": "network.mojom.NetworkService",
+          "seconds": 0.05879099999999998
+        }
+      ],
+      "browser": {
+        "protocolVersion": "1.3",
+        "product": "HeadlessChrome/156.0.8078.4",
+        "revision": "@f842f52ef39fd97b449eb27cff414bf05a98ddce",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "jsVersion": "15.6.75"
+      },
+      "navigator": {
+        "hardware_concurrency": 24,
+        "device_memory_gib": 16,
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "device_pixel_ratio": 1
+      },
+      "errors": []
+    },
+    {
+      "passed": true,
+      "input_nodes_including_root": 50000,
+      "max_depth": 97,
+      "input_json_bytes": 3189389,
+      "input_sha256": "7199f894601f6ac3447829b3e71a9b2d0aaf4c2754e4fa1e55103c0e35db18a9",
+      "total_weight": 49999,
+      "native_worker_records": [
+        {
+          "id": 1,
+          "posted_at": 834.1999999880791,
+          "terminated": true
+        },
+        {
+          "id": 2,
+          "posted_at": 875.5999999940395,
+          "roundtrip_ms": 215.09999999403954,
+          "returned_nodes": 50000,
+          "terminated": true
+        },
+        {
+          "id": 3,
+          "posted_at": 2134.5999999940395,
+          "roundtrip_ms": 188.90000000596046,
+          "returned_nodes": 50000,
+          "terminated": true
+        },
+        {
+          "id": 4,
+          "posted_at": 2494.699999988079,
+          "roundtrip_ms": 184.7000000178814,
+          "returned_nodes": 50000,
+          "terminated": true
+        },
+        {
+          "id": 5,
+          "posted_at": 3172.199999988079,
+          "roundtrip_ms": 77.5,
+          "returned_nodes": 8840,
+          "terminated": true
+        },
+        {
+          "id": 6,
+          "posted_at": 3432,
+          "roundtrip_ms": 315.59999999403954,
+          "returned_nodes": 50000
+        }
+      ],
+      "initial_svg_frames": 23,
+      "focused_subtree_nodes": 8840,
+      "focused_svg_frames": 17,
+      "all_worker_nodes_retained": true,
+      "offscreen_search_match": true,
+      "focus_and_reset": true,
+      "expand_and_collapse_bottom_anchor": true,
+      "expand_and_collapse_middle_scroll_preserved": true,
+      "palette_and_sort_middle_scroll_preserved": true,
+      "keyboard_up_and_home": true,
+      "viewports": [
+        {
+          "width": 1440,
+          "rendered_svg_frames": 23,
+          "document_overflow": false,
+          "keyboard_home": true
+        }
+      ],
+      "timings_ms": {
+        "navigation_to_flame_dom_ready": 1222.800000011921,
+        "result_fetch_to_flame_dom_ready": 978.6000000238419,
+        "first_keyboard_observed_from_result_fetch": 1260.4000000059605,
+        "search_input_to_matching_button": 2.300000011920929,
+        "focus_click_to_subtree_dom_ready": 146.80000001192093,
+        "entire_test_wall": 4759
+      },
+      "main_renderer": {
+        "js_heap_used_before": 659056,
+        "js_heap_used_after": 47454412,
+        "js_heap_total_after": 100167680,
+        "cdp_heap_sampling_interval_ms": 100,
+        "sampled_peak_js_heap_used_bytes": 61058548,
+        "cdp_heap_samples": [
+          {
+            "at_ms": 3,
+            "used_bytes": 659056,
+            "total_bytes": 1310720
+          },
+          {
+            "at_ms": 133,
+            "used_bytes": 2398232,
+            "total_bytes": 3670016
+          },
+          {
+            "at_ms": 243,
+            "used_bytes": 3637832,
+            "total_bytes": 6098944
+          },
+          {
+            "at_ms": 369,
+            "used_bytes": 4751784,
+            "total_bytes": 7147520
+          },
+          {
+            "at_ms": 471,
+            "used_bytes": 5324704,
+            "total_bytes": 7409664
+          },
+          {
+            "at_ms": 575,
+            "used_bytes": 9353904,
+            "total_bytes": 14680064
+          },
+          {
+            "at_ms": 678,
+            "used_bytes": 9380720,
+            "total_bytes": 14680064
+          },
+          {
+            "at_ms": 791,
+            "used_bytes": 9848096,
+            "total_bytes": 14942208
+          },
+          {
+            "at_ms": 910,
+            "used_bytes": 9543088,
+            "total_bytes": 18612224
+          },
+          {
+            "at_ms": 1027,
+            "used_bytes": 9551060,
+            "total_bytes": 18612224
+          },
+          {
+            "at_ms": 1205,
+            "used_bytes": 26402392,
+            "total_bytes": 37191680
+          },
+          {
+            "at_ms": 1313,
+            "used_bytes": 26851412,
+            "total_bytes": 37453824
+          },
+          {
+            "at_ms": 1416,
+            "used_bytes": 25587636,
+            "total_bytes": 43909120
+          },
+          {
+            "at_ms": 1519,
+            "used_bytes": 26848616,
+            "total_bytes": 41496576
+          },
+          {
+            "at_ms": 1624,
+            "used_bytes": 29371776,
+            "total_bytes": 41496576
+          },
+          {
+            "at_ms": 1728,
+            "used_bytes": 31725456,
+            "total_bytes": 41496576
+          },
+          {
+            "at_ms": 1832,
+            "used_bytes": 34755456,
+            "total_bytes": 41496576
+          },
+          {
+            "at_ms": 1939,
+            "used_bytes": 36755432,
+            "total_bytes": 41496576
+          },
+          {
+            "at_ms": 2045,
+            "used_bytes": 25254560,
+            "total_bytes": 41758720
+          },
+          {
+            "at_ms": 2169,
+            "used_bytes": 27959096,
+            "total_bytes": 44118016
+          },
+          {
+            "at_ms": 2280,
+            "used_bytes": 30195320,
+            "total_bytes": 46215168
+          },
+          {
+            "at_ms": 2415,
+            "used_bytes": 52084284,
+            "total_bytes": 68296704
+          },
+          {
+            "at_ms": 2530,
+            "used_bytes": 40866024,
+            "total_bytes": 69758976
+          },
+          {
+            "at_ms": 2636,
+            "used_bytes": 41315920,
+            "total_bytes": 70021120
+          },
+          {
+            "at_ms": 2781,
+            "used_bytes": 54691908,
+            "total_bytes": 103116800
+          },
+          {
+            "at_ms": 2897,
+            "used_bytes": 55024324,
+            "total_bytes": 103116800
+          },
+          {
+            "at_ms": 3002,
+            "used_bytes": 57238468,
+            "total_bytes": 103116800
+          },
+          {
+            "at_ms": 3103,
+            "used_bytes": 60706116,
+            "total_bytes": 103116800
+          },
+          {
+            "at_ms": 3209,
+            "used_bytes": 54639636,
+            "total_bytes": 116748288
+          },
+          {
+            "at_ms": 3311,
+            "used_bytes": 61058548,
+            "total_bytes": 117272576
+          },
+          {
+            "at_ms": 3421,
+            "used_bytes": 28571868,
+            "total_bytes": 99954688
+          },
+          {
+            "at_ms": 3523,
+            "used_bytes": 29549136,
+            "total_bytes": 99954688
+          },
+          {
+            "at_ms": 3625,
+            "used_bytes": 31056040,
+            "total_bytes": 99954688
+          },
+          {
+            "at_ms": 3739,
+            "used_bytes": 31562092,
+            "total_bytes": 99954688
+          },
+          {
+            "at_ms": 3869,
+            "used_bytes": 52934336,
+            "total_bytes": 101851136
+          },
+          {
+            "at_ms": 3983,
+            "used_bytes": 53814676,
+            "total_bytes": 101851136
+          },
+          {
+            "at_ms": 4085,
+            "used_bytes": 41872252,
+            "total_bytes": 100167680
+          },
+          {
+            "at_ms": 4203,
+            "used_bytes": 41872252,
+            "total_bytes": 100167680
+          },
+          {
+            "at_ms": 4309,
+            "used_bytes": 41872252,
+            "total_bytes": 100167680
+          },
+          {
+            "at_ms": 4418,
+            "used_bytes": 41872252,
+            "total_bytes": 100167680
+          },
+          {
+            "at_ms": 4522,
+            "used_bytes": 44775612,
+            "total_bytes": 100167680
+          },
+          {
+            "at_ms": 4628,
+            "used_bytes": 46850968,
+            "total_bytes": 100167680
+          }
+        ],
+        "heap_sampling_errors": [],
+        "task_cpu_seconds_delta": 2.061319,
+        "script_cpu_seconds_delta": 0.81858,
+        "dom": {
+          "documents": 1,
+          "nodes": 2526,
+          "jsEventListeners": 293
+        }
+      },
+      "browser_process_cpu_seconds_delta": [
+        {
+          "type": "browser",
+          "seconds": 1.5949600000000004
+        },
+        {
+          "type": "renderer",
+          "seconds": 5.213719
+        },
+        {
+          "type": "GPU",
+          "seconds": 2.1380800000000004
+        },
+        {
+          "type": "network.mojom.NetworkService",
+          "seconds": 0.059706999999999955
+        }
+      ],
+      "browser": {
+        "protocolVersion": "1.3",
+        "product": "HeadlessChrome/156.0.8078.4",
+        "revision": "@f842f52ef39fd97b449eb27cff414bf05a98ddce",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "jsVersion": "15.6.75"
+      },
+      "navigator": {
+        "hardware_concurrency": 24,
+        "device_memory_gib": 16,
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "device_pixel_ratio": 1
+      },
+      "errors": []
+    },
+    {
+      "passed": true,
+      "input_nodes_including_root": 100000,
+      "max_depth": 97,
+      "input_json_bytes": 6389402,
+      "input_sha256": "ea0f3dc3cdce38a2628d1710fa471ec0a56779e5312d079d1f331876ca4b21d5",
+      "total_weight": 99999,
+      "native_worker_records": [
+        {
+          "id": 1,
+          "posted_at": 1205.4000000059605,
+          "terminated": true
+        },
+        {
+          "id": 2,
+          "posted_at": 1272.199999988079,
+          "roundtrip_ms": 426.10000002384186,
+          "returned_nodes": 100000,
+          "terminated": true
+        },
+        {
+          "id": 3,
+          "posted_at": 2718.9000000059605,
+          "roundtrip_ms": 375.59999999403954,
+          "returned_nodes": 100000,
+          "terminated": true
+        },
+        {
+          "id": 4,
+          "posted_at": 3908.5,
+          "roundtrip_ms": 464.69999998807907,
+          "returned_nodes": 100000,
+          "terminated": true
+        },
+        {
+          "id": 5,
+          "posted_at": 5345.0999999940395,
+          "roundtrip_ms": 70.40000000596046,
+          "returned_nodes": 17697,
+          "terminated": true
+        },
+        {
+          "id": 6,
+          "posted_at": 5596.800000011921,
+          "roundtrip_ms": 310.5,
+          "returned_nodes": 100000
+        }
+      ],
+      "initial_svg_frames": 23,
+      "focused_subtree_nodes": 17697,
+      "focused_svg_frames": 17,
+      "all_worker_nodes_retained": true,
+      "offscreen_search_match": true,
+      "focus_and_reset": true,
+      "expand_and_collapse_bottom_anchor": true,
+      "expand_and_collapse_middle_scroll_preserved": true,
+      "palette_and_sort_middle_scroll_preserved": true,
+      "keyboard_up_and_home": true,
+      "viewports": [
+        {
+          "width": 1440,
+          "rendered_svg_frames": 23,
+          "document_overflow": false,
+          "keyboard_home": true
+        },
+        {
+          "width": 375,
+          "rendered_svg_frames": 23,
+          "document_overflow": false,
+          "keyboard_home": true
+        }
+      ],
+      "timings_ms": {
+        "navigation_to_flame_dom_ready": 1948.800000011921,
+        "result_fetch_to_flame_dom_ready": 1666.300000011921,
+        "first_keyboard_observed_from_result_fetch": 1958,
+        "search_input_to_matching_button": 2.5,
+        "focus_click_to_subtree_dom_ready": 149.7999999821186,
+        "entire_test_wall": 7940
+      },
+      "main_renderer": {
+        "js_heap_used_before": 659056,
+        "js_heap_used_after": 64273372,
+        "js_heap_total_after": 117846016,
+        "cdp_heap_sampling_interval_ms": 100,
+        "sampled_peak_js_heap_used_bytes": 128449120,
+        "cdp_heap_samples": [
+          {
+            "at_ms": 4,
+            "used_bytes": 659056,
+            "total_bytes": 1310720
+          },
+          {
+            "at_ms": 131,
+            "used_bytes": 2006168,
+            "total_bytes": 3145728
+          },
+          {
+            "at_ms": 254,
+            "used_bytes": 3863340,
+            "total_bytes": 4788224
+          },
+          {
+            "at_ms": 561,
+            "used_bytes": 4917012,
+            "total_bytes": 7147520
+          },
+          {
+            "at_ms": 728,
+            "used_bytes": 5463712,
+            "total_bytes": 7933952
+          },
+          {
+            "at_ms": 834,
+            "used_bytes": 4471732,
+            "total_bytes": 8458240
+          },
+          {
+            "at_ms": 940,
+            "used_bytes": 17089480,
+            "total_bytes": 22470656
+          },
+          {
+            "at_ms": 1043,
+            "used_bytes": 17134552,
+            "total_bytes": 22470656
+          },
+          {
+            "at_ms": 1153,
+            "used_bytes": 17576940,
+            "total_bytes": 23257088
+          },
+          {
+            "at_ms": 1276,
+            "used_bytes": 18020736,
+            "total_bytes": 24043520
+          },
+          {
+            "at_ms": 1393,
+            "used_bytes": 14176612,
+            "total_bytes": 25182208
+          },
+          {
+            "at_ms": 1501,
+            "used_bytes": 14176612,
+            "total_bytes": 25182208
+          },
+          {
+            "at_ms": 1614,
+            "used_bytes": 14753264,
+            "total_bytes": 25182208
+          },
+          {
+            "at_ms": 1938,
+            "used_bytes": 41843988,
+            "total_bytes": 64299008
+          },
+          {
+            "at_ms": 2050,
+            "used_bytes": 42222252,
+            "total_bytes": 64299008
+          },
+          {
+            "at_ms": 2152,
+            "used_bytes": 44544308,
+            "total_bytes": 64630784
+          },
+          {
+            "at_ms": 2255,
+            "used_bytes": 48686092,
+            "total_bytes": 64630784
+          },
+          {
+            "at_ms": 2361,
+            "used_bytes": 51551920,
+            "total_bytes": 64892928
+          },
+          {
+            "at_ms": 2464,
+            "used_bytes": 54343396,
+            "total_bytes": 65155072
+          },
+          {
+            "at_ms": 2566,
+            "used_bytes": 57236392,
+            "total_bytes": 65155072
+          },
+          {
+            "at_ms": 2671,
+            "used_bytes": 61645612,
+            "total_bytes": 67133440
+          },
+          {
+            "at_ms": 2775,
+            "used_bytes": 64070648,
+            "total_bytes": 69492736
+          },
+          {
+            "at_ms": 2889,
+            "used_bytes": 66265320,
+            "total_bytes": 71589888
+          },
+          {
+            "at_ms": 2991,
+            "used_bytes": 66887676,
+            "total_bytes": 72114176
+          },
+          {
+            "at_ms": 3097,
+            "used_bytes": 67516732,
+            "total_bytes": 72900608
+          },
+          {
+            "at_ms": 3324,
+            "used_bytes": 75323784,
+            "total_bytes": 122970112
+          },
+          {
+            "at_ms": 3444,
+            "used_bytes": 76568616,
+            "total_bytes": 122970112
+          },
+          {
+            "at_ms": 3553,
+            "used_bytes": 76568616,
+            "total_bytes": 122970112
+          },
+          {
+            "at_ms": 3661,
+            "used_bytes": 76568616,
+            "total_bytes": 122970112
+          },
+          {
+            "at_ms": 3771,
+            "used_bytes": 76568616,
+            "total_bytes": 122970112
+          },
+          {
+            "at_ms": 3873,
+            "used_bytes": 77301568,
+            "total_bytes": 122970112
+          },
+          {
+            "at_ms": 3987,
+            "used_bytes": 79300176,
+            "total_bytes": 122970112
+          },
+          {
+            "at_ms": 4094,
+            "used_bytes": 79821524,
+            "total_bytes": 122970112
+          },
+          {
+            "at_ms": 4205,
+            "used_bytes": 75103084,
+            "total_bytes": 142893056
+          },
+          {
+            "at_ms": 4313,
+            "used_bytes": 75103084,
+            "total_bytes": 142893056
+          },
+          {
+            "at_ms": 4639,
+            "used_bytes": 106795796,
+            "total_bytes": 146853888
+          },
+          {
+            "at_ms": 4749,
+            "used_bytes": 105100488,
+            "total_bytes": 169398272
+          },
+          {
+            "at_ms": 4855,
+            "used_bytes": 105100488,
+            "total_bytes": 169398272
+          },
+          {
+            "at_ms": 4963,
+            "used_bytes": 105100488,
+            "total_bytes": 169398272
+          },
+          {
+            "at_ms": 5072,
+            "used_bytes": 105100488,
+            "total_bytes": 169398272
+          },
+          {
+            "at_ms": 5173,
+            "used_bytes": 106640084,
+            "total_bytes": 169398272
+          },
+          {
+            "at_ms": 5275,
+            "used_bytes": 111218204,
+            "total_bytes": 169398272
+          },
+          {
+            "at_ms": 5376,
+            "used_bytes": 128449120,
+            "total_bytes": 172216320
+          },
+          {
+            "at_ms": 5484,
+            "used_bytes": 115353516,
+            "total_bytes": 175951872
+          },
+          {
+            "at_ms": 5586,
+            "used_bytes": 118241944,
+            "total_bytes": 175951872
+          },
+          {
+            "at_ms": 5691,
+            "used_bytes": 120345204,
+            "total_bytes": 175951872
+          },
+          {
+            "at_ms": 5796,
+            "used_bytes": 121329652,
+            "total_bytes": 175951872
+          },
+          {
+            "at_ms": 5906,
+            "used_bytes": 121822588,
+            "total_bytes": 175951872
+          },
+          {
+            "at_ms": 6091,
+            "used_bytes": 48393508,
+            "total_bytes": 117846016
+          },
+          {
+            "at_ms": 6204,
+            "used_bytes": 49335348,
+            "total_bytes": 117846016
+          },
+          {
+            "at_ms": 6314,
+            "used_bytes": 49335348,
+            "total_bytes": 117846016
+          },
+          {
+            "at_ms": 6422,
+            "used_bytes": 49335348,
+            "total_bytes": 117846016
+          },
+          {
+            "at_ms": 6532,
+            "used_bytes": 49335348,
+            "total_bytes": 117846016
+          },
+          {
+            "at_ms": 6633,
+            "used_bytes": 50222024,
+            "total_bytes": 117846016
+          },
+          {
+            "at_ms": 6749,
+            "used_bytes": 51668348,
+            "total_bytes": 117846016
+          },
+          {
+            "at_ms": 6857,
+            "used_bytes": 51668348,
+            "total_bytes": 117846016
+          },
+          {
+            "at_ms": 6966,
+            "used_bytes": 51668348,
+            "total_bytes": 117846016
+          },
+          {
+            "at_ms": 7067,
+            "used_bytes": 53966828,
+            "total_bytes": 117846016
+          },
+          {
+            "at_ms": 7183,
+            "used_bytes": 56665836,
+            "total_bytes": 117846016
+          },
+          {
+            "at_ms": 7290,
+            "used_bytes": 58816324,
+            "total_bytes": 117846016
+          },
+          {
+            "at_ms": 7394,
+            "used_bytes": 58816324,
+            "total_bytes": 117846016
+          },
+          {
+            "at_ms": 7504,
+            "used_bytes": 58816324,
+            "total_bytes": 117846016
+          },
+          {
+            "at_ms": 7612,
+            "used_bytes": 58816324,
+            "total_bytes": 117846016
+          },
+          {
+            "at_ms": 7716,
+            "used_bytes": 63097892,
+            "total_bytes": 117846016
+          },
+          {
+            "at_ms": 7819,
+            "used_bytes": 63992900,
+            "total_bytes": 117846016
+          }
+        ],
+        "heap_sampling_errors": [],
+        "task_cpu_seconds_delta": 2.704369,
+        "script_cpu_seconds_delta": 1.451794,
+        "dom": {
+          "documents": 1,
+          "nodes": 1771,
+          "jsEventListeners": 275
+        }
+      },
+      "browser_process_cpu_seconds_delta": [
+        {
+          "type": "browser",
+          "seconds": 1.776826999999999
+        },
+        {
+          "type": "renderer",
+          "seconds": 7.201946
+        },
+        {
+          "type": "GPU",
+          "seconds": 2.414872000000001
+        },
+        {
+          "type": "network.mojom.NetworkService",
+          "seconds": 0.05865900000000002
+        }
+      ],
+      "browser": {
+        "protocolVersion": "1.3",
+        "product": "HeadlessChrome/156.0.8078.4",
+        "revision": "@f842f52ef39fd97b449eb27cff414bf05a98ddce",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "jsVersion": "15.6.75"
+      },
+      "navigator": {
+        "hardware_concurrency": 24,
+        "device_memory_gib": 16,
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "device_pixel_ratio": 1
+      },
+      "errors": []
+    }
+  ]
+}

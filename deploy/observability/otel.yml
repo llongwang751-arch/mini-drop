@@ -1,0 +1,16 @@
+receivers:
+  otlp:
+    protocols:
+      grpc: {endpoint: '0.0.0.0:4317'}
+      http: {endpoint: '0.0.0.0:4318'}
+processors:
+  memory_limiter: {check_interval: 1s, limit_mib: 64, spike_limit_mib: 16}
+  batch: {timeout: 5s, send_batch_size: 128}
+exporters:
+  otlp_http/tempo: {endpoint: 'http://tempo:4318', timeout: 5s}
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp_http/tempo]
