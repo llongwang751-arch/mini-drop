@@ -1,10 +1,10 @@
 # 全量交付与验收矩阵
 
-## 使用指南增量（Web11 候选，2026-10-20）
+## 使用指南增量（Web11 已上线，2026-10-20）
 
 `/guide` 已重构为与 Drop 品牌一致的交互式技术手册，包含采集→分析→诊断→验证、场景索引、结果边界和按权限显示的操作入口。六宽度 UI15/15、原导航回归16/16、Web137、构建及 Prettier 实际通过；四宽度流程切换位移0px、axe四次0违规。Lighthouse本地导入夹具桌面99、手机91，可访问性/最佳实践100；不作为生产响应时间或真实采集/模型执行证据。见 [设计与八维复审](../design-system/drop/pages/guide.md)、[最终页面验收](evidence/guide-20261020/final/summary.json)、[导航回归](evidence/guide-20261020/final/navigation-regression/summary.json)、[性能范围](evidence/guide-20261020/final/lighthouse.json)。
 
-CI原fixture opt-in已显式启用，本机完整默认preview实际48/48通过、0skip、0fail。部署目标仍为用户已确认的82.157.81.79；计划只更新Web11，API12、AgentScope runtime2、Agent/Helper3及SQL8保持。本段在实际切换前仅记录候选检查，完成后另附上线收据和生产只读浏览器验证。
+CI原fixture opt-in已显式启用，本机完整默认preview实际48/48通过、0skip、0fail。**上线完成**：功能提交a898c9d已推送master；实际只替换82.157.81.79的Web11，其余26容器身份及镜像保持，27运行健康、7监控up、HTTPS readiness200，API12、AgentScope runtime2、Agent/Helper3、SQL8及原镜像/数据卷保留。[部署收据](evidence/guide-20261020/final/deployment.json) · [真实认证公网GET检查](evidence/guide-20261020/final/production/summary.json) · [发布说明](releases/20261020-guide.md)。GitHub新运行Web job已成功，完整状态见本次CI观测，未将仍在执行的job预写为成功。
 
 ## GitHub 源码发布补充（2026-10-20）
 
@@ -18,7 +18,7 @@ CI原fixture opt-in已显式启用，本机完整默认preview实际48/48通过�
 
 **最终功能提交797e9ec7e581验收完成**：[push/master CI run39418233749](https://github.com/llongwang751-arch/mini-drop/actions/runs/39418233749) **7/7全部通过**，包含两个官方MinIO fixture构建、原Analyzer/Ops真实PG/S3集成、API race/静态及漏洞检查、Core、Web、SDK与契约。服务器1555源码已绑定；最终ready200/27容器健康/7监控up。[CI收据](evidence/github-publication-20261020/github-ci-797e9ec.json) · [最终健康](evidence/github-publication-20261020/final-readiness-797e9ec.json)。后续收尾提交仅文档/JSON，跳过重复CI；上述7项对应明确功能提交，不扩大为最终镜像统一安全扫描或长期稳定性验收。
 
-更新：2026-10-20。最新为API12 / AgentScope runtime2（SDK2.0.10）/ Web10 / AgentHelper3 / SQL8，27运行容器、7监控up；调查11/修复9完整网页76.4秒通过，原2+冻结6、384例、6/6对照、CPU1.5587倍。Go117、SDK33、双UID互通8、executor12及Compose5/28负控通过。详见[AgentScope发布](releases/20261020-agentscope.md)与[接入](AGENTSCOPE_INTEGRATION.md)。后面的API10表格保留为采集器组合的历史验收。
+更新：2026-10-20。最新为API12 / AgentScope runtime2（SDK2.0.10）/ Web11 / AgentHelper3 / SQL8，27运行容器、7监控up；调查11/修复9完整网页76.4秒通过，原2+冻结6、384例、6/6对照、CPU1.5587倍。Go117、SDK33、双UID互通8、executor12及Compose5/28负控通过。详见[AgentScope发布](releases/20261020-agentscope.md)与[接入](AGENTSCOPE_INTEGRATION.md)。后面的API10表格保留为采集器组合的历史验收。
 
 历史组合部署：[https://82.157.81.79](https://82.157.81.79)，API10 / Web10 / Agent与Helper3 / SQL8，26运行容器、7监控目标up。用户点名的BOLT和malloc已通过；Saber真实FTS5组件已接入并完成最终网页全流程。详见[本次发布](releases/20261020-saber-collectors.md)。
 
