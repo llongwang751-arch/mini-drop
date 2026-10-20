@@ -51,6 +51,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - name: Build pinned MinIO fixture from official release binary
+        run: docker build --platform linux/amd64 --build-arg TARGETARCH=amd64 -t minio/minio:RELEASE.2025-07-23T15-54-02Z -f deploy/minio/Dockerfile .
       - run: docker build -t drop-analyzer:build -f analyzer/Dockerfile .
       - run: sh analyzer/scripts/run-isolated-integration.sh
   agent-runtime:
@@ -120,6 +122,8 @@ jobs:
         run: python -m unittest discover -s deploy/tests -p test_agentscope_deployment.py -v
       - name: Helper spool provisioning boundaries (fake mount commands)
         run: python -m unittest discover -s deploy/tests -p test_helper_spool.py -v
+      - name: Build pinned MinIO fixture from official release binary
+        run: docker build --platform linux/amd64 --build-arg TARGETARCH=amd64 -t minio/minio:RELEASE.2025-07-23T15-54-02Z -f deploy/minio/Dockerfile .
       - run: docker build -t drop-ops:ci -f ops/Dockerfile .
       - run: OPS_TEST_IMAGE=drop-ops:ci bash ops/run-isolated-integration.sh
       - run: python scripts/render_kubernetes.py && git diff --exit-code -- deploy/kubernetes

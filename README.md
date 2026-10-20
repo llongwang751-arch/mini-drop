@@ -40,9 +40,13 @@ GitHub 当前工程以 tx-drop 为准；旧项目文件由新的完整快照替�
 
 ```sh
 python scripts/dev.py doctor
+# 首次环境如缺少旧版 MinIO 缓存，先从官方同版本二进制及固定 SHA 构建依赖。
+docker build -t minio/minio:RELEASE.2025-07-23T15-54-02Z -f deploy/minio/Dockerfile .
 python scripts/dev.py up
 python scripts/dev.py smoke
 ```
+
+MinIO 原容器仓库当前不能匿名拉取；上述依赖重建使用官方固定版本二进制，详细来源、SHA 和与生产缓存镜像的区别见 [MinIO 构建说明](deploy/minio/README.md)。
 
 打开 `http://127.0.0.1:18080`。账号文件位置由启动器输出，口令不打印。停止执行 `python scripts/dev.py stop`，保留本地数据；状态/日志分别使用 `status` / `logs`。前端热更新执行 `cd web`、`npm ci`、`npm run dev:local`。Windows也可使用 `powershell -File scripts/dev.ps1 up`。默认Agent只采集自己的受控真实进程，未开放宿主PID、Docker socket或BPF额外权限。更多说明见 [开发与验证](docs/LOCAL_DEVELOPMENT.md)。
 

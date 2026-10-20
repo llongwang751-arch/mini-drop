@@ -8,6 +8,8 @@
 
 发布收据：源码12fb28804f7d已普通快进推送master，旧目录从当前tree移除；服务器1548文件校验、27容器身份保持、ready200/7监控up通过；成功/失败录像均已上传且GitHub digest匹配。[GitHub验真](evidence/github-publication-20261020/publication.json) · [服务器绑定](evidence/github-publication-20261020/server-sync.json) · [录像附件验真](evidence/github-publication-20261020/release.json)。首次Actions暴露健康命令引号及Compose负数fixture可移植性问题，后续提交修正；这段记录不宣称新远端整套已通过。
 
+31cb6b3已同步1551源码，Linux Compose2.40.3五项通过；远端API race/vet/漏洞检查、Web、SDK、契约、Core构建通过。MinIO上游容器拉取失败另修复为[官方同版本binary+固定SHA构建](../deploy/minio/README.md)，CI继续执行原PG/S3集成，不放宽测试；[生产binary只读SHA](evidence/github-publication-20261020/minio-binary-proof.json)与官方相同。生产存储镜像和数据未替换，新CI状态见Actions。
+
 更新：2026-10-20。最新为API12 / AgentScope runtime2（SDK2.0.10）/ Web10 / AgentHelper3 / SQL8，27运行容器、7监控up；调查11/修复9完整网页76.4秒通过，原2+冻结6、384例、6/6对照、CPU1.5587倍。Go117、SDK33、双UID互通8、executor12及Compose5/28负控通过。详见[AgentScope发布](releases/20261020-agentscope.md)与[接入](AGENTSCOPE_INTEGRATION.md)。后面的API10表格保留为采集器组合的历史验收。
 
 历史组合部署：[https://82.157.81.79](https://82.157.81.79)，API10 / Web10 / Agent与Helper3 / SQL8，26运行容器、7监控目标up。用户点名的BOLT和malloc已通过；Saber真实FTS5组件已接入并完成最终网页全流程。详见[本次发布](releases/20261020-saber-collectors.md)。

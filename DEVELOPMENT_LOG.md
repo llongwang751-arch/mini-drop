@@ -455,3 +455,9 @@
 - 完整源码提交12fb28804f7d已普通快进推送master，父提交609ea8a保留。REST核对1548文件和tree0777cf40，旧apiserver/server/native不在当前tree。1819候选凭据扫描零命中，20个toy样本SHA/大小通过。
 - 服务器逐文件校验同步1548源码，绑定上述提交；27容器ID/镜像前后相同、ready200、7监控up、executor active、生产.env保留，未重建或重启服务。成功/首次失败录像已上传非草稿Release，GitHub digest与本机SHA一致；收据在docs/evidence/github-publication-20261020。
 - 首次远端CI的web、SDK、contracts通过；API在测试执行前因Actions健康命令单引号拆词失败，修正为双引号完整参数。maintenance因Compose2.40.3拒绝负数字符串而提前退出，实际负控改合法1GiB超512MiB预算，同时保留归一对象-1直接策略断言，未改权限fence。修后本机Compose5项/28真实overlay+1直接负控通过；新远端结果以Actions为准。
+
+## 2026-10-20 · CI 官方存储依赖恢复
+
+- 第二提交31cb6b3已发布并同步1551源码SHA，27生产容器/镜像保持，ready200/7监控up。服务器Linux Compose2.40.3也实际5/5通过。GitHub该提交API race/vet/govulncheck/gofmt、Web、SDK、契约及Core构建均通过。
+- maintenance后续失败是旧MinIO官方容器仓库拒绝匿名拉取；Quay精确tag匿名token后manifest仍401，未换第三方镜像或绕过隔离测试。新增仅供依赖重建的Dockerfile：官方同版本GitHub release的amd64/arm64 binary、固定官方SHA、LICENSE及源版本标识，有界下载。CI先构建本地fixture tag再运行原PG/S3集成；新开发环境可同样预构建。未更新生产MinIO镜像、配置或卷。
+- 生产storage-backend只读核对/usr/bin/minio SHA为eef6581f6509f43ece007a6f2eb4c5e3ce41498c8956e919a7ac7b4b170fa431，与官方amd64 release SHA相同；基础镜像和容器image ID不冒称相同。见docs/evidence/github-publication-20261020/minio-binary-proof.json和deploy/minio说明。最终CI结果仍以Actions为准。
