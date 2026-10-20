@@ -1,4 +1,4 @@
-"""Pure imported-fixture boundaries; no HTTP, S3 or browser is started."""
+"""只验证导入夹具边界，不启动 HTTP、S3 或浏览器。"""
 
 import gzip
 import hashlib

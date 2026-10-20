@@ -1,8 +1,7 @@
-"""Run the benchmark binary in a fresh, network-isolated PostgreSQL fixture.
+"""在新建、网络隔离的 PostgreSQL 夹具中运行基准二进制。
 
-The runner removes only the random container/volume it creates. It never accepts
-an existing DSN or accesses deployment secrets. Copy its output to evidence after
-review; records are synthetic and do not include authentication material.
+只删除本次创建的随机容器和卷，不接受现有 DSN，也不读取部署密钥；
+人工审阅后再将输出归档为证据。数据为合成记录，不包含鉴权材料。
 """
 from __future__ import annotations
 import argparse
@@ -24,9 +23,8 @@ def main():
     root = Path(args.fixtures).resolve()
     if not (root / "platform-benchmark").is_file():
         raise FileNotFoundError("Compile tools/cmd/platform-benchmark for Linux first")
-    # A CPU/memory cap does not bound a million-row seed's disk traffic. Refuse
-    # a busy Linux host and impose block-device throughput limits on our fixture.
-    # This keeps the one-box deployment responsive while evidence is gathered.
+    # CPU/内存上限不能约束百万行 seed 的磁盘流量；拒绝在繁忙 Linux 宿主运行，
+    # 并对本夹具设置块设备吞吐上限，使收集证据时现有部署仍可响应。
     io_limits = []
     io_device = None
     pressure_file = Path("/proc/pressure/io")

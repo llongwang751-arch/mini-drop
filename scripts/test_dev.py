@@ -1,4 +1,4 @@
-"""Isolation and recovery guards for the local launcher; no Docker required."""
+"""验证本地启动器的隔离与恢复保护，不需要 Docker。"""
 from pathlib import Path
 import tempfile
 import unittest

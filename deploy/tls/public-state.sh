@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Shared, locked public certificate publication. Callers set deploy_dir and umask 077.
+# 公共证书发布共用带锁实现；调用方先设置deploy_dir及umask 077，防止并发覆盖与权限放宽。
 tls_public_ip="${DROP_PUBLIC_IP:-120.24.187.205}"
 [[ "$tls_public_ip" =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]] || return 1
 
@@ -42,8 +42,8 @@ tls_begin() {
 tls_verify_loaded() {
  docker compose exec -T gateway nginx -c /etc/drop/runtime/edge.conf -t > /dev/null 2>&1
  docker compose exec -T gateway nginx -c /etc/drop/runtime/edge.conf -s reload > /dev/null 2>&1
- # Reload is asynchronous: the old worker can still serve the HTTP-only config.
- # Keep certificate validation enabled and wait briefly for the new listener.
+ # reload是异步的，旧worker可能暂时仍使用仅HTTP配置。
+ # 保持证书验证开启，短暂等待新监听器就绪，不能用跳过TLS验证假装成功。
  local attempt
  for attempt in {1..10}; do
   if curl --fail --silent --connect-timeout 2 --max-time 3 --resolve "$tls_public_ip:443:127.0.0.1" "https://$tls_public_ip/healthz" > /dev/null; then return 0; fi
@@ -60,7 +60,7 @@ tls_publish() {
  openssl pkey -in "$cert_dir/privkey.pem" -passin pass: -pubout -outform DER -out "$tls_backup_dir/key.pub"
  cmp -s -- "$tls_backup_dir/cert.pub" "$tls_backup_dir/key.pub"
  if [[ -n "$tls_previous_target" ]] && cmp -s -- "$cert_dir/fullchain.pem" "$deploy_dir/secrets/public-tls/$tls_previous_target/fullchain.pem" && cmp -s -- "$cert_dir/privkey.pem" "$deploy_dir/secrets/public-tls/$tls_previous_target/privkey.pem" && cmp -s -- "$template" "$deploy_dir/runtime/edge.conf"; then
-  # A six-hour renewal check must not accumulate copies of an unchanged pair.
+  # 每六小时的续期检查不能重复保存同一份未变化证书与私钥，避免无界累积。
   tls_verify_loaded
   tls_committed=1
   return
@@ -69,8 +69,8 @@ tls_publish() {
  tls_bundle_identity="$(stat -c '%d:%i' -- "$tls_bundle_dir")"
  install -m 444 -- "$cert_dir/fullchain.pem" "$tls_bundle_dir/fullchain.pem"
  install -m 444 -- "$cert_dir/privkey.pem" "$tls_bundle_dir/privkey.pem"
- # The mounted parent and bundle are traversable by the UID101 gateway;
- # the host's enclosing secrets directory remains root-only mode0700.
+ # 挂载的父目录和证书bundle允许UID101网关遍历，
+ # 外层宿主secrets目录仍保持仅root可访问的0700权限。
  chmod 755 "$tls_bundle_dir"
  tls_changed=1
  tls_replace_current "${tls_bundle_dir##*/}"
@@ -103,8 +103,8 @@ tls_finish() {
   rm -f -- "$tls_bundle_dir/fullchain.pem" "$tls_bundle_dir/privkey.pem" "$tls_bundle_dir.current-next"
   rmdir -- "$tls_bundle_dir" 2>/dev/null
  fi
- # Failed rollback retains both states for recovery; never remove a bundle
- # that might still be referenced by current or erase its protected backup.
+ # 回滚失败时保留新旧两份状态用于恢复；不能删除仍可能被
+ # current引用的bundle，也不能抹掉受保护的备份。
  if [[ "$rollback_ok" = 1 ]]; then
   rm -f -- "$tls_backup_dir/edge.conf" "$tls_backup_dir/cert.pub" "$tls_backup_dir/key.pub"
   rmdir -- "$tls_backup_dir" 2>/dev/null

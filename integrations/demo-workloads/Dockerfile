@@ -1,4 +1,4 @@
-# Controlled synthetic targets: real profilers, no imported profile output.
+# 受控合成目标配合真实采集工具运行，不导入profile文件来冒充现场采样。
 FROM drop-agent:20261020.1
 USER 0:0
 COPY core/fixtures/pprof_workload.go core/fixtures/DropJvmFixture.java core/fixtures/io_workload.cpp core/fixtures/python_workload.py core/fixtures/bolt_workload.cpp /demo/src/

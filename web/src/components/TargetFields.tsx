@@ -1,3 +1,7 @@
+/**
+ * 受控目标表单：把进程、容器或主机选择转换成结构化参数。
+ * UID 与启动时间等身份信息用于防止 PID 复用选错对象；最终校验在采集端和服务端完成。
+ */
 import type { Agent, TaskKind } from "../types";
 import { useEffect } from "react";
 export interface TargetForm {

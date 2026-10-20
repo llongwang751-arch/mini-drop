@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Portable tests of diagnostic instrumentation; no real capture is simulated."""
+"""可跨平台运行的诊断插桩测试，不将模拟行为表示为真实采集。"""
 import unittest
 
 from attach_stages import ATTACH_COMMANDS, instrument_attach, stage_names
@@ -7,7 +7,7 @@ from attach_stages import ATTACH_COMMANDS, instrument_attach, stage_names
 
 class AttachStagesTests(unittest.TestCase):
     def setUp(self):
-        # Explicitly synthetic command-structure data, not capture evidence.
+        # 明确的合成命令结构数据，不是实际采集证据。
         self.source = "# synthetic diagnostic test input\n" + "\n".join(ATTACH_COMMANDS) + "\n"
 
     def test_every_original_command_is_retained_in_order(self):

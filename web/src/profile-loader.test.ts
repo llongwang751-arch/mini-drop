@@ -1,7 +1,10 @@
+/**
+ * 通过导入消息模拟 Worker 协议与取消，确认页面退出时释放资源；真实下载另由浏览器验证。
+ */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { parseInProfileWorker } from "./profile-loader";
 
-// Imported Worker protocol fixture. Native Worker behavior is tested in Chromium.
+// 显式导入的 Worker 协议夹具；这里验证消息约定，真实 Worker 行为由 Chromium 测试覆盖。
 class WorkerFixture {
   static created: WorkerFixture[] = [];
   onmessage?: (event: { data: unknown }) => void;

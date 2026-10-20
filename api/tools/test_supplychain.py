@@ -1,4 +1,4 @@
-"""Explicit offline signature fixtures; these are not release evidence."""
+"""明确的离线签名夹具，不把测试签名当成正式发布证据。"""
 
 import base64
 import hashlib

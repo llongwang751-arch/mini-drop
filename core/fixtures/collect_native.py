@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Collect real instrumented toy profiles through the production RunnerRegistry."""
+"""复用生产 RunnerRegistry 实现，采集合成业务进程的真实插桩 profile。
+
+这里验证采集链路与格式，不把玩具程序的指标解释为生产业务性能。
+"""
 import hashlib
 import json
 import os

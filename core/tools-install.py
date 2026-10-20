@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build-time pinned tool installation. No network access is used by Agent runners."""
+"""构建时安装固定版本与摘要的采集工具；Agent runner 运行时不下载网络依赖。"""
 import hashlib
 import json
 import os
@@ -20,7 +20,7 @@ if '--manifest-only' not in sys.argv:
     archive = ROOT / 'async-profiler.tar.gz'
     offline_archive = os.environ.get('DROP_ASYNC_PROFILER_ARCHIVE')
     if offline_archive:
-        # Build-only input: the same pinned digest is mandatory for both sources.
+        # 仅构建期输入：两种来源都必须提供相同的固定摘要。
         with pathlib.Path(offline_archive).open('rb') as source:
             payload = source.read(32 * 1024 * 1024 + 1)
     else:
@@ -71,7 +71,7 @@ for name, path in tools.items():
     manifest['tools'][name]['support_files']={str(item if name=='gdb' else item.resolve()):hashlib.sha256(item.read_bytes()).hexdigest() for item in support}
 manifest['packages'] = subprocess.check_output(['dpkg-query', '-W', '-f=${Package}=${Version}\n'], text=True).splitlines()
 (ROOT / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
-# The Agent verifies these exact executable bytes at startup and before each run.
+# Agent 在启动和每次运行前核验这些精确的可执行文件字节。
 with (ROOT / 'integrity.env').open('w') as output:
     for name, item in manifest['tools'].items():
         env = name.upper().replace('-', '_')

@@ -1,3 +1,6 @@
+/**
+ * Vite 只承担前端开发代理与资源分包；业务编排、分析和模型工具不放进浏览器。
+ */
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 export default defineConfig({

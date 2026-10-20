@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Isolated MinIO ownership/read-only compatibility test. Never mounts an
-# existing production volume, joins its network, or stops an existing service.
+# 隔离验证MinIO所有权及只读运行兼容性，绝不挂载
+# 既有生产卷、加入生产网络或停止现有服务。
 set -euo pipefail
 umask 077
 minio_image="${MINIO_TEST_IMAGE:-minio/minio:RELEASE.2025-07-23T15-54-02Z}"
@@ -17,8 +17,8 @@ cleanup() {
   if (( made_container )); then docker rm -f "$name" >/dev/null || status=1; fi
   if (( made_network )); then docker network rm "$network" >/dev/null || status=1; fi
   if (( made_volume )); then
-    # Prefix plus an unguessable per-run label must match before deleting our
-    # own fixture. No supplied or discovered production volume is eligible.
+    # 删除本次夹具前，同时核对前缀及不可猜测的运行标签，
+    # 外部提供或扫描发现的生产卷均不得进入清理范围。
     local label
     label="$(docker volume inspect --format '{{index .Labels "drop.fixture.token"}}' "$volume")"
     if [[ "$volume" = "drop-minio-nonroot-$token-data" && "$label" = "$token" ]]; then

@@ -1,4 +1,4 @@
-"""Exercise fixture ownership failures with a fake Docker CLI, never a daemon."""
+"""使用假的 Docker CLI 验证夹具归属校验的失败路径，不连接 Docker daemon。"""
 
 import os
 import shutil

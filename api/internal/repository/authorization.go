@@ -1,3 +1,5 @@
+// Package repository：把用户、组、共享和 Agent 授权转换为 SQL 查询范围。
+// 列表、详情和聚合必须采用相同范围；写操作单独校验管理或执行权限，不能将可见性当成可写能力。
 package repository
 
 import (
@@ -9,8 +11,8 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-// ResourceScope is used by every read path, including aggregates. Table is an
-// internal constant; user input is always bound as a parameter.
+// ResourceScope 为所有读取路径生成统一授权条件，聚合统计也必须使用。
+// table 只能是内部常量；用户输入通过 SQL 参数绑定，不能拼进表名或条件。
 func ResourceScope(db *gorm.DB, u domain.User, table string, write bool) *gorm.DB {
 	if table == "tasks" {
 		db = db.Where("tasks.deleted_at IS NULL")
@@ -35,6 +37,8 @@ func ResourceScope(db *gorm.DB, u domain.User, table string, write bool) *gorm.D
 	return db.Where("("+table+".creator_id=? OR ("+table+".visibility='group' AND EXISTS(SELECT 1 FROM group_members gm WHERE gm.group_id="+table+".group_id AND gm.user_id=?"+roleClause+"))"+shareClause+")", args...)
 }
 func ScopeWrite(db *gorm.DB, u domain.User) *gorm.DB { return ResourceScope(db, u, "tasks", true) }
+
+// AgentScope 按当前用户、所属组和有效 Agent 授权生成目标可见条件；后续采集还要检查执行权限与资源策略。
 func AgentScope(db *gorm.DB, u domain.User, operate bool) *gorm.DB {
 	if u.IsPlatformAdmin() {
 		return db
@@ -101,6 +105,8 @@ func (r *Repository) CanManageTask(ctx context.Context, u domain.User, t domain.
 	}
 	return domain.Fail("FORBIDDEN", "仅任务所有者或所属组管理员可管理共享")
 }
+
+// AuthorizeTaskWrite 将任务写权限落实到当前 SQL 快照；能看到共享任务不代表能够取消、重试或启动派生任务。
 func (r *Repository) AuthorizeTaskWrite(ctx context.Context, u domain.User, id int64) (domain.Task, error) {
 	var t domain.Task
 	if !u.CanWrite() {
@@ -135,13 +141,15 @@ func (r *Repository) GroupDetail(ctx context.Context, u domain.User, id string) 
 	return g, members, agents, err
 }
 
-// Fixed windows live in PostgreSQL; concurrent API instances increment one row.
+// 固定限流窗口保存在 PostgreSQL；多个 API 实例并发递增同一行，不能通过切换实例绕过额度。
 func (r *Repository) AllowRate(ctx context.Context, key string, limit int, window time.Duration) (bool, error) {
 	seconds := int64(window / time.Second)
 	var n int
 	err := r.Context(ctx).Raw(`INSERT INTO rate_limits(key,window_start,hits,expires_at) VALUES(?,to_timestamp(floor(extract(epoch FROM now())/?)*?),1,now()+(? * interval '1 second')) ON CONFLICT(key) DO UPDATE SET hits=CASE WHEN rate_limits.window_start=excluded.window_start THEN rate_limits.hits+1 ELSE 1 END,window_start=excluded.window_start,expires_at=excluded.expires_at RETURNING hits`, Digest(key), seconds, seconds, seconds).Scan(&n).Error
 	return n <= limit, err
 }
+
+// PutGroupMember 在管理权限约束下更新组成员；权限变化必须立即影响下一次查询和长连接重验，不能只更新前端按钮。
 func (r *Repository) PutGroupMember(ctx context.Context, u domain.User, gid, uid, role string) error {
 	if err := r.CanManageGroup(ctx, u, gid); err != nil {
 		return err

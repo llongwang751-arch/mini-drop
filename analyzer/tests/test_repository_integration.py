@@ -1,7 +1,6 @@
-"""Real PostgreSQL isolation tests; TEST_DATABASE_URL is mandatory to run.
+"""使用真实 PostgreSQL 的隔离测试，必须显式配置 TEST_DATABASE_URL 才运行。
 
-The suite creates and removes its own UUID-named schema. It never truncates or
-modifies application tables in the connection's default schema.
+测试创建并清理自己的 UUID schema，不清空或修改连接默认 schema 中的应用表。
 """
 
 import gzip
@@ -648,8 +647,8 @@ class RepositoryIntegrationTests(unittest.TestCase):
                     time.sleep(0.5)
             try:
                 raw = b"process;malloc 80\nprocess;work 20\n"
-                # Imported synthetic encoded RAW proves the real S3 transport
-                # preserves stored gzip bytes before pipeline decompression.
+                # 导入的合成编码 RAW 经过真实 S3 传输，验证在 pipeline 解压前
+                # 仍保留存储的 gzip 字节。
                 encoded = gzip.compress(raw, mtime=0)
                 key = "raw/imported-profile.folded.gz"
                 digest = hashlib.sha256(encoded).hexdigest()
@@ -709,9 +708,8 @@ class RepositoryIntegrationTests(unittest.TestCase):
                 self.assertEqual(
                     json.loads(downloaded["report.json"])["summary"]["source"], "import"
                 )
-                # The failure branch still downloads a real imported S3 RAW
-                # and commits its checkpoint through the real PostgreSQL path.
-                # Only the later result-write failure is explicitly injected.
+                # 失败分支仍从真实 S3 下载导入 RAW，并通过真实 PostgreSQL 提交检查点；
+                # 只对后续结果写入显式注入故障。
                 failed_task, failed_attempt, _ = self.seed(max_attempts=1)
                 failed_key = "raw/imported-partial-profile.folded.gz"
                 storage.client.put_object(
@@ -990,8 +988,8 @@ class RepositoryIntegrationTests(unittest.TestCase):
                     environment.update(overrides)
                     script = "from drop_analyzer.config import Config; from drop_analyzer.worker import run; "
                     if stall_download:
-                        # Test-only fault injection: hold the child after its
-                        # real DB claim while lease renewal remains active.
+                        # 仅供测试的故障注入：子进程完成真实数据库领取后暂挂，
+                        # 同时保持租约续期，用于区分处理中断与租约失效。
                         script += "from drop_analyzer.storage import ObjectStore; import time; ObjectStore.download=lambda *a,**k: time.sleep(60); "
                     script += "run(Config.from_env())"
                     process = subprocess.Popen(
@@ -1023,9 +1021,8 @@ class RepositoryIntegrationTests(unittest.TestCase):
                     self.fail(f"Worker did not reach {status} within {timeout} seconds")
 
                 first = start_worker("crashed-worker", stall_download=True)
-                # A cold interpreter and SDK import can exceed five seconds
-                # under the shared host's CPU quota. Keep startup bounded but
-                # separate it from the intentional lease recovery deadline.
+                # 共享宿主 CPU 配额下，冷启动解释器与 SDK 导入可能超过五秒；
+                # 启动仍需有界，但不能与测试主动制造的租约恢复期限混为一谈。
                 wait_for_status("running", 15)
                 first.kill()
                 first.wait(timeout=5)

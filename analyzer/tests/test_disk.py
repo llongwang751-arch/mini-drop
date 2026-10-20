@@ -1,3 +1,5 @@
+"""用导入的合成文件与目录布局验证下载、临时文件和索引缓存的磁盘预算。"""
+
 import os
 import gzip
 import hashlib
@@ -19,8 +21,8 @@ from drop_analyzer.storage import ObjectStore
 
 class DiskBudgetTests(unittest.TestCase):
     def test_download_preserves_encoded_object_bytes_for_integrity(self):
-        # Imported synthetic gzip bytes are the authoritative S3 object body,
-        # not a request to let the HTTP client transparently decompress it.
+        # 导入的合成 gzip 字节就是 S3 对象正文；
+        # HTTP 客户端不得透明解压后再交给校验逻辑。
         encoded = gzip.compress(b"imported synthetic fixture 7\n" * 200, mtime=0)
         response = urllib3.response.HTTPResponse(
             body=io.BytesIO(encoded),

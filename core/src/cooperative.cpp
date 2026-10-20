@@ -1,3 +1,7 @@
+// 协作采集文件管理：用于已经显式接入本地协议的业务程序，不向任意进程注入代码。
+// RAW位于有容量限制的共享spool，控制标记只保留恢复和归属校验所需的信息。
+// 清理前核对记录与所有权；记录损坏时保留不确定文件，防止误删其他会话的输出。
+
 #include "drop/cooperative.hpp"
 #include "drop/artifact.hpp"
 #include "drop/domain.hpp"
@@ -50,7 +54,7 @@ json marker(const fs::path &journal) {
   }
   return parse_json(value, 2048);
 }
-} // namespace
+} // 结束匿名命名空间
 bool cooperative_agent_kind(const std::string &kind) {
   return kind == "JAVA_CPU" || kind == "JAVA_HEAP" || kind == "GPERF_CPU" ||
          kind == "GPERF_HEAP" || kind == "JEPROF_HEAP";
@@ -226,7 +230,7 @@ unsigned CooperativeFiles::sweep(const fs::path &journals,
     if (journal.is_symlink() || !journal.is_directory() ||
         !fs::exists(journal.path() / "cooperative-output.json"))
       continue;
-    // A corrupt journal prevents deleting uncertain ownership references.
+    // 恢复记录损坏时无法确定文件归属，因此停止删除，防止清理到他人文件。
     const auto saved = marker(journal.path());
     if (saved.value("agent_id", "") != agent_ ||
         saved.value("token", "").size() != 64 ||
@@ -270,4 +274,4 @@ unsigned CooperativeFiles::sweep(const fs::path &journals,
     directory_sync(root_);
   return removed;
 }
-} // namespace dropcore
+} // 结束 dropcore 命名空间

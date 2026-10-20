@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fingerprint Core/contracts code and fixtures, excluding mutable evidence/docs."""
+"""为 Core/contracts 代码与夹具计算指纹，排除持续更新的证据与文档。"""
 import hashlib
 import json
 import pathlib

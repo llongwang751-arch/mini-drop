@@ -1,4 +1,4 @@
-"""Static lint for shared kinds, protobuf services and SQL invariants."""
+"""静态检查共享任务类型、protobuf 服务和 SQL 不变量，防止跨服务契约漂移。"""
 import json
 import pathlib
 import re

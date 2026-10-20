@@ -1,3 +1,5 @@
+"""使用合成 collapsed stack 验证权重、递归聚合与输入上限，不代表业务现场采集。"""
+
 import gzip
 import hashlib
 import json
@@ -86,7 +88,7 @@ class FoldedTests(unittest.TestCase):
                 self.assertEqual(caught.exception.code, "INPUT_LIMIT_EXCEEDED")
 
     def test_default_node_limit_accepts_100k_and_rejects_next(self):
-        # Includes the synthetic root, matching the public result node_count.
+        # 计数包含合成根节点，与公开结果中的 node_count 口径一致。
         self.assertEqual(Limits().max_nodes, 100_000)
         raw = b"\n".join(f"function_{index:06d} 1".encode() for index in range(99_999))
         result = analyze_folded(raw)

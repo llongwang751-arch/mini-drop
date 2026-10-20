@@ -1,4 +1,4 @@
-"""S3 checksum semantics use stored bytes, including imported gzip fixtures."""
+"""用导入 gzip 夹具验证：S3 校验和必须基于实际存储字节。"""
 
 import gzip
 import hashlib

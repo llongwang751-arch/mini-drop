@@ -1,3 +1,10 @@
+// 最小权限采集helper与本地客户端：将需要额外内核权限的采集从普通Agent中隔离。
+// 双方通过Unix socket交换固定结构，结合SO_PEERCRED、目标身份和本地策略验证请求。
+// helper只负责本地采集与有界文件传输，不接收对象存储凭据、预签名URL或任意可执行路径。
+// token标识一次确定的本地工作；响应丢失时恢复同一token，正常路径在Agent持久化后ACK释放结果。
+// 未确认结果也只在有界TTL内可恢复；非运行中的过期记录仍会回收，不能理解为永久保留。
+// 接单预算覆盖中间文件与最终RAW，损坏或不确定归属的记录不会被随意删除来腾空间。
+
 #include "drop/helper.hpp"
 #include "drop/artifact.hpp"
 #include "drop/domain.hpp"
@@ -559,8 +566,8 @@ public:
                                   "target-owned private profiler output";
       }
     }
-    // A real, self-targeted perf record verifies kernel policy independently of
-    // tool installation. It never samples a production PID.
+    // 对helper自身进行一次真实perf record，独立验证内核是否允许采样，
+    // 不能仅凭工具已安装就宣称可用；此自检不采集生产PID。
     if (details_.at("PERF_CPU").value("available", false)) {
       const auto path = root_ / "startup-perf.data";
       auto argv =
@@ -681,8 +688,8 @@ public:
           check_response(result);
           replay = result;
         } else {
-          // Profiler intermediates and the final RAW may coexist. Reserve all
-          // four bounded files before admitting work, independently of Agent.
+          // 工具中间文件和最终RAW可能同时存在；接单前独立于Agent
+          // 为这四份有界文件预留空间，避免采集中途耗尽spool。
           const auto used = bytes_used();
           const auto fixed = job.binary_max + 1024 * 1024;
           if (fixed >= disk_limit_ || used >= disk_limit_ - fixed)
@@ -735,9 +742,9 @@ public:
         } catch (...) {
           throw HelperFailure("TARGET_VALIDATION_FAILED");
         }
-        // Executable paths are never accepted through IPC. The immutable
-        // device/inode identity is pinned instead, then the helper resolves
-        // its own trusted path from procfs for runner use.
+        // IPC不接收可执行文件路径，而是固定不可变的
+        // 设备号/inode身份，再由helper从procfs解析自己的受信路径，
+        // 交给Runner使用，防止客户端指定另一份可执行文件。
         context.target.executable = actual.executable;
         if (!same_identity(actual, context.target))
           throw HelperFailure("TARGET_VALIDATION_FAILED");
@@ -776,7 +783,7 @@ public:
                   struct stat status {};
                   if (lstat(entry.path().c_str(), &status)) {
                     if (errno == ENOENT)
-                      continue; // Atomic journal replacement/cleanup.
+                      continue; // 恢复记录的替换与清理保持原子性，避免进程中断留下半份记录。
                     throw HelperFailure("DISK_BUDGET_EXCEEDED");
                   }
                   if (++entries > 64 || !S_ISREG(status.st_mode) ||
@@ -852,8 +859,8 @@ public:
                   {"files", files},
                   {"expires_unix_ms", now_ms() + retention_ * 1000}};
       } catch (const std::exception &error) {
-        // Private root-only troubleshooting, never part of IPC, Agent logs,
-        // manifests or uploaded artifacts. Inputs contain no storage grants.
+        // 此排障内容只在root私有位置保存，不能进入IPC、Agent日志、
+        // 清单或上传制品；输入也不携带对象存储授权。
         try {
           const std::string detail = error.what();
           static const std::set<std::string> safe_details{
@@ -994,8 +1001,8 @@ private:
           sync_directory(incoming_root_);
           sync_directory(root_);
         }
-      } catch (...) { /* Corrupt journals retain bytes and consume admission
-                         budget. */
+      } catch (...) { /* 损坏恢复记录保留原字节并继续计入准入预算，
+                         不能通过记录损坏绕过磁盘限额。 */
       }
     }
   }
@@ -1012,7 +1019,7 @@ private:
   std::mutex mutex_;
   std::shared_ptr<ActiveJob> active_;
 };
-} // namespace
+} // 结束匿名命名空间
 
 bool helper_kind(const std::string &kind) {
   static const std::set<std::string> kinds{"PERF_CPU",   "BOLT_PROFILE",
@@ -1054,6 +1061,8 @@ json encode_helper_request(const HelperRequest &request) {
             {"executable_device", context.target.executable_device},
             {"executable_inode", context.target.executable_inode}}}};
 }
+// 按允许字段和目录schema反序列化IPC输入；字段合法不代表目标已经获授权，
+// 后续还要与helper本机策略、真实peer及procfs身份联合校验。
 HelperRequest decode_helper_request(const json &value, const Catalog &catalog) {
   keys(value, {"protocol_version", "op", "token", "kind", "parameters",
                "collection_protocol", "controlled_pid", "binary_max",
@@ -1212,6 +1221,8 @@ RunnerOutput HelperClient::collect(const HelperRequest &request,
           expected_format, spec.at("raw_content_type"),
           response.at("metadata")};
 }
+// 确认的是已由Agent持久化的确定结果；在此之前helper保留缓存，
+// 因而网络/IPC响应丢失可在缓存TTL内恢复，而不用再次附加业务进程；过期仍可能回收。
 void HelperClient::acknowledge(const std::string &token) const {
   if (!valid_helper_token(token))
     throw HelperFailure("INVALID_HELPER_REQUEST");
@@ -1236,8 +1247,8 @@ int run_collector_helper() {
   if (lstat(path.parent_path().c_str(), &directory) ||
       !S_ISDIR(directory.st_mode) || directory.st_uid != 0)
     throw HelperFailure("INVALID_HELPER_CONFIGURATION");
-  // A fresh named volume starts root:root. Its owner can select its own
-  // effective group without CAP_CHOWN; no privilege is added for bootstrap.
+  // 新命名卷初始归属root:root；文件所有者可选择自己的
+  // 有效组，无须添加CAP_CHOWN，因此启动初始化不额外扩大权限。
   if ((directory.st_gid != service.group() &&
        chown(path.parent_path().c_str(), static_cast<uid_t>(-1),
              service.group())) ||
@@ -1279,4 +1290,4 @@ int run_collector_helper() {
   fs::remove(path);
   return 0;
 }
-} // namespace dropcore
+} // 结束 dropcore 命名空间

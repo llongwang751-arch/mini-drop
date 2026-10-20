@@ -1,4 +1,7 @@
-"""Copy only the user-selected Saber component and original tests; no env or user data."""
+"""只导出用户指定的 Saber 组件及原始测试，不复制环境文件或用户数据。
+
+导出 manifest 绑定文件摘要与可修改范围；受控 harness 单独复制，不能成为模型补丁目标。
+"""
 from pathlib import Path
 import argparse
 import hashlib

@@ -1,3 +1,7 @@
+/**
+ * 规则配置视图：展示服务端规则集，并将用户编辑作为受控更新提交。
+ * 浏览器不会执行规则表达式或直接改分析器文件，规则版本由后端管理。
+ */
 import { useContext, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api";

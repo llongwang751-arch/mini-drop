@@ -1,3 +1,5 @@
+// Package httpapi：承接任务、Agent、结果、制品和事件读取接口，连接浏览器与 Tasks 服务。
+// 所有读面都应先按当前用户授权；长连接 SSE 必须持续重验会话与任务权限，下载只能返回受限临时授权。
 package httpapi
 
 import (
@@ -105,6 +107,8 @@ func (s *Server) tasks(c *gin.Context) {
 	}
 	s.ok(c, 200, list(items, total, p, size))
 }
+
+// createTask 解析普通任务创建请求并传递 Idempotency-Key；创建是否重放由服务与数据库决定，HTTP 不能自行判定一次网络超时等于未创建。
 func (s *Server) createTask(c *gin.Context) {
 	select {
 	case s.createSlots <- struct{}{}:
@@ -203,6 +207,8 @@ func (s *Server) retryTask(c *gin.Context) {
 	}
 	s.ok(c, 200, t)
 }
+
+// authorizeTask 统一解析 task 标识并检查当前用户的可见范围；结果、事件和制品等所有子资源都要先经过这个入口。
 func (s *Server) authorizeTask(c *gin.Context) (int64, bool) {
 	id, ok := s.id(c, "id")
 	if !ok {
@@ -239,6 +245,8 @@ func (s *Server) artifacts(c *gin.Context) {
 	}
 	s.ok(c, 200, list(items, int64(len(items)), 1, len(items)))
 }
+
+// download 将受权请求交给 DownloadGrant，返回有限时效的同源下载 URL；不会把对象存储长期密钥交给浏览器。
 func (s *Server) download(c *gin.Context) {
 	id, ok := s.id(c, "id")
 	if !ok {
@@ -271,6 +279,8 @@ func (s *Server) result(c *gin.Context) {
 	}
 	s.ok(c, 200, result)
 }
+
+// partialResult 只返回通过当前分析身份校验的不完整结果；旧 run 的检查点不能混入新结果页面。
 func (s *Server) partialResult(c *gin.Context) {
 	id, ok := s.authorizeTask(c)
 	if !ok {
@@ -285,8 +295,8 @@ func (s *Server) partialResult(c *gin.Context) {
 		s.fail(c, err)
 		return
 	}
-	// The contract bounds canonical UTF-8 JSON. HTML escaping can expand valid
-	// C++ symbols beyond that bound; this remains application/json with nosniff.
+	// 协议限制的是规范 UTF-8 JSON 字节数；HTML 转义可能把合法的 C++ 符号膨胀到上限之外。
+	// 响应仍保持 application/json 与 nosniff，避免浏览器按 HTML 执行内容。
 	c.PureJSON(200, gin.H{"request_id": c.GetString("request_id"), "data": result, "error": nil})
 }
 func cleanMaps(items []map[string]any) []map[string]any {
@@ -322,6 +332,9 @@ func (s *Server) suggestions(c *gin.Context) {
 	}
 	s.ok(c, 200, list(cleanMaps(items), int64(len(items)), 1, len(items)))
 }
+
+// stream 从 Last-Event-ID 之后重放数据库事件，并以轮询和 keepalive 维持 SSE。
+// 循环内持续重验会话及当前任务权限，撤销共享或账户降权后立即结束连接；事件序号只能推进到已经成功写出的记录。
 func (s *Server) stream(c *gin.Context) {
 	id, ok := s.authorizeTask(c)
 	if !ok {

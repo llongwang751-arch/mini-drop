@@ -1,3 +1,9 @@
+"""Analyzer 的运行配置、有效配置快照与资源上限。
+
+配置在作业执行前确定；任务参数只能收紧预算，不能扩张运维给定的内存、CPU 或下载上限。
+密钥通过独立读取路径提供，不出现在可展示配置或配置指纹中。
+"""
+
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -69,9 +75,8 @@ class Config:
             "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT": "",
         }
         try:
-            # Only the explicit exporter endpoint is supported. Reject ambient
-            # SDK overrides rather than silently changing transport/sampling
-            # outside the effective configuration and its fingerprint.
+            # 只接受显式配置的 exporter 端点，拒绝环境中额外 SDK 覆盖项；
+            # 否则实际传输或采样策略会偏离有效配置及其指纹。
             require(
                 not any(
                     key.startswith("OTEL_")

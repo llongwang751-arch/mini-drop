@@ -1,4 +1,4 @@
-"""Run static Linux Go test binaries inside a disposable isolated PostgreSQL container."""
+"""在一次性隔离 PostgreSQL 容器中运行静态链接的 Linux Go 测试二进制。"""
 from __future__ import annotations
 import argparse
 import json

@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Actual bounded BOLT and BPF capture from toy PIDs in this PID namespace."""
+"""在当前 PID 命名空间内，对合成业务进程执行真实且有界的 BOLT/BPF 采集。
+
+产物用于受控采集验收，不代表生产业务的性能或采样环境。
+"""
 import hashlib,json,os,pathlib,platform,re,resource,subprocess,tempfile,time
 ROOT=pathlib.Path('/src')
 run_id=os.environ.get('DROP_CORE_EVIDENCE_RUN_ID','')
@@ -19,8 +22,8 @@ results=[]
 with tempfile.TemporaryDirectory(prefix='drop-native-advanced-') as control:
  os.chmod(control,0o700)
  native=subprocess.Popen([str(ROOT/'build/drop_native_workload')],env=dict(os.environ,NATIVE_CONTROL_ROOT=control,LD_LIBRARY_PATH='/src/build'),stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True)
- # The compiler scratch is tmpfs, but actual block-I/O evidence must use the
- # explicitly mounted fixture filesystem rather than in-memory /tmp.
+ # 编译临时文件可使用 tmpfs；真实块 I/O 证据则必须写入显式挂载的夹具文件系统，
+ # 不能用纯内存 /tmp 的行为冒充磁盘 I/O。
  io=subprocess.Popen(['/tmp/drop-io-fixture'],env=dict(os.environ,DROP_IO_FIXTURE_DIRECTORY=str(OUTPUT)),stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True)
  try:
   if not native.stdout.readline().strip().isdigit() or not io.stdout.readline().strip().isdigit():raise RuntimeError('Toy initialization failed')

@@ -1,4 +1,4 @@
-"""Bounded job-local disk accounting; cached HPROF indexes are not downloads."""
+"""统计本次作业的磁盘预算；可恢复 HPROF 索引缓存与下载量分别计量。"""
 
 import os
 from pathlib import Path
@@ -28,7 +28,7 @@ def attributes(path):
 
 @contextmanager
 def directory_handle(path, identity=None):
-    """Linux opens directory descriptors without following a raced symlink."""
+    """Linux 通过目录描述符访问工作区，避免路径检查后被替换成符号链接。"""
     info = attributes(path)
     if info is None or not stat.S_ISDIR(info.st_mode):
         unsafe()
@@ -65,7 +65,7 @@ class WorkspaceBudget:
         if index_dir is not None:
             self.index_dir = Path(os.path.abspath(index_dir))
             if self.index_dir == self.root / "indexes":
-                # Ephemeral in-job indexes are already counted by the job walk.
+                # 作业内临时索引已包含在工作目录遍历中，不能重复计入缓存预算。
                 self.index_dir = None
             elif (
                 self.index_dir.parent != self.root.parent
@@ -120,8 +120,8 @@ class WorkspaceBudget:
             nonlocal size, entries
             if depth > 32:
                 unsafe()
-            # lstat each directory immediately before scandir; no symlink is
-            # followed. The private workspace is owned by this job's process.
+            # 每次 scandir 前先 lstat 当前目录，不跟随符号链接；
+            # 此私有工作目录由本作业进程拥有。
             info = attributes(directory)
             if info is None:
                 return
@@ -148,7 +148,7 @@ class WorkspaceBudget:
                         except FileNotFoundError:
                             continue
                         if info is None:
-                            continue  # An external tool can remove its temporary file.
+                            continue  # 外部工具可能已清理自己的临时文件，遍历时允许该文件消失。
                         if stat.S_ISDIR(info.st_mode):
                             if descriptor is None:
                                 walk(path, depth + 1)

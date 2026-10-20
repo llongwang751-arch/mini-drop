@@ -1,4 +1,4 @@
-"""Read the worker's heartbeat without exposing a public management port."""
+"""读取 worker 心跳检查存活状态，不额外开放公共管理端口。"""
 
 import json
 from pathlib import Path

@@ -1,3 +1,7 @@
+/**
+ * 任务协作入口：分享授权与建议反馈都通过服务端接口保存并更新查询缓存。
+ * 分享并不复制制品或永久开放下载，接收者读取时仍由后端验证任务权限。
+ */
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api";

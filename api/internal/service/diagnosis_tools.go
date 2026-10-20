@@ -1,3 +1,5 @@
+// Package service：定义有限诊断工具及其确定性观测，模型只能选择工具和提出待验证假设。
+// 返回的采样单位、哈希符号、局限和 E 编号构成证据；启发式提示不能替代实测，更不能承诺根因或收益。
 package service
 
 import (
@@ -43,8 +45,8 @@ func diagnosisToolNames() []string {
 	return []string{"read_profile_summary", "inspect_hotspots", "check_collection_quality", "inspect_call_paths", "propose_verification"}
 }
 
-// Semantic hints stay within a fixed enum. This is a local heuristic, never a
-// claim that a stack proves blocking, allocation pressure or an actual defect.
+// diagnosisSymbolHint 只产生固定枚举内的语义提示，属于本地启发式。
+// 栈符号本身不能证明阻塞、内存压力或真实缺陷，模型报告必须保留这个不确定边界。
 func diagnosisSymbolHint(name string) string {
 	name = strings.ToLower(name)
 	for _, group := range []struct {
@@ -66,8 +68,8 @@ func diagnosisSymbolHint(name string) string {
 	return "unknown"
 }
 
-// Tools are bound to the authorized run's task/attempt. No model-supplied task,
-// URL, shell, path, SQL, PID or Agent identifier is accepted by this dispatcher.
+// diagnosisTool 的工具始终绑定已授权运行的 task 和 attempt。
+// 调度器不接受模型指定的任务、URL、shell、路径、SQL、PID 或 Agent 标识，模型不能借参数换目标。
 func diagnosisTool(name string, args json.RawMessage, raw json.RawMessage, task domain.Task) (json.RawMessage, *DiagnosisPlan, error) {
 	var params struct {
 		Kind            string `json:"kind,omitempty"`
@@ -198,8 +200,8 @@ func diagnosisTool(name string, args json.RawMessage, raw json.RawMessage, task 
 		if !ok || !k.AgentRunner || kind == "COMPOSITE" || kind == "SCRIPT" || kind == "BOLT" {
 			return marshal(map[string]any{"requires_manual_configuration": true, "next": "请在任务表单审阅工具、依赖和完整配置，本轮不生成可自动提交的采集草案。"})
 		}
-		// Keep the same runner and target policy. Cross-kind collection requires the
-		// normal task form, where required language-specific options can be reviewed.
+		// 保留原运行器和目标策略；跨采集类型的操作必须回到普通任务表单，
+		// 由用户审阅该语言或工具所需的参数，不能让复测建议偷偷改变采集语义。
 		if kind != task.Kind {
 			return nil, nil, domain.Fail("AI_TOOL_REJECTED", "本轮复测仅允许相同采集类型，其他类型请在任务表单配置")
 		}
@@ -235,6 +237,7 @@ func diagnosisTool(name string, args json.RawMessage, raw json.RawMessage, task 
 	return nil, nil, domain.Fail("AI_TOOL_REJECTED", "未知诊断工具")
 }
 
+// diagnose 把已授权结果映射为编号证据和受限诊断流程；调用方提供 invoke 时，工具观测必须先通过持久化与权限栅栏。
 func (s *Suggestions) diagnose(ctx context.Context, run DiagnosisRun, owner string, trace *[]DiagnosisStep) (*DiagnosisReport, error) {
 	var task domain.Task
 	err := s.Repo.Context(ctx).Transaction(func(tx *gorm.DB) error { var e error; task, e = s.diagnosisFence(ctx, tx, run, owner); return e })

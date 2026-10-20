@@ -1,3 +1,7 @@
+// BOLT所需的原生perf映射解析与身份补齐，只处理有界元数据。
+// 先用PID、设备号与inode确认样本映射属于已固定的ELF，再讨论build-id及优化输入。
+// 路径名称相同或预置一个build-id都不足以证明采到了目标；验证失败就拒绝继续优化。
+
 #include "drop/bolt.hpp"
 #include <algorithm>
 #include <array>
@@ -18,7 +22,7 @@ bool hexadecimal(const std::string &value) {
   return value.size() == 40 &&
          value.find_first_not_of("0123456789abcdef") == std::string::npos;
 }
-} // namespace
+} // 结束匿名命名空间
 
 bool valid_bolt_target_path(const std::string &value) {
   if (value.empty() || value.front() != '/' || value.size() > 4096 ||
@@ -105,7 +109,7 @@ bool verify_bolt_perf_mapping(const std::filesystem::path &path,
       if (!input.read(reinterpret_cast<char *>(body.data()), body.size()))
         return false;
       consumed += event_size;
-      if (little(event.data(), 4) != 10) // PERF_RECORD_MMAP2
+      if (little(event.data(), 4) != 10) // 原生perf的PERF_RECORD_MMAP2记录，提供可与目标文件核对的映射身份。
         continue;
       if (body.size() < 65)
         return false;
@@ -115,8 +119,8 @@ bool verify_bolt_perf_mapping(const std::filesystem::path &path,
       const std::string filename(body.begin() + 64, end);
       if (filename != target.executable)
         continue;
-      // Require original device/inode MMAP2 records. A pre-supplied build-id
-      // mmap record cannot independently prove this frozen executable inode.
+      // 必须使用原始MMAP2中的设备号与inode；预先提供的build-id
+      // 映射记录不能独立证明采样确实来自被冻结身份的可执行文件。
       if ((little(event.data() + 4, 2) & (1U << 14)) ||
           little(body.data(), 4) != static_cast<unsigned>(target.pid) ||
           little(body.data() + 32, 4) != major(target.executable_device) ||
@@ -132,4 +136,4 @@ bool verify_bolt_perf_mapping(const std::filesystem::path &path,
     return false;
   }
 }
-} // namespace dropcore
+} // 结束 dropcore 命名空间

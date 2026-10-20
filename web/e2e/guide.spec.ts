@@ -1,3 +1,7 @@
+/**
+ * 在真实 App 外壳中使用导入会话，验证指南布局、键盘、权限和减少动效。
+ * API 写请求会被拒绝，截图不能被当成真实采集或模型诊断执行的证据。
+ */
 import { test as base, expect } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
@@ -8,8 +12,8 @@ type RequestJournal = {
   unexpected: string[];
 };
 
-// Imported synthetic UI fixture: this suite verifies the shipped React App shell
-// and Guide page, not a production login, collection, or diagnosis execution.
+// 显式导入的合成 UI 夹具：运行真实 React 应用外壳和指南页面，
+// 不把界面验证当作生产登录、采集或诊断执行的证据。
 const test = base.extend<{
   fixtureRole: FixtureRole;
   importedGuideFixture: RequestJournal;

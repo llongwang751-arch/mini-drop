@@ -1,3 +1,6 @@
+// JSON输入的受限解析与schema校验辅助，供目录、任务和本地协议复用。
+// 先验证类型、允许字段与长度，再把输入交给后续执行层，避免解析成功就被当作可信。
+
 #pragma once
 #include <map>
 #include <nlohmann/json.hpp>
@@ -32,4 +35,4 @@ inline nlohmann::json parse_json(const std::string &source,
     throw std::invalid_argument("Invalid JSON document");
   }
 }
-} // namespace dropcore
+} // 结束 dropcore 命名空间

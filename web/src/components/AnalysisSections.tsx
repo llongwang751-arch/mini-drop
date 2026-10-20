@@ -1,3 +1,7 @@
+/**
+ * 展示分析器返回的类型化 sections：堆对象、引用路径、I/O、分配追踪、BOLT 等各有对应表格。
+ * 页面负责单位、筛选和分页；没有测到的值显示未知/未测量，不用零值伪装完整证据。
+ */
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { bytes, number } from "../api";
@@ -11,6 +15,7 @@ const record = (value: unknown): Row =>
   value && typeof value === "object" && !Array.isArray(value)
     ? (value as Row)
     : {};
+// 展示兜底不把缺失值当零；对象与数组只转为文本，不解释成可执行内容。
 const display = (v: unknown): string =>
   v == null
     ? "未测量"
@@ -45,6 +50,7 @@ export function ResultTable({
       display(r[k]).toLowerCase().includes(search.toLowerCase()),
     ),
   );
+  // 只分页渲染，筛选仍基于完整结果数组；避免大表一次创建过多 DOM 节点。
   const pages = Math.max(1, Math.ceil(filtered.length / 20)),
     current = Math.min(page, pages - 1);
   return (

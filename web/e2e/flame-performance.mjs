@@ -1,3 +1,6 @@
+/**
+ * 火焰图浏览器观察脚本：合成树用于研究布局和交互，记录真实 Worker 行为但不代表业务采集。
+ */
 import assert from "node:assert/strict";
 import {
   copyFileSync,
@@ -80,8 +83,8 @@ function makeFolded(targetNodes, branches) {
         `lane_${String(lane).padStart(4, "0")}_${fullScale ? "f" : "frame"}_${String(level).padStart(3, "0")}`,
       );
     }
-    // At 800 lanes the smallest weight must still exceed the real layout's
-    // tiny-frame threshold. Keep every node observable without changing it.
+    // 800 条泳道时最小权重仍须超过实际布局的细帧阈值，
+    // 让每个原始节点都可被观测，而不是修改节点来迁就测试。
     const weight = fullScale ? 3 + (lane % 3) : 1 + (lane % 5);
     totalWeight += weight;
     stacks.push(`${frames.join(";")} ${weight}`);
@@ -142,7 +145,7 @@ const context = await browser.newContext({
   viewport: { width: 1440, height: 1000 },
 });
 
-// Observe genuine worker timings. Requests and response data are unchanged.
+// 观测真实 Worker 的耗时；不改动请求或响应数据来制造性能结果。
 await context.addInitScript(() => {
   window.__flameWorkerMetrics = [];
   window.__flameLongTasks = [];
@@ -157,7 +160,7 @@ await context.addInitScript(() => {
       }
     }).observe({ type: "longtask", buffered: true });
   } catch {
-    // Some browsers do not expose the long-task observer.
+    // 部分浏览器没有暴露长任务观测接口，此时不把缺失的观测值当作零开销。
   }
   const NativeWorker = window.Worker;
   window.Worker = class MeasuredWorker extends NativeWorker {

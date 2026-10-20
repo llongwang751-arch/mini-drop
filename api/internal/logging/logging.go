@@ -1,4 +1,7 @@
-// Package logging emits bounded JSON records without arbitrary request data.
+// Package logging 输出有界 JSON 日志，只接收允许的排障字段。
+// 调用方不能借日志处理器附带任意请求数据、令牌、原始性能文件或模型响应。
+// Package logging：将允许的服务、阶段、请求和任务标识输出为有界 JSON 记录。
+// 未知键与敏感值在处理器边界过滤，避免调用方一次疏忽就把凭据、URL 或原始数据写入日志。
 package logging
 
 import (

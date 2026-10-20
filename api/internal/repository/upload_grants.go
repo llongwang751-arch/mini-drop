@@ -1,3 +1,5 @@
+// Package repository：管理 attempt 级临时上传授权及终态后的最小日志宽限。
+// 对象键、种类、过期和所属轮次共同组成授权，不能仅凭同一个 task 前缀接纳任意文件。
 package repository
 
 import (
@@ -11,8 +13,8 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-// TerminalLogGrace matches the Core's current-attempt-only late LOG admission.
-// It never extends a presigned upload URL or allows RAW/BINARY publication.
+// TerminalLogGrace 与 Core 对当前 attempt 迟到 LOG 的接纳窗口保持一致。
+// 它既不延长预签名上传 URL，也不允许终态后发布 RAW 或 BINARY。
 const TerminalLogGrace = 120 * time.Second
 
 type terminalLogGrant struct {
@@ -24,10 +26,9 @@ type terminalLogGrant struct {
 	MaxFileSize int64  `json:"max_file_bytes"`
 }
 
-// TerminalUploadMetadata retains the identity of one previously authorized,
-// bounded public diagnostic log. A fresh whitelist-shaped value removes every
-// upload URL/unknown field; malformed, duplicate, or cross-attempt grants fail
-// closed. Actual artifact size/hash are verified separately by Core.
+// TerminalUploadMetadata 仅保留之前已授权的一份有界公开诊断日志身份。
+// 重新按白名单构造元数据，移除全部上传 URL 和未知字段；畸形、重复或跨 attempt 的授权一律拒绝。
+// 实际制品大小与哈希仍由 Core 独立核验，元数据清洗不能代替完整性检查。
 func TerminalUploadMetadata(a domain.Attempt) json.RawMessage {
 	if a.TaskID <= 0 || a.Attempt <= 0 || a.AgentID == nil || *a.AgentID == "" || len(a.UploadTargets) > 65536 {
 		return json.RawMessage("[]")
@@ -73,9 +74,9 @@ func (r *Repository) SetUploadTargets(ctx context.Context, id int64, grants json
 	return r.persistActiveUploadGrant(ctx, id, "upload_targets", string(grants))
 }
 
-// CleanupUploadGrants removes persisted transport URLs after collection ends,
-// clears superseded/deleted attempts immediately, and retires the current LOG
-// metadata after its fixed grace. Each pass locks at most 200 attempt rows.
+// CleanupUploadGrants 在采集结束后清理已持久化的传输 URL，
+// 立即清除已被替代或删除 attempt 的授权，并在固定宽限期后清退当前 LOG 元数据。
+// 每次最多锁定 200 个 attempt，避免清理任务长时间阻塞业务事务。
 func (r *Repository) CleanupUploadGrants(ctx context.Context) error {
 	return r.Context(ctx).Transaction(func(tx *gorm.DB) error {
 		var rows []struct {

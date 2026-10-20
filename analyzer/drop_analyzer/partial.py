@@ -1,4 +1,4 @@
-"""Bounded parse checkpoints, separate from complete results and diagnostics."""
+"""解析过程中可保存的有界检查点，与完整结果和诊断结论分别管理。"""
 
 import hashlib
 import json
@@ -68,7 +68,7 @@ def _label(value):
 
 
 def validate_partial(value):
-    """Reject unknown keys/types and out-of-bound JSON before any persistence."""
+    """持久化前拒绝未知字段、错误类型和超出上限的 JSON。"""
     try:
         if (
             not isinstance(value, dict)
@@ -151,11 +151,10 @@ def validate_partial(value):
 
 
 def build_partial(parsed, job, artifact, *, private_paths=()):
-    """Invalid checkpoints are omitted; complete analysis semantics are unchanged.
+    """不合法的检查点直接省略，不改变完整分析的成功或失败语义。
 
-    Function names are authorized profile data, never log fields. Keep bounded
-    UTF-8 labels, remove controls and trusted worker workspace paths, and bind
-    each label to the original full symbol's digest before display truncation.
+    函数名是已授权的 profile 数据，不能作为日志字段。标签限制为有界 UTF-8，
+    移除控制字符与可信 worker 的私有目录；显示截断前，先绑定原完整符号的摘要。
     """
     try:
         metadata = parsed["metadata"]

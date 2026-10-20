@@ -1,5 +1,5 @@
-# Optional, explicitly selected after compose.helper.yml. Only the helper
-# receives BPF capability and a read-only trace filesystem.
+# 可选覆盖，必须在compose.helper.yml之后显式选择；只有helper
+# 获得BPF能力及只读追踪文件系统，普通Agent不增加权限。
 services:
   collector-helper:
     cap_add: [PERFMON, SYS_PTRACE, DAC_READ_SEARCH, KILL, BPF]

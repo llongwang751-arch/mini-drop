@@ -1,3 +1,5 @@
+"""用合成 perf 头与记录验证解析、损失计量和不可信元数据边界。"""
+
 import struct
 from pathlib import Path
 import tempfile
@@ -11,7 +13,7 @@ from drop_analyzer.isolate import analyze_isolated
 from drop_analyzer.registry import get_pipeline
 
 
-# Synthetic imported regression fixture, not evidence of an actual Runner capture.
+# 导入的合成回归夹具，不是真实 Runner 采集已通过的证据。
 SCRIPT = b"""worker 123/124 12.000000001: cpu-clock:
     7fa1 leaf+0x1 (/lib/a.so)
     4001 main+0x1 (/bin/toy)
@@ -26,7 +28,7 @@ worker 123/124 12.000000009: cpu-clock: 7fa1 [unknown] (/lib/a.so)
 
 
 def native_perf(records=b"", endian="<"):
-    """Construct only synthetic header/record bytes for bounded-parser tests."""
+    """仅构造合成记录头和记录字节，用于验证有界解析器。"""
     magic = b"PERFILE2" if endian == "<" else b"2ELIFREP"
     return (
         magic

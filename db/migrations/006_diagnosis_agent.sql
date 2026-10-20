@@ -1,3 +1,7 @@
+-- 保存一次AI/证据诊断运行，绑定task、attempt和具体analysis_run，避免引用重试前的结果。
+-- input_digest与用户级request_key用于幂等，lease_owner/期限用于崩溃恢复和旧worker写入隔离。
+-- JSON格式合法不等于模型解释正确；报告仍由API做字段、引用和预算校验。
+
 BEGIN;
 SET LOCAL lock_timeout='5s';
 SET LOCAL statement_timeout='60s';

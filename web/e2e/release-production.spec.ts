@@ -1,3 +1,7 @@
+/**
+ * 历史发布环境的显式验收入口：包含登录与受授权结果读取，不等同于无凭据的静态页面检查。
+ * 本文件的地址和开关属于既有验收约定，普通前端单测不运行它。
+ */
 import { test, expect, request } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";

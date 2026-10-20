@@ -1,7 +1,7 @@
 import { defineConfig } from "@playwright/test";
 import base from "./playwright.config";
 
-// Test-owned local preview, stopped by Playwright after this independent suite.
+// 此独立测试套件拥有本地预览进程，由 Playwright 在测试结束后关闭。
 export default defineConfig({
   ...base,
   testMatch: ["safe-markdown.spec.ts"],

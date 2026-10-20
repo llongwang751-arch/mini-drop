@@ -1,7 +1,7 @@
-"""Regression checks for the private S3 gateway; only UUID fixture buckets.
+"""私有 S3 网关回归只使用 UUID 夹具 bucket。
 
-Run inside the configured analyzer service so credentials stay in mounted
-Secret files. The production artifact bucket is never queried or changed.
+在已配置的 analyzer 服务内运行，使凭据保留在挂载的 Secret 文件中；
+绝不查询或修改生产制品 bucket。
 """
 
 import hashlib
@@ -30,7 +30,7 @@ class StorageGatewayTests(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # Only remove the exact UUID fixture bucket created by this process.
+        # 只删除本进程创建的那个精确 UUID 夹具 bucket。
         for item in cls.client.list_objects(cls.bucket, recursive=True):
             cls.client.remove_object(cls.bucket, item.object_name)
         cls.client.remove_bucket(cls.bucket)

@@ -1,3 +1,5 @@
+// 本文件验证RPC 返回与 ACK、取消、重试竞争时，旧快照不能覆盖新状态；取消重放不能重复写事件。
+// 测试名称标明具体场景；涉及真实数据库的用例需显式配置测试连接，协议夹具不代表生产或模型实测。
 package repository
 
 import (
@@ -35,8 +37,8 @@ func TestPostgresExhaustedDispatchCannotOverwriteConcurrentLifecycle(t *testing.
 				t.Fatal(err)
 			}
 			err = r.DispatchOne(ctx, func(_ domain.Outbox, _ domain.Task, _ domain.Attempt) error {
-				// Another transaction commits while the RPC is in flight. A lost
-				// ACK must not let this stale outbox snapshot overwrite that truth.
+				// RPC 尚未返回时，另一个事务已经提交新的任务状态。
+				// 即使 ACK 丢失，也不能让旧 Outbox 快照覆盖这份已提交的事实。
 				if mode == "accepted" {
 					if err := db.Model(&domain.Task{}).Where("id=?", task.ID).Update("collection_status", "QUEUED").Error; err != nil {
 						return err

@@ -1,8 +1,7 @@
-"""Actual Bash transaction tests with imported certs and fake Docker/OpenSSL.
+"""使用导入证书与假的 Docker/OpenSSL，执行真实 Bash 事务回归。
 
-Windows cannot create native symlinks in this workspace. Its harness emulates
-only ln/readlink with tagged files; actual Linux symlink/UID acceptance is a
-separate stage check. Real mv/cmp/install and trap ordering execute locally.
+Windows 工作区无法创建原生符号链接，harness 仅以带标记文件模拟 ln/readlink；
+真实 Linux 链接与 UID 需另行 stage 验收。mv/cmp/install 与 trap 顺序仍在本地真实执行。
 """
 
 from __future__ import annotations

@@ -1,3 +1,7 @@
+/**
+ * 真实后端系统验收入口，会读取显式配置的测试账户并进行业务操作。
+ * 不要把此文件纳入纯夹具预览套件，也不要将真实凭据或下载链接写进报告。
+ */
 import { test, expect, request as playwrightRequest } from "@playwright/test";
 import type { APIRequestContext } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";

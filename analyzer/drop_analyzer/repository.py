@@ -1,8 +1,8 @@
-"""PostgreSQL job ownership and atomic publication boundaries.
+"""通过 PostgreSQL 管理作业归属与结果发布的原子边界。
 
-Every write that can publish results is fenced by owner, attempt, expiry and
-the task's current collection attempt. Uploads use attempt-specific object keys
-so a stale worker cannot overwrite objects owned by its successor.
+能发布结果的写入同时核对 owner、分析 attempt、租约期限及当前采集 attempt。
+采集重试和分析重试不是同一个编号：前者隔离输入版本，后者隔离 worker 的执行轮次。
+输出对象键也包含 attempt，旧 worker 即使上传完成，也不能覆盖后继执行者的对象或发布结果。
 """
 
 from dataclasses import dataclass
@@ -19,6 +19,7 @@ from .partial import validate_partial
 
 @dataclass(frozen=True)
 class Job:
+    """一次分析领取的不可变上下文：attempt 表示分析重试轮次，collection_attempt 绑定采集输入版本。"""
     id: int
     task_id: int
     attempt_id: int
@@ -64,10 +65,15 @@ class Repository:
         )
 
     def claim(self) -> Job | None:
+        """在事务中领取一个可执行作业并返回 Job；无候选时返回 None。
+
+        FOR UPDATE SKIP LOCKED 防止多个 worker 领取同一行，同时允许并发处理不同任务；
+        领取会原子更新作业、任务和开始事件，已耗尽重试的过期租约会转为明确失败。
+        """
         with self._connect() as connection:
             connection.execute("SET LOCAL statement_timeout = '10s'")
-            # A crashed final attempt becomes a clear dead letter, not an
-            # immortal running job. SKIP LOCKED permits concurrent workers.
+            # 最后一次分析尝试崩溃后转为明确失败，避免作业永久停在 running；
+            # SKIP LOCKED 允许多个 worker 并发领取不同作业。
             expired = connection.execute("""
                 SELECT j.id,j.task_id,j.attempt_id FROM analysis_jobs j
                 JOIN tasks t ON t.id=j.task_id
@@ -164,6 +170,10 @@ class Repository:
             )
 
     def renew(self, job: Job) -> bool:
+        """只有 owner、分析 attempt、未过期租约及当前采集尝试仍匹配时续约，返回是否更新一行。
+
+        续约失败后旧 worker 不能自行恢复归属，必须停止执行并等待新的领取流程。
+        """
         with self._connect() as connection:
             connection.execute("SET LOCAL statement_timeout = '10s'")
             cursor = connection.execute(
@@ -215,6 +225,10 @@ class Repository:
 
     @staticmethod
     def _lock_owned(connection, job: Job):
+        """按固定顺序锁定任务与作业，并核对当前采集 attempt、分析 owner/attempt 和实时租约。
+
+        所有可发布写入先经过此栅栏；检查失败抛 LeaseLost，使整个事务回滚。
+        """
         task = connection.execute(
             """SELECT t.id FROM tasks t
             WHERE t.id=%s AND t.collection_status='COLLECTED' AND t.analysis_status='RUNNING'
@@ -235,6 +249,7 @@ class Repository:
             raise LeaseLost()
 
     def progress(self, job: Job, stage: str):
+        """在持有租约的事务中写入固定阶段事件；插入后再检查到期时间，避免慢触发器越界发布。"""
         from .progress import HPROF_STAGES
 
         if stage not in HPROF_STAGES:
@@ -255,7 +270,7 @@ class Repository:
                     "stage_count": len(HPROF_STAGES),
                 },
             )
-            # A slow insert/trigger must not publish after lease expiry either.
+            # 插入或触发器耗时过长也不能越过租约到期边界发布结果。
             owned = connection.execute(
                 "SELECT 1 FROM analysis_jobs WHERE id=%s AND lease_expires_at>clock_timestamp()",
                 (job.id,),
@@ -264,7 +279,8 @@ class Repository:
                 raise LeaseLost()
 
     def save_partial(self, job: Job, result: dict, artifact: dict):
-        # Reject caller-controlled JSON before it can cross the SQL boundary.
+        # 调用方提供的 JSON 在进入 SQL 写入之前必须完成结构与大小校验。
+        """保存绑定本次输入摘要的合法解析检查点，同时写事件；不把部分结果升级为分析成功。"""
         if not validate_partial(result) or any(
             result[key] != expected
             for key, expected in (
@@ -313,8 +329,8 @@ class Repository:
                     "total_samples": result["summary"]["total_samples"],
                 },
             )
-            # UPDATE predicates run before BEFORE triggers. Check again after
-            # both writes so an expired slow transaction rolls back entirely.
+            # UPDATE 条件在 BEFORE 触发器之前求值；两次写入后再次核对租约，
+            # 确保执行缓慢而过期的事务整体回滚。
             if not connection.execute(
                 """SELECT 1 FROM analysis_jobs WHERE id=%s AND status='running' AND lease_owner=%s
                 AND attempt=%s AND lease_expires_at>clock_timestamp()""",
@@ -323,6 +339,10 @@ class Repository:
                 raise LeaseLost()
 
     def complete(self, job: Job, result: dict, artifacts: list[dict]):
+        """把已上传对象的引用、公开结果、规则建议和成功事件放进同一个数据库事务。
+
+        S3 上传已在上游完成；此处负责原子发布与租约栅栏，不执行对象上传，也不承诺跨存储原子性。
+        """
         with self._connect() as connection:
             connection.execute("SET LOCAL statement_timeout = '15s'")
             self._lock_owned(connection, job)
@@ -429,6 +449,10 @@ class Repository:
             )
 
     def fail(self, job: Job, error: AnalysisError):
+        """只有仍拥有当前作业时才写失败或 RETRY，并原子更新任务与事件。
+
+        可重试错误受 max_attempts 限制；过期 worker 连失败状态也无权覆盖。
+        """
         retry = error.retryable and job.attempt < job.max_attempts
         delay_seconds = min(60, 2**job.attempt)
         with self._connect() as connection:

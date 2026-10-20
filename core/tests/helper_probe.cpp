@@ -10,7 +10,7 @@
 namespace {
 std::atomic<bool> canceled{false};
 void stop(int) { canceled = true; }
-} // namespace
+} // 结束匿名命名空间
 int main(int argc, char **argv) {
   using namespace dropcore;
   using json = nlohmann::json;

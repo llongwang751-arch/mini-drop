@@ -1,9 +1,8 @@
-"""Measure imported synthetic 10k/50k/100k trees in the real isolated pipeline.
+"""在真实隔离分析链路中测量导入的 1 万、5 万、10 万节点合成树。
 
-The reproducible star topology stresses unique nodes and output size. It is a
-benchmark fixture, never evidence of a business capture or worst-case latency.
-Run the entire script in a network-none, 512 MiB container to bound the parent
-and child together, in addition to the child's 512 MiB address-space limit.
+可复现的星形结构用于施压唯一节点数与输出体积；它只是基准夹具，不能作为
+业务采集或最坏延迟的证据。整个脚本须置于无网络、512 MiB 容器，使父子进程
+总量也受限，而不是只依赖子进程自身的 512 MiB 地址空间限制。
 """
 
 import gzip

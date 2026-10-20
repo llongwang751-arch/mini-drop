@@ -1,3 +1,7 @@
+/**
+ * 任务实时事件通道：将网络字节流拆成完整事件，再通知缓存失效。
+ * 它不执行采集，也不直接改任务状态；状态最终来自授权的任务详情接口。
+ */
 import { newIdempotencyKey } from "./api";
 
 export interface StreamEvent {
@@ -8,8 +12,9 @@ export interface StreamEvent {
 export type StreamState = "connecting" | "live" | "polling" | "paused";
 class StreamProtocolError extends Error {}
 
-/** Streaming UTF-8/SSE framing. An unterminated frame never becomes an event.
- * Bounds include comment, field and delimiter bytes, not just JSON payloads.
+/**
+ * 按流解码 UTF-8 和 SSE 帧：网络分块不等于事件边界，只有遇到空行才提交完整事件。
+ * 限额包含心跳注释、字段名和分隔符，防止小 JSON 之外的大量无用字节绕过内存限制。
  */
 export class EventStreamDecoder {
   private decoder = new TextDecoder("utf-8", { fatal: true });
@@ -35,7 +40,7 @@ export class EventStreamDecoder {
       this.afterCR = false;
       this.consumeLine();
     }
-    // EOF discards an incomplete event; dispatch requires a blank line.
+    // 连接结束时丢弃未封口的事件；必须有空行结束标记，才能把数据交给页面。
   }
   private decode(chunk?: Uint8Array) {
     try {
@@ -44,6 +49,7 @@ export class EventStreamDecoder {
       throw new StreamProtocolError("Invalid SSE UTF-8");
     }
   }
+  // 分块可能恰好切在 CRLF 或多字节字符之间；TextDecoder 与 afterCR 共同保存跨块状态。
   private consume(text: string) {
     for (const character of text) {
       if (this.afterCR) {
@@ -73,6 +79,7 @@ export class EventStreamDecoder {
     const line = this.line;
     this.line = "";
     if (!line) {
+      // 只有完整帧到达，才提交新游标；半个事件不能推进断点续读位置。
       if (this.pendingId !== undefined) this.lastEventId = this.pendingId;
       if (this.data.length)
         this.emit({
@@ -98,17 +105,19 @@ export class EventStreamDecoder {
         throw new StreamProtocolError("SSE cursor exceeds length limit");
       this.pendingId = value;
     }
-    // retry fields do not override the client's bounded outage policy.
+    // 不采纳服务端 retry 字段，重连仍由客户端有上限的退避策略统一控制。
   }
 }
 
+// int64 上限用 BigInt 比较，整个传输与缓存路径仍保存字符串，避免 number 精度损失。
 function validCursor(value: string) {
   return /^[1-9]\d{0,18}$/.test(value) && BigInt(value) <= 9223372036854775807n;
 }
 
-/** One authenticated stream, with bounded retries and an exact int64 cursor.
- * Fetch permits Last-Event-ID on reconnect after a visibility/navigation abort.
- * Fallback REST polling stays independent of this optional live connection.
+/**
+ * 为一个任务维护鉴权事件流，游标保留为字符串，避免 int64 ID 转成 JS number 后丢精度。
+ * 使用 fetch 才能在断线后显式携带 Last-Event-ID；页面隐藏和路由退出都可立即取消连接。
+ * SSE 仅补充实时体验，任务的 REST 轮询独立存在，不把流连通状态当成任务执行状态。
  */
 export function subscribeTaskEvents(
   taskId: string,
@@ -130,6 +139,7 @@ export function subscribeTaskEvents(
     clearTimeout(timeout);
     reconnect = timeout = undefined;
   };
+  // 连接身份围栏：旧连接的异步回调不得覆盖替换后的连接或路由退出后的状态。
   const current = (controller: AbortController) =>
     !disposed && active === controller && !controller.signal.aborted;
   const deadline = (controller: AbortController, ms: number) => {
@@ -167,6 +177,7 @@ export function subscribeTaskEvents(
       });
       if (!current(controller)) return;
       if (!response.ok || response.status === 204) {
+        // 无内容或不可恢复的客户端错误停止重连；408/429 仍按暂时性故障处理。
         permanent =
           response.status === 204 ||
           (response.status >= 400 &&
@@ -225,12 +236,14 @@ export function subscribeTaskEvents(
       blocked = permanent;
       options.onState?.("polling");
       if (!blocked) {
+        // 指数退避限制故障时的连接风暴；收到有效新事件后 failures 会归零。
         const delay = Math.min(30000, 1000 * 2 ** Math.min(failures, 5));
         failures = Math.min(failures + 1, 16);
         reconnect = setTimeout(start, delay);
       }
     }
   };
+  // 页面隐藏主动释放流与重连定时器；恢复可见时重新从已提交游标连接。
   const visibility = () => {
     if (document.visibilityState === "hidden") {
       clearTimeouts();
@@ -242,6 +255,7 @@ export function subscribeTaskEvents(
   };
   document.addEventListener("visibilitychange", visibility);
   start();
+  // React effect 的清理函数负责路由退出；仅停止浏览器订阅，不代表取消后台采集任务。
   return () => {
     disposed = true;
     document.removeEventListener("visibilitychange", visibility);

@@ -1,4 +1,7 @@
-"""Bounded S3/SQL reconciliation. No credentials or profile contents enter logs."""
+"""在固定批次内对账 S3 与 SQL，不把凭据或 profile 内容写入日志。
+
+删除前再次检查数据库保护范围，避免将仍在上传、持有 RAW 授权或活跃作业前缀下的对象误判为孤儿。
+"""
 from datetime import datetime, timedelta, timezone
 import hashlib
 
@@ -6,6 +9,11 @@ PREFIXES = ('raw/', 'intermediate/', 'result/', 'results/', 'logs/', 'manifest/'
 
 
 def reconcile(repo, storage, *, now=None, limit=100, hash_budget=64 * 1024 * 1024, orphan_grace=timedelta(days=1), multipart_grace=timedelta(days=1)):
+    """执行一轮有限批次的过期清理、摘要检查、孤儿删除及旧 multipart 终止，返回计数。
+
+    SQL 与 S3 不能同事务提交：删除先记 deleting，实际删除并复核后才记 expired，失败可在后续重试。
+    孤儿扫描使用持久游标，并在删除前再查保护范围；单个对象失败只计入 errors，不吞掉整轮可恢复工作。
+    """
     now = now or datetime.now(timezone.utc)
     stats = dict(expired=0, missing=0, quarantined=0, checked=0, orphans=0, multipart_aborted=0, errors=0)
     for item in repo.expired(limit):
@@ -41,7 +49,7 @@ def reconcile(repo, storage, *, now=None, limit=100, hash_budget=64 * 1024 * 102
             stats['checked'] += 1
         except Exception:
             stats['errors'] += 1
-    # Object names are identifiers only. Never resolve them as filesystem paths.
+    # 对象名只作为存储标识符，不能解析成宿主文件路径。
     cursor = repo.object_cursor() if hasattr(repo,'object_cursor') else ''
     listing = storage.list(cursor) if hasattr(repo,'object_cursor') else storage.list()
     last_key = cursor
@@ -50,7 +58,7 @@ def reconcile(repo, storage, *, now=None, limit=100, hash_budget=64 * 1024 * 102
         last_key = key
         if not key.startswith(PREFIXES) or not modified or modified > now - orphan_grace: continue
         try:
-            # Includes issued RAW grants and all active job prefixes. Query immediately before deletion.
+            # 保护范围包括已签发 RAW 授权与所有活跃作业前缀，必须紧邻删除前再次查询。
             if not repo.referenced(key):
                 storage.remove(key)
                 repo.audit('ORPHAN_OBJECT_DELETED', hashlib.sha256(key.encode()).hexdigest())

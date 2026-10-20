@@ -1,4 +1,4 @@
-"""Conservative rules; findings are evidence pointers, not causal diagnoses."""
+"""保守的规则匹配层；建议指向观测证据，不把相关信号直接解释成根因。"""
 
 RULE_VERSION = "1.0.0"
 

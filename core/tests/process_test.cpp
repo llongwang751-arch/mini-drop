@@ -85,8 +85,8 @@ int main(int argc, char **argv) {
   auto failure =
       dropcore::execute({"/usr/bin/false"}, output, std::chrono::seconds(3));
   require(failure.exit_code == 1, "Nonzero exit was lost");
-  // An unrelated same-UID process must neither consume a runner's budget nor
-  // receive its termination signal. This also runs as UID10001 in validation.
+  // 无关的同UID进程既不能消耗本Runner预算，也不能
+  // 收到本Runner的终止信号；验收时还以UID10001实跑此边界。
   const auto unrelated = fork();
   require(unrelated >= 0, "Cannot start unrelated same-UID process");
   if (unrelated == 0) {

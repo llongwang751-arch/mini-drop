@@ -1,3 +1,6 @@
+/**
+ * 计划任务的历史真实环境验收入口，运行可能创建或触发任务；不要当作无副作用的 UI 夹具。
+ */
 import { request } from "playwright";
 import { readFile, writeFile } from "node:fs/promises";
 const api = await request.newContext({

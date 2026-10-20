@@ -1,3 +1,7 @@
+/**
+ * 资源组管理：成员角色、节点范围和任务可见性都通过授权 API 读写。
+ * 角色选择影响资源边界，页面的隐藏/禁用只能改善体验，后端必须再次校验。
+ */
 import { useContext, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, UsersThree } from "@phosphor-icons/react";

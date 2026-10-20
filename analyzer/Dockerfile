@@ -1,5 +1,5 @@
-# Public repository build: official PyPI wheels are hash checked online.
-# Validated release archives use the same versions with preverified offline wheels.
+# 公开源码构建从官方PyPI下载wheel并校验哈希，不能解析到未冻结的依赖版本。
+# 已验收发布归档使用相同版本、提前核验的离线wheel，两个构建入口保持一致。
 FROM python:3.12.15-slim-trixie@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 PSYCOPG_IMPL=python
 WORKDIR /app

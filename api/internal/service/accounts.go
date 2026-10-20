@@ -1,3 +1,5 @@
+// Package service：处理密码验证、会话创建和账户管理；HTTP Cookie 保存随机会话令牌，数据库保存其摘要、独立 CSRF 值和过期边界。
+// 账户降权或修改必须反映到后续请求与长连接重验中，不能让旧角色一直驻留在内存。
 package service
 
 import (
@@ -25,6 +27,8 @@ func NewAccounts(r *repository.Repository) *Accounts {
 	hash, _ := bcrypt.GenerateFromPassword([]byte("timing-equalization"), 12)
 	return &Accounts{Repo: r, dummyHash: hash}
 }
+
+// RandomToken 生成不可预测的会话或临时 capability；令牌只在必要边界传递，日志和公开对象不保存原文。
 func RandomToken() string {
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
@@ -51,6 +55,9 @@ func (a *Accounts) Bootstrap(ctx context.Context, name, password string) error {
 	}
 	return a.Repo.Bootstrap(ctx, domain.User{ID: uuid.NewString(), Username: name, DisplayName: "平台管理员", Role: "admin", PasswordHash: string(hash), CreatedAt: time.Now().UTC()})
 }
+
+// Login 验证密码后创建新的持久化会话与 CSRF 令牌，并记录审计。
+// 返回给 Cookie 的会话原令牌在查询前取摘要；CSRF 用于证明写请求的主动提交，两者不能混为一种权限。
 func (a *Accounts) Login(ctx context.Context, name, password, request string) (domain.User, string, string, error) {
 	u, err := a.Repo.UserByName(ctx, name)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -108,6 +115,8 @@ func (a *Accounts) CreateUser(ctx context.Context, admin domain.User, name, disp
 	}
 	return u, a.Repo.Audit(ctx, Audit(admin, "user.create", "user", u.ID, request))
 }
+
+// UpdateUser 以当前管理员权限修改账户，并使角色或密码变更反映到后续认证；已打开的资源流也必须重新读取当前用户。
 func (a *Accounts) UpdateUser(ctx context.Context, admin domain.User, id string, role, display, password *string, request string) (domain.User, error) {
 	var out domain.User
 	if !admin.IsPlatformAdmin() {

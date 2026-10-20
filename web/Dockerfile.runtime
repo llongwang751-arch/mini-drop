@@ -1,5 +1,5 @@
-# Artifact deployment on a small runtime host. Build and test web/dist locally
-# from the frozen source, then record its hashes before packaging this context.
+# 小规格运行主机只接收构建制品；先以冻结源码在本地构建、测试 web/dist，
+# 记录哈希后再打包当前构建上下文，避免把未经验证的文件临时放进生产镜像。
 FROM nginxinc/nginx-unprivileged:1.30.6-alpine
 USER root
 RUN sed -i 's|dl-cdn[.]alpinelinux[.]org|mirrors.aliyun.com|g' /etc/apk/repositories \

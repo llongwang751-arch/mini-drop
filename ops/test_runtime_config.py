@@ -1,4 +1,4 @@
-"""Local configuration fixtures; no storage, database or network access."""
+"""本地配置夹具，不访问存储、数据库或网络。"""
 
 from contextlib import redirect_stdout, redirect_stderr
 import io

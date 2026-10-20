@@ -1,4 +1,4 @@
-"""Filesystem/fake-host and Linux lock regressions; no Docker, Syft or network."""
+"""文件系统、假宿主与 Linux 文件锁回归，不运行 Docker、Syft 或网络。"""
 
 from __future__ import annotations
 
@@ -351,7 +351,7 @@ class HostSBOMTests(unittest.TestCase):
             )
 
     def test_packed_size_cannot_underbudget_real_containerd_snapshots(self):
-        # Imported size observations, not a live Docker or Syft invocation.
+        # 导入的大小观测夹具，不是实时 Docker 或 Syft 调用。
         content_size, disk_size = 690937462, 2650000000
         quiet = "some avg10=0.00\nfull avg10=0.00\n"
         mem = "MemAvailable: 786432 kB\n"
@@ -587,7 +587,7 @@ class HostSBOMTests(unittest.TestCase):
 
 
 class CollectorLockTests(unittest.TestCase):
-    """Portable boundary tests; actual flock behavior is tested separately."""
+    """可跨平台的边界测试；真实 flock 行为在独立 Linux 用例验证。"""
 
     def test_existing_lock_metadata_must_be_private_regular_root_owned_single_link(
         self,
@@ -687,7 +687,7 @@ class CollectorLockTests(unittest.TestCase):
     "requires native Linux root and real flock; Windows pure tests are insufficient",
 )
 class LinuxCollectorLockTests(unittest.TestCase):
-    """No Docker/Syft/network: real processes, flock, SIGKILL and owned temp files."""
+    """不用 Docker、Syft 或网络，使用真实进程、flock、SIGKILL 和本次拥有的临时文件。"""
 
     def wait_ready(self, process, marker):
         deadline = time.monotonic() + 5

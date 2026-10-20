@@ -1,3 +1,9 @@
+"""后台维护入口：对象生命周期、有限批次对账、运维指标与维护操作。
+
+业务 API 不负责扫描整个 bucket；该进程用持久游标推进检查，并保留 RAW 授权与活跃作业的保护范围。
+对账中的对象删除采用可恢复状态，S3 失败不能伪装成已完成的数据库清理。
+"""
+
 import json
 import hmac
 import os
@@ -43,7 +49,7 @@ class SQLRepository:
         ).fetchall()
 
     def candidates(self, limit):
-        # Stable cursor state persists in metadata so large catalogues do not starve later rows.
+        # 将稳定游标持久化到元数据，避免大目录反复扫描前几行，使后续对象长期得不到处理。
         result = self.conn.execute(
             "SELECT id,object_key,size,sha256 FROM artifacts WHERE status='ready' AND created_at<now()-interval '5 minutes' ORDER BY COALESCE((metadata->>'last_reconciled_at')::timestamptz,created_at),id LIMIT %s",
             (limit,),
@@ -118,7 +124,7 @@ class S3Storage:
             yield obj.object_name, obj.last_modified
 
     def multipart(self):
-        # Isolate the pinned minio-py 7.2.20 signed multipart adapter here.
+        # 在此集中适配固定 minio-py 7.2.20 的签名 multipart 接口。
         marker = upload_marker = None
         for _ in range(100):
             result = self.client._list_multipart_uploads(
@@ -174,8 +180,8 @@ def configure_lifecycle(client, bucket):
     except S3Error as exc:
         if exc.code not in ("InvalidArgument", "InvalidRequest", "NotImplemented"):
             raise
-        # The community backend rejects AbortIncompleteMultipartUpload XML.
-        # Keep expiration rules; the bounded reconciler explicitly lists and aborts old uploads.
+        # 社区后端不接受 AbortIncompleteMultipartUpload XML；保留对象过期规则，
+        # 由有界对账器显式列出并终止旧 multipart 上传。
         client.set_bucket_lifecycle(bucket, LifecycleConfig(rules[:-1]))
         log(
             "multipart_lifecycle_adapter", stage="startup", mode="explicit_signed_abort"
@@ -195,7 +201,7 @@ state = {
 
 
 def external_monitoring_metrics(path):
-    """Optional host counters must never break the primary metrics endpoint."""
+    """可选宿主计数器失败时，不应破坏主指标端点。"""
     try:
         descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_NOFOLLOW", 0))
         with os.fdopen(descriptor, "rb") as stream:

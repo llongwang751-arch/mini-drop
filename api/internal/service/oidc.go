@@ -1,3 +1,5 @@
+// Package service：将 OIDC 授权码回调转换为本地账户与会话。
+// 浏览器绑定 state、防重放记录和真实签名校验共同构成信任链，不能只凭回调里的姓名或邮箱放行。
 package service
 
 import (
@@ -100,6 +102,9 @@ func (o *OIDC) Start(ctx context.Context) (string, string, error) {
 	}
 	return o.OAuth.AuthCodeURL(state, oidc.Nonce(nonce), oauth2.S256ChallengeOption(verifier)), browser, nil
 }
+
+// Callback 校验 state 与浏览器绑定、防重放期限以及身份提供方签名，再映射本地用户并创建新会话。
+// 外部身份校验和本地资源授权是两层边界，成功登录不授予任意任务或组的访问权。
 func (o *OIDC) Callback(ctx context.Context, state, browser, code, request string) (domain.User, string, string, error) {
 	fail := func() (domain.User, string, string, error) {
 		return domain.User{}, "", "", domain.Fail("INVALID_CREDENTIALS", "OIDC身份验证失败，请重新登录")

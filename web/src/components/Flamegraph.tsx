@@ -1,3 +1,7 @@
+/**
+ * 交互火焰图：完整调用树交给 Worker 布局，主线程只渲染当前可见深度。
+ * 过滤、搜索和聚焦是观察方式，不修改采样证据；框宽仍表示当前度量的权重。
+ */
 import { api } from "../api";
 import {
   memo,
@@ -31,6 +35,7 @@ type DepthRange = { start: number; end: number };
 export function graphHeight(rows: number) {
   return Math.max(104, rows * ROW_HEIGHT + 20);
 }
+// 火焰图的根在底部，因此滚动位置要反向换算成深度，再添加少量上下预渲染行。
 export function visibleDepthRange(
   heightPx: number,
   scrollTop: number,
@@ -76,6 +81,7 @@ const FlameFrame = memo(function FlameFrame({
     rect.name.length > Math.floor(rect.width / 6)
       ? `${rect.name.slice(0, Math.max(1, Math.floor(rect.width / 6) - 2))}…`
       : rect.name;
+  // 视觉标签可以省略，但无障碍名称同时保留可见前缀与完整符号，便于键盘和读屏定位。
   const accessibleLabel =
     visibleLabel === rect.name ? rect.name : `${visibleLabel}, ${rect.name}`;
   return (
@@ -195,6 +201,7 @@ export default function Flamegraph({
   }, [data, focusRequest]);
   useEffect(() => {
     const scroll = scrollRef.current;
+    // 同一聚焦根重新布局时保留阅读位置；换根或原来贴底时才沿底部锚点展示。
     layoutScrollRef.current =
       scroll && previousRootRef.current === root
         ? {
@@ -209,6 +216,7 @@ export default function Flamegraph({
     setError(undefined);
     setHover(undefined);
     setActiveId(undefined);
+    // 布局计算离开主线程；依赖变化时终止旧 Worker，避免过期计算覆盖当前视图。
     const worker = new Worker(new URL("./flame.worker.ts", import.meta.url), {
       type: "module",
     });
@@ -255,6 +263,7 @@ export default function Flamegraph({
         : { layout: current, range },
     );
   }, []);
+  // 同一动画帧的多次 scroll/resize 合并一次窗口计算，减少连续滚动时的 React 更新。
   const scheduleWindow = useCallback(() => {
     if (frameRef.current !== undefined) return;
     frameRef.current = requestAnimationFrame(() => {
@@ -296,6 +305,7 @@ export default function Flamegraph({
           550,
           layout?.renderableRows || 0,
         );
+  // 小树保留全部 DOM；大树只绘制可见深度，完整布局仍用于查找、过滤和键盘导航。
   const visible = useMemo(() => {
     if (!layout) return [];
     const rows = isVirtual

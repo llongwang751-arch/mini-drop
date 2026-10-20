@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Invoke after the full Compose configuration includes compose.https.yml.
+# 必须在完整Compose已包含compose.https.yml后调用，确保HTTPS入口已经定义。
 set -euo pipefail
 umask 077
 deploy_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"

@@ -1,3 +1,5 @@
+// Package service：管理模型建议请求的准入、脱敏输入和持久化工作器。
+// 用户同意外发不代表模型获得平台写权限；模型输出仍需程序校验，失败也不能改变原测量结果。
 package service
 
 import (
@@ -48,6 +50,7 @@ func NewSuggestions(r *repository.Repository, t *Tasks, c AIConfig) (*Suggestion
 	return &Suggestions{Repo: r, Tasks: t, Config: c, Client: &http.Client{Timeout: 30 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}}, nil
 }
 
+// AgentAvailable 检查当前选择的模型后端及必要依赖是否就绪，避免 UI 宣称可以启动实际不可用的 Agent 工作流。
 func (s *Suggestions) AgentAvailable() bool {
 	if s == nil {
 		return false
@@ -73,7 +76,7 @@ type AIRequest struct {
 	UpdatedAt      time.Time  `json:"updated_at"`
 }
 
-// No raw profile, symbol, path, host, PID, group or user identifiers are sent.
+// RedactedSummary 不发送原始性能文件、符号、路径、主机、PID、组或用户标识，只允许脱敏统计进入模型上下文。
 func RedactedSummary(raw json.RawMessage) ([]byte, error) {
 	var result struct {
 		Kind         string `json:"kind"`

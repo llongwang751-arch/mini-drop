@@ -1,3 +1,5 @@
+// Package service：管理操作会同时影响采集与分析的合法性：重分析重建分析身份，删除撤销上传权限，停用 Agent 阻止后续派发。
+// 状态修改、事件和审计在同一事务内完成，后台旧工作器依赖这些身份变化退出。
 package service
 
 import (
@@ -38,6 +40,9 @@ func (s *Tasks) SetAgentEnabled(ctx context.Context, u domain.User, id string, e
 	})
 	return a, err
 }
+
+// Reanalyze 重新校验任务权限、当前采集制品和旧分析状态，再创建新的分析运行身份。
+// 旧 Analyzer 的租约或结果此后不能覆盖新 run；采集状态与原始制品不会被重新解释为新采集。
 func (s *Tasks) Reanalyze(ctx context.Context, u domain.User, id int64, request string) error {
 	if !u.IsPlatformAdmin() {
 		return domain.Fail("FORBIDDEN", "只有平台管理员可重新分析")
@@ -91,6 +96,8 @@ func (s *Tasks) Reanalyze(ctx context.Context, u domain.User, id int64, request 
 		return tx.Create(ptrAudit(Audit(u, "task.reanalyze", "task", fmt.Sprint(id), request))).Error
 	})
 }
+
+// Delete 在事务中标记删除并撤销当前上传授权，同时记录事件和审计；删除可见性与磁盘对象清理是不同阶段。
 func (s *Tasks) Delete(ctx context.Context, u domain.User, id int64, request string) error {
 	if !u.CanWrite() {
 		return domain.Fail("FORBIDDEN", "只读角色")

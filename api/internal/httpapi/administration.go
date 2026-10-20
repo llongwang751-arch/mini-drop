@@ -1,3 +1,5 @@
+// Package httpapi：承接启停 Agent、重分析、删除任务和修改账户等管理操作。
+// 这些请求会改变后续工作器的合法性，真正状态变化与审计由服务层在事务中协调。
 package httpapi
 
 import (

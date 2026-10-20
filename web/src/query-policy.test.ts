@@ -1,3 +1,6 @@
+/**
+ * 用可控 Query 状态验证轮次退避，区分单次请求内部重试与下一轮轮询间隔。
+ */
 import { describe, expect, it } from "vitest";
 import { APIError } from "./api";
 import { pollingInterval, retryQuery } from "./query-policy";

@@ -53,9 +53,9 @@ playwright-report/
 deploy/runtime/
 deploy/acme-webroot/
 
-# Runtime captures, process state, sandbox output and rehearsal recordings.
-# Public summaries and screenshots live in docs/evidence; generate fresh Runner
-# captures from core/fixtures rather than publishing a runtime working tree.
+# 运行时采样、进程状态、沙箱输出和演示录像不进入源码仓库。
+# 可公开的摘要与截图放在docs/evidence；需要采样数据时，从core/fixtures
+# 重新生成明确标记的受控负载结果，不直接发布整个运行工作目录。
 core/evidence/
 *.pid
 runner.state
@@ -83,8 +83,8 @@ runner.state
 *.jfr.gz
 *.folded.gz
 
-# Explicit imported parser fixtures are disposable toy captures with a checked
-# SHA-256/size manifest and a reproducible generator, never business profiles.
+# 显式导入的解析夹具是可丢弃玩具数据，具有可复现生成器及SHA-256/大小清单，
+# 不能把这些样本解释成真实业务profile或现场性能证据。
 !analyzer/tests/fixtures/golden.folded
 !analyzer/tests/fixtures/collected/*.pprof
 !analyzer/tests/fixtures/collected/*.hprof

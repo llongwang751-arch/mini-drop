@@ -1,3 +1,7 @@
+/**
+ * SSE 协议与生命周期的导入字节夹具：覆盖分块、游标精度、上限、断线与可见性。
+ * 网络和时钟可控，但被测解码器与订阅逻辑使用真实生产代码。
+ */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { EventStreamDecoder, subscribeTaskEvents } from "./event-stream";
 

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# Restore only into newly created, uniquely named verification resources.
+# 备份恢复验收入口：在本次独立命名的数据库与存储资源中验证结构、对象及校验信息。
+# 所有清理都限定到本次持有的资源，不能接收生产资源名作为删除目标。
+
+# 只恢复到本次新建且名称唯一的验证资源，不覆盖生产数据库或卷。
 set -euo pipefail
 umask 077
 restore_started="$(date +%s)"
@@ -24,8 +27,8 @@ created=0
 cleanup() {
   local status=$?
   if (( created )); then
-    # The target is generated above, never supplied by a user or read from a
-    # backup. No production database/volume is eligible for deletion here.
+    # 目标名称由上方生成，不能来自用户输入或
+    # 备份内容；清理范围不允许包含生产数据库或数据卷。
     if ! "${compose[@]}" exec -T postgres sh -c 'export PGPASSWORD="$(cat /run/secrets/database_password)"; exec dropdb -U "$POSTGRES_USER" -- "$1"' sh "$isolated"; then
       printf 'Verification DB cleanup failed; remove only %s after inspection.\n' "$isolated" >&2
       status=1
@@ -120,7 +123,7 @@ try:
         verify_metadata(row['metadata'], restored.metadata)
         if restored.content_type != (row.get('content_type') or 'application/octet-stream'):
             raise RuntimeError('Isolated S3 restore content type mismatch')
-        # Retain at most one restored object at a time on the small host.
+        # 小主机上每次最多保留一个已恢复对象，避免校验过程耗尽临时磁盘。
         client.remove_object(bucket, key)
 finally:
     if made_bucket:

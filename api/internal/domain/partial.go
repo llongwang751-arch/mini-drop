@@ -1,3 +1,5 @@
+// Package domain：定义不完整分析结果的独立协议，保留来源身份、已完成范围和受限原因。
+// 部分结果可以帮助排障，但不能修改完整结果的成功状态，也不能接纳任意解析器内部元数据。
 package domain
 
 import (
@@ -84,8 +86,8 @@ func partialFields(payload []byte, fields ...string) bool {
 	return true
 }
 
-// DecodePartialResult validates the separate, bounded incomplete-result contract.
-// It never accepts a full result or arbitrary parser/tool metadata.
+// DecodePartialResult 校验独立且有界的不完整结果协议。
+// 它拒绝完整结果和任意解析器或工具元数据；调用方必须通过当前分析身份确认这份结果没有过期。
 func DecodePartialResult(payload []byte) (PartialResult, error) {
 	var result PartialResult
 	invalid := errors.New("invalid partial analysis result")

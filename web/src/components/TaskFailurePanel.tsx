@@ -1,3 +1,7 @@
+/**
+ * 失败结果的呈现层：使用 task-failure 整理出的阶段、错误和当前轮次制品。
+ * 恢复操作交回父页面执行，组件不会因显示错误而自动重试采集或扩大权限。
+ */
 import {
   WarningCircle,
   ArrowUpRight,

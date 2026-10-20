@@ -1,3 +1,6 @@
+// 受信配置、证书及工具身份的公共读取接口。
+// 秘密值与可公开的元数据有不同用途；记录日志时使用安全摘要，不回显原配置。
+
 #pragma once
 #include <functional>
 #include <map>
@@ -31,4 +34,4 @@ std::string configuration_value(const std::string &name,
                                 const std::string &fallback = "");
 nlohmann::json configuration_snapshot();
 bool sensitive_configuration_key(const std::string &name);
-} // namespace dropcore
+} // 结束 dropcore 命名空间

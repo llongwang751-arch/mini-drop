@@ -1,4 +1,4 @@
-"""Real PostgreSQL half of migration; object storage remains synthetic and fake."""
+"""迁移的 PostgreSQL 部分使用真实数据库；对象存储仍由合成夹具替代。"""
 
 import os
 from pathlib import Path
@@ -112,8 +112,8 @@ class PostgreSQLMigrationTests(unittest.TestCase):
 
     def test_same_advisory_lock_excludes_existing_reconciler(self):
         with psycopg.connect(self.dsn, autocommit=True) as other:
-            # The reconciler holds an xact lock. Wait for its actual COMMIT
-            # response, rather than racing asynchronous backend disconnect.
+            # 对账器持有事务锁，应等待真实 COMMIT 返回，
+            # 不能与异步数据库连接断开争抢时序。
             with other.transaction():
                 other.execute(
                     "SELECT pg_advisory_xact_lock(hashtextextended('drop-maintenance-v1',0))"

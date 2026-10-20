@@ -1,4 +1,8 @@
-"""Parent-side resource and cancellation boundary around an untrusted profile."""
+"""父进程为不可信 profile 建立资源与取消边界。
+
+子进程只接收白名单环境，解析过程定期检查租约、CPU、墙钟、进程数与磁盘。
+失去归属或超限时终止本次进程组；只有完整、受限且格式合法的响应才能返回 worker。
+"""
 
 import json
 import os
@@ -14,6 +18,7 @@ from .progress import ProgressReader
 
 
 def terminate(process):
+    """POSIX 上终止本次独立进程组，其他平台终止当前子进程，随后等待回收。"""
     if os.name == "posix":
         try:
             os.killpg(process.pid, signal.SIGKILL)
@@ -47,6 +52,11 @@ def process_group_usage(group):
 
 
 def analyze_isolated(context, *, check_lease, on_progress=None):
+    """启动一次性低权限解码子进程，监控预算与租约，返回完整解析结果、manifest 和资源计量。
+
+    只继承系统必需环境，不传数据库/S3 凭据；父进程定期检查累计 CPU、进程数、磁盘与墙钟。
+    任何异常都会终止本次进程组，stdout/stderr 也受大小限制，不能把任意 profile 文本写成公共日志。
+    """
     work_dir = Path(context["work_dir"])
     disk = WorkspaceBudget(
         work_dir,

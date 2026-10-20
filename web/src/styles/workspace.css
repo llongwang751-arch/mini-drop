@@ -1,5 +1,6 @@
-/* Workspace visual system: navigation, shared controls and page composition. */
-/* Cloud blue and cool neutrals unify the workspace; data colors retain their semantics. */
+/* 工作空间共用视觉层：侧栏导航、表单控件、状态呈现与页面编排。 */
+/* 品牌使用云蓝与冷灰；成功、警告、错误等数据状态继续使用各自的语义色。 */
+/* 品牌色与成功/失败语义色分开维护，换主题时不要把错误状态也统一染成品牌蓝。 */
 :root {
   --bg: #f5f7fb;
   --surface: #fff;
@@ -1866,6 +1867,7 @@ h3 {
     font-size: 11px;
   }
 }
+/* 减少动效是全局可访问性设置；导航、登录插图和交互过渡都应服从用户偏好。 */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

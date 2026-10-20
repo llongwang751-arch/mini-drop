@@ -1,4 +1,8 @@
-"""One-request HTTP/1.1 over Unix sockets with bounded buffers and peer identity."""
+"""基于 Unix socket 的单请求 HTTP/1.1 协议，限制缓冲区并校验对端身份。
+
+控制请求与工具回调使用固定格式，run_id 用于关联记录，独立 capability 才用于授权。
+JSON 先严格校验；Go 已接受的结果保留原始数值字面量，防止跨语言浮点转换改变证据。
+"""
 
 import asyncio
 import contextvars
@@ -53,13 +57,13 @@ def set_stage(stage: str) -> None:
 
 @dataclass(frozen=True)
 class AcceptedJSON:
-    """Opaque Go-accepted JSON; preserve every numeric token and its precision."""
+    """Go 已接受的 JSON 原文；保留每个数值字面量及精度，不再转换为 Python 浮点数。"""
 
     raw: bytes
 
 
 class ProtocolError(Exception):
-    """A fixed public error code; never contains provider responses or credentials."""
+    """固定的协议错误码，不包含模型供应商响应或凭据。"""
 
     def __init__(self, code: str = "AGENT_RUNTIME_PROTOCOL_ERROR") -> None:
         self.code = code
@@ -86,8 +90,9 @@ def json_bytes(value: Any) -> bytes:
 
 
 def accepted_json_field(raw: bytes, field: str = "result") -> AcceptedJSON:
-    # Validate the entire document first, including duplicate keys. Then use
-    # decoder offsets to copy the original value, never a float conversion.
+    # 先校验整个文档并拒绝重复键，再利用解码偏移复制原始值；
+    # 不要经过 float 转换而改变 Go 已接受的数值。
+    """从已严格校验的 Go 回调中提取 result 原始切片，避免大整数或小数经过 Python 重编码失真。"""
     parsed = strict_json(raw)
     if not isinstance(parsed, dict) or field not in parsed:
         raise ProtocolError()
@@ -118,6 +123,7 @@ def accepted_json_field(raw: bytes, field: str = "result") -> AcceptedJSON:
 
 
 def strict_json(raw: bytes | str) -> Any:
+    """解析严格 JSON，重复键、NaN/Infinity、无效编码和过深嵌套均作为协议错误拒绝。"""
     def object_pairs(pairs: list[tuple[str, Any]]) -> dict:
         result = {}
         for key, value in pairs:
@@ -138,6 +144,7 @@ def strict_json(raw: bytes | str) -> Any:
 
 
 def verify_peer(writer: asyncio.StreamWriter, expected_uid: int | set[int]) -> None:
+    """从 Linux SO_PEERCRED 读取内核确认的 UID，并与部署允许集合比较；不能信任请求自报身份。"""
     conn = writer.get_extra_info("socket")
     if conn is None or not hasattr(socket, "SO_PEERCRED"):
         raise ProtocolError("AGENT_RUNTIME_PEER_REJECTED")
@@ -158,6 +165,10 @@ async def read_http(
     max_body_bytes: int = MAX_BODY_BYTES,
     allowed_first: tuple[str, ...] = ("POST /v1/run HTTP/1.1", "GET /health HTTP/1.1"),
 ) -> tuple[str, dict, bytes]:
+    """读取一条固定 HTTP/1.1 请求或响应，返回首行、头和原始正文。
+
+    头部和正文分别限长；拒绝重复头与 transfer-encoding，避免私有协议出现歧义或无界读取。
+    """
     try:
         header = await reader.readuntil(b"\r\n\r\n")
     except (asyncio.IncompleteReadError, asyncio.LimitOverrunError):
@@ -224,6 +235,7 @@ async def close_writer(writer: asyncio.StreamWriter) -> None:
 
 
 class Gateway:
+    """每次回调使用本机 Unix socket，按运行 capability 授权，并再次校验 Go 对端 UID。"""
     def __init__(self, path: str, peer_uid: int, run_id: str, capability: str) -> None:
         self.path = path
         self.peer_uid = peer_uid
@@ -232,6 +244,10 @@ class Gateway:
         self.cancelled = False
 
     async def call(self, payload: dict) -> dict:
+        """发送一条有界回调并返回解析结果；连接异常转固定错误，finally 关闭连接。
+
+        只有 accepted/terminal 结果保留原始 JSON，普通观察仍按严格 JSON 返回给工具循环。
+        """
         if self.cancelled:
             raise asyncio.CancelledError()
         raw = json_bytes(payload)

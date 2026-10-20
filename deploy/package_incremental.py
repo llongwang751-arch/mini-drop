@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Prepare a scanned incremental delivery over the existing server source tree.
+"""为已有服务器源码树准备经过扫描的增量交付包。
 
-Draft is the default and creates no archive. Final mode snapshots fresh file
-bytes after documentation is frozen. Never uploads or changes deployed files.
+默认 draft 不生成归档；文档冻结后，final 模式重新读取当前文件字节并固定清单。
+这里只在本地打包，不上传或修改已部署文件；部署者应保留白名单之外的现有数据。
 """
 import argparse
 from collections import Counter
@@ -27,6 +27,7 @@ DEEPSEEK_KEY = re.compile(rb'\bsk-[a-zA-Z0-9]{32,}\b')
 
 
 def known_secrets():
+    """在本机私有目录读取已知敏感值，仅用于逐字节扫描；报告只给命中数量，不输出值或位置。"""
     values = []
     key = ROOT / '.local/diagnosis-20261020/ai_api_key'
     login = ROOT / '.local/diagnosis-20261020/腾讯云Drop登录信息.txt'
@@ -57,6 +58,7 @@ def allowed(path):
 
 
 def snapshot(plan):
+    """按计划白名单读取当前文件，校验读取前后大小与时间并固定 bytes，避免打包途中源文件变化。"""
     files = set()
     for pattern in plan['files']:
         files.update(p for p in ROOT.glob(pattern) if p.is_file())
@@ -82,6 +84,7 @@ def snapshot(plan):
 
 
 def scan(values, secrets):
+    """扫描选定字节中的已知凭据、私钥、签名 URL 和 API key 形态，只返回计数与通过状态。"""
     counts = Counter(known_credentials=0, pem_private_key=0, signed_url=0, api_key_shape=0)
     for content in values.values():
         counts['known_credentials'] += sum(content.count(secret) for secret in secrets)
@@ -98,6 +101,10 @@ def digest(data):
 
 
 def main():
+    """先快照与扫描，再生成清单；只有 final 才写归档，并重新打开逐成员校验。
+
+    此命令不执行 SSH 或服务更新；清单中的运行镜像绑定是独立证据，不表示当前源码自动成为已部署版本。
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--mode', choices=['draft', 'final'], default='draft')
     parser.add_argument('--output', type=Path, default=ROOT / '.local/final-delivery-20261020')
@@ -143,7 +150,7 @@ def main():
                 package.addfile(item, io.BytesIO(data))
         with temporary.open('rb') as stream:
             archive_hash = hashlib.file_digest(stream, 'sha256').hexdigest()
-        # Reopen the artifact and verify each member against the frozen bytes.
+        # 重新打开归档，逐个成员与冻结字节核对，防止只验证内存清单而漏掉写包错误。
         with tarfile.open(temporary, 'r:gz') as package:
             members = package.getmembers()
             assert len(members) == len(values) + 1

@@ -1,3 +1,5 @@
+// Package repository：收敛超过截止时间的未完成导入，防止任务永久停留在创建状态。
+// 同一个导入在截止前仍可按原幂等键续传，数据库不承担原始正文的长期保存。
 package repository
 
 import (
@@ -11,8 +13,8 @@ import (
 	"drop/api/internal/domain"
 )
 
-// Import bodies are intentionally not persisted in SQL. An interrupted import can
-// be replayed with the original idempotency key until its bounded deadline.
+// 导入正文有意不存入 SQL，避免数据库长期保存大文件或原始性能内容。
+// 上传中断后，客户端可在有限截止时间内携带原幂等键重放；过期记录由恢复任务收敛。
 func (r *Repository) SweepStaleImport(ctx context.Context) error {
 	return r.Context(ctx).Transaction(func(tx *gorm.DB) error {
 		var task domain.Task

@@ -1,3 +1,5 @@
+// Package domain：从权威 task-kinds.json 装载采集能力目录，并按任务类型校验参数。
+// HTTP、Go 编排与 Core 必须共享目录语义；新增工具参数不能靠宽松 map 绕过目录约束。
 package domain
 
 import (
@@ -40,6 +42,8 @@ var taskKinds = map[string]TaskKind{
 	"IMPORT_COLLAPSED": {ID: "IMPORT_COLLAPSED", RawName: "profile.folded", RawContentType: "text/plain", InputFormat: "folded", Pipeline: "folded_v1", MaxFileBytes: 32 << 20},
 }
 
+// LoadKinds 载入权威能力目录并替换进程内只读索引。
+// 重复 ID、非法字段或不支持的参数组合在启动时失败，避免同一任务在浏览器、API 和 Core 中含义不同。
 func LoadKinds(b []byte) error {
 	var defs []TaskKind
 	if err := json.Unmarshal(b, &defs); err != nil {
@@ -85,6 +89,8 @@ func PipelineFor(id string) string {
 	}
 	return k.Pipeline
 }
+
+// ValidateKindParameters 按当前 TaskKind 的类型化规则检查参数，通用字段通过不代表具体采集器参数已经合法。
 func ValidateKindParameters(kind string, p Parameters) *Error {
 	k, ok := Kind(kind)
 	if !ok || kind == "COMPOSITE" {

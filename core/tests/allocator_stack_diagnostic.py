@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Compare the actual RunnerBuilder's perf/raw allocator stacks on a UID10001 toy.
+"""在 UID10001 玩具进程上比较真实 RunnerBuilder 的 perf/raw 分配器调用栈。
 
-This is a diagnostic-only control. Neither the raw-stack variant nor an
-interrupted capture is promoted to a production Runner result. RAW stays in
-the root-private bounded spool and only counts, hashes and fixed errors leave.
+这里只做诊断对照：raw-stack 变体或中断采集都不升级为生产 Runner 成功结果。
+RAW 保留在仅 root 可读且有容量限制的 spool，对外只返回计数、摘要和固定错误码。
 """
 import hashlib
 import json
@@ -82,8 +81,7 @@ def main():
             try:
                 selected = identity(process.pid)
             except FileNotFoundError:
-                # A syntax/attachment failure may exit before /proc is sampled.
-                # Preserve its real return code instead of inventing success.
+                # 语法或附加失败可能发生在采样 /proc 之前；应保留真实退出码，不能臆造成功。
                 process.wait(timeout=2)
                 selected = None
             executable = Path(tool["path"]).stat()

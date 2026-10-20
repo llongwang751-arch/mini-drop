@@ -1,3 +1,6 @@
+/**
+ * 隔离环境的浏览器验收配置；与生产身份和数据目录分离。
+ */
 import { defineConfig } from "@playwright/test";
 
 const baseURL = process.env.DROP_BASE_URL || "http://127.0.0.1:18080";

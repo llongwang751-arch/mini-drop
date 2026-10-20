@@ -1,3 +1,4 @@
+# 构建阶段包含开发依赖，使用锁文件安装并在产出静态资源前执行前端单测。
 FROM node:24.15.0-alpine AS build
 WORKDIR /app
 COPY web/package.json web/package-lock.json ./
@@ -5,6 +6,7 @@ RUN npm ci --no-audit --no-fund
 COPY web/ ./
 RUN npm test && npm run build
 
+# 运行阶段仅保留 Nginx 与 dist，最终回到非 root 用户，不把源码构建工具带入运行容器。
 FROM nginxinc/nginx-unprivileged:1.30.6-alpine
 USER root
 RUN sed -i 's|dl-cdn[.]alpinelinux[.]org|mirrors.aliyun.com|g' /etc/apk/repositories \

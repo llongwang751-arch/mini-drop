@@ -1,3 +1,5 @@
+"""用显式构造的 pprof 与事件夹具验证单位、标签和聚合规则。"""
+
 import gzip
 import json
 import unittest
@@ -27,7 +29,7 @@ def f(number, value):
 
 
 def profile():
-    # Explicitly constructed format fixture, never represented as a collected profile.
+    # 显式构造的格式夹具，不冒充真实采集 profile。
     strings = [b"", b"cpu", b"nanoseconds", b"root", b"leaf", b"env", b"prod"]
     raw = b"".join(f(6, text) for text in strings)
     raw += f(1, f(1, 1) + f(2, 2))

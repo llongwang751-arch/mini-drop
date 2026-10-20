@@ -1,3 +1,7 @@
+// 目标请求、节点策略与真实进程身份的类型定义。
+// Target表示“想采谁”，TargetPolicy表示“节点允许采谁”，ProcessIdentity表示“实际解析到谁”。
+// 将三者分开，避免把用户声明的UID/PID误当成已经通过系统校验的身份。
+
 #pragma once
 #include <cstdint>
 #include <filesystem>
@@ -40,4 +44,4 @@ ProcessIdentity resolve_target(const Target &target, const TargetPolicy &policy,
 bool same_identity(const ProcessIdentity &a, const ProcessIdentity &b);
 TargetPolicy target_policy(int controlled_pid);
 nlohmann::json target_policy_json(const TargetPolicy &);
-} // namespace dropcore
+} // 结束 dropcore 命名空间

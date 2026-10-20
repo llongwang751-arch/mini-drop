@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Real, bounded AppArmor peer checks on disposable controlled processes only.
+"""只对可丢弃的受控进程执行真实且有界的 AppArmor 对端检查。
 
-Requires root, Docker and apparmor_parser. Never reloads production profiles.
-Clones the three repository profiles under random names, uses no host PID/network
-namespace or business mounts, and removes only its owner-labelled containers.
+需要 root、Docker 与 apparmor_parser，不重新加载生产策略；三份仓库策略以随机名称复制。
+不使用宿主 PID/网络命名空间或业务挂载，只清理由本次 owner 标签确认的容器。
 """
 import hashlib
 import json

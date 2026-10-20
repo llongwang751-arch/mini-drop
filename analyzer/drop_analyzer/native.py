@@ -1,4 +1,4 @@
-"""Native gperftools/jemalloc profiles and LLVM BOLT fdata, without text fallbacks."""
+"""解析 gperftools、jemalloc 原生 profile 与 LLVM BOLT fdata，不降级为猜测性的文本解析。"""
 
 import math
 import re
@@ -131,15 +131,14 @@ def native_heap(raw, *, kind, params=None):
                 if expected_totals is not None:
                     invalid("Duplicate jemalloc global counters")
                 expected_totals = list(map(int, match.groups()[:4]))
-                continue  # Global/thread totals, not a stack sample.
+                continue  # 这是全局或线程总计，不是一条调用栈采样。
             values = list(map(int, match.groups()[:4]))
             raw_totals = [left + right for left, right in zip(raw_totals, values)]
             addresses = current if je else re.findall(r"0x[0-9a-fA-F]+", match.group(5))
             if not addresses or len(addresses) > 128:
                 invalid("Native heap stack is empty or exceeds depth limit")
             if je:
-                # Standard jeprof Poisson sampling correction, separate for
-                # live and cumulative allocation counters.
+                # 采用 jeprof 标准 Poisson 采样修正，分别计算存活和累计分配计数。
                 for count_index in (0, 2):
                     count, size = values[count_index : count_index + 2]
                     if count:
@@ -220,7 +219,7 @@ def analyze_bolt(raw):
             if no_lbr:
                 if len(fields) != 4 or fields[0] not in {"0", "1", "2"}:
                     invalid("Malformed BOLT basic sample row")
-                int(fields[2], 16)  # Validate the basic sample offset.
+                int(fields[2], 16)  # 先验证基本采样偏移，避免越界解析。
                 count = int(fields[3])
                 if count < 0:
                     invalid("Negative BOLT sample count")

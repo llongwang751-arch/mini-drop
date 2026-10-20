@@ -1,3 +1,7 @@
+// 采集器公共接口：RunnerContext承载已校验输入，RunnerOutput只描述本次产生的制品。
+// 统一生命周期让不同语言/内核工具复用取消和预算机制；Registry负责能力发现与固定实现选择。
+// 这里的Runner是执行采集工具的适配器，与调用DeepSeek的AgentScope智能体职责分离。
+
 #pragma once
 #include "drop/catalog.hpp"
 #include "drop/process.hpp"
@@ -41,11 +45,11 @@ public:
   int exit_code;
   std::string error_code;
 };
-// Returns only a fixed classification, never the diagnostic input or its paths.
+// 对外只返回固定错误分类，不回传诊断输入或其中包含的目标路径。
 std::string classify_trace_failure(const std::string &diagnostic);
-// Fixed categories only: no raw profiler diagnostics or target paths escape.
+// BOLT同样只输出固定分类，原始工具诊断和目标路径不能泄漏到调用方。
 std::string classify_bolt_failure(const std::string &diagnostic);
-// Narrow wildcard attachment is permitted only after exactly-one expansion.
+// 窄范围通配符必须恰好解析到一个探针后才允许附加，避免误采多个位置。
 bool exact_allocator_probe_listing(const std::string &listing,
                                    const std::string &library,
                                    const std::string &symbol);
@@ -55,9 +59,9 @@ struct RunnerContext {
   nlohmann::json parameters = nlohmann::json::object(),
                  options = nlohmann::json::object();
   std::filesystem::path directory;
-  // Trusted local collector configuration; never decoded from Agent IPC.
-  // Cooperative writers see only this bounded RAW directory. Journals, logs
-  // and intermediates remain private to the helper or ordinary Agent owner.
+  // 这是受信的本地采集配置，不能从Agent IPC输入中反序列化获得。
+  // 协作采集程序只能看到这个有界RAW目录；恢复记录、日志和
+  // 中间文件仍由helper或普通Agent私有持有，不能共享整个工作目录。
   std::filesystem::path output_directory;
   bool java_cpu_timer = false;
   int duration_seconds = 10, frequency_hz = 99;
@@ -76,8 +80,8 @@ struct ToolInfo {
   std::map<std::string, std::string> support_files;
   bool available = false;
 };
-// Wait for cooperative writers/compression to close their output descriptors.
-// A timer elapsed or a stable short size sample does not establish completion.
+// 等待协作采集程序及压缩程序关闭输出文件描述符，再认定制品可读取。
+// 仅到达计时器终点或短时间内文件大小不变，都不足以证明写入已经完成。
 void wait_for_cooperative_output_close(
     const RunnerContext &,
     std::chrono::milliseconds timeout = std::chrono::seconds(10));
@@ -119,4 +123,4 @@ void download_pprof(const RunnerContext &, const std::filesystem::path &output);
 nlohmann::json resource_sample(int pid);
 nlohmann::json bounded_kernel_snapshot(const std::string &,
                                        bool truncated = false);
-} // namespace dropcore
+} // 结束 dropcore 命名空间

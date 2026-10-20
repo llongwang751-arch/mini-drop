@@ -1,4 +1,4 @@
-"""Read-only cross-service verification of real toy RunnerRegistry artifacts."""
+"""跨服务只读核验真实玩具 RunnerRegistry 制品，不创建新的采集任务。"""
 
 import argparse
 import hashlib
@@ -51,7 +51,7 @@ def main():
             request = (
                 json.loads(request_path.read_text()) if request_path.exists() else {}
             )
-            # These are imported verification fixtures, not a new live collection.
+            # 这是导入的核验夹具，不是新发起的现场采集。
             params = {**request.get("parameters", {}), "source": "import"}
             with tempfile.TemporaryDirectory(prefix="verify-runner-") as work:
                 context = {

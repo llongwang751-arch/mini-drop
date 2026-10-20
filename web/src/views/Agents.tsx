@@ -1,3 +1,7 @@
+/**
+ * 采集节点列表与详情：展示心跳、资源和自检能力，帮助选择真实可用的采集目标。
+ * 浏览器不直连 C++ Agent，也不接收节点私钥或长期对象存储凭据。
+ */
 import AgentEvidence from "../components/AgentEvidence";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";

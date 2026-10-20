@@ -1,3 +1,7 @@
+// 原生分配器探针的路径适配：为BCC旧接口提供短而可核验的库文件别名。
+// 必须核对原库与别名的设备号/inode一致，才能证明uprobe仍附加到正确的实际映射。
+// 这里解决内核事件名长度与路径归属问题，不替代Runner的探针数量及目标权限校验。
+
 #include "drop/allocator_probe.hpp"
 #include <array>
 #include <cerrno>
@@ -33,7 +37,7 @@ std::string alias_name() {
   }
   return result;
 }
-} // namespace
+} // 结束匿名命名空间
 AllocatorProbeAlias::AllocatorProbeAlias(const ProcessIdentity &target,
                                        std::string library)
     : target_(target), library_(std::move(library)) {
@@ -132,4 +136,4 @@ void AllocatorProbeAlias::cleanup() noexcept {
   }
 }
 AllocatorProbeAlias::~AllocatorProbeAlias() { cleanup(); }
-} // namespace dropcore
+} // 结束 dropcore 命名空间

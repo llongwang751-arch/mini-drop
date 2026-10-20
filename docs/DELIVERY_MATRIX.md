@@ -1,5 +1,11 @@
 # 全量交付与验收矩阵
 
+## 中文注释与阅读路线（2026-10-21）
+
+522个手写源码/配置文件已补中文说明，覆盖C++采集/控制面、Go API、Python Analyzer/AgentScope/隔离执行器、React/Worker及构建运维；新增 [中文阅读路线](CODE_READING_GUIDE.md)。注释解释职责、数据来源、设计原因与失败边界，保留标识符/运行字符串/机器指令/许可证/生成文件/历史数据。
+
+Go101、Python168、Web122及其余132份的AST/非注释token/解析结构对照通过；计数包含1份未修改但一并对照的Web配置。Web137、纯元数据9、API124pass/42skip、基准5、领域20检查及Go vet/格式/语法/契约检查实际通过，具体命令和边界见 [本轮验收记录](evidence/chinese-comments-20261021/verification.json)。缺少真实PG与模型配置的用例如实跳过；完整Linux C++20构建没有在本机执行。此为源码可读性增量，线上仍使用API12/runtime2/Web20261021.1/AgentHelper3/SQL8，不重启服务或重新宣称现场采集/模型验收。
+
 ## 云蓝与冷灰配色（2026-10-21 已上线）
 
 按用户反馈统一指南及共用侧栏/按钮/登录图的配色，布局和业务行为保持；同时修复发现的移动登录H1缺失，视觉不变。新构建、Prettier、既有UI20/20（0skip）及桌面/手机登录检查通过，合计八次axe扫描零违规；主按钮白字5.82:1、辅文在背景4.73:1。成功/错误状态与火焰图编码保留，36份历史证据SHA不变。功能04330c7已推送master，实际仅更新Web至20261021.1，其他26个容器身份/镜像保持，27容器健康、7监控up、readiness200。公网GET-only两宽2/2通过、5个静态文件SHA相同。不把上一版Lighthouse或现场采集记录算作本轮重跑。见 [发布说明](releases/20261021-palette.md)、[回归](evidence/palette-20261021/regression.json)、[登录](evidence/palette-20261021/login-visual.json)、[公网](evidence/palette-20261021/production/summary.json) 与 [部署](evidence/palette-20261021/deployment.json)。

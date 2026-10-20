@@ -1,3 +1,7 @@
+/**
+ * 从自然语言到证据闭环的工作台：生成采集计划，经确认后由服务端推进采集、诊断和复测。
+ * 源码模式只面向已登记项目，页面展示隔离副本的定位、最小补丁和验证结果，不直接编辑业务仓库。
+ */
 import { useContext, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -131,6 +135,7 @@ const toolNames: Record<string, string> = {
   read_source: "读取绑定版本源码",
   test_patch: "应用补丁并回归/对照",
 };
+// 工具观测按 evidence_id 保留，展开时以 React 文本节点显示 JSON，不把模型内容当 HTML 执行。
 function Evidence({ steps }: { steps: Step[] }) {
   return (
     <ol className="investigation-evidence">
@@ -147,6 +152,7 @@ function Evidence({ steps }: { steps: Step[] }) {
     </ol>
   );
 }
+// 对比结果要同时展示 comparable 和 limitations；复现同一热点不自动等于已经验证因果。
 function ComparisonView({ value }: { value: Comparison }) {
   return (
     <section aria-label="自动复测对比">
@@ -250,6 +256,7 @@ export default function Investigations() {
         ? 2000
         : false,
   });
+  // 列表只做详情首屏种子；后续按所选 ID 单独查询并核对返回身份，避免旧列表缓存串到别的调查。
   const selectedInvestigationDetail = useQuery({
     queryKey: ["investigations", selected],
     queryFn: async ({ signal }) => {
@@ -274,6 +281,7 @@ export default function Investigations() {
         ? 2000
         : false,
   });
+  // 源码修复也使用身份隔离的详情查询；关联调查切换到 Saber/CRM 时不能沿用另一条列表记录。
   const selectedRepairDetail = useQuery({
     queryKey: ["code-repairs", selectedRepair],
     queryFn: async ({ signal }) => {
@@ -308,6 +316,7 @@ export default function Investigations() {
     void qc.invalidateQueries({ queryKey: ["code-repairs"] });
     void qc.invalidateQueries({ queryKey: ["tasks"] });
   };
+  // 相同目标与问题重试复用幂等键；表单内容改变后才分配新键，防止丢回包后重复创建。
   const start = useMutation({
     mutationFn: () => {
       const parameters =
@@ -348,6 +357,7 @@ export default function Investigations() {
       invalidate();
     },
   });
+  // 计划生成与采集执行分开；只有用户确认后，后端才推进后续采集、诊断与一次复测。
   const confirm = useMutation({
     mutationFn: () =>
       api(`/investigations/${run!.id}/confirm`, {
@@ -361,6 +371,7 @@ export default function Investigations() {
       api(`/investigations/${run!.id}/cancel`, { method: "POST", body: "{}" }),
     onSuccess: invalidate,
   });
+  // 修复请求只引用登记项目与同意项；源码读取、白名单补丁及隔离测试均由后端受限工具完成。
   const startRepair = useMutation({
     mutationFn: () => {
       const body = {

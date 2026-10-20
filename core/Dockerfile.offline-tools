@@ -1,5 +1,5 @@
-# Supply the verified official v4.1 archive in a dedicated, credential-free context.
-# Base must be built from this release's core/Dockerfile --target profiler-deps.
+# 在独立且不含凭据的构建上下文中提供已校验的官方v4.1工具归档。
+# 基础镜像必须来自本发布core/Dockerfile的profiler-deps阶段，不能混用未知工具层。
 ARG PROFILER_BASE=drop-core-profiler-deps:20261020.1
 FROM ${PROFILER_BASE}
 USER root

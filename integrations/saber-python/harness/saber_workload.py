@@ -1,7 +1,7 @@
-"""Bounded synthetic query traffic through real Saber SQLite FTS5 source.
+"""通过真实 Saber SQLite FTS5 源码执行有界的合成查询流量。
 
-No external engine, user corpus, database file, credential or full app startup.
-The drop_agent namespace sees this process for real py-spy/memray collection.
+不使用外部引擎、用户语料、持久数据库或凭据，也不启动完整应用；
+drop_agent 的命名空间可看到此进程，用于真实 py-spy/memray 采集。
 """
 import argparse
 import time

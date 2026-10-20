@@ -1,5 +1,7 @@
-// Package config resolves only the API's registered settings. Each service owns
-// its configuration; credentials are never exported through effective settings.
+// Package config 只解析 API 已登记的配置项，各服务分别管理自己的配置。
+// 对外的生效配置仅用于排障，绝不导出凭据；启动时先完成解析和校验，再初始化数据库、对象存储及控制客户端。
+// Package config：集中描述 API 配置的来源、优先级和脱敏展示；其他服务仍维护自己的配置边界。
+// 这里返回已解析值或固定错误，禁止把秘密内容和秘密文件路径扩散到排障响应。
 package config
 
 import (
@@ -65,8 +67,8 @@ type Config struct {
 	Migrate bool
 }
 
-// SafeValues cannot be constructed from arbitrary raw settings by another
-// package. Its JSON and hash contain redaction markers, never secret digests.
+// SafeValues 不能由其他包直接拿任意原始配置构造。
+// 其 JSON 与哈希使用固定脱敏标记，不包含秘密原文或秘密摘要，避免通过排障接口反推凭据。
 type SafeValues struct{ values map[string]string }
 
 func (s SafeValues) MarshalJSON() ([]byte, error) { return json.Marshal(s.values) }
@@ -87,6 +89,8 @@ func logicalKey(key string) (string, bool, bool) {
 	return "", false, false
 }
 
+// boundedFile 只读取有界普通文件，并校验实际打开的描述符。
+// 秘密投射卷可能包含符号链接，因此不能只在打开之前检查路径；错误必须脱敏。
 func boundedFile(name string) (data []byte, err error) {
 	if name == "" || !valid(name) {
 		return nil, ErrInvalid
@@ -147,10 +151,9 @@ func fileSettings(name string) (map[string]string, error) {
 	return values, nil
 }
 
-// Load applies CLI > environment > JSON file > defaults. Within one environment
-// or file layer NAME_FILE retains the existing precedence over NAME. Empty
-// environment values retain legacy unset behavior; explicit CLI values may empty
-// an optional setting. Secret contents are accepted only from env or _FILE.
+// Load 按 CLI > 环境变量 > JSON 文件 > 默认值的顺序解析。
+// 同一环境变量层或文件层内，NAME_FILE 优先于 NAME；空环境变量仍视为未设置，
+// 显式 CLI 参数可以清空可选项。秘密内容只允许来自环境变量或 _FILE 引用，不能写入普通配置展示。
 func Load(args []string, lookup func(string) (string, bool)) (*Config, error) {
 	if lookup == nil {
 		lookup = os.LookupEnv
@@ -272,7 +275,7 @@ func (c *Config) Effective() SafeValues {
 		} else if spec.endpoint {
 			values[key] = safeEndpoint(value)
 		} else if spec.secret || spec.reference {
-			// Secret values and reference paths are never hashed or emitted.
+			// 秘密值及其引用文件路径都不参与哈希，也不输出到日志或生效配置。
 			values[key] = "<configured>"
 		} else if _, err := url.Parse(value); err != nil || strings.ContainsAny(value, "?@#") {
 			values[key] = "<configured>"

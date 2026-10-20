@@ -1,3 +1,6 @@
+// 指标与追踪公共接口；日志/遥测只旁观业务流程，不成为业务成功的前置条件。
+// 关联标识用于串联任务阶段，不能把原始profile或秘密配置当作遥测标签。
+
 #pragma once
 #include <atomic>
 #include <condition_variable>
@@ -33,4 +36,4 @@ private:
 };
 std::int64_t unix_ns();
 nlohmann::json certificate_metadata(const std::string &path);
-} // namespace dropcore
+} // 结束 dropcore 命名空间

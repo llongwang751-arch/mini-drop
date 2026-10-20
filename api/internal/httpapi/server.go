@@ -1,3 +1,5 @@
+// Package httpapi：HTTP 组合入口：注册路由和中间件，把 JSON 请求转为服务层调用，再统一封装结果与安全错误。
+// 认证、CSRF、限流与请求体大小属于入口边界；业务授权、幂等与事务仍由服务层和仓储重复执行。
 package httpapi
 
 import (
@@ -42,6 +44,8 @@ type Server struct {
 	errors       atomic.Uint64
 }
 
+// Router 安装恢复、请求标识、观测与认证中间件，再注册公共探针和受保护业务路由。
+// 处理器只做协议适配，资源授权和状态变更仍在下层执行，避免漏挂一个路由就暴露数据。
 func (s *Server) Router() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
@@ -94,7 +98,7 @@ func (s *Server) Router() *gin.Engine {
 	return r
 }
 
-// Avoid dumping request headers: Cookie and CSRF values must never enter logs.
+// recoverSafely 不输出请求头；Cookie、会话令牌和 CSRF 值绝不能进入异常日志。
 func (s *Server) recoverSafely() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
@@ -106,6 +110,8 @@ func (s *Server) recoverSafely() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// requestID 建立有限且可关联的请求标识，供响应、审计与服务日志连接同一次调用；标识不是认证凭据。
 func (s *Server) requestID() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.GetHeader("X-Request-ID")
@@ -136,6 +142,8 @@ func (s *Server) requestID() gin.HandlerFunc {
 func (s *Server) ok(c *gin.Context, status int, data any) {
 	c.JSON(status, gin.H{"request_id": c.GetString("request_id"), "data": data, "error": nil})
 }
+
+// fail 将领域错误映射为稳定 HTTP 错误契约，未知内部错误不应把数据库、执行器或模型原始消息透给浏览器。
 func (s *Server) fail(c *gin.Context, err error) {
 	var de *domain.Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -167,6 +175,8 @@ func (s *Server) fail(c *gin.Context, err error) {
 	}
 	c.AbortWithStatusJSON(status, gin.H{"request_id": c.GetString("request_id"), "data": nil, "error": de})
 }
+
+// bind 限制请求体并拒绝未知字段与尾随 JSON；尽早拒绝无界或歧义输入，不能依靠模型或数据库替入口补救。
 func (s *Server) bind(c *gin.Context, v any) bool {
 	limit := int64(4 << 20)
 	if c.FullPath() == "/api/v1/tasks" && c.Request.Method == "POST" {
@@ -186,6 +196,9 @@ func (s *Server) bind(c *gin.Context, v any) bool {
 	return true
 }
 func user(c *gin.Context) domain.User { return c.MustGet("user").(domain.User) }
+
+// authenticate 每次从持久化会话读取当前用户，写请求额外校验 CSRF 并执行共享限流。
+// Cookie 自动附带不等于用户主动提交；认证成功也不等于有权读取某个 task，资源处理器还要单独授权。
 func (s *Server) authenticate() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token, err := c.Cookie("drop_session")
@@ -264,6 +277,8 @@ func (s *Server) logout(c *gin.Context) {
 	c.SetCookie("drop_session", "", -1, "/", "", s.SecureCookie, true)
 	s.ok(c, 200, gin.H{"logged_out": true})
 }
+
+// ready 核对数据库 schema 与关键下游依赖，表达当前是否能处理业务；它与仅证明进程存活的 liveness 不同。
 func (s *Server) ready(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 4*time.Second)
 	defer cancel()

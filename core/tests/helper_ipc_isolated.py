@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Real Unix-credential/stream/recovery tests with imported profiler fixtures.
+"""以导入的 profiler 夹具验证真实 Unix 身份、字节流和恢复行为。
 
-The deterministic shim is explicitly not native sampling evidence. No production
-service, network, PID or volume is selected. Run serially on the validation host.
+确定性的 shim 不是原生采样证据；测试不选择生产服务、网络、PID 或数据卷，
+应在验证宿主上串行执行。
 """
 import hashlib
 import json
@@ -49,8 +49,8 @@ def wait_for(predicate, timeout=20):
 def main():
     if REPORT.exists():
         raise RuntimeError("Use a fresh run ID so stale IPC evidence cannot mask a failed rerun")
-    # This is an operator-selected test-container I/O limit, never a mount or
-    # profiler target. Cloud hosts and the original validation host differ.
+    # 这是运维选择的测试容器 I/O 上限，不是挂载或 profiler 目标；
+    # 云宿主与最初验证宿主的设备条件可能不同。
     block_device = pathlib.Path(os.environ.get("DROP_HELPER_TEST_BLOCK_DEVICE", "/dev/nvme0n1")).resolve(strict=True)
     if not block_device.is_relative_to("/dev") or not stat.S_ISBLK(block_device.stat().st_mode):
         raise RuntimeError("Isolated helper I/O limit requires a real block device")
@@ -110,7 +110,7 @@ def main():
             assert capabilities["agent_uid"] == 10001 and capabilities["helper_uid"] == 0
             assert capabilities["disk_limit_bytes"] == 2147483648
             assert capabilities["capabilities"]["PERF_CPU"]["available"], capabilities["capabilities"]["PERF_CPU"]
-            # Group access passes the filesystem check; SO_PEERCRED still rejects a different UID.
+            # 同组权限可通过文件系统检查，但 SO_PEERCRED 仍应拒绝不同 UID。
             probe("wrong-uid", {"op": "capabilities"}, uid="10002:10001", expected="HELPER_PEER_DENIED")
             outcomes.append({"case": "real_peer_credentials_and_fresh_group_volume", "passed": True})
 
@@ -130,7 +130,7 @@ def main():
             probe("tamper-identity", capture("tamper", "b" * 64, tamper_start_time=True), expected="TARGET_VALIDATION_FAILED")
             outcomes.append({"case": "stream_sha_identity_request_idempotency", "passed": True, "raw_sha256": first["sha256"]})
 
-            # Restart after READY; the original target is gone, yet persisted bytes replay.
+            # 在 READY 后重启；原目标已退出，仍应重放持久化字节，而非重新采样。
             command(["docker", "restart", PREFIX], timeout=20)
             wait_for(lambda: (directory / "socket/control.sock").exists(), timeout=60)
             resumed = capture("resume", token, op="resume", saved_request="/outputs/first/helper-request.json")
@@ -143,7 +143,7 @@ def main():
             assert json.loads((cache / "result.json").read_text())["state"] == "ACKED"
             outcomes.append({"case": "cold_ready_replay_without_target_and_durable_ack_tombstone", "passed": True})
 
-            # Launch a fresh same-UID target for subsequent requests.
+            # 为后续请求启动新的同 UID 目标，避免复用已退出进程。
             command(["docker", "exec", "-d", "--user", "10001:10001", PREFIX, "/bin/sh", "-c", "echo $$ >/tmp/fixture-target.pid; exec /usr/bin/sleep 300"])
             pid = int(wait_for(lambda: command(["docker", "exec", PREFIX, "cat", "/tmp/fixture-target.pid"]).stdout.strip()))
             bolt = capture("binary", "c" * 64, kind="BOLT_PROFILE", binary_max=536870912)
@@ -153,8 +153,8 @@ def main():
             assert result["metadata"]["collection_isolation"]["effective_file_limit_bytes"] == 268435456
             binary_manifest = json.loads((directory / "data" / ("c" * 64) / "result.json").read_text())["files"][1]
             assert binary_manifest["size"] == binary.stat().st_size and binary_manifest["sha256"] == hashlib.sha256(binary.read_bytes()).hexdigest()
-            # Explicitly imported failures exercise the real helper IPC client
-            # allowlist; they are not evidence of actual profiler sampling.
+            # 显式导入失败响应，用于验证真实 Helper IPC 客户端白名单；
+            # 它们不能证明实际 profiler 采样成功。
             result_path = directory / "data" / ("c" * 64) / "result.json"
             original = result_path.read_text()
             for index, code in enumerate(("BOLT_BINARY_SAMPLES_UNAVAILABLE", "BOLT_PERF_CONVERSION_FAILED", "BOLT_AGGREGATION_FAILED", "BOLT_TARGET_MAPPING_UNVERIFIED")):
@@ -181,7 +181,7 @@ def main():
             probe("after-cancel", capture("after-cancel", "e" * 64))
             outcomes.append({"case": "token_cancel_busy_fence_and_active_release", "passed": True})
 
-            # Private-journal storage fault must release admission rather than stick BUSY.
+            # 私有日志存储失败也必须释放准入槽，不能永久卡在 BUSY。
             fault_token = "f" * 64
             value = capture("journal-fault", fault_token)
             value["parameters"]["duration_seconds"] = 2
@@ -196,7 +196,7 @@ def main():
             probe("after-journal-fault", capture("after-fault", "0" * 64))
             outcomes.append({"case": "persist_failure_releases_active_without_recollect", "passed": True})
 
-            # A same-UID spoof cannot impersonate root; authenticated malformed output cannot commit bytes.
+            # 同 UID 伪服务不能冒充 root；已鉴权但格式畸形的输出也不能提交字节。
             for name, user, mode, expected in (("fake-user", "10001:10001", "peer", "HELPER_PEER_DENIED"),
                                                 ("fake-sha", "0:10001", "sha", "HELPER_PROTOCOL_ERROR"),
                                                 ("fake-fifo", "0:10001", "fifo", "DISK_BUDGET_EXCEEDED")):

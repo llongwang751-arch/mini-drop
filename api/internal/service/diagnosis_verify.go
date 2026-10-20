@@ -1,3 +1,5 @@
+// Package service：推进基线采集→候选采集→新诊断→比较的持久化闭环。
+// 比较先检查目标、单位和来源身份，再计算比例差异；重复采样只能支持可复现性，因果结论需要独立干预。
 package service
 
 import (
@@ -13,9 +15,9 @@ import (
 	"gorm.io/gorm"
 )
 
-// VerificationRun survives API restarts. The candidate's diagnosis is an actual
-// new tool loop, not a reused baseline report. Sampling repetition tests
-// reproducibility; causal confirmation requires an independently tested change.
+// VerificationRun 持久化复测编排，使 API 重启后仍可继续。
+// 候选结果会启动全新的诊断工具循环，不能复用基线报告；重复采样只检验可复现性，
+// 根因因果确认仍需要独立的受控修改与对照测试。
 type VerificationRun struct {
 	ID                   int64           `json:"id,string"`
 	DiagnosisID          int64           `json:"diagnosis_id,string"`
@@ -48,6 +50,8 @@ type ProfileComparison struct {
 	Limitations     []string            `json:"limitations"`
 }
 
+// compareProfiles 先核验目标、采集种类、单位和输入身份，再计算相同比较口径下的热点比例差异。
+// 样本量、不可比原因和未检验的因果状态一并返回，不能把比例下降直接称为耗时收益。
 func compareProfiles(baseline, candidate json.RawMessage, a, b domain.Task) (ProfileComparison, error) {
 	out := ProfileComparison{Kind: a.Kind, RootCauseStatus: "not_tested", Outcome: "insufficient_evidence", Differences: []ProfileDifference{}, Limitations: []string{"重复采样只检验现象复现；未实施受控代码或配置干预，不能确认因果根因。", "百分比差值不是请求延迟或CPU利用率变化；需同一负载并记录业务指标。"}}
 	type profile struct {
@@ -117,7 +121,7 @@ func compareProfiles(baseline, candidate json.RawMessage, a, b domain.Task) (Pro
 	if len(out.Differences) > 10 {
 		out.Differences = out.Differences[:10]
 	}
-	// Deliberately do not turn an arbitrary percentage tolerance into causality.
+	// 不能把任意设定的百分比容差解释为因果关系，重复采样的差异也不自动证明修复有效。
 	if out.Unit == "samples" && x.Total >= 1000 && y.Total >= 1000 {
 		out.Outcome = "comparison_ready"
 	} else {
@@ -196,6 +200,9 @@ func (s *Suggestions) RunVerifications(ctx context.Context) {
 		}
 	}
 }
+
+// processVerification 按与普通诊断一致的锁顺序领取复测工作，逐步读取已持久化的采集和诊断事实。
+// 每步可在重启后继续，不能通过长事务等待采集器或模型完成。
 func (s *Suggestions) processVerification(ctx context.Context) error {
 	var rows []VerificationRun
 	if err := s.Repo.Context(ctx).Where("status IN ('waiting','diagnosing','comparing')").Order("id").Limit(8).Find(&rows).Error; err != nil {
@@ -203,8 +210,8 @@ func (s *Suggestions) processVerification(ctx context.Context) error {
 	}
 	for _, candidate := range rows {
 		if err := s.Repo.Context(ctx).Transaction(func(tx *gorm.DB) error {
-			// Match ordinary diagnosis admission order before locking tasks. A
-			// foreign-key-visible user row is not used as a quota mutex.
+			// 先使用与普通诊断相同的准入锁顺序，再锁任务，避免两条工作流相互等待。
+			// 被外键引用的用户行不能替代专门的配额互斥机制。
 			if err := tx.Exec("SELECT pg_advisory_xact_lock(hashtextextended(?,417626))", candidate.RequestedBy).Error; err != nil {
 				return err
 			}
@@ -240,6 +247,8 @@ func (s *Suggestions) processVerification(ctx context.Context) error {
 	}
 	return nil
 }
+
+// advanceVerification 只根据当前基线、候选任务及各自诊断状态推进复测；来源身份改变或权限撤销时停止关联链，防止混用不同时期证据。
 func (s *Suggestions) advanceVerification(ctx context.Context, tx *gorm.DB, v *VerificationRun) error {
 	if time.Since(v.CreatedAt) > 15*time.Minute {
 		return domain.Fail("VERIFICATION_TIMEOUT", "复测闭环超过15分钟预算")

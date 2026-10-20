@@ -1,4 +1,8 @@
-"""Independent format adapters and their explicit lifecycle contract."""
+"""以独立格式适配器实现显式的分析生命周期。
+
+worker 准备并校验输入后，适配器依次 validate、prepare、analyze、build_manifest。
+任务 kind、pipeline 与原始格式必须匹配；导入数据会保留来源标记，不冒充现场采集。
+"""
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -48,12 +52,16 @@ class Pipeline:
             raise AnalysisError("INVALID_INPUT", "Auxiliary native binary must be ELF")
 
     def prepare(self, context):
-        # Work directories and immutable downloaded inputs are prepared by the
-        # worker; no profile-controlled command or path is executed here.
+        # 工作目录与不可变输入由 worker 预先准备；这里不执行由 profile 控制的命令或路径。
         self.validate(context)
         return Path(context["raw_path"]).read_bytes()
 
     def analyze(self, raw, context):
+        """按已验证的原始格式分派到专用解析器，返回聚合树与对应类型的 sections。
+
+        BOLT 可处理受控 ELF 并生成优化文件，但这里不会执行上传二进制；
+        所有分支最终补齐 source/provenance，导入记录不能伪装成采集端自检数据。
+        """
         kind, fmt = context["kind"], context["format"]
         params = {
             **context.get("params", {}),
@@ -177,8 +185,8 @@ class Pipeline:
         }
 
     def cleanup(self, context):
-        # The owner removes the entire verified private work directory. Only
-        # digest-named resumable HPROF indexes survive in the bounded cache.
+        # 完整私有工作目录由持有者清理；只有以摘要命名的可恢复 HPROF 索引
+        # 能留在有容量限制的缓存中。
         return None
 
 

@@ -1,3 +1,6 @@
+// 制品文件与上传辅助接口：原子落盘、文件SHA、大小约束及受限HTTP传输。
+// 输入由当前attempt的上下文产生，禁止将任意业务路径或长期存储凭据交给采集工具。
+
 #pragma once
 
 #include <cstdint>
@@ -27,4 +30,4 @@ UploadReceipt upload_file(const std::string &url, const std::string &file,
                           const std::string &content_type = "text/plain",
                           std::uint64_t max_bytes = 64ULL * 1024 * 1024);
 void atomic_write(const std::string &path, const std::string &content);
-} // namespace dropcore
+} // 结束 dropcore 命名空间

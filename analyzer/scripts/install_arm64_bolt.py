@@ -1,7 +1,7 @@
-"""Install pinned official LLVM ARM packages absent from Debian Bookworm.
+"""安装 Debian Bookworm 未提供的、固定版本的官方 LLVM ARM 包。
 
-Expected version, size and SHA-256 come from the official LLVM Bookworm ARM64
-Packages index, checked 2026-10-16. No extra APT repository or trust key is added.
+预期版本、大小与 SHA-256 来自 2026-10-16 核对的官方 LLVM Bookworm ARM64
+Packages 索引，不额外加入 APT 软件源或信任密钥。
 """
 
 import hashlib

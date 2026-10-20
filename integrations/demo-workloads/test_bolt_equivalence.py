@@ -1,8 +1,7 @@
-"""Run only the enrolled, source-built synthetic BOLT pair in an outer sandbox.
+"""只在外层沙箱运行已登记、从源码构建的合成 BOLT 对照程序。
 
-This script is an operational acceptance harness, not an arbitrary ELF runner.
-The caller must pin both paths and verify the original ELF SHA against the
-freshly compiled controlled fixture. All child output is hashed, never logged.
+这是运维验收 harness，不是任意 ELF 执行器。调用者必须固定两侧路径，
+并将原始 ELF 的 SHA 与刚编译的受控夹具核对；子进程输出只取摘要，不进入日志。
 """
 import argparse
 import hashlib
@@ -48,7 +47,7 @@ def measure(original: Path, optimized: Path, expected_sha256: str) -> dict:
             raise RuntimeError("CONTROLLED_BOLT_NOT_ELF")
     if hashlib.sha256(original.read_bytes()).hexdigest() != expected_sha256:
         raise RuntimeError("CONTROLLED_BOLT_SOURCE_BINARY_MISMATCH")
-    # Warmups avoid counting first-page disk reads as an optimization benefit.
+    # 先预热，避免把首次页读取带来的磁盘差异误算为优化收益。
     baseline = execute(original)
     candidate = execute(optimized)
     if baseline["output_sha256"] != candidate["output_sha256"]:

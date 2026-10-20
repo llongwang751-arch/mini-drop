@@ -1,4 +1,4 @@
-"""Convert an actual verbose unittest log into an auditable JSON report."""
+"""把实际产生的 unittest 详细日志转换为可审计的 JSON 报告。"""
 
 import argparse
 import hashlib

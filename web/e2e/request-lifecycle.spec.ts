@@ -1,3 +1,6 @@
+/**
+ * 用导入任务响应与受控时钟观察真实请求的退避、去重、可见性暂停和导航取消。
+ */
 import { test, expect } from "@playwright/test";
 import type { Page, Route } from "@playwright/test";
 import { createHash } from "node:crypto";
@@ -112,8 +115,8 @@ async function pauseClock(page: Page) {
   await page.clock.pauseAt(await page.evaluate(() => Date.now() + 50));
 }
 async function hidden(page: Page, value: boolean) {
-  // Explicit document-visibility simulation, exercising the actual app's
-  // TanStack focus listener. This does not emulate an OS suspending the process.
+  // 显式模拟 document 可见性事件，验证应用真实的 TanStack 焦点监听。
+  // 这里并没有模拟操作系统暂停浏览器进程，验收边界需区分。
   await page.evaluate((hidden) => {
     Object.defineProperty(document, "visibilityState", {
       configurable: true,
@@ -278,8 +281,8 @@ test.describe("imported request lifecycle fixtures", () => {
     await page.clock.runFor(10000);
     expect(calls).toBe(1);
     await page.locator('a[href="/guide"]').first().click();
-    // Lazy route loading schedules a React Suspense retry. Let that commit
-    // on the real clock before returning to the controlled polling timeline.
+    // 懒加载路由会安排 React Suspense 的重试；先恢复真实时钟让新页面提交，
+    // 再回到受控轮询时间线，避免虚拟时钟暂停导致界面永远停在载入态。
     await page.clock.resume();
     await expect(
       page.getByRole("heading", { level: 1, name: /^从采集到洞察/ }),

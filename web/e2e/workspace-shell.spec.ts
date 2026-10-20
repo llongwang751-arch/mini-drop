@@ -1,3 +1,6 @@
+/**
+ * 应用外壳的导入 UI 夹具，覆盖侧栏、移动抽屉、焦点、快捷键和权限入口。
+ */
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync } from "node:fs";
@@ -114,7 +117,7 @@ test("login and guide omit external integration displays", async ({ page }) => {
   await page.route("**/api/v1/auth/me", (route) =>
     route.fulfill({ status: 401, json: { error: { code: "UNAUTHORIZED" } } }),
   );
-  // Imported provider fixture: even configured enterprise providers stay hidden.
+  // 导入的登录提供方夹具：即使企业提供方已配置，界面也仍按当前产品范围隐藏入口。
   await page.route("**/api/v1/auth/providers", (route) =>
     route.fulfill({
       json: {

@@ -1,3 +1,8 @@
+// C++控制面、采集Agent与Go API共享的gRPC协议；字段编号属于兼容性契约。
+// 已有编号不能重排或换含义；新增能力先协商版本，不能要求旧Agent提交它从未获授权的制品。
+// task_id标识业务任务，attempt_id标识一次执行，两者必须一起参与迟到结果和重试校验。
+// 此协议只描述采集链路；模型工具调用走独立私有接口，不把长期凭据送到Agent或浏览器。
+
 syntax = "proto3";
 package drop.v1;
 option go_package = "drop/api/gen/dropv1";
@@ -39,12 +44,12 @@ message HeartbeatRequest {
   repeated AgentEvent events = 7;
 }
 message TargetDesc {
-  string type = 1; // process | host | container
-  int32 pid = 2; // host-visible PID, if known
-  uint64 start_time_ticks = 3; // Linux /proc/PID/stat field 22; 0 asks Agent to pin at acceptance
+  string type = 1; // 目标类型，只接受 process（进程）、host（宿主）或 container（容器）。
+  int32 pid = 2; // 采集控制器所在命名空间可见的 PID；尚未解析时可不填。
+  uint64 start_time_ticks = 3; // /proc/PID/stat 第22字段的启动时刻；0表示由Agent在接单时固定身份，用来识别PID复用。
   string container_id = 4;
-  string runtime = 5; // docker | containerd
-  int32 container_pid = 6; // optional PID inside the selected container
+  string runtime = 5; // 容器运行时标识：docker 或 containerd。
+  int32 container_pid = 6; // 可选的容器内PID；它与控制器可见的PID不是同一个编号空间。
   uint32 expected_uid = 7;
   bool check_uid = 8;
 }
@@ -69,7 +74,7 @@ message UploadTarget {
   string name = 1;
   string object_key = 2;
   string put_url = 3;
-  string kind = 4; // RAW | BINARY | MANIFEST | LOG
+  string kind = 4; // 制品角色：RAW原始数据、BINARY二进制附件、MANIFEST清单或LOG安全诊断日志。
   int64 max_file_bytes = 5;
 }
 message TaskParameters {
@@ -91,7 +96,7 @@ message TaskDesc {
   int64 max_file_bytes = 10;
   TargetDesc target = 11;
   ResourceBudget budget = 12;
-  string extra_parameters_json = 13; // bounded validated options object; never arbitrary argv
+  string extra_parameters_json = 13; // 经过schema与大小校验的选项对象，不能借此传入任意进程参数argv。
   string raw_format = 14;
   string raw_name = 15;
   string raw_content_type = 16;
@@ -111,7 +116,7 @@ message TaskDesc {
   }
   repeated UploadTarget upload_targets = 30;
   string traceparent = 31;
-  int32 priority = 32; // -10..10; higher values dispatch first, then FIFO
+  int32 priority = 32; // 优先级范围-10..10，较大值先下发，同优先级按入队顺序FIFO处理。
 }
 message HeartbeatResponse {
   repeated TaskDesc tasks = 1;
@@ -146,7 +151,7 @@ message ResultRequest {
   string error_message = 7;
   int32 exit_code = 8;
   string runner_metadata_json = 9;
-  repeated ArtifactInfo artifacts = 10; // auxiliary artifacts; primary RAW remains artifact=5
+  repeated ArtifactInfo artifacts = 10; // 辅助制品列表；主RAW仍使用编号5的artifact字段，保留旧客户端兼容性。
 }
 message AgentEvent {
   string agent_id = 1;

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Isolated, real Drop stack for local development. Python standard library only."""
+"""仅依赖 Python 标准库的本地 Drop 启动器，运行真实且独立的开发栈。
+
+每个 instance 使用独立 Compose project、数据卷、端口和私有凭据目录。
+启动前检查渲染结果，防止环境继承、共享卷或路径逃逸把开发操作指向生产。
+"""
 from __future__ import annotations
 
 import argparse
@@ -25,16 +29,18 @@ class DevError(Exception):
 
 
 def workspace(instance: str) -> Path:
+    """校验 instance 标识并返回独立开发目录；任何祖先符号链接都不能把私有凭据引向其他位置。"""
     if not re.fullmatch(r"[a-z][a-z0-9-]{0,23}", instance):
         raise DevError("Instance must start with a letter and contain at most 24 lowercase letters, digits or hyphens.")
     root = ROOT / ".local" / "dev" / instance
-    # Resolve every ancestor: an existing symlink must not redirect credentials.
+    # 解析所有祖先目录，防止已有符号链接将开发凭据重定向到其他位置。
     if root.resolve() != root.absolute():
         raise DevError("The development workspace must not contain a symlink.")
     return root
 
 
 def settings(instance: str, port: int, images: dict[str, str] | None = None) -> dict:
+    """为 instance 生成独立 Compose project、回环端口与镜像映射，不读取生产环境值。"""
     if not 1024 <= port <= 65535:
         raise DevError("Choose a local port between 1024 and 65535.")
     selected = {name: f"{repo}:dev-{instance}" for name, repo in APP_IMAGES.items()}
@@ -46,6 +52,10 @@ def settings(instance: str, port: int, images: dict[str, str] | None = None) -> 
 
 
 def overlay(config: dict) -> dict:
+    """生成开发覆盖层，将构建、挂载、能力和端口收窄到本地受控栈。
+
+    端口另用 !override 文件替换列表，防止普通 Compose 合并保留生产监听。
+    """
     images = config["images"]
     services = {}
     for service, image, recipe in [
@@ -55,14 +65,14 @@ def overlay(config: dict) -> dict:
         ("minio", "nginx", "deploy/Dockerfile.nginx"),
     ]:
         services[service] = {"image": images[image], "build": {"context": str(ROOT), "dockerfile": recipe}}
-    # The basic runtime deliberately needs no ptrace, BPF, privileged container,
-    # host PID namespace or Docker socket. PROC_CPU uses a real controlled target.
+    # 基础开发运行时不需要 ptrace、BPF、特权容器、宿主 PID 命名空间或 Docker socket；
+    # PROC_CPU 使用真实受控目标。
     for service in ("drop-server", "agent"):
         services[service]["build"]["target"] = "runtime"
     services["agent"]["environment"] = {"AGENT_HOSTNAME": "local-development", "ALLOW_HOST_PROCESSES": "false"}
     services["api"]["environment"] = {"PUBLIC_URL": f"http://127.0.0.1:{config['port']}"}
-    # Cached program images still use this checkout's authoritative catalog.
-    # Copy it into the isolated instance; never widen the host-mount allowlist.
+    # 复用缓存程序镜像时仍使用当前 checkout 的权威 catalog；
+    # 将其复制进隔离实例，而不是扩张宿主挂载白名单。
     services["api"]["volumes"] = [{
         "type": "bind", "source": str(workspace(config["instance"]) / "task-kinds.json"),
         "target": "/app/contracts/task-kinds.json", "read_only": True,
@@ -70,12 +80,12 @@ def overlay(config: dict) -> dict:
     services["storage-init"] = {"image": images["analyzer"]}
     services["backup-client"] = {"image": images["analyzer"]}
     services["analyzer"].update(mem_limit="768m", memswap_limit="768m", tmpfs=["/tmp:size=256m,mode=1777"])
-    # Override YAML is used for ports because normal Compose list merging would
-    # leave the production :80 listener in place.
+    # 端口使用 override YAML，防止 Compose 默认列表合并意外保留生产 :80 监听。
     return {"services": services}
 
 
 def prepare(config: dict) -> Path:
+    """在 instance 私有目录写入本地配置与必要副本，不读生产 .env，也不复用生产 Secret。"""
     path = workspace(config["instance"])
     path.mkdir(mode=0o700, parents=True, exist_ok=True)
     if any(child.is_symlink() for child in path.rglob("*")):
@@ -94,7 +104,8 @@ def prepare(config: dict) -> Path:
 
 
 def environment() -> dict[str, str]:
-    # Never inherit a terminal's production image selection or Compose profile.
+    # 不继承终端中的生产镜像选择或 Compose profile，避免本地命令误用部署环境。
+    """构造子进程环境，移除终端继承的 DROP/COMPOSE 和发布镜像选择，隔离操作目标。"""
     return {key: value for key, value in os.environ.items()
             if not key.startswith(("COMPOSE_", "DROP_")) and key not in {
                 "RELEASE_TAG", "API_RELEASE_TAG", "WEB_RELEASE_TAG", "ANALYZER_RELEASE_TAG", "NGINX_RELEASE_TAG", "PUBLIC_URL"}}
@@ -130,12 +141,17 @@ def doctor() -> None:
 
 
 def compose(config: dict, path: Path) -> list[str]:
+    """返回显式 project、工作目录、env-file 与覆盖文件的 argv，后续命令不依赖当前终端默认项目。"""
     return ["docker", "compose", "--parallel", "1", "--project-directory", str(path),
             "--env-file", str(path / ".env"), "-p", config["project"],
             "-f", str(ROOT / "deploy" / "compose.yml"), "-f", str(path / "overlay.json"), "-f", str(path / "ports.yml")]
 
 
 def validate_rendered(config: dict, value: dict) -> None:
+    """检查最终 Compose 模型，拒绝共享卷、目录外凭据、特权、宿主 PID 和非回环端口。
+
+    不能只信任覆盖文件：多层合并后的结果才代表 Docker 实际将使用的权限与挂载。
+    """
     if value.get("name") != config["project"] or not config["project"].startswith("txdrop-dev-"):
         raise DevError("Refusing a non-development Compose project.")
     for name, volume in value.get("volumes", {}).items():
@@ -158,7 +174,11 @@ def validate_rendered(config: dict, value: dict) -> None:
 
 
 def smoke(config: dict, path: Path) -> dict:
-    """Create one real PROC_CPU diagnostic inside this isolated project only."""
+    """只在已核实的本地开发项目中创建一次真实 PROC_CPU 诊断。
+
+    先验证 Web 容器的 project 标签与回环端口，再读取此 instance 的私有凭据；
+    采集目标来自本地 Agent 公布的受控进程，成功需同时满足 COLLECTED 与分析 SUCCESS。
+    """
     validate_live_web(config, path)
     origin = f"http://127.0.0.1:{config['port']}"
     opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
@@ -197,6 +217,7 @@ def smoke(config: dict, path: Path) -> dict:
 
 
 def validate_live_web(config: dict, path: Path) -> None:
+    """核对正在运行 Web 容器的 project/service 标签及精确回环端口，防止 smoke 打到其他实例。"""
     container=run(compose(config,path)+["ps","-q","web"],capture=True).strip()
     if not re.fullmatch(r"[a-f0-9]{12,64}",container):
         raise DevError("Start this isolated development stack before running smoke.")
@@ -227,7 +248,7 @@ def main() -> int:
     previous = path / "settings.json"
     if previous.exists():
         config = json.loads(previous.read_text(encoding="utf-8"))
-        # Revalidate saved values rather than trusting editable local JSON.
+        # 重新校验已保存值，不能信任可被用户编辑的本地 JSON。
         images = json.loads(args.image_set.read_text(encoding="utf-8")) if args.image_set else config["images"]
         config = settings(args.instance, config["port"], images)
     else:
@@ -260,8 +281,8 @@ def main() -> int:
         if not args.no_build:
             run(base + ["build"], timeout=3600)
         run(base + ["up", "-d", "--no-build", "--wait", "--wait-timeout", "180"], timeout=240)
-        # Nginx resolves static Docker upstream names at startup. Replacing only
-        # API or storage can change an address while the proxy remains healthy.
+        # Nginx 在启动时解析静态 Docker upstream；只替换 API/存储可能改变地址，
+        # 而代理自身仍显示健康，因此启动后显式校验并 reload。
         for service in ("minio", "web"):
             run(base + ["exec", "-T", service, "nginx", "-t"])
             run(base + ["exec", "-T", service, "nginx", "-s", "reload"])
@@ -282,8 +303,8 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except (DevError, ValueError, OSError, KeyError):
-        # Do not print command stderr, configuration values or exception text:
-        # Compose and storage errors may include credentials or signed URLs.
+        # 不输出命令 stderr、配置值或原始异常文本；
+        # Compose 与存储错误可能包含凭据或签名 URL。
         exc = sys.exception()
         print(str(exc) if isinstance(exc, DevError) else "Invalid local development configuration.", file=sys.stderr)
         raise SystemExit(1) from None

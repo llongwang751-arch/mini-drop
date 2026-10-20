@@ -1,4 +1,4 @@
-"""Private-network test-only PUT sink, never a production object store."""
+"""仅用于私有测试网络的 PUT 接收端，不是生产对象存储。"""
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 class Handler(BaseHTTPRequestHandler):

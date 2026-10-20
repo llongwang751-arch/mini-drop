@@ -1,3 +1,5 @@
+// Package httpapi：诊断的 HTTP 入口把只读诊断、取消和人工确认复测分成独立动作。
+// 模型只能提出计划，采集写操作必须经过用户确认并重新走普通任务的授权与幂等校验。
 package httpapi
 
 import (
@@ -58,9 +60,9 @@ func (s *Server) cancelDiagnosis(c *gin.Context) {
 	s.ok(c, 200, gin.H{"canceled": true})
 }
 
-// A write tool is never executed by a model. This endpoint is a separate human
-// action, reruns normal target/capability/authorization validation and uses the
-// normal task idempotency contract. No arbitrary command arguments are accepted.
+// collectDiagnosis 是独立的人工作业入口，模型不能直接执行采集写操作。
+// 这里重新校验目标、能力和授权，并复用普通任务的幂等键约定；
+// 模型提供的建议不能绕过这些校验，也不能变成任意命令参数。
 func (s *Server) collectDiagnosis(c *gin.Context) {
 	id, ok := s.id(c, "id")
 	if !ok {

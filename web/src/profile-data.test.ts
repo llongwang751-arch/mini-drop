@@ -1,3 +1,6 @@
+/**
+ * 导入的 gzip/JSON/调用树数据用于验证限额、错误分类和短期 URL 边界，不连接对象存储。
+ */
 import { describe, expect, it } from "vitest";
 import { gzipSync } from "node:zlib";
 import {

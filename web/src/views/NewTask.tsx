@@ -1,3 +1,7 @@
+/**
+ * 创建采集或导入任务：先依据服务端能力目录校验参数，再提交结构化目标与预算。
+ * 同一份表单重试复用幂等键，避免网络回包丢失后重复创建任务。
+ */
 import TargetFields, { targetPayload } from "../components/TargetFields";
 import GroupScope from "../components/GroupScope";
 import { useState, useRef } from "react";
@@ -73,6 +77,7 @@ export default function NewTask() {
       const normalizedOptions = normalizeOptions(selected, options);
       if (imported && !file && !text.trim())
         throw new Error("请选择采样文件或填写折叠栈数据");
+      // 指纹包含参数和文件身份；仅网络失败重试时复用键，用户改动输入后视为新提交。
       const fingerprint = JSON.stringify({
         name,
         kind,
@@ -108,6 +113,7 @@ export default function NewTask() {
               " · " +
               new Date().toLocaleTimeString("zh-CN", { hour12: false }),
         };
+      // 在 arrayBuffer/base64 分配内存前检查主文件与 ELF 附件的总预算。
       if (file && file.size + (auxiliary?.size || 0) > 32 * 1024 * 1024)
         throw new Error("原始文件和附件合计不能超过32 MiB");
       const extra = auxiliary

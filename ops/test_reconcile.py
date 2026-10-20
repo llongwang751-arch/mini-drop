@@ -1,3 +1,5 @@
+"""用合成数据库和存储适配器验证有限批次对账、完整性检查与孤儿保护。"""
+
 import hashlib
 import unittest
 from datetime import datetime, timezone, timedelta

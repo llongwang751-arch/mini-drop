@@ -1,4 +1,4 @@
-"""Imported synthetic parser checkpoints; never a successful analysis result."""
+"""导入的合成解析检查点，不代表已完成的成功分析结果。"""
 
 import hashlib
 import json

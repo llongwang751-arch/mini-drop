@@ -1,3 +1,5 @@
+// Package httpapi：面向用户的调查流程接口：申请规划、查看、确认采集、取消，以及查看后续复测。
+// 这里只完成协议适配，长时间的采集、诊断与比较由持久化后台状态机推进。
 package httpapi
 
 import (
@@ -33,7 +35,7 @@ func (s *Server) investigations(c *gin.Context) {
 		s.fail(c, err)
 		return
 	}
-	// A revoked Agent grant hides the whole investigation, including source data.
+	// Agent 授权被撤销后，应隐藏整条调查及其关联源码数据，不能只过滤目标列表。
 	visible := []service.Investigation{}
 	for _, r := range rows {
 		if _, err := s.Repo.AuthorizedAgent(c.Request.Context(), u, r.AgentID, true); err == nil {

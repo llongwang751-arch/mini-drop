@@ -1,5 +1,5 @@
-// Stage-only real browser verification. Never enable tracing, video, HAR,
-// request logging, screenshots or persisted storage state in this executor.
+// 仅用于隔离 stage 的真实浏览器验收，不使用 route 伪响应。
+// 禁止启用 tracing、录像、HAR、请求日志、截图或持久化登录态，避免凭据与短期 URL 进入证据。
 import { createRequire } from "node:module";
 import { readFileSync, lstatSync } from "node:fs";
 import { resolve } from "node:path";
@@ -13,6 +13,7 @@ const identity = (value) =>
   /^[1-9][0-9]{0,18}$/.test(value) &&
   BigInt(value) <= 9223372036854775807n;
 
+/** 校验外部链路生成的受限回执；拒绝额外字段，避免将凭据或任意文本夹带进报告。 */
 export function validateProof(value) {
   try {
     const allowed = new Set([
@@ -64,6 +65,7 @@ export function validateProof(value) {
   }
 }
 
+/** 短期授权必须属于固定回环 stage 和已核对的任务/制品路径，不能跟随任意对象地址。 */
 export function validateGrant(value, proof) {
   try {
     if (
@@ -114,6 +116,7 @@ function readSecret(name, maximum) {
   return value;
 }
 
+// 只有显式执行主入口并提供 proof 文件才读取 stage 凭据；单元测试导入校验函数不会走这里。
 export async function run(argumentsList) {
   let browser;
   let context;
@@ -127,8 +130,8 @@ export async function run(argumentsList) {
     stage = "STAGE_SECRETS";
     const username = readSecret("stage_admin_username", 64);
     const password = readSecret("stage_admin_password", 72);
-    // These debug modes can dump protocol arguments or request headers. Clear
-    // them before Playwright is loaded; this executor has no verbose mode.
+    // 调试模式可能打印协议参数或请求头，因此必须在载入 Playwright 前清空。
+    // 此执行器不提供 verbose 模式，错误只报告固定阶段码。
     process.env.DEBUG = "";
     process.env.PWDEBUG = "0";
     const require = createRequire(
@@ -251,8 +254,7 @@ export async function run(argumentsList) {
           const result = await grant.json();
           if (result.error !== null || typeof result.data?.url !== "string")
             return { ok: false, code: "GRANT_FAILED" };
-          // This URL stays in memory. No exception, report or request observer is
-          // allowed to serialize it.
+          // 预签名 URL 只留在内存；异常、报告和请求观测回调都不能把它序列化输出。
           return { ok: true, url: result.data.url };
         } catch {
           return { ok: false, code: "GRANT_FAILED" };

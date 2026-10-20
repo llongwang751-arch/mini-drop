@@ -1,4 +1,7 @@
-"""Enroll a credential-free immutable snapshot of the user-selected Python CRM."""
+"""从用户指定的 Python CRM 导出不含凭据的不可变源码快照。
+
+只复制白名单源码和原始测试，记录每个文件的 SHA-256；产物供管理员登记，不能由模型任意指定本机目录。
+"""
 from pathlib import Path
 import argparse
 import hashlib

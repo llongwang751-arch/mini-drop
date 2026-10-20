@@ -1,3 +1,7 @@
+/**
+ * 双任务对比页：先校验采集与分析完成、类型和指标可比，再加载各自结果。
+ * 展示的是函数权重和分布差异，不将采样百分比直接包装成业务性能提升。
+ */
 import { lazy, Suspense, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";

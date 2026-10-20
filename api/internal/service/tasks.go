@@ -1,3 +1,5 @@
+// Package service：普通任务的编排层，连接 HTTP、领域校验、授权仓储、对象存储和 Core 控制面。
+// 创建与重试先建立持久化身份，再通过 Outbox 投递；导入上传失败可按原幂等键恢复，不能伪造已采集状态。
 package service
 
 import (
@@ -33,6 +35,8 @@ type Control interface {
 	Cancel(context.Context, int64, int64, string) error
 	Ready(context.Context) error
 }
+
+// Tasks 组合仓储、对象存储和 Core 控制面接口，负责普通任务的业务编排；具体执行与分析分别由 C++ Agent 和 Python Analyzer 完成。
 type Tasks struct {
 	Repo    *repository.Repository
 	Storage ObjectStore
@@ -48,6 +52,9 @@ func ValidateKey(key string) *domain.Error {
 	}
 	return nil
 }
+
+// Create 先完成角色、幂等键、类型目录、组和目标资源校验，再建立持久化 task/attempt 身份。
+// 现场采集由 Outbox 异步派发；导入模式先上传原始字节再登记制品，失败可携原幂等键恢复，不能重复生成执行轮次。
 func (s *Tasks) Create(ctx context.Context, u domain.User, in domain.CreateTask, key, request string) (domain.Task, bool, error) {
 	if !u.CanWrite() {
 		return domain.Task{}, false, domain.Fail("FORBIDDEN", "该角色只有只读权限")
@@ -160,6 +167,8 @@ func (s *Tasks) Create(ctx context.Context, u domain.User, in domain.CreateTask,
 	}
 	return t, replayed, nil
 }
+
+// Authorize 根据数据库中当前用户和资源关系核验读取权限，供普通接口与 SSE 循环复用，避免长连接持有过期角色。
 func (s *Tasks) Authorize(ctx context.Context, u domain.User, id int64) (domain.Task, error) {
 	t, err := s.Repo.Task(ctx, u, id)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -205,6 +214,9 @@ func (s *Tasks) Download(ctx context.Context, u domain.User, id, artifactID int6
 	url, _, err := s.DownloadGrant(ctx, u, id, artifactID, request)
 	return url, err
 }
+
+// DownloadGrant 重新核验任务和制品权限、归属及就绪状态，并生成带审计的短期下载授权。
+// 过期时间属于本次请求，浏览器不能把一个 URL 当作永久资源权限。
 func (s *Tasks) DownloadGrant(ctx context.Context, u domain.User, id, artifactID int64, request string) (string, time.Time, error) {
 	if _, err := s.Authorize(ctx, u, id); err != nil {
 		return "", time.Time{}, err
@@ -249,6 +261,8 @@ func (s *Tasks) DownloadGrant(ctx context.Context, u domain.User, id, artifactID
 	}
 	return "", time.Time{}, domain.Fail("NOT_FOUND", "制品不存在或尚未就绪")
 }
+
+// Run 启动派发、定时计划、组合推进和清理等有界后台循环；共享 context 用于优雅退出，工作事实仍以数据库为准。
 func (s *Tasks) Run(ctx context.Context) {
 	go tick(ctx, time.Second, "COMPOSITE_ERROR", s.TickComposite)
 	go tick(ctx, time.Second, "SCHEDULE_ERROR", s.schedule)
@@ -270,6 +284,8 @@ func (s *Tasks) Run(ctx context.Context) {
 		}
 	}
 }
+
+// tick 用固定间隔驱动一次性工作函数，隔离单轮失败；循环只记录安全错误类别，退出由 context 统一控制。
 func tick(ctx context.Context, interval time.Duration, code string, fn func(context.Context) error) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
@@ -284,6 +300,9 @@ func tick(ctx context.Context, interval time.Duration, code string, fn func(cont
 		}
 	}
 }
+
+// dispatch 根据 Outbox 中的任务和 attempt 构造类型化描述，补充临时对象授权后调用 Core。
+// Core 可能已接受但 ACK 未达，最终状态由仓储的重读栅栏决定，不能只看这次 RPC 返回值。
 func (s *Tasks) dispatch(ctx context.Context) error {
 	return s.Repo.DispatchOne(ctx, func(o domain.Outbox, t domain.Task, a domain.Attempt) error {
 		rpcCtx, cancel := context.WithTimeout(ctx, 4*time.Second)

@@ -1,3 +1,7 @@
+/**
+ * 主线程的制品载入门面：负责生命周期和 Worker 消息，不在 UI 线程解压大型 profile。
+ * 路由退出会取消请求并终止 Worker，防止旧任务的数据在新页面载入后继续回写。
+ */
 import { APIError, newIdempotencyKey } from "./api";
 import type { AnalysisResult, Artifact, FlameNode } from "./types";
 import {
@@ -32,6 +36,7 @@ export function parseInProfileWorker<T>(
     const worker = new Worker(new URL("./profile.worker.ts", import.meta.url), {
       type: "module",
     });
+    // 任意结束路径都终止专用 Worker；已卸载页面不再收到迟到的解析结果。
     const cleanup = () => {
       clearTimeout(timer);
       signal?.removeEventListener("abort", cancel);
@@ -82,6 +87,7 @@ export function parseInProfileWorker<T>(
       );
     };
     try {
+      // ArrayBuffer 可按 transfer 所有权转移，避免大型制品在主线程和 Worker 间再复制一份。
       worker.postMessage(message, transfer);
     } catch {
       cleanup();
@@ -102,6 +108,7 @@ export async function loadAnalysisResult(
 ): Promise<AnalysisResult> {
   if (!/^[1-9]\d{0,18}$/.test(taskId))
     throw new ProfileDataError("PROFILE_RESULT_INVALID");
+  // 下载、限额读取和 Worker 解析共享同一总期限，而不是每个阶段重新获得完整超时时间。
   const requestId = newIdempotencyKey(),
     controller = new AbortController();
   const cancel = () => controller.abort(signal?.reason);
@@ -167,6 +174,7 @@ export function loadFlameArtifact(
     artifact.size > COMPRESSED_LIMIT
   )
     return Promise.reject(new ProfileDataError("PROFILE_TOO_LARGE"));
+  // 这里只传任务/制品身份与登记大小；短期下载授权由 Worker 在当前会话下重新获取。
   return parseInProfileWorker<FlameNode>(
     {
       op: "artifact",

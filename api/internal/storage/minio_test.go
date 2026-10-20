@@ -1,3 +1,5 @@
+// 本文件验证同源下载的 Host、路径和 SigV4 完整性，响应编码覆盖必须被签名而非事后拼接。
+// 测试名称标明具体场景；涉及真实数据库的用例需显式配置测试连接，协议夹具不代表生产或模型实测。
 package storage
 
 import (
@@ -41,9 +43,9 @@ func TestBrowserPresignSignsIdentityEncodingAndPreservesGrant(t *testing.T) {
 	if query.Get("response-content-encoding") != "identity" {
 		t.Fatal("stored object encoding must be overridden for exact browser bytes")
 	}
-	// BrowserURL keeps the signed internal Host/path behind the same-origin
-	// proxy. Verify SigV4 independently, then prove the override is covered by
-	// that signature rather than appended as an unsigned browser parameter.
+	// BrowserURL 在同源代理后保留签名使用的内部 Host 和路径。
+	// 测试先独立核验 SigV4，再证明响应覆盖项也受签名保护，
+	// 而不是在已签 URL 后追加一个未经签名的浏览器参数。
 	u.Host, u.Path = "minio:9000", strings.TrimPrefix(u.Path, "/objects")
 	if !validFixtureSignature(u, secret) {
 		t.Fatal("exact-byte download override is not validly signed")

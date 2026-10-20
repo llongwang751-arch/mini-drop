@@ -1,10 +1,13 @@
+/**
+ * 类型化分析报告的导入渲染夹具；验证字段、单位和边界提示，不运行采集器或优化器。
+ */
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import AnalysisSections from "./AnalysisSections";
 
-// Explicit imported rendering fixtures. Actual BOLT task57 is verified
-// independently on the public server; these do not execute perf or llvm-bolt.
+// 显式导入的渲染夹具；这里不执行 perf 或 llvm-bolt。
+// 真实 BOLT task57 的服务端验收证据独立保存，不能用组件渲染通过替代。
 function binaryFixture(mode: string | undefined, branches = 0, failures = 0) {
   return renderToStaticMarkup(
     createElement(AnalysisSections, {

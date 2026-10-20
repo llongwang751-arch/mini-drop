@@ -1,3 +1,7 @@
+/**
+ * 需要显式开关的隔离环境全链路验收，会创建导入任务并访问真实后端。
+ * 与纯前端 route 夹具分开，凭据和原始下载字节不能进入浏览器报告。
+ */
 import { test, expect, request } from "@playwright/test";
 import type { APIRequestContext } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
@@ -118,7 +122,7 @@ test.describe("full documented capabilities", () => {
     await complete(first);
     await page.reload();
     await expect(page.locator(".flame-component")).toBeVisible();
-    // A real backend run must traverse the authorized gzip artifact chain.
+    // 真实后端验收必须走有授权校验的 gzip 制品下载链，不能只靠页面内嵌小树通过。
     await expect(
       page.locator('[data-flame-source="gzip-artifact"]'),
     ).toBeVisible();

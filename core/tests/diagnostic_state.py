@@ -1,4 +1,4 @@
-"""Bounded process metadata for owned-toy diagnostics; no addresses or stacks."""
+"""为本次拥有的玩具进程收集有界诊断元数据，不输出地址或调用栈。"""
 import os
 from pathlib import Path
 import re

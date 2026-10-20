@@ -1,4 +1,4 @@
-"""Offline private-fixture regressions; no MinIO/network access is performed."""
+"""离线私有夹具回归，不访问 MinIO 或网络。"""
 
 from contextlib import redirect_stderr, redirect_stdout
 import hashlib
@@ -171,8 +171,8 @@ class ProbeTests(unittest.TestCase):
         self.assertEqual(len(result["refusals"]), 3)
 
     def test_exact_minio_release_builtin_kms_error_is_accepted(self):
-        # Imported API shape from RELEASE.2025-07-23T15-54-02Z
-        # internal/kms/errors.go ErrDecrypt; no server/network is used here.
+        # 导入 RELEASE.2025-07-23T15-54-02Z 中 internal/kms/errors.go 的 ErrDecrypt
+        # 接口形态；此处不运行服务器或网络。
         error = s3error(
             code="kms:InvalidCiphertextException",
             message="failed to decrypt ciphertext",

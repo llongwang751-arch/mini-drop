@@ -1,4 +1,4 @@
-# Reuse the pinned, already validated language-tool image for a small rollout.
+# 小范围发布复用已经固定并验收的语言工具镜像，避免临时拉取未知基础层。
 FROM drop-demo-workloads:20261020.1
 USER 0:0
 COPY core/fixtures/bolt_workload.cpp /demo/src/bolt_workload.cpp

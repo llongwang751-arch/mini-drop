@@ -1,3 +1,6 @@
+/**
+ * 对任务类型参数 schema 使用合成输入验证范围、枚举和对象约束，不拼接或执行命令行。
+ */
 import { describe, expect, it } from "vitest";
 import {
   fieldDefinitions,

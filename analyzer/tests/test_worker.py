@@ -1,3 +1,5 @@
+"""以受控依赖和文件夹具验证 worker 生命周期、作业预算及租约失效后的发布限制。"""
+
 import hashlib
 import json
 import os

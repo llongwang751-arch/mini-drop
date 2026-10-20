@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Synthetic program transformations only; never actual profile evidence."""
+"""只验证合成程序变换，不作为实际 profile 采集证据。"""
 import unittest
 
 from stack_controls import compare_argv, stop_gate_argv

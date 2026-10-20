@@ -1,3 +1,4 @@
+// Package domain：校验导入格式及辅助文件是否符合对应 TaskKind 的约定；导入数据只是一种采集来源，不意味着真实现场测量。
 package domain
 
 func ValidateImport(k TaskKind, in ImportInput) *Error {

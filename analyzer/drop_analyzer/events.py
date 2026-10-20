@@ -1,4 +1,4 @@
-"""Bounded event and fixed-template result analyses. Values come from raw events."""
+"""在资源限制内解析事件与固定模板结果，统计值只来自实际输入事件。"""
 
 import json
 import math
@@ -256,7 +256,7 @@ def analyze_memory(raw):
         elif event in {"free", "munmap"}:
             key = (integer(row, "pid"), address(row))
             if key[1] == 0:
-                continue  # free(NULL) is an observed no-op.
+                continue  # 观测到的 free(NULL) 不释放对象，不应改变存活分配统计。
             previous = live.get(key)
             released = 0
             if event == "munmap" and "size" in row:

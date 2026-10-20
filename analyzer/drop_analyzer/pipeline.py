@@ -1,3 +1,9 @@
+"""输入完整性、稳定 JSON 编码与分析制品组装。
+
+先按存储字节核对大小与 SHA-256，再在解压上限内解码；结果及 manifest 分开生成，
+manifest 将输入摘要、采集 attempt 和每个输出制品摘要连成可追溯链。
+"""
+
 import gzip
 import hashlib
 import io
@@ -48,6 +54,7 @@ def decode_input(
     expected_size: int,
     limits: Limits,
 ) -> bytes:
+    """先核对存储原文大小与摘要，再按声明格式解码；压缩后与解压后的字节数分别受限。"""
     if (
         len(raw) != expected_size
         or not expected_sha256
@@ -100,6 +107,10 @@ def build_outputs(
     attempt_id: str | None = None,
     input_artifact_id: str | None = None,
 ) -> dict[str, bytes]:
+    """把解析结果编码为火焰图、TopN、报告和 manifest，返回文件名到 bytes 的映射。
+
+    固定 gzip mtime 与稳定 JSON 排序有助于摘要复核；规则报告不代替后续 AI 诊断。
+    """
     outputs = {
         "flamegraph.json.gz": gzip.compress(
             json_bytes(result["flamegraph"]), compresslevel=6, mtime=0

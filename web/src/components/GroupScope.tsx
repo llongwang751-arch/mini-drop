@@ -1,3 +1,7 @@
+/**
+ * 任务归属与可见范围选择：资源组来自当前用户可见的服务端列表。
+ * 选择组名只是请求参数，不代表浏览器可以自行授予该组访问权限。
+ */
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 import type { List } from "../types";

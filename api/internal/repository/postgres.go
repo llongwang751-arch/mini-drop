@@ -1,3 +1,5 @@
+// Package repository：任务与执行轮次的事务边界：把状态、事件、审计和 Outbox 一起提交。
+// Outbox 解决数据库提交与跨服务 RPC 不能原子提交的问题；网络调用结束后必须重读当前 attempt，旧快照没有覆盖新状态的资格。
 package repository
 
 import (
@@ -14,6 +16,8 @@ import (
 	"drop/api/internal/domain"
 )
 
+// Repository 封装参数化 SQL 与数据库事务，接收服务层的上下文、当前用户和执行身份。
+// 调用方需要组合多个操作时必须复用事务中的 Repository，不能中途跳回根连接造成半提交。
 type Repository struct{ DB *gorm.DB }
 
 func New(db *gorm.DB) *Repository                          { return &Repository{DB: db} }
@@ -108,6 +112,10 @@ func (r *Repository) Existing(ctx context.Context, owner, key string) (domain.Ta
 	err := r.Context(ctx).Where("creator_id = ? AND idempotency_key = ?", owner, key).First(&t).Error
 	return t, err
 }
+
+// CreateTask 在同一事务中创建 task、首个 attempt、事件、审计和可选派发 Outbox。
+// 幂等键冲突先核验请求摘要；replayed 表示原操作已存在，不能再创建轮次或追加派发。
+// 尚未完成的导入仍可用原对象键补齐上传，这与创建新任务不同。
 func (r *Repository) CreateTask(ctx context.Context, t domain.Task, queue bool, audit domain.Audit) (domain.Task, domain.Attempt, bool, error) {
 	var result domain.Task
 	var a domain.Attempt
@@ -175,6 +183,9 @@ func (r *Repository) LatestAttempt(ctx context.Context, id int64) (domain.Attemp
 	err := r.Context(ctx).Where("task_id = ?", id).Order("attempt DESC").First(&a).Error
 	return a, err
 }
+
+// Cancel 锁定当前任务与 attempt，再原子写入取消状态及必要的取消 Outbox、事件和审计。
+// 取消可能与 Core ACK、采集完成或重试竞争；重复调用保留原终态，旧 attempt 的取消不得跨轮次生效。
 func (r *Repository) Cancel(ctx context.Context, u domain.User, id int64, audit domain.Audit) (domain.Task, error) {
 	var t domain.Task
 	err := r.Context(ctx).Transaction(func(tx *gorm.DB) error {
@@ -182,8 +193,8 @@ func (r *Repository) Cancel(ctx context.Context, u domain.User, id int64, audit 
 			return err
 		}
 		if t.Terminal() {
-			// Cancellation is idempotent: retain the terminal state and avoid
-			// duplicate events, audit records, grants or cancellation outbox rows.
+			// 取消操作必须幂等：已终止的任务保留原终态，
+			// 不能重复生成事件、审计、上传授权或取消 Outbox 记录。
 			return nil
 		}
 		if err := tx.Model(&t).Updates(map[string]any{"collection_status": "CANCELED", "analysis_status": "CANCELED", "updated_at": time.Now().UTC(), "version": gorm.Expr("version + 1")}).Error; err != nil {
@@ -214,6 +225,9 @@ func (r *Repository) Cancel(ctx context.Context, u domain.User, id int64, audit 
 	})
 	return t, err
 }
+
+// Retry 先核验写权限和旧终态，再创建新的 attempt 与派发消息。
+// 同一幂等键重放必须返回同一轮次，旧轮次上传授权与迟到结果立即失去发布资格。
 func (r *Repository) Retry(ctx context.Context, u domain.User, id int64, key, requestID string) (domain.Task, bool, error) {
 	var t domain.Task
 	replay := false
@@ -253,8 +267,8 @@ func (r *Repository) Retry(ctx context.Context, u domain.User, id int64, key, re
 		if err := tx.Where("task_id = ?", id).Order("attempt DESC").First(&previous).Error; err != nil {
 			return err
 		}
-		// A retry creates a different attempt: the old one cannot publish even a
-		// late log, and retains neither URL nor upload authorization metadata.
+		// 重试会创建新的 attempt；旧 attempt 此后连迟到的日志也不能发布，
+		// 也不能继续保留上传 URL 或上传授权元数据。
 		if err := tx.Model(&previous).Updates(map[string]any{"raw_upload_url": "", "upload_targets": "[]"}).Error; err != nil {
 			return err
 		}
@@ -299,6 +313,9 @@ func (r *Repository) Audit(ctx context.Context, a domain.Audit) error {
 func (r *Repository) ImportComplete(ctx context.Context, t domain.Task, a domain.Artifact) error {
 	return r.ImportWithAux(ctx, t, a, nil)
 }
+
+// ImportWithAux 把已写入对象存储的 RAW 及辅助制品登记到数据库，并推进采集和分析队列。
+// 对象写入与 SQL 无法共享事务，所以调用方必须依靠稳定对象键、完整性信息和幂等重试恢复。
 func (r *Repository) ImportWithAux(ctx context.Context, t domain.Task, a domain.Artifact, aux []domain.Artifact) error {
 	return r.Context(ctx).Transaction(func(tx *gorm.DB) error {
 		var locked domain.Task
@@ -332,6 +349,9 @@ func (r *Repository) ImportWithAux(ctx context.Context, t domain.Task, a domain.
 		return tx.Create(&event).Error
 	})
 }
+
+// DispatchOne 领取一条可投递 Outbox，在网络调用期间不持有任务锁，返回后重新锁定并核验当前 attempt。
+// RPC 失败可能只是 ACK 丢失；重放依赖接收端幂等，而耗尽重试后的失败也不能覆盖其他事务已经推进的状态。
 func (r *Repository) DispatchOne(ctx context.Context, fn func(domain.Outbox, domain.Task, domain.Attempt) error) error {
 	return r.Context(ctx).Transaction(func(tx *gorm.DB) error {
 		var o domain.Outbox
@@ -365,9 +385,9 @@ func (r *Repository) DispatchOne(ctx context.Context, fn func(domain.Outbox, dom
 		delay := time.Duration(min(attempt*attempt, 60)) * time.Second
 		if attempt >= 10 || (t.DeadlineAt != nil && time.Now().After(*t.DeadlineAt)) {
 			if o.EventType == "DISPATCH" {
-				// RPC completion can race with a committed queue ACK, cancellation
-				// or retry. Lock and reread only after the RPC: holding these locks
-				// during the call would deadlock the Core's own state transaction.
+				// RPC 返回时，队列 ACK、取消或重试可能已经在其他事务中提交。
+				// 因此只在 RPC 结束后加锁并重读当前状态；若在网络调用期间持锁，
+				// Core 自己提交状态时会被阻塞，形成跨服务死锁。
 				var current domain.Task
 				if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&current, t.ID).Error; err != nil {
 					return err
@@ -422,6 +442,9 @@ func (r *Repository) ToggleSchedule(ctx context.Context, u domain.User, id int64
 	}
 	return res.Error
 }
+
+// TickSchedule 锁定到期调度记录并创建本次执行，更新下一触发时间和关联记录。
+// 多个 API 实例并发时，数据库锁负责唯一领取，不能让每个进程的定时器各自创建一份任务。
 func (r *Repository) TickSchedule(ctx context.Context, fn func(*Repository, domain.Schedule) (int64, error)) error {
 	return r.Context(ctx).Transaction(func(tx *gorm.DB) error {
 		var s domain.Schedule

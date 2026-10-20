@@ -1,8 +1,8 @@
-"""Typed, credential-free source/test broker over a local Unix socket.
+"""通过本机 Unix socket 提供类型化、无业务凭据的源码与测试代理。
 
-Only an administrator-enrolled immutable project and image can be selected.
-Generated Python runs in a separate networkless container: no Docker socket,
-Agent namespace, service credentials, application volumes or host source mounts.
+只能选择管理员登记的不可变项目和镜像。模型补丁在独立无网络容器内执行，
+不挂载 Docker socket、采集 Agent 命名空间、服务凭据、业务数据卷或宿主业务源码。
+此代理由宿主负责创建沙箱并核验收据，模型本身没有通用命令执行能力。
 """
 import argparse
 import ast
@@ -35,7 +35,7 @@ PRESET_IMPORTS = {
 
 
 def frozen_saber_nodes(tree):
-    """Only the two pure query helpers may change; SQL/tenant code stays frozen."""
+    """只允许两个纯查询辅助函数变化；SQL 与租户处理代码保持冻结。"""
     editable = {'fts_tokenize', 'build_fts_query'}
     result = []
     for node in tree.body:
@@ -59,7 +59,7 @@ def file_hash(path):
 
 
 def peer_disconnected(connection):
-    """A closed HTTP caller revokes its current synchronous sandbox job."""
+    """HTTP 调用方断连即撤销本次同步沙箱任务，不能留下无人接收的后台执行。"""
     try:
         readable, _, _ = select.select([connection], [], [], 0)
         return bool(readable) and connection.recv(1, socket.MSG_PEEK) == b''
@@ -68,6 +68,7 @@ def peer_disconnected(connection):
 
 
 def owned_container(container, key, image):
+    """核对容器的不可变 ID、job 标签和登记镜像；后续取消只针对已确认归属的对象。"""
     inspected = subprocess.run(['docker', 'inspect', container], capture_output=True, timeout=10)
     if inspected.returncode != 0:
         return None
@@ -81,10 +82,10 @@ def owned_container(container, key, image):
 
 
 def run_sandbox(argv, container, key, image, log, canceled, timeout=240):
-    """Create before starting, so cancellation always owns an immutable ID.
+    """先 create、核对归属，再 start，确保取消操作持有不可变容器 ID。
 
-    No process-wide kill or name-only removal is used. The Docker CLI is a
-    child owned by this request; only its verified job container is removed.
+    不进行全局进程清理，也不只凭容器名删除；Docker CLI 是本请求的子进程，
+    取消时只移除已核对 job 标签与镜像的本次容器，避免影响其他作业。
     """
     require(not canceled(), 'EXECUTION_CANCELED')
     old = owned_container(container, key, image)
@@ -123,11 +124,17 @@ def run_sandbox(argv, container, key, image, log, canceled, timeout=240):
 
 
 def execution_key(manifest, kind, edits, execution_id):
+    """将执行 ID、项目源码版本、镜像与补丁组合成作业键，隔离不同尝试的测量与缓存收据。"""
     require(isinstance(execution_id, str) and (execution_id == '' or re.fullmatch(r'repair:[1-9][0-9]{0,18}', execution_id)), 'EXECUTION_ID_INVALID')
     return hashlib.sha256(json.dumps([3, execution_id, manifest['id'], manifest['source_revision'], manifest['runner_image_id'], kind, edits], sort_keys=True).encode()).hexdigest()
 
 
 def validate_patch(base, edits, manifest):
+    """校验精确上下文补丁并返回修改后的文件内容，不直接写原业务源码。
+
+    只允许登记的 editable_files，先核对原 SHA 再按序替换；AST 限制导入、反射与缓存规模，
+    Saber 额外冻结 SQL/租户相关节点。语法通过不等于行为正确，仍需独立回归与性能对照。
+    """
     require(isinstance(edits, list) and 1 <= len(edits) <= 6, 'PATCH_EDIT_LIMIT')
     require(len(json.dumps(edits).encode()) <= 24576, 'PATCH_BYTE_LIMIT')
     changed = {}
@@ -147,8 +154,8 @@ def validate_patch(base, edits, manifest):
         end = start + len(old)
         require(all(end <= a or start >= b for a, b in ranges.get(name, [])), 'PATCH_CONTEXT_OVERLAP')
         ranges.setdefault(name, []).append((start, end))
-        # Multiple exact-context edits to one file are normal. Every edit
-        # retains the original enrolled SHA, and applies in declared order.
+        # 同一文件可有多次精确上下文编辑；每次都绑定原始登记 SHA，
+        # 再按声明顺序应用，避免补丁目标漂移。
         text = changed.get(name, original)
         require(text.count(old) == 1 and old != new, 'PATCH_CONTEXT_NOT_UNIQUE')
         candidate = text.replace(old, new, 1)
@@ -157,8 +164,8 @@ def validate_patch(base, edits, manifest):
             tree = ast.parse(candidate)
         except SyntaxError:
             raise Rejected('PATCH_SYNTAX_INVALID') from None
-        # This first preset enrolls a pure calculation module. Tests, auth,
-        # harness and network/OS imports cannot be changed through the tool.
+        # 此 preset 只登记纯计算模块；测试、授权、harness 以及网络/OS 导入
+        # 不能通过模型工具修改。
         forbidden = {'eval', 'exec', 'compile', '__import__', 'open', 'getattr', 'setattr', 'globals', 'locals', 'breakpoint', 'input'}
         preset = manifest.get('test_preset', 'crm-brand-palette-v1')
         require(preset in PRESET_IMPORTS, 'PROJECT_PRESET_INVALID')
@@ -192,6 +199,7 @@ class Executor:
         self.slots = threading.BoundedSemaphore(1)
 
     def project(self, name, revision=None):
+        """读取 root 所有且不可被组/其他用户修改的登记 manifest，校验源码修订与固定镜像摘要。"""
         require(isinstance(name, str) and re.fullmatch(r'[a-z0-9][a-z0-9_-]{0,63}', name), 'PROJECT_ID_INVALID')
         root = self.root / 'registry' / name
         require(root.is_dir() and not root.is_symlink() and root.resolve().is_relative_to(self.root), 'PROJECT_NOT_ENROLLED')
@@ -205,6 +213,7 @@ class Executor:
         return root, manifest
 
     def invoke(self, request, canceled=lambda: False):
+        """分派闭合动作集合并校验字段；执行型动作必须绑定 source_revision，且受单并发槽限制。"""
         require(not canceled(), 'EXECUTION_CANCELED')
         require(isinstance(request, dict) and set(request) <= {'action', 'project_id', 'source_revision', 'execution_id', 'arguments'}, 'REQUEST_FIELDS_REJECTED')
         action = request.get('action')
@@ -243,9 +252,10 @@ class Executor:
         raise Rejected('ACTION_NOT_ALLOWED')
 
     def describe(self, name):
+        """返回已登记的项目能力；存在工作负载绑定时，再以实际容器镜像、标签和 /proc 身份核对目标。"""
         _, manifest = self.project(name)
         description = {key: manifest[key] for key in ('id', 'label', 'source_revision', 'editable_files', 'readable_files', 'test_preset', 'workload')}
-        # This binding is operator-enrolled, never supplied by the model.
+        # 运行容器与源码的绑定由运维登记，不接受模型提供的绑定关系。
         container = manifest.get('workload_container')
         if container:
             require(re.fullmatch(r'[a-z0-9][a-z0-9_-]{0,63}', container), 'RUNTIME_BINDING_INVALID')
@@ -266,7 +276,12 @@ class Executor:
         return description
 
     def execute(self, source, manifest, changed, edits, execution_id='', canceled=lambda: False):
-        # Validate the whole registered snapshot, not a model-named arbitrary path.
+        # 执行前验证整个已登记快照，不能只验证模型点名的单个文件。
+        """在作业私有目录复制基线与候选，并在固定、无网络、无凭据容器中测量。
+
+        先验证完整登记快照，再以执行键和文件锁隔离并发；仅完整收据可命中缓存。
+        上次中断产生的 result.json 必须清除，新的成功/失败结果通过临时文件替换发布，避免半成品恢复误判。
+        """
         for name, digest in manifest['files'].items():
             require(not canceled(), 'EXECUTION_CANCELED')
             path = source / name
@@ -276,8 +291,8 @@ class Executor:
         job = self.root / 'jobs' / key
         job.mkdir(mode=0o755, parents=True, exist_ok=True)
         require(not job.is_symlink() and job.resolve().parent == self.root / 'jobs', 'JOB_PATH_ESCAPE')
-        # systemd uses a restrictive UMask. The mount root must still be traversable by
-        # sandbox UID10001; the host ancestor remains root-only 0700.
+        # systemd 使用严格 UMask；挂载根目录仍需允许沙箱 UID10001 穿越，
+        # 而宿主上层目录继续保持仅 root 可访问的 0700。
         job.chmod(0o755)
         import fcntl
         with (job / 'lock').open('a') as lock:
@@ -291,8 +306,7 @@ class Executor:
                 return {**json.loads(receipt.read_text()), 'cache_hit': True}
             for side in ('baseline', 'candidate') if changed else ('baseline',):
                 shutil.copytree(source, job / side, dirs_exist_ok=True)
-                # The JSON route regression needs a static mount directory, but
-                # this integration deliberately does not ship a public CRM UI.
+                # JSON 路由回归需要静态挂载目录；此集成不会因此发布 CRM 的公共 UI。
                 if manifest['test_preset'] == 'crm-brand-palette-v1':
                     (job / side / 'crm/static').mkdir(exist_ok=True)
             for name, text in changed.items():
@@ -301,8 +315,8 @@ class Executor:
             output.mkdir(mode=0o700, exist_ok=True)
             require(not output.is_symlink() and output.resolve().parent == job.resolve(), 'JOB_PATH_ESCAPE')
             os.chown(output, 10001, 10001)
-            # An interrupted previous attempt has no accepted receipt. Never
-            # mistake its partial output for a fresh measurement on recovery.
+            # 上次中断的尝试没有有效收据；恢复时必须删除半成品结果，
+            # 不能把它当成本轮的新测量。
             previous_result = output / 'result.json'
             if previous_result.exists() or previous_result.is_symlink():
                 previous_result.unlink()
@@ -340,6 +354,7 @@ class Executor:
 
 
 def serve(root, path):
+    """在本机 Unix socket 暴露固定 RPC，并用 SO_PEERCRED、请求体大小和响应大小限制保护入口。"""
     executor = Executor(root)
 
     class Handler(BaseHTTPRequestHandler):

@@ -1,4 +1,4 @@
-// Toy file I/O, malloc/free and mmap/fault source for actual kernel tracing.
+// 明确标记的玩具负载：产生文件I/O、malloc/free和mmap缺页，供真实内核追踪验证。
 #include <atomic>
 #include <csignal>
 #include <cstdlib>

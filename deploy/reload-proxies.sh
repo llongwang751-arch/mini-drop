@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Refresh startup-resolved Docker upstream addresses after replacing services.
-# Run from the selected deployment directory; optional arguments are Compose
-# global options (for example explicit -p/-f/--env-file for an isolated stage).
+# 替换服务容器后，刷新Nginx在启动时解析并缓存的Docker上游地址。
+# 从选定部署目录执行；可选参数是Compose
+# 全局选项，例如隔离stage使用明确的-p/-f/--env-file，避免误操作默认项目。
 set -euo pipefail
 compose=(docker compose "$@")
 services="$("${compose[@]}" config --services)"

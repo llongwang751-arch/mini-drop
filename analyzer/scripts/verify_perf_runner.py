@@ -1,7 +1,6 @@
-"""Cross-parse separate real toy perf-script/perf.data captures without networking.
+"""在无网络环境交叉解析独立采集的真实玩具 perf-script/perf.data 文件。
 
-Input fixture manifests are comparison evidence, not trusted live metadata.
-Nothing from either capture is executed as an application binary.
+输入 manifest 只用于结果比较，不是可信现场元数据；两份采集中的内容都不会作为应用二进制执行。
 """
 
 import argparse
@@ -109,7 +108,7 @@ def verify_case(root, fmt, expected_comms):
         assert int(perf["time_range_ns"]["duration"]) > 0
         assert all(" (" in row["name"] for row in result["top_functions"])
         if fmt == "perf_script":
-            # Imported JSON is not authority for a claim of zero loss.
+            # 导入 JSON 不能作为“现场零丢样”的可信依据。
             assert perf["lost_samples"] is None
             native_scan = None
         else:

@@ -1,9 +1,12 @@
+/**
+ * 通过导入调用树验证线程/系统帧/自身开销过滤及热点导航，证据来源不等同于现场采集。
+ */
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-// Browser interaction fixtures only; these do not prove a live perf collection.
+// 仅验证导入夹具的浏览器交互；通过这些测试不能证明现场 perf 采集成功。
 test.describe("imported flame interaction fixtures", () => {
   test.skip(
     process.env.DROP_UI_PREVIEW !== "1",

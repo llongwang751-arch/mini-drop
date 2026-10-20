@@ -1,3 +1,7 @@
+// 普通Agent与特权helper之间的本地固定协议，不等同于对外gRPC任务协议。
+// 请求token绑定一次工作，collect可只恢复原结果；acknowledge在Agent已持久化后释放helper缓存。
+// 可执行路径与上传授权不通过这个接口传入，避免跨权限边界扩大能力。
+
 #pragma once
 
 #include "drop/runner.hpp"
@@ -14,7 +18,7 @@ struct HelperRequest {
   std::uint64_t binary_max = 0;
 };
 
-// This path-free local contract is independent of gRPC and upload grants.
+// 本地helper协议不接收任意路径，独立于gRPC和对象存储上传授权。
 nlohmann::json encode_helper_request(const HelperRequest &);
 HelperRequest decode_helper_request(const nlohmann::json &, const Catalog &);
 
@@ -37,4 +41,4 @@ private:
 };
 
 int run_collector_helper();
-} // namespace dropcore
+} // 结束 dropcore 命名空间

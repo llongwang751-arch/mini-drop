@@ -1,8 +1,7 @@
-"""Frozen FTS5 behavior, SQL/tenant and source boundary contracts.
+"""固定 FTS5 行为、SQL/租户隔离和源码修改边界的契约测试。
 
-The source tests/test_fts5_index.py is also run unchanged. These additional
-oracles preserve existing behavior, including Unicode casefold and 64-token
-ordering, rather than weakening tests to make an optimization pass.
+原始 tests/test_fts5_index.py 同样原样执行。新增判定保留 Unicode casefold
+及 64-token 排序等已有行为，不通过削弱测试让优化补丁过关。
 """
 import ast
 import os

@@ -1,3 +1,6 @@
+// 本文件验证诊断工具、报告引用、格式修复预算、调用树截断和持久化工作器的租约边界。
+// 默认使用明确导入夹具；显式真实模型测试需要单独启用，不能把它和纯协议测试混为一谈。
+// 测试名称标明具体场景；涉及真实数据库的用例需显式配置测试连接，协议夹具不代表生产或模型实测。
 package service
 
 import (
@@ -32,7 +35,7 @@ func loadDiagnosisCatalog(t *testing.T) {
 }
 func TestDiagnosisToolBoundary(t *testing.T) {
 	loadDiagnosisCatalog(t)
-	// Explicitly imported unit fixture, never a production measurement.
+	// 明确标记的导入单元测试夹具，不是生产测量。
 	raw := json.RawMessage(`{"kind":"PERF_CPU","total_samples":100,"top_functions":[{"name":"/customer/private/secret-function","self_percent":80,"total_percent":90}]}`)
 	task := domain.Task{Kind: "PERF_CPU", Parameters: json.RawMessage(`{"pid":7,"duration_seconds":5,"frequency_hz":99,"scope":"process"}`)}
 	for _, name := range diagnosisToolNames() {
@@ -206,8 +209,8 @@ func TestDiagnosisCallPathEvidenceAndBudgets(t *testing.T) {
 }
 
 func TestDiagnosisCallPathMarksEveryContextLimit(t *testing.T) {
-	// Imported trees exercise omissions in returned context, even when the whole
-	// source tree fits the traversal budget.
+	// 导入的调用树用于验证局部上下文被省略的标记；
+	// 即使整棵树没有超过遍历预算，某个热点的祖先或被调用者仍可能因局部预算而省略。
 	leaf := func() *diagnosisTree { return &diagnosisTree{Name: "fixture-hotspot", Value: 1, Self: 1} }
 	deep := leaf()
 	for i := 0; i < 8; i++ {
@@ -523,9 +526,8 @@ func TestPostgresDiagnosisConfirmedCollection(t *testing.T) {
 	}
 }
 
-// Opt-in actual provider acceptance. Input is explicitly imported fixture data.
-// It exercises the same durable worker and validates evidence references; no
-// private symbols, raw profiles, credentials or provider body enter test logs.
+// 这是显式启用的真实模型服务验收，输入仍是明确导入的夹具数据。
+// 它复用持久化工作器并核验证据引用；测试日志不输出私有符号、原始性能文件、凭据或模型正文。
 func TestPostgresDiagnosisLiveDeepSeek(t *testing.T) {
 	file := os.Getenv("LIVE_AI_KEY_FILE")
 	if file == "" {

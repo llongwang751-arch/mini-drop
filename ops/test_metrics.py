@@ -1,4 +1,4 @@
-"""Imported host-counter fixtures; no database, S3 or production access."""
+"""导入宿主计数器夹具，不访问数据库、S3 或生产环境。"""
 from contextlib import redirect_stderr
 import io
 import os

@@ -34,10 +34,10 @@ std::shared_ptr<grpc::Channel> channel(const std::string &address) {
   options.SetSslTargetNameOverride("drop-server");
   return grpc::CreateCustomChannel(address, grpc::SslCredentials(tls), options);
 }
-} // namespace
+} // 结束匿名命名空间
 
-// Only run against the private empty database created by rpc_isolated.sh.
-// This probe is intentionally excluded from offline CTest and normal startup.
+// 只允许连接rpc_isolated.sh创建的私有空数据库，不能指向生产库。
+// 此探针刻意不加入离线CTest或普通启动流程，避免无意触发数据库写入。
 int main() {
   const auto owner = "enqueue-probe-" + std::to_string(getpid());
   const auto agent = secret("AGENT_ID", "aliyun-local");
@@ -144,8 +144,8 @@ int main() {
       }
       transaction.commit();
     }
-    // Slow only the candidate's state update after the queue count. Without
-    // shared serialization both replicas see 31 and commit a 33rd entry.
+    // 只让候选任务在统计队列后延迟更新；若没有
+    // 共享串行锁，两个副本都会看见31条并最终写出第33条，暴露准入竞争。
     db->exec(R"SQL(CREATE FUNCTION drop_enqueue_fixture_delay() RETURNS trigger
 LANGUAGE plpgsql AS $fixture$
 BEGIN

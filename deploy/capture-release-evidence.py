@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Capture a strictly allowlisted, read-only snapshot of an existing release.
+"""按严格白名单读取现有发布状态，生成只读快照。
 
-Only compose config --services, compose ps, container inspect and optional fixed
-read-only PostgreSQL SELECTs run. Never starts, builds, stops or changes services.
-Raw Docker/psql output and exception messages are never emitted, including on
-failure. Redirect stdout to a report file; no application files are written.
+只运行 compose config --services、compose ps、容器 inspect 及可选的固定只读 PostgreSQL SELECT；
+不启动、构建、停止或修改服务。Docker/psql 原始输出和异常正文即使在失败时也不输出。
+stdout 可重定向为报告，本脚本不写应用文件。
 """
 
 import argparse
@@ -131,7 +130,7 @@ POSTGRES_COMMAND = 'export PGPASSWORD="$(cat /run/secrets/database_password)"; e
 
 
 class CaptureError(Exception):
-    """Contains only a fixed public error code, never underlying tool details."""
+    """只携带固定公开错误码，不带底层工具的敏感诊断正文。"""
 
 
 def require(condition, code="INVALID_RUNTIME_METADATA"):
@@ -200,7 +199,7 @@ def validate_deploy_dir(value):
 
 
 def run_read_only(argv, cwd, stdin=None):
-    """Bound each subprocess stream in memory and hide all raw diagnostics."""
+    """分别限制子进程输出流的内存占用，并隐藏所有原始诊断内容。"""
     require(
         isinstance(argv, list) and all(isinstance(v, str) for v in argv),
         "INVALID_COMMAND",
@@ -226,8 +225,7 @@ def run_read_only(argv, cwd, stdin=None):
         try:
             process.kill()
         except OSError:
-            # Exiting and output-limit detection can race. No raw diagnostics
-            # may escape from a reader thread.
+            # 进程退出与输出超限检测可能竞态；读取线程也不能泄露原始诊断文本。
             pass
 
     def drain(stream, index):
@@ -334,8 +332,8 @@ def security_summary(options):
                     "option_sha256": hashlib.sha256(value.encode()).hexdigest(),
                 }
             )
-        # AppArmor/SELinux option values may contain node paths or labels.
-        # Their presence is useful; their original text is never copied.
+        # AppArmor/SELinux 选项值可能包含节点路径或标签；
+        # 只记录是否存在，不复制其原文。
         elif option.startswith(("apparmor=", "apparmor:")):
             result["apparmor_configured"] = True
         elif option.startswith(("label=", "label:")):
@@ -366,6 +364,7 @@ def network_summary(host, network, project):
 
 
 def sanitize_container(container, project, service):
+    """从 Docker inspect 只提取审查允许的固定身份与权限信息，不保留 Env、argv 或原始路径。"""
     require(isinstance(container, dict))
     config, state, host = (
         container.get(name) for name in ("Config", "State", "HostConfig")
@@ -493,6 +492,10 @@ def sanitize_container(container, project, service):
 
 
 def read_only_sql(query):
+    """为内部生成的查询拼接只读事务、语句与锁等待超时，返回 SQL 文本而不执行。
+
+    查询由下方固定生成器构造；此函数本身不审查任意 SQL，也不接收用户查询。
+    """
     return (
         "BEGIN TRANSACTION READ ONLY;\nSET LOCAL statement_timeout='5s';\nSET LOCAL lock_timeout='1s';\n"
         + query
@@ -547,6 +550,7 @@ def sanitize_database(value, tables):
 def capture(
     deploy_dir, project, release, public_url, include_database=False, runner=None
 ):
+    """读取一次已存在发布的白名单状态，生成可审计快照；没有构建、重启或更新服务的操作。"""
     runner = runner or run_read_only
     directory = validate_deploy_dir(deploy_dir)
     identifier(project, SERVICE)
@@ -669,7 +673,7 @@ def main(argv=None):
     except CaptureError as error:
         print(json.dumps({"error": str(error)}), file=sys.stderr)
         return 1
-    except Exception:  # noqa: BLE001 - CLI boundary must never print tool secrets.
+    except Exception:  # noqa: BLE001 - CLI 边界不得输出工具中的敏感值。
         print(json.dumps({"error": "CAPTURE_FAILED"}), file=sys.stderr)
         return 1
 

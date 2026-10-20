@@ -1,8 +1,12 @@
+# C++采集/控制面构建入口：共享协议先生成，再构建公共库、运行进程和离线测试。
+# 警告按错误处理；需要数据库、内核权限或真实工具的隔离验收由各专用脚本显式运行。
+
 cmake_minimum_required(VERSION 3.22)
 project(drop_core VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+# 依赖来自构建环境，不把编译器/开发头文件带入最小运行镜像。
 find_package(Protobuf REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 find_package(PostgreSQL REQUIRED)
@@ -14,6 +18,7 @@ find_package(Threads REQUIRED)
 set(PROTO_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../contracts)
 set(GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
 file(MAKE_DIRECTORY ${GEN_DIR})
+# 从contracts真源生成代码，生成文件不手改；字段编号和含义保持兼容。
 add_custom_command(OUTPUT ${GEN_DIR}/drop.pb.cc ${GEN_DIR}/drop.pb.h ${GEN_DIR}/drop.grpc.pb.cc ${GEN_DIR}/drop.grpc.pb.h
   COMMAND protobuf::protoc --proto_path=${PROTO_DIR} --cpp_out=${GEN_DIR} --grpc_out=${GEN_DIR}
     --plugin=protoc-gen-grpc=$<TARGET_FILE:gRPC::grpc_cpp_plugin> ${PROTO_DIR}/drop.proto
@@ -21,6 +26,7 @@ add_custom_command(OUTPUT ${GEN_DIR}/drop.pb.cc ${GEN_DIR}/drop.pb.h ${GEN_DIR}/
 add_library(drop_proto ${GEN_DIR}/drop.pb.cc ${GEN_DIR}/drop.grpc.pb.cc)
 target_include_directories(drop_proto PUBLIC ${GEN_DIR})
 target_link_libraries(drop_proto PUBLIC protobuf::libprotobuf gRPC::grpc++)
+# 公共库承载目标、预算、Runner与恢复能力，Server/Agent/helper共享边界实现。
 add_library(drop_common src/process.cpp src/config.cpp src/cooperative.cpp src/artifact.cpp src/manifest.cpp src/helper.cpp src/sampling.cpp src/catalog.cpp src/target.cpp src/allocator_probe.cpp src/runner.cpp src/bolt.cpp src/lifecycle.cpp src/telemetry.cpp)
 target_include_directories(drop_common PUBLIC include)
 target_link_libraries(drop_common PUBLIC nlohmann_json::nlohmann_json CURL::libcurl OpenSSL::Crypto Threads::Threads)
@@ -49,6 +55,7 @@ add_executable(drop_native_workload fixtures/native_workload.cpp)
 target_link_libraries(drop_native_workload PRIVATE drop_native_profiler Threads::Threads)
 target_compile_options(drop_native_workload PRIVATE -Wall -Wextra -Wpedantic -Werror -g -fno-omit-frame-pointer)
 target_link_options(drop_native_workload PRIVATE -rdynamic -Wl,--emit-relocs)
+# 默认CTest验证本地确定性边界，不能把导入工具替身测试当作现场采样已通过。
 include(CTest)
 add_executable(gdb_launcher_child tests/gdb_launcher_child.cpp)
 target_compile_options(gdb_launcher_child PRIVATE -Wall -Wextra -Wpedantic -Werror)
@@ -124,6 +131,7 @@ add_test(NAME bolt_runner COMMAND bolt_runner_test)
 add_test(NAME lifecycle COMMAND lifecycle_test)
 add_test(NAME tool_integrity COMMAND tool_integrity_test ${PROTO_DIR}/task-kinds.json)
 add_test(NAME json COMMAND json_test)
+# RPC探针依赖独立数据库与mTLS夹具，构建它不等于启动或连接生产服务。
 add_executable(drop_rpc_probe tests/rpc_probe.cpp)
 target_link_libraries(drop_rpc_probe PRIVATE drop_proto drop_common PostgreSQL::PostgreSQL)
 target_compile_options(drop_rpc_probe PRIVATE -Wall -Wextra -Wpedantic -Werror)

@@ -1,4 +1,4 @@
-/* Product field guide: cloud blue, cool neutrals, white surfaces. */
+/* 使用指南的独立视觉层：云蓝强调、冷灰背景与白色阅读面，保持全站配色一致。 */
 .guide-page {
   --guide-line: #dce4ef;
   --guide-soft: #eaf1ff;
@@ -346,6 +346,7 @@
   border: 1px solid var(--guide-line);
   border-radius: 10px;
 }
+/* 四个教学面板叠放，由最长内容决定容器高度；非活动面板不可见且在 JSX 中设为 inert，切换不会推挤下文。 */
 .guide-lesson-pane {
   grid-area: 1 / 1;
   display: flex;
@@ -960,6 +961,7 @@
     justify-content: space-between;
   }
 }
+/* 尊重系统减少动效偏好，只取消动画和过渡，不改变内容、焦点或可操作性。 */
 @media (prefers-reduced-motion: reduce) {
   .guide-page *,
   .guide-page *::before,

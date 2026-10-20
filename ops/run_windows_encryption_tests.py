@@ -1,4 +1,4 @@
-"""Run only the real PostgreSQL half using a fresh private portable cluster."""
+"""创建新的私有便携 PostgreSQL 集群，仅运行迁移的真实数据库部分。"""
 
 import argparse
 import hashlib
@@ -154,7 +154,7 @@ def main():
             ENCRYPTION_TEST_DSN=f"postgresql://postgres:{secret}@127.0.0.1:{port}/drop_encryption_fixture?sslmode=disable",
             ENCRYPTION_TEST_ALLOW_DISPOSABLE="1",
         )
-        # Tests run inside the same 512 MiB, one logical CPU Windows Job as PG.
+        # 测试与 PostgreSQL 共用同一个 512 MiB、单逻辑 CPU 的 Windows Job 资源边界。
         code, content = run(
             [sys.executable, "-m", "unittest", "test_encryption_postgres", "-v"],
             check=False,

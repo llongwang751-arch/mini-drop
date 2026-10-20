@@ -1,7 +1,7 @@
-"""Install pinned official LLVM ARM packages absent from Ubuntu Noble.
+"""安装 Ubuntu Noble 未提供的、固定版本的官方 LLVM ARM 包。
 
-Expected version, size and SHA-256 come from the official LLVM Noble ARM64
-Packages index, checked 2026-10-16. No extra APT repository or trust key is added.
+预期版本、大小与 SHA-256 来自 2026-10-16 核对的官方 LLVM Noble ARM64
+Packages 索引，不额外加入 APT 软件源或信任密钥。
 """
 
 import hashlib
@@ -62,8 +62,8 @@ def main():
             ["apt-get", "install", "-y", "--no-install-recommends", *downloaded],
             check=True,
         )
-    # Preserve the catalog/manifest contract. LLVM multicall binaries inspect
-    # argv[0], so retain the perf2bolt alias when launching the ARM19 binary.
+    # 保留 catalog/manifest 契约。LLVM multicall 二进制会检查 argv[0]，
+    # 因此启动 ARM19 程序时仍需保留 perf2bolt 别名。
     for alias, target in (("/usr/bin/llvm-bolt-16", "/usr/bin/llvm-bolt-19"),
                           ("/usr/bin/perf2bolt-16", "/usr/bin/perf2bolt-19")):
         link = Path(alias)

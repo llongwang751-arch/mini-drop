@@ -1,6 +1,9 @@
--- Execute as the migration/object-owner administrator on PostgreSQL 17.
--- The password is read inside PostgreSQL from a read-only Docker secret.
--- Do not expand it in a shell, a connection argument, or a generated SQL file.
+-- 运行期角色的最小数据库权限配置；迁移owner与普通服务角色职责分离。
+-- 数据恢复不自动恢复全局角色，迁机后应按部署流程重新建立角色及授权。
+
+-- 以PostgreSQL17的迁移/对象所有者身份执行，而不是用普通运行期角色修改自身权限。
+-- 口令由PostgreSQL直接从只读Docker secret文件读取。
+-- 不在shell、连接命令参数或生成的SQL文件中展开口令，避免进入日志与进程参数。
 BEGIN;
 SET LOCAL search_path = pg_catalog;
 SET LOCAL password_encryption = 'scram-sha-256';
@@ -33,7 +36,7 @@ BEGIN
         app_password, 'infinity');
     app_password := NULL;
 
-    -- Remove inherited or SET ROLE elevation left by a previous configuration.
+    -- 清除旧配置留下的继承或SET ROLE提权路径，避免最小权限配置被历史角色关系绕过。
     FOR membership IN
         SELECT granted.rolname AS role_name, grantor.rolname AS grantor_name
         FROM pg_catalog.pg_auth_members AS memberships
@@ -54,7 +57,7 @@ BEGIN
         pg_catalog.current_database());
 EXCEPTION WHEN OTHERS THEN
     app_password := NULL;
-    -- Do not propagate a nested ALTER ROLE statement containing the secret.
+    -- 不向外传播包含秘密值的嵌套ALTER ROLE语句，错误路径也不能泄漏口令。
     RAISE EXCEPTION 'Runtime database role initialization failed; check administrator privileges and the protected secret'
         USING ERRCODE = 'P0001';
 END;
@@ -69,11 +72,11 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO drop_app;
 REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM drop_app;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO drop_app;
 
--- Defaults apply to objects subsequently created by this migration owner.
+-- 默认权限只作用于此迁移owner之后创建的对象，既有对象仍需上方显式授权。
 ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL PRIVILEGES ON TABLES FROM drop_app;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO drop_app;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL PRIVILEGES ON SEQUENCES FROM drop_app;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO drop_app;
--- Audit history is append-only for every runtime component.
+-- 所有运行期组件都只能追加审计记录，不能改写或删除既有审计历史。
 REVOKE UPDATE, DELETE, TRUNCATE ON public.audit_logs FROM drop_app;
 COMMIT;

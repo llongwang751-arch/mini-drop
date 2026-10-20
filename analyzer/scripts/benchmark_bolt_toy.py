@@ -1,6 +1,6 @@
-"""Optimize and execute only the checksum toy compiled by this script.
+"""只优化并执行本脚本编译的 checksum 玩具程序。
 
-Never used by the Analyzer worker; uploaded user ELF files are never executed.
+此脚本不属于 Analyzer worker 的执行路径；上传的用户 ELF 从不在此运行。
 """
 
 import hashlib

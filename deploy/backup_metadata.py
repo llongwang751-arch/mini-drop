@@ -1,7 +1,7 @@
-"""Bounded S3 object metadata persisted in protected backup manifests.
+"""在受保护的备份 manifest 中保存有界 S3 对象元数据。
 
-Transport, authentication and encryption headers never become restore PUT
-headers. Encryption is supplied by the destination bucket's policy.
+恢复 PUT 只使用内容元数据，不能复用传输、鉴权或加密响应头；
+加密由恢复目标 bucket 的策略提供，不能从旧响应头盲目重放。
 """
 
 import re
@@ -21,16 +21,16 @@ _MAX_FIELDS = 128
 
 
 def validate_metadata(value):
-    """Validate metadata from an untrusted backup before making any PUT."""
+    """恢复备份中的元数据不可信，必须在任何 PUT 前校验字段白名单、类型与字节预算。"""
     if value is None:
-        return {}  # Backups created before metadata preservation.
+        return {}  # 兼容尚未保存对象元数据的旧备份。
     if not isinstance(value, Mapping) or len(value) > _MAX_FIELDS:
         raise ValueError("Invalid or oversized object metadata")
     result = {}
     size = 0
     for key, item in value.items():
         if not isinstance(key, str) or not isinstance(item, str):
-            raise ValueError("Object metadata must contain string headers")  # noqa: TRY004 - corrupt backup data has one validation error type
+            raise ValueError("Object metadata must contain string headers")  # noqa: TRY004 - 损坏备份统一使用一种校验错误类型
         normalized = key.lower()
         if (
             normalized in result
@@ -48,12 +48,12 @@ def validate_metadata(value):
 
 
 def capture_metadata(headers):
-    """Extract only content metadata; do not retain SSE/auth/response headers."""
+    """只提取内容相关元数据，不保留 SSE、鉴权或其他响应头。"""
     selected = {}
     seen = set()
     for key, value in headers.items():
         if not isinstance(key, str):
-            raise ValueError("Invalid S3 response header")  # noqa: TRY004 - uniform metadata validation failure
+            raise ValueError("Invalid S3 response header")  # noqa: TRY004 - 元数据校验失败保持统一类型
         normalized = key.lower()
         if normalized in OBJECT_HEADERS or normalized.startswith("x-amz-meta-"):
             if normalized in seen:
@@ -64,5 +64,6 @@ def capture_metadata(headers):
 
 
 def verify_metadata(expected, headers):
+    """比较预期备份元数据与恢复后实际 HTTP 响应，字段类型和大小同样必须通过白名单校验。"""
     if validate_metadata(expected) != capture_metadata(headers):
         raise ValueError("Isolated S3 restore metadata mismatch")

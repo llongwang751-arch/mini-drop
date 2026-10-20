@@ -1,5 +1,5 @@
-# Binary built and tested with Go 1.26.9, CGO_ENABLED=0, linux/amd64.
-# Deployment verifies the locally frozen base image ID before building.
+# 二进制以Go1.26.9、CGO_ENABLED=0和linux/amd64构建并测试。
+# 部署构建前先核对本地冻结基础镜像ID，避免已验收二进制搭配未知运行层。
 ARG API_RUNTIME_BASE=drop-api:20261018.1-rc4
 FROM ${API_RUNTIME_BASE}
 USER root

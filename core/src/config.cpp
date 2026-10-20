@@ -1,3 +1,7 @@
+// 本地配置与安全元数据读取：包括证书、容器环境和工具完整性相关信息。
+// 配置只从受信环境或受限文件读取，错误路径不回显未经校验的输入或敏感内容。
+// 输出的配置摘要用于解释节点运行条件，不作为绕过目标授权的请求参数。
+
 #include "drop/config.hpp"
 #include "drop/json.hpp"
 #include <algorithm>
@@ -116,7 +120,7 @@ void typed_value(const std::string &key, const std::string &value) {
 void text(const std::string &value, std::size_t maximum = value_limit) {
   if (value.size() > maximum)
     throw std::invalid_argument("Configuration value exceeds its bound");
-  (void)json(value).dump(); // Reject invalid UTF-8 without rendering it.
+  (void)json(value).dump(); // 非法UTF-8直接拒绝，不先渲染可疑字节，避免错误路径泄漏输入。
   for (std::size_t index = 0; index < value.size();) {
     const auto first = static_cast<unsigned char>(value[index++]);
     std::uint32_t point = first;
@@ -239,7 +243,7 @@ std::shared_ptr<Configuration> active_configuration() {
     current = std::make_shared<Configuration>();
   return current;
 }
-} // namespace
+} // 结束匿名命名空间
 bool sensitive_configuration_key(const std::string &name) {
   return name == "DATABASE_URL" || name.find("PASSWORD") != std::string::npos ||
          name.find("SECRET") != std::string::npos ||
@@ -348,8 +352,8 @@ std::string Configuration::get(const std::string &name,
   return value;
 }
 json Configuration::snapshot() const {
-  // Include explicit configured keys even when this binary has not needed
-  // their values yet. Omitted inactive defaults are never invented.
+  // 显式配置过的键都参与配置记录，即使本次二进制尚未读取
+  // 它们的值；未启用且未配置的默认项不凭空补造。
   for (const auto &name : known) {
     const auto present = [&](const auto &values) {
       return values.contains(name) || values.contains(name + "_FILE");
@@ -378,4 +382,4 @@ std::string configuration_value(const std::string &name,
   return active_configuration()->get(name, fallback);
 }
 json configuration_snapshot() { return active_configuration()->snapshot(); }
-} // namespace dropcore
+} // 结束 dropcore 命名空间

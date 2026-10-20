@@ -22,8 +22,8 @@ cleanup() {
   if [[ -n "$env_file" ]]; then rm -f -- "$env_file"; fi
   exit "$result"
 }
-# Refuse collisions before installing cleanup; only this run's labelled
-# disposable resources are eligible for removal.
+# 注册清理逻辑前先拒绝名称冲突；只有带本次运行标签的
+# 一次性资源才能被删除，不清理其他项目或上一次遗留的未知资源。
 for name in "$runner" "$database" "$storage"; do
   if docker container inspect "$name" >/dev/null 2>&1; then
     printf 'Refusing an existing isolated Ops container.\n' >&2; exit 2

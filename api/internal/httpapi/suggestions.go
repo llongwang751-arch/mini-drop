@@ -1,3 +1,5 @@
+// Package httpapi：将规则建议、模型建议和反馈转换为 HTTP 资源。
+// 提交模型请求仍需用户同意；结果必须经过脱敏、纯文本和证据边界，不能直接把上游模型正文当可信页面。
 package httpapi
 
 import (

@@ -1,4 +1,4 @@
-"""Imported synthetic Docker/SQL fixtures; no Docker or network is accessed."""
+"""导入的合成 Docker/SQL 夹具，不访问 Docker 或网络。"""
 
 import importlib.util
 import io

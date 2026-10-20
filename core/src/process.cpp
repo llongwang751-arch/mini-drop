@@ -1,3 +1,8 @@
+// 受控子进程执行与公共日志工具：上层传入argv数组，本层不经shell拼接命令。
+// 每次执行使用独立进程组、时间/输出/资源限制，并在取消或超限时回收自己持有的子进程。
+// 同UID可能同时属于其他容器，因此不能把所有同UID进程当作当前任务的预算或清理对象。
+// 公开日志采用受限上下文；读取文件也有大小上限，避免错误输入撑爆采集进程。
+
 #include "drop/process.hpp"
 #include "drop/config.hpp"
 
@@ -28,6 +33,8 @@
 
 namespace dropcore {
 namespace {
+// 只统计本次工具进程组的进程与线程，避免把同UID无关进程算入预算。
+// /proc读取失败时拒绝继续，不能把“没数清楚”解释为“没有超限”。
 bool process_group_over_budget(pid_t group, unsigned maximum) {
   unsigned scanned = 0;
   std::uint64_t tasks = 0;
@@ -44,7 +51,7 @@ bool process_group_over_budget(pid_t group, unsigned maximum) {
     std::string stat;
     std::getline(input, stat);
     if (!input || stat.size() > 8192)
-      continue; // An unrelated or concurrently exiting process is not owned.
+      continue; // 无关进程或正在并发退出的进程不能被认作当前采集器持有。
     const auto end = stat.rfind(')');
     if (end == std::string::npos)
       continue;
@@ -54,7 +61,7 @@ bool process_group_over_budget(pid_t group, unsigned maximum) {
     if (!(fields >> state >> parent >> process_group) || process_group != group)
       continue;
     std::string field;
-    // Fields 6..19 precede num_threads (20) in /proc/PID/stat.
+    // /proc/PID/stat中，第6至19字段位于线程数num_threads（第20字段）之前。
     for (unsigned index = 6; index < 20; ++index)
       fields >> field;
     std::uint64_t threads{};
@@ -89,7 +96,7 @@ cpu_set_t validated_cpu_affinity(const std::vector<unsigned> &cpus) {
   }
   return selected;
 }
-} // namespace
+} // 结束匿名命名空间
 
 std::vector<unsigned> parse_cpu_affinity(const std::string &value) {
   if (value.empty())
@@ -158,7 +165,7 @@ void emit_log(const nlohmann::json &record) {
                            nlohmann::json::error_handler_t::replace)
             << '\n';
 }
-} // namespace
+} // 结束匿名命名空间
 nlohmann::json log_record(const std::string &service,
                           const std::string &message, const std::string &code,
                           const LogContext &context) {
@@ -345,7 +352,7 @@ ProcessResult execute(const std::vector<std::string> &argv,
         result.process_limit_exceeded =
             process_group_over_budget(child, limits.processes);
       } catch (...) {
-        // Fail closed if the bounded /proc accounting cannot be completed.
+        // 有界/proc计数无法完成时按失败处理，不能跳过预算继续运行。
         result.process_limit_exceeded = true;
       }
       if (result.process_limit_exceeded) {
@@ -365,12 +372,12 @@ ProcessResult execute(const std::vector<std::string> &argv,
       kill(-child, SIGKILL);
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
-  // The process group belongs to this runner and may contain lingering
-  // children.
+  // 当前进程组归此Runner持有，主工具退出后仍可能遗留
+  // 子进程；收尾时按进程组清理，避免误杀同UID的其他工作。
   kill(-child, SIGKILL);
   result.exit_code =
       WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status);
   result.output = read_file(output_path, 16 * 1024);
   return result;
 }
-} // namespace dropcore
+} // 结束 dropcore 命名空间

@@ -1,4 +1,4 @@
-"""Common stack aggregation; adapters retain their actual units and provenance."""
+"""复用调用栈聚合逻辑，各适配器仍保留自己的真实单位与数据来源。"""
 
 from .errors import AnalysisError
 from .folded import Limits, analyze_folded

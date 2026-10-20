@@ -1,3 +1,7 @@
+-- 任务、执行attempt、节点、制品与分析队列的初始结构，是跨服务状态的持久化真源。
+-- task描述业务任务，attempt描述一次具体执行；采集状态和分析状态分开保存。
+-- 迁移顺序由版本表控制；此处仅补说明，不能重排历史列、约束或已有版本编号。
+
 BEGIN;
 CREATE TABLE IF NOT EXISTS schema_migrations(version integer PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now());
 CREATE TABLE IF NOT EXISTS users (

@@ -1,8 +1,7 @@
-"""Exercise the final Compose merge without an engine or real .env/secrets.
+"""不连接容器引擎、不读取真实 .env/密钥，验证最终 Compose 合并结果。
 
-All interpolated environment values are explicitly imported test fixtures.
-These checks prove generated configuration boundaries, not Linux runtime UIDs,
-socket peer credentials, outbound firewall policy or production health.
+插值环境值全部是明确导入的测试夹具。这些检查证明生成配置的权限边界，
+不能证明 Linux 运行时 UID、socket 对端身份、出站防火墙或生产健康状态。
 """
 
 from __future__ import annotations
@@ -51,7 +50,7 @@ def names(items: list[dict]) -> set[str]:
 
 
 def boundary_errors(baseline: dict, merged: dict) -> list[str]:
-    """Validate semantic privilege boundaries in Docker's normalized model."""
+    """根据 Docker 规范化后的模型验证权限语义边界，而不是只匹配 YAML 文本。"""
     errors = []
 
     def require(ok: object, code: str) -> None:
@@ -114,8 +113,8 @@ def boundary_errors(baseline: dict, merged: dict) -> list[str]:
 
     require(init.get("network_mode") == "none" and not init.get("networks"), "INIT_HAS_NETWORK")
     require(init.get("user") == "0:0" and init.get("restart") == "no", "INIT_LIFECYCLE_CHANGED")
-    # Without FSETID, root must belong to the target group or Linux can clear
-    # SGID during chmod. Keep consumers non-writable instead of adding a cap.
+    # 未授予 FSETID 时，root 必须属于目标组，否则 Linux 可能在 chmod 时清除 SGID；
+    # 保持消费者目录不可写，不通过增加 capability 绕过。
     require(set(str(group) for group in init.get("group_add", [])) == {"10003"}, "INIT_SOCKET_SUPPLEMENTARY_GROUP_INVALID")
     require(set(init.get("cap_drop", [])) == {"ALL"} and set(init.get("cap_add", [])) <= {"CHOWN", "DAC_OVERRIDE", "FOWNER"}, "INIT_CAPABILITY_WIDENED")
     require(not init.get("secrets") and not init.get("ports") and not init.get("privileged"), "INIT_HAS_SECRETS_OR_PRIVILEGE")
@@ -231,9 +230,8 @@ class AgentScopeDeploymentTests(unittest.TestCase):
             with self.subTest(expected=expected, change=change):
                 candidate = self.compose(True, {"services": {"agent-runtime": change}})
                 self.assertIn(expected, boundary_errors(self.baseline, candidate))
-        # Compose 2.40 rejects '-1' before returning normalized configuration.
-        # Keep that unlimited-swap policy negative control independent of the
-        # parser; the real merge above uses a valid size exceeding memory.
+        # Compose 2.40 会在返回规范配置前拒绝 -1；无限 swap 的负对照
+        # 应独立于解析器，上面的真实合并使用合法但超过 memory 的大小。
         unlimited_swap = deepcopy(self.merged)
         unlimited_swap["services"]["agent-runtime"]["memswap_limit"] = -1
         self.assertIn("RUNTIME_SWAP_NOT_BOUNDED", boundary_errors(self.baseline, unlimited_swap))
@@ -260,8 +258,8 @@ class AgentScopeDeploymentTests(unittest.TestCase):
             with self.subTest(expected=expected):
                 candidate = self.compose(True, {"services": {"agent-runtime-permission-init": change}})
                 self.assertIn(expected, boundary_errors(self.baseline, candidate))
-        # Compose normally merges group_add lists. Force actual removal or
-        # replacement so the negative cases exercise the final configuration.
+        # Compose 默认合并 group_add 列表；负用例需显式移除或替换，
+        # 确保测到的是最终配置中的真实缺失。
         for groups in ("[]", "['10004']"):
             with self.subTest(init_supplementary_groups=groups):
                 candidate = self.compose(True, override_text=(

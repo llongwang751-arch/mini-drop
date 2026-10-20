@@ -1,3 +1,7 @@
+/**
+ * 导入授权 API/对象响应，但使用真实 Chromium fetch、gzip 与原生 Worker 完成制品链。
+ * 重点验证过期授权只刷新一次、跨源链接拒绝和路由退出取消，不宣称真实 S3 已验收。
+ */
 import { test, expect } from "@playwright/test";
 import type { Page, Route } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";

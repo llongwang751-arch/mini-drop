@@ -1,3 +1,7 @@
+/**
+ * 同口径调用树对比：先校验任务类型、指标与单位，再汇总函数权重。
+ * 百分比差值是热点分布变化，不自动等于业务延迟改善，也不能单独证明根因。
+ */
 import type { AnalysisResult, FlameNode, Task } from "./types";
 
 export type ComparisonMode = "self" | "total";
@@ -104,6 +108,7 @@ function profileWeights(result: AnalysisResult): ProfileWeights {
         node.value
     )
       throw new Error("调用树总计与自身权重不一致");
+    // 递归路径上同名函数的 total 只记第一次；self 仍逐节点累计，避免递归重复放大总开销。
     const firstOccurrence = depth > 0 && !path.has(node.name);
     if (depth > 0) {
       const item = functions.get(node.name) || { self: 0, total: 0 };

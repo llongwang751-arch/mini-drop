@@ -1,8 +1,8 @@
-# Optional legacy-uprobe compatibility on AppArmor hosts. Load the dedicated
-# profile with apparmor_parser -r apparmor/drop-collector-helper first.
-# Keep tracefs RO; only BCC's registration file is writable by the helper.
-# Fixed collector templates, verified allocator symbols, selected PID/UID and
-# immutable process identity checks continue to mediate every request.
+# AppArmor宿主可选的旧版uprobe兼容；先使用
+# apparmor_parser -r apparmor/drop-collector-helper加载专用配置。
+# tracefs继续只读，helper只能写BCC必需的探针登记文件。
+# 每次请求仍受到固定采集模板、已校验的分配器符号、选定PID/UID及
+# 不可变进程身份检查约束，兼容配置不能绕过这些校验。
 services:
   collector-helper:
     security_opt: !override

@@ -1,7 +1,7 @@
-"""Real S3 metadata round-trip, using only a new UUID imported fixture bucket.
+"""只使用本次新建 UUID 夹具 bucket，验证真实 S3 元数据往返。
 
-Run with the configured analyzer image and read-only mounts of this file and
-deploy/backup_metadata.py. No production bucket is listed or modified.
+在配置好的 analyzer 镜像内以只读方式挂载本文件和 deploy/backup_metadata.py；
+不列举或修改生产 bucket。
 """
 
 import gzip

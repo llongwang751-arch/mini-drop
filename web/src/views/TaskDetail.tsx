@@ -1,3 +1,7 @@
+/**
+ * 单任务证据工作台：详情接口是状态真相，事件流只触发刷新，结果和制品按当前执行身份载入。
+ * 采集状态、分析状态、失败检查点和完整报告分开呈现，避免把历史成功结果套到新失败轮次上。
+ */
 import ConfirmDialog from "../components/ConfirmDialog";
 import { pollingInterval } from "../query-policy";
 import { subscribeTaskEvents } from "../event-stream";
@@ -116,6 +120,7 @@ export default function TaskDetail({
   const partialKeyText = JSON.stringify(partialKey);
   const partialAvailable =
     !!partialIdentity(task) && partialBlockedAt !== partialKeyText;
+  // 检查点只读一次且不长期缓存；退出页面或执行身份失效时立即取消并清除。
   const partial = useQuery({
     queryKey: partialKey,
     queryFn: ({ signal }) => loadPartialAnalysis(task!, signal),
@@ -144,6 +149,7 @@ export default function TaskDetail({
     enabled: task?.analysis_status === "SUCCESS",
   });
   const flameArtifact = task && selectFlameArtifact(task);
+  // 完整制品缓存绑定 attempt、artifact 和 SHA 元数据，不复用另一轮采集的同名文件。
   const artifactTree = useQuery({
     queryKey: [
       "flame-artifact",
@@ -165,6 +171,7 @@ export default function TaskDetail({
       api<List<TaskEvent>>(`/tasks/${id}/events`, { signal }),
     enabled: !!task,
   });
+  // 重试/取消/重分析开始前先移除部分结果，防止新操作进行时还展示旧检查点。
   const action = useMutation({
     onMutate: async () => {
       setPartialBlockedAt(partialKeyText);
@@ -183,6 +190,7 @@ export default function TaskDetail({
     },
     onError: () => setPartialBlockedAt(null),
   });
+  // 每次点击先经授权 API 换短期链接，不能根据制品 ID 自行拼出长期对象存储地址。
   const download = useMutation({
     mutationFn: async (artifact: Artifact) => {
       const d = await api<{ url: string }>(
@@ -202,6 +210,7 @@ export default function TaskDetail({
       setStreamState("complete");
       return;
     }
+    // 流只使详情缓存失效；即使 SSE 断开，统一轮询仍能获取任务最终状态。
     return subscribeTaskEvents(task.id, {
       onState: setStreamState,
       onEvent: (event) => {
@@ -212,6 +221,7 @@ export default function TaskDetail({
   }, [id, !!task, task && isTerminal(task), qc]);
   if (q.error) return <ErrorPanel error={q.error} retry={() => q.refetch()} />;
   if (!task) return <Skeleton rows={8} />;
+  // 页面入口的只读模式与后端下发的任务权限取更严格者；按钮可用并不免除 API 授权检查。
   const operationReadOnly = readOnly || task.permissions?.operate === false;
   const imported =
     task.kind === "IMPORT_COLLAPSED" || task.params.source === "import";
@@ -219,6 +229,7 @@ export default function TaskDetail({
     task.collection_status === "COLLECTED" && task.analysis_status === "SUCCESS"
       ? result.data
       : undefined;
+  // 优先使用按权限下载的完整调用树；小型内嵌树只在当前任务成功结果内作为展示回退。
   const flameTree = artifactTree.data || r?.flamegraph;
   const ruleSuggestions = r?.suggestions.filter((s) => s.engine !== "ai") || [];
   const visibleHotspots = r

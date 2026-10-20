@@ -1,4 +1,8 @@
-"""Allowlisted, bounded tool adapters. Profiles are data, never executable code."""
+"""只调用白名单内且有资源限制的解码工具；profile 始终作为数据处理。
+
+工具通过 argv 启动，路径来自作业上下文。上传的 ELF 可供符号解析或 BOLT 优化，
+不会在 Analyzer 中作为业务程序执行；缺失观测量明确表示不可用，不猜测为零。
+"""
 
 import json
 import os
@@ -64,7 +68,7 @@ def run_tool(
 
 
 def analyze_jfr(path, *, work_dir):
-    # jfr print is an OpenJDK decoder; JSON event stacks remain actual JFR data.
+    # jfr print 是 OpenJDK 解码器；转换后的 JSON 调用栈仍来自真实 JFR 事件。
     raw = run_tool(
         [
             "jfr",
@@ -180,8 +184,8 @@ def analyze_memray(path):
                 for snapshot in reader.get_memory_snapshots()
             ][:3600]
             total_allocated, total_freed, free_count = None, None, None
-            # Aggregated memray files intentionally lack the event stream.
-            # Report unavailable totals as null instead of treating them as zero.
+            # 聚合 memray 文件本来就不包含完整事件流；无法取得的总量用 null 表示，
+            # 不能把缺失信息当作零。
             if (
                 getattr(metadata, "file_format", None)
                 == memray.FileFormat.ALL_ALLOCATIONS
@@ -259,7 +263,7 @@ def symbolize_native(parsed, binary_path, *, work_dir):
     )
     if not addresses:
         return parsed
-    # Use complete tree addresses, not only TopN, with an independent cap.
+    # 按完整树中的地址进行符号化，而非只看 TopN；地址数量另设上限。
     addresses = set()
     queue = [parsed["flamegraph"]]
     while queue:

@@ -1,4 +1,4 @@
-"""Compare the installed release with the reviewed source without importing it."""
+"""不导入目标代码，直接比较已安装发布包与经过审查的源码。"""
 
 import hashlib
 import json

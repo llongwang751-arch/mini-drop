@@ -1,3 +1,5 @@
+// Package service：在有界调用树内提取某个热点的祖先、子调用和出现位置。
+// 遍历截断与局部上下文省略分别标记，避免把“返回范围有限”误写成“原始采集缺失”。
 package service
 
 import (
@@ -14,9 +16,9 @@ type diagnosisTree struct {
 	Children []*diagnosisTree `json:"children"`
 }
 
-// Bounded, task-local sandwich-style exploration. No filesystem queries or raw
-// frames leave the platform. We return individual occurrences, never sum
-// recursive inclusive weights or infer elapsed/request time.
+// diagnosisCallPaths 在当前任务内有界展开热点前后的调用上下文。
+// 不查询文件系统，也不让原始栈帧离开平台；逐次返回函数出现位置，
+// 不累加递归调用的包含权重，更不把采样权重推断为请求耗时。
 func diagnosisCallPaths(raw json.RawMessage, name string) (json.RawMessage, error) {
 	unavailable := func(reason string) (json.RawMessage, error) {
 		return json.Marshal(map[string]any{"available": false, "reason": reason})

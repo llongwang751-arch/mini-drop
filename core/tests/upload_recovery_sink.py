@@ -1,4 +1,4 @@
-"""Private-network fault sink for the explicitly isolated recovery regression."""
+"""仅供明确隔离的恢复回归使用的私网故障接收端。"""
 import json
 import hashlib
 import os
@@ -57,7 +57,7 @@ class Handler(BaseHTTPRequestHandler):
         digest = hashlib.sha256(content).hexdigest()
         STATE.setdefault(key.replace("attempts", "sha256s"), []).append(digest)
         if key == "raw_attempts":
-            # Keep every attempted RAW fingerprint to prove recovery reused bytes.
+            # 保留每次 RAW 上传尝试的指纹，证明恢复复用了同一份字节。
             if MODE == "permanent":
                 return self.reply(403)
             if MODE == "restart" and not STATE["allow"]:
@@ -72,7 +72,7 @@ class Handler(BaseHTTPRequestHandler):
             if MODE == "manifest_restart" and not STATE["allow"]:
                 return self.reply(503)
         (ROOT / name).write_bytes(content)
-        # Deliberately opaque: the client must preserve this independently of SHA256.
+        # 故意使用不透明标记；客户端必须独立保留它，不能用 SHA256 代替。
         etag = '"fixture-' + hashlib.md5(content, usedforsecurity=False).hexdigest() + '"'
         STATE.setdefault("etags", {})[name] = etag
         self.reply(200, etag=etag)

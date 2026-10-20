@@ -1,3 +1,5 @@
+"""Analyzer 的模块启动入口：读取有效配置，再进入单作业 worker 循环。"""
+
 from .config import Config
 from . import __version__
 from .runtime import ConfigurationError, emit

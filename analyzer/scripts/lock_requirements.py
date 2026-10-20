@@ -1,4 +1,4 @@
-"""Pin the installed Linux runtime to hashes from canonical PyPI metadata."""
+"""根据 PyPI 官方元数据，为已安装的 Linux 运行依赖固定版本与哈希。"""
 
 from concurrent.futures import ThreadPoolExecutor
 import importlib.metadata

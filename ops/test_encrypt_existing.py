@@ -1,4 +1,4 @@
-"""Offline migration regressions. All object bodies below are synthetic fixtures."""
+"""离线迁移回归；下方所有对象内容均为合成夹具。"""
 
 from contextlib import nullcontext
 from dataclasses import replace

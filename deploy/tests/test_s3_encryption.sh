@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Private disposable fixture. No production volume, key, port or credentials.
+# 私有的一次性夹具，不使用生产卷、密钥、端口或凭据。
 set -euo pipefail
 umask 077
 source_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd -P)"
@@ -18,7 +18,7 @@ volume_created=0
 cleanup() {
   local result=$? name owner
   trap - EXIT INT TERM HUP
-  # Refuse to remove a container unless its ownership label matches this run.
+  # 只有容器所有权标签匹配本次运行时才允许删除，防止误清理其他容器。
   for name in "$container" "$probe_container" "$init_container"; do
     owner="$(docker inspect --format '{{index .Config.Labels "drop.encryption.fixture"}}' "$name" 2>/dev/null || true)"
     if [[ "$owner" == "$job" ]]; then
@@ -49,7 +49,7 @@ printf 'fixture-v1:%s\n' "$(openssl rand -base64 32)" > "$fixture/kms"
 cp "$fixture/kms" "$fixture/original-kms"
 head -c 2097152 /dev/urandom > "$fixture/payload.bin"
 chmod 444 "$fixture/"*
-# docker volume create can reuse an existing volume, so explicitly reject one.
+# docker volume create可能复用已有卷，因此这里必须显式拒绝已存在的同名卷。
 if docker volume inspect "$volume" >/dev/null 2>&1; then
   printf 'Refusing to reuse an existing fixture volume.\n' >&2
   exit 2
@@ -104,7 +104,7 @@ start_storage on
 probe encrypt-legacy
 probe write
 docker rm -f "$container" >/dev/null
-# Changing file permissions first also supports hosts using a non-root Docker user.
+# 先调整文件权限，同时兼容使用非root Docker用户的宿主环境。
 chmod 600 "$fixture/kms"
 printf 'fixture-v1:%s\n' "$(openssl rand -base64 32)" > "$fixture/kms"
 chmod 444 "$fixture/kms"

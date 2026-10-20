@@ -1,4 +1,4 @@
-"""Validate deployment trust boundaries; this is not a Linux runtime proof."""
+"""验证部署信任边界，不把静态配置检查当作 Linux 运行证明。"""
 
 import unittest
 from pathlib import Path

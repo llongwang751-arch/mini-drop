@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright The Moby Authors
 # SPDX-License-Identifier: Apache-2.0
-# Adapted from https://github.com/moby/profiles/blob/main/apparmor/template.go
-# Preserve Docker's filesystem/mount/sysctl restrictions. Explicit peers allow
-# controller identity reads and fixed-template Helper diagnostics only.
+# 参考来源：https://github.com/moby/profiles/blob/main/apparmor/template.go
+# 保留Docker默认文件系统、挂载与sysctl限制；只对明确登记的peer允许
+# 控制器读取目标身份及helper执行固定模板诊断，不能据此任意追踪。
 abi <abi/3.0>,
 #include <tunables/global>
 

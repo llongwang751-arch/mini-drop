@@ -1,8 +1,7 @@
-"""Check actual Gin routes, OpenAPI references, input boundaries and public Go fields.
+"""核对实际 Gin 路由、OpenAPI 引用、输入边界与公开 Go 字段。
 
-Dependencies: PyYAML, jsonschema. Optional --spec-validator also runs the official
-OpenAPI structural validator when openapi-spec-validator is installed.
-This is static contract verification, not a substitute for HTTP integration tests.
+依赖 PyYAML、jsonschema；安装 openapi-spec-validator 后，--spec-validator 可额外运行
+OpenAPI 结构验证器。这属于静态契约核验，不能替代真实 HTTP 集成测试。
 """
 from __future__ import annotations
 
@@ -77,8 +76,8 @@ def main():
     for kind in catalog:
         assert schemas[f"NormalizedParameters_{kind['id']}"] == kind["parameter_schema"], kind["id"]
 
-    # Every public JSON field of shared Go DTOs must be represented, including
-    # fields inherited from Task/CompositeRun via allOf. No credentials exposed.
+    # 共享 Go DTO 的每个公开 JSON 字段都要有对应描述，包括 Task/CompositeRun
+    # 经 allOf 继承的字段；不得为了文档覆盖而暴露凭据字段。
     def properties(schema):
         if "$ref" in schema:
             return properties(schemas[schema["$ref"].rsplit("/", 1)[1]])
@@ -101,7 +100,7 @@ def main():
         go_fields = {name for name in re.findall(r'json:"([^,\"]+)', body) if name != "-"}
         assert go_fields == properties(schemas[schema_name]), (go_name, go_fields - properties(schemas[schema_name]), properties(schemas[schema_name]) - go_fields)
 
-    # Representative payloads are schema fixtures only, never operational data.
+    # 代表性载荷只是 Schema 测试夹具，不是线上运行数据。
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", DeprecationWarning)
         resolver = jsonschema.RefResolver.from_schema(doc)

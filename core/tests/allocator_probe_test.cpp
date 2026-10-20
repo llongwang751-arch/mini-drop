@@ -1,4 +1,4 @@
-// Filesystem safety fixtures only. This test does not claim kernel collection.
+// 仅验证文件系统安全边界的导入夹具，不代表已完成真实内核采集。
 #include "drop/allocator_probe.hpp"
 #include <filesystem>
 #include <fstream>

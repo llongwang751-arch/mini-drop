@@ -1,3 +1,5 @@
+// Package service：保留受限的旧模型协议实现与报告验证器；AgentScope 路径也复用最终报告约束。
+// 工具预算、必要证据、引用和输出长度都由程序决定，模型不能通过格式修复增加工具权限。
 package service
 
 import (
@@ -27,6 +29,7 @@ type diagnosisMessage struct {
 	ToolCallID string          `json:"tool_call_id,omitempty"`
 }
 
+// diagnosisDefinitions 发布当前诊断阶段的有限工具 schema；模型没有 task ID、URL、SQL 或任意命令参数，工具绑定由服务端完成。
 func diagnosisDefinitions() []map[string]any {
 	tools := []map[string]any{}
 	descriptions := map[string]string{"read_profile_summary": "读取此诊断绑定的脱敏性能摘要。", "inspect_hotspots": "检查此任务Top10热点，返回哈希符号和self/total比例。", "check_collection_quality": "检查采样窗口、导入来源与无法判定的指标。", "propose_verification": "生成同种采集器的复测草案，仅建议，不执行。只能自定义时长和频率，仍受TaskKind契约校验。"}
@@ -101,7 +104,7 @@ func (s *Suggestions) diagnosisModel(ctx context.Context, goal string, first jso
 			if a.FinishReason != "tool_calls" || len(a.Message.ToolCalls) > 2 || len(a.Message.Content) > 4000 {
 				return nil, domain.Fail("AI_BUDGET_EXCEEDED", "工具调用数量或内容超限")
 			}
-			// Persist only validated tool results. Assistant commentary is not logged.
+			// 只持久化经过校验的工具结果；模型的中间叙述不进入日志。
 			a.Message.Role = "assistant"
 			a.Message.Content = ""
 			a.Message.ToolCallID = ""
@@ -134,8 +137,8 @@ func (s *Suggestions) diagnosisModel(ctx context.Context, goal string, first jso
 		}
 		report, err := validateDiagnosisReport(a.Message.Content, *trace)
 		if err != nil && round < 3 {
-			// A rejected final answer is observable feedback, not an accepted
-			// diagnosis. Repair stays inside the same four-round budget.
+			// 被拒绝的最终回答会作为反馈交给模型修正，但不能当作已接受的诊断。
+			// 修正仍计入同一个四轮预算，不能借格式错误无限追加推理。
 			messages = append(messages, diagnosisMessage{Role: "user", Content: "报告未通过格式/引用校验。请仅用实际返回的E编号重新输出规定JSON；不要添加plan/engine/model字段、Markdown、HTML或链接。请压缩文字：summary最多500中文字符，claim最多240中文字符，verification最多400中文字符，limitations每项最多150中文字符。无需重复工具。"})
 			continue
 		}
@@ -147,8 +150,8 @@ func (s *Suggestions) diagnosisModel(ctx context.Context, goal string, first jso
 	return nil, domain.Fail("AI_BUDGET_EXCEEDED", "已达到4轮模型调用上限")
 }
 
-// Exactly one format-only request after an invalid final answer at the last
-// tool round. It cannot execute more tools or extend the shared 150s deadline.
+// repairFinalDiagnosis 只在最后一轮最终报告格式无效时追加一次格式修正请求。
+// 此请求不能再执行工具，也不能延长共享的 150 秒截止时间。
 func (s *Suggestions) repairFinalDiagnosis(ctx context.Context, messages []diagnosisMessage, content string, trace []DiagnosisStep) (*DiagnosisReport, error) {
 	ids := []string{}
 	for _, step := range trace {
@@ -190,6 +193,7 @@ func (s *Suggestions) repairFinalDiagnosis(ctx context.Context, messages []diagn
 
 var diagnosisMarkup = regexp.MustCompile(`(?i)<\s*/?\s*[a-z]`)
 
+// validateDiagnosisReport 拒绝未知字段、HTML、链接、超长文本和不存在的 E 编号；通过只代表结构与证据引用有效，不证明模型提出的假设已经成为根因。
 func validateDiagnosisReport(content string, trace []DiagnosisStep) (*DiagnosisReport, error) {
 	invalid := func() (*DiagnosisReport, error) {
 		return nil, domain.Fail("AI_INVALID_REPORT", "模型报告格式或证据引用无效")

@@ -1,3 +1,7 @@
+// 采集与控制面的可观测性旁路：提供有界指标和追踪导出，帮助关联执行阶段。
+// 遥测失败不改变已经提交的业务结果；上下文只携带安全标识，不携带原始profile或凭据。
+// 指标用于观察运行状态，不替代数据库里的任务/attempt状态机。
+
 #include "drop/telemetry.hpp"
 #include "drop/process.hpp"
 #include <arpa/inet.h>
@@ -36,7 +40,7 @@ std::string random_hex(std::size_t length) {
 std::size_t discard(char *, std::size_t size, std::size_t count, void *) {
   return size * count;
 }
-} // namespace
+} // 结束匿名命名空间
 Telemetry::Telemetry(std::string service, int port)
     : service_(std::move(service)) {
   endpoint_ = secret("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT");
@@ -240,4 +244,4 @@ nlohmann::json certificate_metadata(const std::string &path) {
       {"expires_in_seconds", static_cast<std::int64_t>(days) * 86400 + seconds},
       {"expired", days < 0 || (days == 0 && seconds < 0)}};
 }
-} // namespace dropcore
+} // 结束 dropcore 命名空间

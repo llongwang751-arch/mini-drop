@@ -1,3 +1,5 @@
+// 本文件验证自动复测和自然语言规划的持久化关联、人工确认、来源重分析栅栏及比较的因果边界。
+// 测试名称标明具体场景；涉及真实数据库的用例需显式配置测试连接，协议夹具不代表生产或模型实测。
 package service
 
 import (
@@ -148,7 +150,7 @@ func TestPostgresDiagnosisAutomaticVerification(t *testing.T) {
 	if !found {
 		t.Fatal("candidate diagnosis did not actually compare")
 	}
-	// Lifecycle fixtures below exercise durable linkage, not real CRM profiling.
+	// 以下生命周期夹具检验持久化关联和状态推进，不代表执行真实 CRM 采样。
 	rev := strings.Repeat("a", 64)
 	s.Config.Endpoint = "http://explicit-unused-model-fixture.invalid"
 	s.Code = &CodeExecutor{client: &http.Client{Transport: fixtureRoundTripper(func(req *http.Request) (*http.Response, error) {

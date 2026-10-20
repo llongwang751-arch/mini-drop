@@ -1,5 +1,7 @@
 //go:build linux
 
+// 本文件验证真实 Linux Unix 连接的 UID 识别，以及 socket 目录属主、组和 setgid 边界。
+// 测试名称标明具体场景；涉及真实数据库的用例需显式配置测试连接，协议夹具不代表生产或模型实测。
 package service
 
 import (
@@ -10,7 +12,7 @@ import (
 )
 
 func TestAgentUnixPeerCredentialsRejectDifferentUID(t *testing.T) {
-	// A real local Unix connection, with imported protocol context only.
+	// 使用真实本机 Unix 连接核验内核进程身份；请求上下文是明确导入的协议夹具。
 	socket := filepath.Join(t.TempDir(), "imported-peer.sock")
 	listener, err := net.ListenUnix("unix", &net.UnixAddr{Name: socket, Net: "unix"})
 	if err != nil {

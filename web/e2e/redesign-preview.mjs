@@ -1,3 +1,6 @@
+/**
+ * 页面预览与截图辅助脚本；截图用于视觉复审，不代表对应采集链路或后端权限已验收。
+ */
 import fs from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";

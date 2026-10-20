@@ -1,3 +1,5 @@
+// 本文件验证部分分析协议的字段白名单、数值上限、来源身份和共享导入夹具。
+// 测试名称标明具体场景；涉及真实数据库的用例需显式配置测试连接，协议夹具不代表生产或模型实测。
 package domain
 
 import (
@@ -8,7 +10,7 @@ import (
 	"testing"
 )
 
-// Explicit imported synthetic data; never a production profile.
+// 明确标记的导入合成数据，仅用于协议回归，不是生产采样结果。
 func importedPartialFixture() map[string]any {
 	return map[string]any{
 		"schema_version": 1, "completeness": "partial", "task_id": "7", "attempt_id": "20",

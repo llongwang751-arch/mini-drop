@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Both real Agent/Server protocol directions against isolated PostgreSQL.
+"""在隔离 PostgreSQL 环境验证新旧 Agent/Server 两个方向的真实协议兼容。
 
-Uses the preserved V1 release image. Collects real PROC_CPU, verifies the PUT
-bytes against the committed SHA and records negotiation/failover evidence.
+使用保留的 V1 发布镜像，执行真实 PROC_CPU，将 PUT 字节与已提交 SHA 核对，
+并记录能力协商与故障恢复证据。
 """
 import hashlib,json,os,pathlib,re,secrets,subprocess,sys,time
 ROOT=pathlib.Path(__file__).resolve().parents[2]

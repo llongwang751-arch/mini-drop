@@ -1,4 +1,4 @@
-"""Backup metadata policy regressions; all header values are imported fixtures."""
+"""备份元数据策略回归，所有 HTTP 头值均为导入夹具。"""
 
 import importlib.util
 import unittest

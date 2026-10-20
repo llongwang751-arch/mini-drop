@@ -1,3 +1,7 @@
+/**
+ * 只读呈现失败轮次的已校验检查点，并同时列出已完成与缺失阶段。
+ * 这不是完整成功报告，因此不提供火焰图、诊断建议或会让用户误判为已完成的操作。
+ */
 import { FileText } from "@phosphor-icons/react";
 import { number } from "../api";
 import type { PartialAnalysis } from "../partial-analysis";

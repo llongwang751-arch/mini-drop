@@ -1,4 +1,4 @@
-// Imported deterministic GDB double: kernel/filter/SHA proof, not real capture.
+// 确定性的导入GDB替身，验证内核过滤及SHA策略，不表示真实采集。
 #include "drop/artifact.hpp"
 #include "drop/process.hpp"
 #include "drop/target.hpp"

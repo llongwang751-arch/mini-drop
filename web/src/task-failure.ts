@@ -1,3 +1,7 @@
+/**
+ * 把任务、最新采集轮次和事件时间线整理成失败说明与恢复入口。
+ * 只展示能归属到当前轮次的制品；是否能重试/重分析还要结合资源权限与状态。
+ */
 import type { Artifact, Attempt, Task, TaskEvent } from "./types";
 
 export type TimelineTone = "failed" | "canceled" | "success" | "neutral";
@@ -31,8 +35,7 @@ function latestAttempt(task: Task): Attempt | undefined {
   if (attempts.some((a) => !Number.isSafeInteger(a.attempt) || a.attempt < 1))
     return;
   const latest = [...attempts].sort((a, b) => b.attempt - a.attempt)[0];
-  // Validate only after locating the newest attempt. Filtering invalid IDs
-  // first would silently relabel an older attempt's files as current.
+  // 先定位最新执行轮次，再验证它的标识；若先过滤坏 ID，可能把旧轮次制品误标成当前结果。
   return latest && identifier(latest.id) ? latest : undefined;
 }
 function currentEvents(task: Task, events: TaskEvent[]) {

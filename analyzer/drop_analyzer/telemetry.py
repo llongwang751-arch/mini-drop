@@ -1,4 +1,4 @@
-"""Low-cardinality Prometheus metrics and optional short OpenTelemetry spans."""
+"""低基数 Prometheus 指标与可选的短 OpenTelemetry span，不把任务标识变成指标维度。"""
 
 from collections import defaultdict
 from contextlib import contextmanager
@@ -13,7 +13,7 @@ _tracer = None
 
 
 def count(name, value=1, *, kind="all", status="all"):
-    # Call sites use registered kind/status constants, never task IDs/paths.
+    # 指标标签只使用已登记的 kind/status 常量，不使用任务 ID 或文件路径。
     with _lock:
         _values[(name, kind, status)] += value
 

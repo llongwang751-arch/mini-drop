@@ -1,7 +1,7 @@
-"""Operator-only enrollment of a credential-free immutable source snapshot.
+"""仅供运维登记不含凭据的不可变源码快照。
 
-Not exposed as an Agent tool. Run as root on the Docker host, after reviewing
-the snapshot, fixed test preset and runner image built from the checked harness.
+此脚本不作为 Agent 工具暴露；管理员审阅快照、固定测试 preset 和 harness 镜像后，
+在 Docker 宿主上以 root 执行，建立项目、源码版本与镜像摘要的可信绑定。
 """
 import argparse
 import hashlib
@@ -15,6 +15,10 @@ import subprocess
 
 
 def enroll(context, root, runner, workload, container, agent):
+    """核对导出清单、路径和每个源码摘要后，登记不可变项目及镜像 ID。
+
+    模型不能调用此函数选择任意仓库；旧登记若内容不同则拒绝覆盖，manifest 通过临时文件原子替换。
+    """
     if os.geteuid() != 0:
         raise RuntimeError('ROOT_OPERATOR_REQUIRED')
     context, root = Path(context).resolve(), Path(root).resolve()

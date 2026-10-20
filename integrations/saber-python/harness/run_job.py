@@ -1,4 +1,8 @@
-"""Frozen networkless Saber component profile/test job, no arbitrary commands."""
+"""固定的 Saber 组件采样与回归任务，运行于无网络环境，不接受任意命令。
+
+先执行原始测试与冻结契约，再用相同 seed 交替运行基线和候选，降低先后顺序偏差。
+CPU 收益只适用于此受控组件基准，不代表整站或生产 P95/P99。
+"""
 import argparse
 import json
 import os
@@ -15,6 +19,7 @@ HARNESS = Path(__file__).resolve().parent
 
 
 def command(argv, *, source, baseline, python, limit=45):
+    """在最小环境中以 argv 运行固定 harness，超时或输出超限返回固定错误码，不泄露子进程文本。"""
     env = {"PATH": os.pathsep.join([str(Path(python).parent), "/usr/bin", "/bin"]),
            "HOME": tempfile.gettempdir(), "PYTHONDONTWRITEBYTECODE": "1", "PYTHONPATH": str(HARNESS),
            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1", "DROP_SABER_SOURCE": str(source), "DROP_SABER_BASELINE": str(baseline)}
@@ -41,6 +46,10 @@ def measure(source, output, seed, *, baseline, python, profile=False):
 
 
 def main():
+    """采样或验证已登记的 FTS5 组件；回归失败立即停止，随后执行六组交替 CPU 对照。
+
+    每组要求精确输出摘要一致，并记录全部测量；门槛未达到时 accepted 为 false，而非把执行成功等同修复有效。
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--action", choices=["profile", "test"], required=True)
     parser.add_argument("--workspace", default="/workspace")
@@ -57,8 +66,8 @@ def main():
         result["success"] = True
     else:
         candidate = root / "candidate"
-        # Run both original tests verbatim, preloading only their real component
-        # dependency. This does not claim full-app startup/integration coverage.
+        # 两条原始测试原样执行，仅预加载它们依赖的真实组件；
+        # 这不意味着已覆盖完整应用启动或集成测试。
         test_code = ("from saber_component import load_component; import pytest; "
                      "load_component('.', original_namespace=True); "
                      "raise SystemExit(pytest.main(['-q','--noconftest','-p','no:cacheprovider',"
@@ -100,8 +109,8 @@ if __name__ == "__main__":
         main()
     except Exception as error:
         code = str(error) if isinstance(error, RuntimeError) and str(error).replace("_", "").isupper() else "SANDBOX_FAILED"
-        # Match the production broker's fixed output contract; local overrides
-        # are for direct operator validation only, never supplied by the model.
+        # 遵守代理的固定输出契约；本地覆盖只供运维直接核验，
+        # 不接受模型提供的任意路径。
         destination = Path("/output")
         if "--output" in sys.argv:
             destination = Path(sys.argv[sys.argv.index("--output") + 1])

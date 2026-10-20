@@ -1,8 +1,8 @@
-# Drop's bounded collector helper. Keep the Agent and browser unprivileged.
-# The sole writable sysfs interface supports BCC's legacy single-uprobe attach
-# on kernels without uprobe_multi. The tracefs directory remains mounted RO.
-# No mount, SYS_ADMIN capability, Docker socket, or storage secret is granted.
-# Use with compose.helper-uprobes.yml, after loading via apparmor_parser -r.
+# Drop的有界采集helper，普通Agent与浏览器不因此获得额外权限。
+# 唯一可写sysfs接口仅用于BCC旧版单uprobe附加兼容，
+# 对应不支持uprobe_multi的内核；tracefs目录仍只读挂载。
+# 不授予mount、SYS_ADMIN、Docker socket或对象存储秘密。
+# 先用apparmor_parser -r加载配置，再与compose.helper-uprobes.yml配合使用。
 abi <abi/3.0>,
 #include <tunables/global>
 
@@ -13,7 +13,7 @@ profile drop-collector-helper flags=(attach_disconnected,mediate_deleted) {
   umount,
   deny mount,
 
-  # Read/execute the immutable image and inspect the pinned process namespace.
+  # 只读/执行不可变镜像，并检查已固定的目标进程命名空间。
   / r,
   /** rixm,
   /dev/null rw,
@@ -32,10 +32,10 @@ profile drop-collector-helper flags=(attach_disconnected,mediate_deleted) {
   /run/drop-helper-incoming/** rwk,
   /proc/[0-9]*/mem rw,
 
-  # All other /sys writes are absent from this allowlist. Bind only this file RW.
+  # 允许列表不包含其他/sys写操作，只将此登记文件单独以可写方式绑定。
   /sys/kernel/tracing/uprobe_events rw,
 
-  # Keep container runtime stop/kill and cross-UID collector cleanup functional.
+  # 保留容器运行时停止/终止及跨UID采集器收尾所需操作。
   signal (receive) peer=unconfined,
   signal (receive) peer=runc,
   signal (receive) peer=crun,

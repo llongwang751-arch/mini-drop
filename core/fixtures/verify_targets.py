@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run on the Ubuntu build host; only self-created toy targets are sampled."""
+"""在 Ubuntu 构建宿主运行，只采样本次自建的合成业务目标，不代表生产性能。"""
 import hashlib,json,os,pathlib,subprocess,time
 ROOT=pathlib.Path(__file__).resolve().parents[2]
 OUTPUT=ROOT/'core/evidence/target-collected';OUTPUT.mkdir(parents=True,exist_ok=True)

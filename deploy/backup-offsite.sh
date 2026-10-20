@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# Local backup remains valid when no independent destination is configured.
+# 尚未配置独立目的地时，本地备份仍有效，但不能宣称已完成异地备份。
 config=/opt/drop/deploy/secrets/backup-offsite.env
 [[ -f "$config" ]] || { printf 'Offsite destination is not configured; local backup retained.\n'; exit 0; }
 [[ "$(stat -c %u "$config")" = 0 && "$(stat -c %a "$config")" = 600 ]] || { printf 'Offsite config must be root-owned mode 0600.\n' >&2; exit 1; }

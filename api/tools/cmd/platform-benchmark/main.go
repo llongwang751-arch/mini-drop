@@ -1,5 +1,7 @@
-// platform-benchmark measures the real HTTP router against disposable synthetic
-// PostgreSQL data. It refuses any database other than drop_perf_fixture.
+// platform-benchmark 使用可销毁的 PostgreSQL 合成数据测量真实 HTTP 路由。
+// 它拒绝连接名为 drop_perf_fixture 以外的数据库，避免压测修改业务数据。
+// Package main：使用可销毁合成数据对真实路由、分页、索引、限流和 SSE 做基准验证。
+// 该工具硬性限制数据库名称，不能对生产数据运行；工具输出的性能指标只对应本次夹具负载。
 package main
 
 import (
@@ -202,8 +204,8 @@ ANALYZE;`)
 		}
 	}
 	collectPlans("before_candidate_indexes")
-	// Apply only the reviewed minimal migration to this disposable million-row
-	// fixture. Run it twice to verify its safe replay and preserved data.
+	// 仅向这份可销毁的百万行夹具应用已审阅的最小迁移。
+	// 重复执行两次，以验证迁移可安全重放并保留已有数据。
 	exec(sqlDB, string(indexMigration))
 	exec(sqlDB, string(indexMigration))
 	var afterCount, softDeleted, schemaVersion int64
@@ -319,8 +321,8 @@ ANALYZE;`)
 		result["status_counts"] = statuses
 		unexpected := failures
 		if create && concurrency > 1 {
-			// The production router deliberately admits one large create body at
-			// a time. Its 429 response is the bounded-memory admission contract.
+			// 生产路由有意一次只准入一个大型创建请求；
+			// 返回 429 是受控内存占用的准入约定，不能将其误算为服务崩溃。
 			unexpected -= statuses[http.StatusTooManyRequests]
 			result["rate_limited_requests"] = statuses[http.StatusTooManyRequests]
 			result["admission_contract"] = "Concurrent creates may return 429; one create-body slot protects the bounded API process. Accepted-request latency is not a sampling or upload throughput measurement."
@@ -336,8 +338,8 @@ ANALYZE;`)
 	runHTTP("create_admission_burst", "POST", "/api/v1/tasks", 8, 4, true)
 	runHTTP("list_first_page", "GET", "/api/v1/tasks?page=1&page_size=20", 40, 4, false)
 	runHTTP("list_deep_page_1001", "GET", "/api/v1/tasks?page=1001&page_size=20", 20, 4, false)
-	// Real streaming TCP responses remain open while one database event is
-	// broadcast to 20 independently authenticated streams.
+	// 保持真实 TCP 流式响应连接，在一个数据库事件提交后，
+	// 验证 20 个分别认证的 SSE 流都能收到该事件。
 	const streamCount = 20
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

@@ -1,5 +1,5 @@
-# Build the tested minimal runtime first. The tools base is cached separately
-# from application sources so a C++ edit never redownloads the profiler bundle.
+# 先构建已测试的最小运行环境；采集工具基础层单独缓存，
+# 与业务源码分开，避免每次修改C++都重新下载全部采集工具。
 ARG CORE_IMAGE=drop-core-runtime:v2
 ARG TOOLS_BASE=drop-core-full-tools-base:v2
 FROM ${CORE_IMAGE} AS core

@@ -1,3 +1,7 @@
+// 读取TaskKind真源目录，统一任务类型、参数schema、制品格式与分析入口。
+// 目录是控制面与采集端的共同约定；Runner额外报告本机是否具备实际工具与权限。
+// 因此“目录中存在该类型”和“这个节点当前可采该类型”需要分开判断。
+
 #include "drop/catalog.hpp"
 #include "drop/json.hpp"
 #include "drop/process.hpp"
@@ -96,4 +100,4 @@ void Catalog::validate(const std::string &kind, const json &parameters) const {
       target.value("pid", parameters.value("pid", 0)) <= 1)
     throw std::invalid_argument("A visible process PID is required");
 }
-} // namespace dropcore
+} // 结束 dropcore 命名空间

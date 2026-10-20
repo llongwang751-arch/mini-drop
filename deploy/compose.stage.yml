@@ -1,5 +1,5 @@
-# Isolated integration project only: always use -p dropfullstage and independent
-# secrets/data. Public access remains production; stage uses SSH tunnels.
+# 仅用于隔离集成项目，始终使用-p dropfullstage及独立的
+# secret与数据；公网仍指向生产，stage通过SSH隧道访问。
 services:
   web:
     ports: !override ['127.0.0.1:18080:8080']

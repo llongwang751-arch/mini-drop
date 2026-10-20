@@ -1,3 +1,6 @@
+/**
+ * 检查部分结果的封闭结构与执行身份；过期 job/run、输入摘要或额外字段都不能被当作当前报告。
+ */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import fixture from "../../contracts/fixtures/partial-result-v1.json";
 import type { Task } from "./types";

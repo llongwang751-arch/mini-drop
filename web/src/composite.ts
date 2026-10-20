@@ -1,3 +1,7 @@
+/**
+ * 复合任务的依赖图预检查：识别重复节点、缺失依赖和环。
+ * 前端反馈帮助修正草稿，实际 DAG 调度、取消和持久化由服务端负责。
+ */
 export interface DependencyNode {
   key: string;
   depends_on: string[];

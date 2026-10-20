@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# 初始化新部署的本地secret、证书和服务配置；不能把它当作覆盖现有生产secret的升级命令。
+# 初始化材料留在受限文件中，不打印口令或CA私钥；服务挂载决定各进程能读取哪些内容。
+
 set -euo pipefail
 cd "$(dirname "$0")"
 umask 027
@@ -40,8 +43,8 @@ issue_cert server drop-server serverAuth 'DNS:drop-server,DNS:drop-server.drop.s
 issue_cert api drop-api clientAuth
 issue_cert agent "drop-agent-${AGENT_ID:-aliyun-local}" clientAuth
 cd ../..
-# Standalone Compose secrets preserve host permissions. Readability is scoped
-# by service mounts; the CA signing key is kept outside all runtime mounts.
+# 独立Compose的secret保留宿主文件权限，可读范围依靠
+# 各服务挂载控制；CA签名私钥不进入任何运行容器的挂载。
 mkdir -p secrets/signing
 if [[ -s secrets/tls/ca.key ]]; then
  if [[ -s secrets/signing/ca.key ]]; then

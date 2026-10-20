@@ -1,7 +1,6 @@
-"""Immutable measurement harness, outside model-editable source.
+"""模型可编辑源码之外的固定测量 harness。
 
-Only aggregate profiles are returned. Source paths are relative and verified
-against the enrolled snapshot; raw pstats/profile files are never logged.
+只返回 profile 聚合数据；源码路径使用相对路径并与已登记快照核对，不记录原始 pstats/profile 文件。
 """
 import argparse
 import cProfile
@@ -16,7 +15,7 @@ import time
 
 
 def typed(value):
-    """JSON equality alone loses Python list/tuple and bool/int contracts."""
+    """仅比较 JSON 会丢失 list/tuple、bool/int 的 Python 类型差异；这里同时编码类型与值。"""
     if type(value) is dict:
         return ['dict', [[typed(key), typed(item)] for key, item in sorted(value.items())]]
     if type(value) in (list, tuple):

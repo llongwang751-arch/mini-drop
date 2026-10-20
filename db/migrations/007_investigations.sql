@@ -1,3 +1,7 @@
+-- 把自然语言调查与复测流程持久化，串联计划确认、基线采集、诊断及新一轮对照。
+-- verification_runs显式保存基线任务、候选任务和候选诊断，不能把重复采样直接认作根因成立。
+-- investigations的状态记录当前阶段，真正采集与诊断仍由各自独立任务执行并回传。
+
 BEGIN;
 SET LOCAL lock_timeout='5s';
 SET LOCAL statement_timeout='60s';

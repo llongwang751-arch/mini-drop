@@ -1,5 +1,5 @@
-# Consume cmake --install output and immutable tool manifests from the bounded
-# validation job. No compiler, package manager or network step runs in this build.
+# 使用有界验证作业生成的cmake安装产物与冻结工具清单，
+# 本构建不再运行编译器、包管理器或网络下载，避免发布时更换已验收输入。
 ARG CORE_BASE=drop-core:20261016.1
 ARG TOOLS_BASE=drop-core-full-tools-base:v2
 FROM ${CORE_BASE} AS runtime

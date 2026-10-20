@@ -1,4 +1,4 @@
-"""A fixed, bounded phase channel from an unprivileged decoder to its owner."""
+"""低权限解码子进程向父进程报告阶段的固定、有界通道。"""
 
 import json
 from pathlib import Path
@@ -31,8 +31,8 @@ class ProgressReader:
             raise AnalysisError(
                 "INVALID_PROGRESS", "Analysis progress exceeded its limit"
             )
-        # Read at most five fixed stage records. A concurrent partial line is
-        # left for the next poll; fast children are drained again after exit.
+        # 最多读取五条固定阶段记录；并发写入的半行留待下次轮询，
+        # 子进程快速退出后还会再次读尽已写入记录。
         data = self.path.read_bytes()[self.offset :]
         for line in data.splitlines(keepends=True):
             if not line.endswith(b"\n"):

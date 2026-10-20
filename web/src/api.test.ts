@@ -1,3 +1,7 @@
+/**
+ * 用可控 fetch 与虚拟时钟检查超时、主动取消、幂等和终态判断；不会请求真实 API。
+ * 断言同时检查定时器和监听器释放，避免请求已结束却留下后台工作。
+ */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { api, APIError, isTerminal, setAuth, newIdempotencyKey } from "./api";
 

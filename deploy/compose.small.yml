@@ -1,10 +1,10 @@
-# The Aliyun 2-vCPU / 3.42-GiB single-node profile. Merge last, after the
-# selected helper, tools, observability and HTTPS overlays. Single collection
-# and analysis concurrency remain bounded; these are limits, not SLA claims.
+# 阿里云旧2核/3.42GiB单机配置；在已选择的
+# helper、tools、监控和HTTPS覆盖之后最后合并。单次采集
+# 与分析并发均受限；这些是资源上限，不是SLA或性能承诺。
 services:
   postgres: {mem_limit: 192m, memswap_limit: 192m}
-  # The initialized MinIO process used ~227 MiB anonymous memory; at 256 MiB
-  # code-page reclaim saturated disk I/O even without an OOM event.
+  # 验收时MinIO初始化后约占227MiB匿名内存；预算仅256MiB时，
+  # 即使未发生OOM，代码页回收也可能压满磁盘I/O，因此不能只按堆大小估算。
   storage-backend: {mem_limit: 512m, memswap_limit: 512m}
   minio: {mem_limit: 48m, memswap_limit: 48m}
   drop-server: {mem_limit: 128m, memswap_limit: 128m}
@@ -27,8 +27,8 @@ services:
     memswap_limit: 128m
     environment: {GOMEMLIMIT: 96MiB}
   grafana:
-    # Grafana 13's ~498 MiB executable plus cold-start reads exceeded 384 MiB.
-    # Bound its whole cgroup separately from the Go heap to avoid reclaim stalls.
+    # Grafana13约498MiB可执行文件加冷启动读取会超过384MiB预算。
+    # 应单独约束整个cgroup，而非只限制Go堆，避免持续回收导致停顿。
     mem_limit: 768m
     memswap_limit: 768m
     cpus: 0.3
@@ -36,8 +36,8 @@ services:
       GOMEMLIMIT: 256MiB
       GF_PLUGINS_PREINSTALL_DISABLED: 'true'
       GF_PLUGINS_PREINSTALL_AUTO_UPDATE: 'false'
-      # This profile provisions only Prometheus and Tempo. Avoid starting
-      # unrelated backend datasource processes on the small host.
+      # 此配置只接入Prometheus和Tempo，避免在小主机上启动
+      # 无关的后端数据源进程并消耗额外资源。
       GF_PLUGINS_DISABLE_PLUGINS: cloudwatch,elasticsearch,graphite,influxdb,jaeger,loki,mssql,mysql,postgres,pyroscope,stackdriver,zipkin,grafana-azure-monitor-datasource,grafana-testdata-datasource
   alertmanager:
     mem_limit: 48m

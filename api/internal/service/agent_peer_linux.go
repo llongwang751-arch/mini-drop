@@ -1,5 +1,7 @@
 //go:build linux
 
+// Package service：Linux Unix socket 的内核身份和目录边界。
+// SO_PEERCRED 检查连接进程 UID；独立属主、共享 GID、setgid 目录和只读消费者挂载共同限制连接与替换 socket 的能力。
 package service
 
 import (
@@ -13,6 +15,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+// verifyAgentPeer 通过 SO_PEERCRED 读取内核记录的连接进程 UID，而不是相信 HTTP 头或进程自报身份。
 func verifyAgentPeer(conn net.Conn, expected uint32) error {
 	unixConn, ok := conn.(*net.UnixConn)
 	if !ok {
@@ -48,6 +51,7 @@ func (l agentPeerListener) Accept() (net.Conn, error) {
 	}
 }
 
+// listenAgentGateway 只在受控目录中创建网关 socket；目录属主、共享组、权限和已有文件类型不符时拒绝启动，避免被替换为任意文件或监听器。
 func listenAgentGateway(socket string) (net.Listener, error) {
 	if os.Getuid() != 10001 || !validAgentDirectory(socket, 10001) {
 		return nil, errors.New("AgentScope gateway requires UID 10001 and private socket directory")

@@ -1,4 +1,4 @@
-"""Prevent accidental wire/API breaks against the deployed protocol V1."""
+"""以已部署 V1 协议为基线，阻止无意的 wire/API 不兼容修改。"""
 from pathlib import Path
 import re
 
@@ -35,7 +35,7 @@ def compare(old, new):
 
 if __name__ == '__main__':
     compare((ROOT/'contracts/compat/v1.proto').read_text(encoding='utf-8-sig'),(ROOT/'contracts/drop.proto').read_text(encoding='utf8'))
-    # Prove the check detects a renumber/type reuse rather than only parsing.
+    # 通过字段重编号/类型复用的负对照，证明检查器能识别不兼容，而非只完成语法解析。
     try: compare('message A {string name=1;}','message A {int32 count=1;}')
     except AssertionError: pass
     else: raise AssertionError('Compatibility checker failed its negative control')

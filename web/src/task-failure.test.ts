@@ -1,3 +1,6 @@
+/**
+ * 导入任务元数据验证失败阶段、最新轮次制品和权限恢复入口，不执行真实任务。
+ */
 import { describe, expect, it } from "vitest";
 import type { Artifact, Task, TaskEvent } from "./types";
 import {
@@ -7,7 +10,7 @@ import {
   timelineTone,
 } from "./task-failure";
 
-// Imported metadata fixtures only; no browser, request or collector runs here.
+// 仅使用导入的元数据夹具；本单测不会启动浏览器、网络请求或采集器。
 const task = (changes: Partial<Task> = {}): Task => ({
   id: "7",
   name: "imported failed task",

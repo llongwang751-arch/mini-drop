@@ -1,3 +1,10 @@
+"""串联领取、下载、隔离解析、上传和原子发布的 Analyzer worker。
+
+本进程持有受限存储与数据库访问；不可信 profile 交给不继承这些凭据的子进程。
+后台续期与 SQL 写入栅栏共同约束归属，失去租约后不得再发布成功或覆盖新的尝试。
+临时目录随作业清理，可恢复 HPROF 索引则进入按摘要命名、受容量限制的独立缓存。
+"""
+
 import hashlib
 import json
 import os
@@ -62,7 +69,7 @@ def log(event: str, *, job: Job | None = None, level: str = "info", **fields):
 
 
 def cleanup_stale_workdirs(root_path: str, *, max_age_seconds: float = 24 * 3600):
-    """Remove only old directories created by this worker's tempfile prefix."""
+    """只清理匹配本 worker 临时目录前缀、位于指定根目录且已过期的目录。"""
     root = Path(root_path).resolve()
     root.mkdir(mode=0o700, parents=True, exist_ok=True)
     cutoff = time.time() - max_age_seconds
@@ -100,8 +107,8 @@ def cleanup_indexes(
     remaining = sum(size for _, size, _ in entries)
     for modified, size, candidate in sorted(entries):
         if modified < time.time() - max_age_seconds or remaining > max_bytes:
-            # This scavenger runs between jobs only. SQLite sidecars belong to
-            # the exact verified digest-named database, never an arbitrary path.
+            # 清理仅发生在作业之间；只删除已核对摘要命名数据库对应的 SQLite sidecar，
+            # 不处理任意路径。
             candidate.unlink(missing_ok=True)
             for suffix in ("-wal", "-shm"):
                 sidecar = candidate.with_name(candidate.name + suffix)
@@ -111,6 +118,10 @@ def cleanup_indexes(
 
 
 class LeaseGuard:
+    """为当前 Job 后台续约的生命周期对象。
+
+    续约异常与明确拒绝都立即标记 lost；check 用于提前停止下载/解析，SQL 写入仍会再次核对归属。
+    """
     def __init__(self, repository: Repository, job: Job, renew_seconds: float):
         self.repository, self.job, self.renew_seconds = repository, job, renew_seconds
         self.stop = threading.Event()
@@ -123,7 +134,7 @@ class LeaseGuard:
         while not self.stop.wait(self.renew_seconds):
             try:
                 renewed = self.repository.renew(self.job)
-            except Exception:  # noqa: BLE001 -- any failed renewal fences all publication
+            except Exception:  # noqa: BLE001 -- 续期失败即禁止任何结果发布。
                 renewed = False
             if not renewed:
                 self.lost.set()
@@ -143,6 +154,12 @@ class LeaseGuard:
 
 
 def process_job(job: Job, repository: Repository, storage: ObjectStore, config: Config):
+    """处理一个已领取 Job，成功时返回公开分析结果，失败交由外层 run 决定重试与状态落库。
+
+    先收紧任务预算、核验 RAW 与辅助 ELF，再将解析放入受限子进程。
+    输出对象键包含采集和分析尝试，逐个上传后才调用 Repository.complete 原子发布数据库引用。
+    上传与数据库之间不是分布式事务，途中失去租约可能留下未引用对象，但不能发布过期结果。
+    """
     pipeline = get_pipeline(job.pipeline)
     task_budget = job.params.get("budget", {})
     if not isinstance(task_budget, dict):
@@ -378,6 +395,7 @@ def process_job(job: Job, repository: Repository, storage: ObjectStore, config: 
 
 
 class Heartbeat:
+    """向本地健康文件原子写入存活时间与依赖就绪状态，容器探针无需开放管理网络端口。"""
     def __init__(self, path: str):
         self.path = Path(path)
         self.ready = False
@@ -408,6 +426,11 @@ class Heartbeat:
 
 
 def run(config: Config):
+    """维护单作业领取循环与依赖健康状态，收到停机信号后停止领取新任务。
+
+    LeaseLost 只记归属失效，不能覆盖新持有者状态；失败落库不可用时保留租约到期恢复路径，
+    而不是伪造终态或将数据库异常无限重试在当前调用栈中。
+    """
     install_logging("drop-analyzer", __version__)
     stop = threading.Event()
     for signum in (signal.SIGTERM, signal.SIGINT):
@@ -489,7 +512,7 @@ def run(config: Config):
                     error_code="ANALYSIS_LEASE_LOST",
                     duration_ms=int((time.monotonic() - started) * 1000),
                 )
-            except Exception as exc:  # noqa: BLE001 -- normalize untrusted tool failures without diagnostics
+            except Exception as exc:  # noqa: BLE001 -- 统一不可信工具失败，不输出原始诊断
                 error = (
                     exc
                     if isinstance(exc, AnalysisError)
@@ -519,7 +542,7 @@ def run(config: Config):
                         repository.fail(job, error)
                     except LeaseLost:
                         log("late_failure_discarded", job=job, level="warning")
-                    except Exception as failure:  # noqa: BLE001 -- leave failed DB writes for lease recovery
+                    except Exception as failure:  # noqa: BLE001 -- 数据库写入失败后交由租约恢复
                         log(
                             "analysis_failure_write_unavailable",
                             job=job,

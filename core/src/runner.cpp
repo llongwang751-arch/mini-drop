@@ -1,3 +1,9 @@
+// 各种采集器的统一适配层：把已校验的类型化参数转换成固定工具argv及类型专属RAW。
+// RunnerRegistry先探测工具版本、完整性与能力，再选择对应实现；安装了工具不代表任意目标都可采。
+// 采集前后的PID/UID/启动时刻等校验由目标与生命周期模块共同承担，不能只信用户传来的PID。
+// 本层区分perf、pprof、JVM、Python、分配器、BPF和BOLT的数据语义，不把所有输出伪装成folded。
+// 对外错误采用固定分类；原始stderr、用户栈和业务路径不直接写进公开日志。
+
 #include "drop/runner.hpp"
 #include "drop/bolt.hpp"
 #include "drop/artifact.hpp"
@@ -209,8 +215,8 @@ void native_control(const RunnerContext &c, const std::string &operation,
       throw std::runtime_error("Native profiler scratch must share the "
                                "protected bounded RAW filesystem");
   }
-  // The cooperative application names its socket using getpid() in its own
-  // namespace. SO_PEERCRED below still verifies the controller-visible PID.
+  // 协作程序用自身PID命名空间里的getpid()生成socket名称；
+  // 下方仍通过SO_PEERCRED核对控制器可见PID，不能混淆两个编号空间。
   const auto helper_pid =
       c.target.namespace_pid > 0 ? c.target.namespace_pid : c.target.pid;
   const auto socket_path = root / (std::to_string(helper_pid) + ".sock");
@@ -391,8 +397,8 @@ tracepoint:syscalls:sys_exit_munmap /pid == DROP_PID && @unmap_len[tid]/ { if(ar
           R"BPF(software:page-faults:1 /pid == DROP_PID/ { printf("{\"schema_version\":1,\"event\":\"pagefault\",\"time_ns\":%llu,\"pid\":%d,\"tid\":%d}\n",nsecs,pid,tid); @events=@events+1; }
 )BPF";
   }
-  // Enforce the event budget before writing each event, including frees.
-  // A periodic exit check alone permits unbounded output between ticks.
+  // 每条事件写入前都检查预算，free事件也不能例外。
+  // 若只周期性检查退出条件，两次检查之间仍可能输出无界数据。
   const std::string increment = " @events=@events+1;";
   for (std::size_t at = 0;
        (at = program.find(increment, at)) != std::string::npos;)
@@ -408,9 +414,9 @@ tracepoint:syscalls:sys_exit_munmap /pid == DROP_PID && @unmap_len[tid]/ { if(ar
     program.replace(at, statement.size(), bounded);
     at += bounded.size();
   }
-  // A single printf record carries both JSON and its actual user stack. The
-  // bounded decoder below converts stack lines to a JSON array; raw bpftrace
-  // multiline output is never mislabeled as valid JSONL.
+  // 一条printf记录同时携带JSON与真实用户栈，随后由有界解码器
+  // 把栈行转换成JSON数组；不能把bpftrace原始的
+  // 多行输出直接标记为合法JSONL。
   const std::string marker = "}\\n\",";
   for (std::size_t at = 0; (at = program.find(marker, at)) != std::string::npos;
        at += 50)
@@ -429,9 +435,9 @@ tracepoint:syscalls:sys_exit_munmap /pid == DROP_PID && @unmap_len[tid]/ { if(ar
     program.insert(end, stack);
     at = end + std::strlen(stack) + 2;
   }
-  // Stop producers before draining asynchronous user-stack records. Some
-  // bpftrace builds keep multi-uprobe links active during shutdown; without a
-  // persistent gate, new records can prevent the drain from ever completing.
+  // 排空异步用户栈记录前先停止事件生产；某些
+  // bpftrace版本在退出时仍保留multi-uprobe链接，若没有
+  // 持续生效的停止门控，新事件会不断产生，导致收尾永远无法完成。
   for (std::size_t at = 0;
        (at = program.find(" /", at)) != std::string::npos;) {
     const auto end = program.find("/ {", at + 2);
@@ -467,8 +473,8 @@ tracepoint:syscalls:sys_exit_munmap /pid == DROP_PID && @unmap_len[tid]/ { if(ar
     const std::string
         leader = "((struct task_struct*)curtask)->group_leader->thread_pid",
         thread = "((struct task_struct*)curtask)->thread_pid";
-    // bpftrace 0.20 only permits literal array subscripts. The BTF upid
-    // offset retains the live namespace level without guessing host depth.
+    // bpftrace 0.20只支持字面量数组下标；通过BTF中的upid
+    // 偏移确定真实命名空间层级，而不是猜测宿主嵌套深度。
     const auto upid = [](const std::string &identity) {
       return "((struct upid*)((uint64)" + identity +
              " + offsetof(struct pid,numbers) + (uint64)" + identity +
@@ -505,7 +511,7 @@ tracepoint:syscalls:sys_exit_munmap /pid == DROP_PID && @unmap_len[tid]/ { if(ar
       program.replace(at, key.size(), value);
   return program;
 }
-} // namespace
+} // 结束匿名命名空间
 
 std::vector<std::string>
 build_runner_argv(const RunnerContext &c,
@@ -567,10 +573,10 @@ build_runner_argv(const RunnerContext &c,
     return result;
   }
   if (c.kind == "JAVA_HEAP") {
-    // Native jattach resolves the target mount namespace even when the PID
-    // namespace is shared. JDK17 jcmd assumes a shared /tmp in that topology.
-    // The diagnostic command has its own tokenizer: only an owned simple path
-    // is accepted, and no caller can add another diagnostic argument/command.
+    // 即使PID命名空间共享，原生jattach仍能解析目标的挂载命名空间；
+    // JDK17的jcmd在这种拓扑下却会假设/tmp共享，因此这里不能混用。
+    // 诊断命令还有独立的分词规则，只允许程序持有的简单路径，
+    // 调用方不能追加第二个参数或命令来扩大执行范围。
     if (output.empty() || output.front() != '/' || output.size() > 4096 ||
         output.find_first_not_of(
             "/._-"
@@ -635,9 +641,9 @@ RunnerRegistry::RunnerRegistry(const Catalog &catalog, std::string scratch,
                              .c_str(),
                          requirement.at("default_path").get<std::string>());
         try {
-          // Keep argv[0] aliases: LLVM perf2bolt is a multicall symlink whose
-          // execution mode depends on the configured name. Hash the resolved
-          // file, but execute the absolute configured alias.
+          // 保留argv[0]别名：LLVM的perf2bolt可能是多功能二进制的软链接，
+          // 执行模式依赖配置名称。校验解析后的真实文件哈希，
+          // 执行时仍使用配置中的绝对别名，避免工具进入错误模式。
           info.path = fs::absolute(info.path).lexically_normal().string();
           const auto resolved = fs::canonical(info.path);
           for (auto parent = resolved.parent_path(); !parent.empty();
@@ -709,9 +715,9 @@ RunnerRegistry::RunnerRegistry(const Catalog &catalog, std::string scratch,
           std::vector<std::string> argv{info.path};
           for (const auto &argument : requirement.at("probe_argv"))
             argv.push_back(argument.get<std::string>());
-          // LLVM/JVM initialization can exceed five seconds on an I/O-limited
-          // node even for --version. Keep a hard bound without disabling a
-          // healthy profiler merely because its shared libraries are cold.
+          // I/O受限节点上，LLVM/JVM即使执行--version也可能初始化超过5秒；
+          // 仍设置硬时限，但不能仅因为共享库冷启动就禁用
+          // 原本健康的采集工具。
           const auto probe_timeout =
               name == "bpftrace" || name == "jcmd" || name == "memray" ? 15s
                                                                        : 5s;
@@ -781,9 +787,9 @@ RunnerRegistry::RunnerRegistry(const Catalog &catalog, std::string scratch,
             if (!available(c.kind))
               throw std::runtime_error(
                   "Required profiler capability is not available");
-            // GDB must stop newly created target threads. Ptrace permission
-            // alone does not grant cross-UID signal permission. Signal zero
-            // checks permission without stopping or otherwise mutating a task.
+            // GDB需要暂停目标新建线程，但具备ptrace权限
+            // 并不等于具备跨UID发送信号的权限。信号0
+            // 只做权限检查，不暂停或改变目标任务。
             if (c.kind == "PYTHON_MEMORY" && c.target.pid > 1 &&
                 c.target.uid != geteuid() && ::kill(c.target.pid, 0) != 0)
               throw ProfilerExecutionFailure(1, "PROFILER_PERMISSION_DENIED");
@@ -882,7 +888,9 @@ bool process_owns_port(int pid, int port) {
   }
   return false;
 }
-} // namespace
+} // 结束匿名命名空间
+// 只访问已核对归属的本地目标端口，并限制HTTP响应大小与时间。
+// pprof端口是采集配置的一部分，不能将它扩展成任意URL下载或SSRF入口。
 void download_pprof(const RunnerContext &c, const fs::path &output) {
   const auto port = c.options.value("port", 6060);
   if (port < 1 || port > 65535 || !process_owns_port(c.target.pid, port))
@@ -959,6 +967,8 @@ std::string classify_trace_failure(const std::string &diagnostic) {
     return "TRACE_ATTACH_UNAVAILABLE";
   return "RUNNER_FAILED";
 }
+// 协作采集的“停止计时”与“文件写完”是两个阶段。
+// 必须确认写入者/压缩器关闭输出，再让后续SHA和上传看到稳定字节。
 void wait_for_cooperative_output_close(const RunnerContext &context,
                                        std::chrono::milliseconds timeout) {
   const auto directory = context.output_directory.empty()
@@ -1414,9 +1424,9 @@ RunnerOutput RunnerRegistry::collect_impl(const RunnerContext &c) const {
     }
     native_control(c, "stop", out.path);
   } else if (c.kind == "BOLT_PROFILE") {
-    // perf cannot always open target paths across mount namespaces. Preserve
-    // the native capture and supplement only missing build-id metadata after
-    // matching its MMAP2 PID/device/inode to the frozen real executable.
+    // perf未必能跨挂载命名空间打开目标路径。保留原生采集数据，
+    // 只有在MMAP2中的PID、设备号和inode匹配被冻结的真实可执行文件后，
+    // 才补齐缺失的build-id元数据，不能用路径相同来代替身份一致。
     const auto original = c.directory / "bolt.recorded.perf.data";
     const auto raw = c.directory / "bolt.perf.data";
     const auto executable = "/proc/" + std::to_string(c.target.pid) + "/exe";
@@ -1613,7 +1623,7 @@ RunnerOutput RunnerRegistry::collect_impl(const RunnerContext &c) const {
                       {"canceled", result.canceled}}
                      .dump());
     if (result.exit_code != 0 && capture.filename() == "trace.raw") {
-      // Keep fixed-tool diagnostics, never copied trace JSON or user stacks.
+      // 只保留固定工具的安全诊断分类，不复制追踪JSON或用户调用栈。
       std::ofstream diagnostic(c.directory / "runner.log");
       std::istringstream lines(result.output);
       std::string line;
@@ -1713,4 +1723,4 @@ RunnerOutput RunnerRegistry::collect_impl(const RunnerContext &c) const {
   out.metadata["collector_overhead"] = overhead(self_start, children_start);
   return out;
 }
-} // namespace dropcore
+} // 结束 dropcore 命名空间

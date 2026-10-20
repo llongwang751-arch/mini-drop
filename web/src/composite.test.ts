@@ -1,3 +1,6 @@
+/**
+ * 复合任务依赖图的纯函数单测，重点覆盖缺失依赖与环，不启动任何采集步骤。
+ */
 import { describe, expect, it } from "vitest";
 import { validateDAG } from "./composite";
 describe("composite graph validation", () => {

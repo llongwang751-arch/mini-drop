@@ -1,3 +1,4 @@
+// Package repository：计算面向前端的任务能力提示；提示用于展示按钮，执行时仍需重新授权，不能信任浏览器回传的权限位。
 package repository
 
 import (

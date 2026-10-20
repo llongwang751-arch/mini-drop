@@ -1,3 +1,7 @@
+# 基础Compose描述服务分层、内部网络、secret挂载与数据卷；具体发布由显式覆盖文件选择。
+# 覆盖顺序会影响最终镜像、权限和预算，操作前应检查合并后的docker compose config。
+# 生产升级保留命名镜像和数据卷；不要使用down -v删除状态来解决配置问题。
+
 name: drop
 x-logging: &logging
   driver: json-file
@@ -132,9 +136,9 @@ services:
     restart: 'no'
     mem_limit: 128m
     logging: *logging
-  # Explicit one-shot disaster-recovery client. It has no control network or
-  # database credential; direct S3 is needed to restore original metadata
-  # without widening the user-facing gateway's header allowlist.
+  # 显式执行的一次性灾难恢复客户端，不接入控制网络，也不持有
+  # 数据库凭据；直连S3仅为恢复原对象元数据所需，
+  # 不能为恢复而放宽面向用户的网关请求头允许列表。
   backup-client:
     image: drop-analyzer:${ANALYZER_RELEASE_TAG:-${RELEASE_TAG:-build}}
     profiles: [backup]

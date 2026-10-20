@@ -1,3 +1,6 @@
+/**
+ * 模拟本地存储可用/不可用的浏览器偏好，确认导航不会因持久化失败而失效。
+ */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   readCompactNavigation,

@@ -1,7 +1,7 @@
-"""Authorized public-release check against this task's fixed server.
+"""对本任务明确授权的固定服务器执行公网发布验收。
 
-Uses real controlled processes advertised by its Agent. Credentials, cookies,
-profile bytes and signed URLs never enter output or exception text.
+使用 Agent 公布的真实受控进程；凭据、Cookie、profile 字节及签名 URL
+不得进入输出或异常正文。本脚本具有实际采集副作用，不是离线单元测试。
 """
 import argparse
 import hashlib
@@ -94,7 +94,7 @@ def main():
         parsed = urllib.parse.urlsplit(url)
         if parsed.scheme + "://" + parsed.netloc != ORIGIN or not parsed.path.startswith("/objects/") or parsed.fragment:
             raise RuntimeError("PUBLIC_ARTIFACT_ORIGIN_REJECTED")
-        # Identity encoding and a separate client: no session cookie reaches S3.
+        # 使用 identity 编码与独立 HTTP 客户端，确保会话 Cookie 不发送给 S3。
         request = urllib.request.Request(url, headers={"Accept-Encoding": "identity"})
         with urllib.request.urlopen(request, timeout=30) as response:
             data = response.read(64 * 1024**2 + 1)
@@ -114,7 +114,7 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as error:
-        # Runtime codes are fixed above; other exceptions may contain signed URLs.
+        # 只输出上方固定运行错误码；其他异常可能含签名 URL，不能直接回显。
         code = str(error) if isinstance(error, RuntimeError) and str(error).isupper() else "PUBLIC_RELEASE_CHECK_FAILED"
         print(json.dumps({"passed": False, "error_code": code, "phase": PHASE, "exception_type": type(error).__name__,
                           "http_status": error.code if isinstance(error, urllib.error.HTTPError) else None}))

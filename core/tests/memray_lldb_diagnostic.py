@@ -1,4 +1,4 @@
-"""Fixture-only LLDB attach comparison; never imported by production code."""
+"""只在夹具中比较 LLDB 附加行为，生产代码不会导入此模块。"""
 import hashlib
 import json
 import os

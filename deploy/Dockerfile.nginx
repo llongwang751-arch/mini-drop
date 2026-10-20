@@ -1,4 +1,4 @@
-# Shared S3/public gateway runtime; no business files or credentials copied.
+# S3与公网网关共用的运行镜像，不复制业务文件或任何真实凭据。
 FROM nginxinc/nginx-unprivileged:1.30.6-alpine
 USER root
 RUN sed -i 's|dl-cdn[.]alpinelinux[.]org|mirrors.aliyun.com|g' /etc/apk/repositories \

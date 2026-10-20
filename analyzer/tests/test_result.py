@@ -1,3 +1,5 @@
+"""验证公开结果的来源、计量单位、规则建议和限制说明，输入来自测试夹具。"""
+
 import unittest
 
 from drop_analyzer.folded import analyze_folded

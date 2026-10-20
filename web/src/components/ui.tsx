@@ -1,3 +1,7 @@
+/**
+ * 无业务状态的共享界面部件：标题、表格、状态标签、载入占位和受控错误提示。
+ * 需要写权限的入口读取会话上下文；真实变更仍由调用页面和服务端处理。
+ */
 import type { ReactNode } from "react";
 import {
   ArrowRight,

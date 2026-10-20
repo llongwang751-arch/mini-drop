@@ -1,3 +1,5 @@
+// 本文件验证采集上传清单的有限授权，以及终止后的授权撤销和固定诊断文件边界。
+// 测试名称标明具体场景；涉及真实数据库的用例需显式配置测试连接，协议夹具不代表生产或模型实测。
 package service
 
 import (
@@ -14,8 +16,8 @@ import (
 	"drop/api/internal/testutil"
 )
 
-// Fixed diagnostics are independent of each collector's RAW basename and do
-// not expand the Agent's authorization to arbitrary task-prefix attachments.
+// 固定诊断制品与各采集器 RAW 文件名相互独立，
+// 不能借此将 Agent 授权扩大到任务前缀下的任意附件。
 func assertCollectionUploadTargets(t *testing.T, desc *pb.TaskDesc, taskID int64, attempt int) {
 	t.Helper()
 	if len(desc.UploadTargets) != 2 {

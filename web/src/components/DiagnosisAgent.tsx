@@ -1,3 +1,7 @@
+/**
+ * 任务内的智能诊断入口：针对已成功分析的当前证据提出问题、查看工具记录并审阅复测计划。
+ * 模型调用与工具执行都在服务端进行；前端只提交目标、方式和确认，不把原始 profile 发给模型。
+ */
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -97,6 +101,7 @@ export default function DiagnosisAgent({
   });
   const run =
     runs.data?.items.find((r) => r.id === selected) || runs.data?.items[0];
+  // 复测记录串联基线诊断、候选任务和再次诊断；页面轮询读取后台闭环结果，不在浏览器推断结论。
   const verifications = useQuery({
     queryKey: ["verifications", task.id],
     queryFn: ({ signal }) =>
@@ -129,6 +134,7 @@ export default function DiagnosisAgent({
   const ready =
     task.collection_status === "COLLECTED" &&
     task.analysis_status === "SUCCESS";
+  // 报告必须属于当前采集轮次和分析 job/run；重分析后旧报告仍可追溯，但不能继续执行它的复测计划。
   const currentAttempt = task.attempts?.length
     ? task.attempts.reduce((a, b) => (a.attempt > b.attempt ? a : b)).id
     : undefined;
@@ -140,6 +146,7 @@ export default function DiagnosisAgent({
           run.analysis_run !== task.analysis_identity.analysis_run)));
   const active = run?.status === "pending" || run?.status === "running";
   const external = mode === "model";
+  // 问题、诊断方式和同意项构成提交指纹，同一输入的网络重试不能生成多份诊断。
   const start = useMutation({
     mutationFn: () => {
       const fingerprint = JSON.stringify({
@@ -172,6 +179,7 @@ export default function DiagnosisAgent({
       }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["diagnoses", task.id] }),
   });
+  // 用户审阅后才创建复测任务；复用独立幂等键，避免重复点击造成重复采集。
   const collect = useMutation({
     mutationFn: () =>
       api<Task>(`/tasks/${task.id}/diagnoses/${run!.id}/collect`, {

@@ -1,3 +1,8 @@
+// 本地制品完整性及短期授权上传：校验普通文件、大小与SHA后再向固定目标PUT。
+// 对象存储长期凭据留在控制面，Agent只持有本次attempt对应的短期上传授权。
+// 原子写与成功标记支撑断点恢复；不跟随重定向，避免把数据发到授权之外的地址。
+// 上传完成还需NotifyResult登记，不能把HTTP成功直接当成平台任务成功。
+
 #include "drop/artifact.hpp"
 
 #include <curl/curl.h>
@@ -126,7 +131,7 @@ struct CloseFile {
       std::fclose(file);
   }
 };
-} // namespace
+} // 结束匿名命名空间
 
 UploadReceipt upload_file(const std::string &url, const std::string &file,
                           const std::string &content_type,
@@ -166,8 +171,8 @@ UploadReceipt upload_file(const std::string &url, const std::string &file,
   UploadHeaders response_headers;
   curl_easy_setopt(curl.get(), CURLOPT_HEADERFUNCTION, upload_header);
   curl_easy_setopt(curl.get(), CURLOPT_HEADERDATA, &response_headers);
-  // Redirects are deliberately not followed: a signed URL grants one
-  // destination.
+  // 上传不跟随重定向：预签名URL只授权一个确定的
+  // 目标地址，不能让重定向把制品或授权发送到另一处。
   auto result = curl_easy_perform(curl.get());
   long status = 0;
   curl_easy_getinfo(curl.get(), CURLINFO_RESPONSE_CODE, &status);
@@ -221,4 +226,4 @@ void atomic_write(const std::string &path, const std::string &content) {
   if (synced != 0)
     throw std::runtime_error("Local recovery directory sync failed");
 }
-} // namespace dropcore
+} // 结束 dropcore 命名空间

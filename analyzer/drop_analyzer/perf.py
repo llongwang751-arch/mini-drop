@@ -1,4 +1,4 @@
-"""Native perf script/data: explicit thread identities, module names and loss evidence."""
+"""解析原生 perf script/data，显式保留线程标识、模块名称和丢失证据。"""
 
 from collections import Counter
 from pathlib import Path
@@ -34,7 +34,7 @@ def unknown_loss():
 
 
 def scan_perf_loss(raw):
-    """Scan record headers only; lost records cannot be invented as lost samples."""
+    """只扫描记录头；丢失记录数不能臆测成丢失采样数。"""
     if len(raw) < 56 or raw[:8] not in {b"PERFILE2", b"2ELIFREP"}:
         return unknown_loss()
     endian = "<" if raw[:8] == b"PERFILE2" else ">"
@@ -51,7 +51,7 @@ def scan_perf_loss(raw):
         if length < 8 or length > end - offset or kind in {71, 81}:
             return (
                 unknown_loss()
-            )  # AUXTRACE/COMPRESSED have payloads not covered by this header-only scan.
+            )  # AUXTRACE/COMPRESSED 的载荷不在本次仅扫描记录头的能力范围内。
         if kind == 9:
             samples += 1
         elif kind in {2, 13}:

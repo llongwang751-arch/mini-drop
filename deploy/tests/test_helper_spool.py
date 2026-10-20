@@ -1,4 +1,4 @@
-"""Spool regressions use local tiny files and fake commands, never real mounts."""
+"""spool 回归只使用本地小文件和假命令，不建立真实挂载。"""
 
 import json
 import stat
@@ -17,7 +17,7 @@ def load_script():
     source = SCRIPT.read_text(encoding="utf8").split("# PYTHON_BEGIN\n", 1)[1]
     source = source.rsplit("\n# PYTHON_END", 1)[0]
     module = types.ModuleType("helper_spool")
-    exec(compile(source, str(SCRIPT), "exec"), module.__dict__)  # noqa: S102 - repository-owned embedded script
+    exec(compile(source, str(SCRIPT), "exec"), module.__dict__)  # noqa: S102 - 仅执行仓库自有的内嵌脚本
     return module
 
 
@@ -161,7 +161,7 @@ class SpoolFilesystemTests(unittest.TestCase):
         self.temp = self.stack.enter_context(tempfile.TemporaryDirectory())
         self.root = Path(self.temp)
         self.module = load_script()
-        self.module.SIZE = 4096  # Never allocate a real 2 GiB test file.
+        self.module.SIZE = 4096  # 不实际分配 2 GiB 测试文件，用受控边界输入验证预算。
         self.fake = FakeCommands(self.module, self.root)
         self.stack.enter_context(patch.object(self.module, "command", self.fake))
         self.stack.enter_context(

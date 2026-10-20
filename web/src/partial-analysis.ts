@@ -1,3 +1,7 @@
+/**
+ * 失败分析的有限检查点：它只说明哪些解析阶段完成，不代表规则分析或最终提交成功。
+ * 每份内容必须匹配任务版本、采集轮次、分析 job/run 和输入制品摘要，防止串用历史数据。
+ */
 import { APIError, newIdempotencyKey } from "./api";
 import { readBounded, safeRequestId } from "./profile-data";
 import type { Task } from "./types";
@@ -95,6 +99,7 @@ export class PartialAnalysisError extends APIError {
     );
   }
 }
+// 失败后仍可读的检查点必须指向最新 RAW 制品；任何身份缺失或不匹配都停止展示。
 export function partialIdentity(task: Task | undefined) {
   if (
     !task ||
@@ -145,6 +150,7 @@ export function partialIdentity(task: Task | undefined) {
     kind: task.kind,
   };
 }
+// 缓存键绑定执行身份与输入摘要，重新采集/重新分析后不会复用旧失败轮次的内容。
 export function partialQueryKey(task: Task | undefined) {
   const identity = partialIdentity(task);
   return [
@@ -158,6 +164,7 @@ export function partialQueryKey(task: Task | undefined) {
     identity?.input_digest,
   ] as const;
 }
+// 检查点采用封闭字段集合和长度上限，不接受额外诊断字段；函数名仍按不可信纯文本转义展示。
 export function validatePartialAnalysis(
   value: unknown,
   expected: NonNullable<ReturnType<typeof partialIdentity>>,
@@ -305,6 +312,7 @@ export async function loadPartialAnalysis(
     const responseId = object(body)
       ? safeRequestId(body.request_id) || requestId
       : requestId;
+    // “尚未生成检查点”是空结果，不是成功报告，也不是需要自动重试的权限故障。
     if (
       response.status === 409 &&
       object(body) &&

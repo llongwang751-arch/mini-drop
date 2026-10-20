@@ -16,7 +16,7 @@ void http_classification() {
   for (const long status : {429L, 500L, 502L, 503L, 504L, 599L})
     require(dropcore::retryable_upload_http(status),
             "Transient upload HTTP failure was not retryable");
-  // This is an explicit policy boundary, not imported/measured transport data.
+  // 此处验证明确的策略边界，不属于导入或实测的网络传输数据。
   for (const long status : {0L,
                             100L,
                             200L,
@@ -111,7 +111,7 @@ void safe_typed_failure() {
             "Upload failure lost its type through the exception base class");
   }
 }
-} // namespace
+} // 结束匿名命名空间
 
 int main() {
   try {

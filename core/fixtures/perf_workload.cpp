@@ -1,4 +1,4 @@
-// Bounded two-thread workload for actual PID/TID/time/DSO metadata evidence.
+// 有界的双线程负载，用于实测PID、TID、时间及DSO映射元数据。
 #include <atomic>
 #include <chrono>
 #include <cmath>
@@ -22,7 +22,7 @@ void worker(const char *name) {
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 }
-} // namespace
+} // 结束匿名命名空间
 int main() {
   std::signal(SIGTERM, stop);
   std::signal(SIGINT, stop);

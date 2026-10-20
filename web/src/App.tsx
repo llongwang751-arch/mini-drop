@@ -1,3 +1,7 @@
+/**
+ * 应用外壳：先恢复服务端会话，再提供用户上下文、导航和业务路由。
+ * 页面只决定哪些入口可见，真正的资源授权仍由 Go API 检查；这里不接触模型或对象存储长期凭据。
+ */
 import { Component, lazy, Suspense, useEffect, useId, useState } from "react";
 import type { ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -46,6 +50,7 @@ import Rules from "./views/Rules";
 import Composites, { CompositeDetail } from "./views/Composites";
 import Schedules from "./views/Schedules";
 import Settings from "./views/Settings";
+// 调查与指南按路由分包，首次进入工作台时无需下载全部教学和修复视图。
 const Guide = lazy(() => import("./views/Guide"));
 const Investigations = lazy(() => import("./views/Investigations"));
 
@@ -95,6 +100,7 @@ function DropSection() {
   );
 }
 
+// 渲染异常只上报固定错误码，避免把用户数据、页面状态或完整异常栈带进错误收集接口。
 class Boundary extends Component<{ children: ReactNode }, { error?: Error }> {
   state: { error?: Error } = {};
   static getDerivedStateFromError(error: Error) {
@@ -122,6 +128,8 @@ class Boundary extends Component<{ children: ReactNode }, { error?: Error }> {
     );
   }
 }
+// 登录表单是页面 H1；装饰性介绍使用 H2，保证移动端隐藏介绍后仍有清晰的主标题。
+// 用户名与密码仅用于当前提交，成功后由会话接口统一恢复用户身份。
 function Login({ onLogin }: { onLogin: (auth: Auth) => void }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -254,6 +262,7 @@ export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
   const [globalSearch, setGlobalSearch] = useState("");
+  // 先向服务器确认会话，不用本地标志推断是否登录；认证失败不做循环重试。
   const session = useQuery({
     queryKey: ["session"],
     queryFn: ({ signal }) => api<Auth>("/auth/me", { signal }),
@@ -276,6 +285,7 @@ export default function App() {
     return () => media.removeEventListener("change", update);
   }, []);
   useEffect(() => {
+    // 手机抽屉打开时约束 Tab 焦点，关闭时还给菜单按钮，防止键盘用户落到遮罩背后。
     if (!drawer || !compact) return;
     const items = () =>
       Array.from(
@@ -302,6 +312,7 @@ export default function App() {
     };
   }, [drawer, compact]);
   useEffect(() => {
+    // CSRF 交给 API 客户端，用户信息交给 React 上下文，两者都以同一次会话响应为准。
     if (session.data) {
       setAuth(session.data);
       setAuthState(session.data);
@@ -309,6 +320,7 @@ export default function App() {
     } else if (session.error) setReady(true);
   }, [session.data, session.error]);
   useEffect(() => {
+    // 资源请求返回 401 时清空会话和缓存，避免下一位登录用户短暂看到上一个会话的数据。
     const listener = () => {
       setAuthState(undefined);
       qc.clear();
@@ -322,6 +334,7 @@ export default function App() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
   useEffect(() => {
+    // 输入框中不接管字符键；Ctrl/Meta 等浏览器快捷键只处理明确约定的组合。
     function shortcut(e: KeyboardEvent) {
       if (
         (e.target as HTMLElement)?.matches(
@@ -346,6 +359,7 @@ export default function App() {
     window.addEventListener("keydown", shortcut);
     return () => window.removeEventListener("keydown", shortcut);
   }, [navigate, auth?.user.role]);
+  // 会话尚未确定前只显示载入态，避免受保护页面先闪现、随后再跳登录。
   if (!ready)
     return (
       <div className="app-loading">

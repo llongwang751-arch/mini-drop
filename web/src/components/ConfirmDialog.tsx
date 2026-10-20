@@ -1,3 +1,7 @@
+/**
+ * 敏感操作的确认对话框：负责焦点、键盘退出和忙碌状态。
+ * 确认回调由业务页面提供；组件本身不发删除、采集或其他写请求。
+ */
 import { useEffect, useRef } from "react";
 import { Busy } from "./ui";
 export default function ConfirmDialog({

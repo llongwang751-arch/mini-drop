@@ -1,5 +1,8 @@
-# Merge AFTER compose.perf.yml / compose.tools.yml. The mTLS Agent has no
-# capability; only the isolated collector helper owns sampling capabilities.
+# 采集权限拆分覆盖：普通Agent负责控制/上传，helper负责需要额外内核能力的固定采集动作。
+# 共享的是受控容器命名空间和必要目录，不是整个宿主，也不共享长期存储凭据。
+
+# 在compose.perf.yml/compose.tools.yml之后合并；mTLS Agent没有额外
+# capability，只有隔离helper持有所需采样能力。
 services:
   agent:
     image: drop-agent:${RELEASE_TAG:-build}
@@ -44,8 +47,8 @@ services:
     image: drop-agent:${RELEASE_TAG:-build}
     entrypoint: [/usr/local/bin/drop_collector_helper]
     user: '0:10001'
-    # Sharing the Agent's container namespaces is sufficient for the explicitly
-    # controlled target. No host PID/network namespace or Docker socket.
+    # 对显式受控目标，只需共享Agent容器的命名空间，
+    # 不开放宿主PID/网络命名空间或Docker socket。
     pid: service:agent
     network_mode: service:agent
     depends_on: {agent: {condition: service_started}}
@@ -65,14 +68,14 @@ services:
       ALLOW_HOST_RESOURCES: 'false'
       ALLOWED_TARGET_UIDS: '10001'
       NATIVE_CONTROL_ROOT: /run/drop-helper-incoming/native-control
-    # No Secret, TLS key, URL or long-lived object-store credential is mounted.
+    # 不挂载Secret、TLS私钥、上传URL或长期对象存储凭据。
     volumes:
       - helper_socket:/run/drop-helper
       - helper_data:/var/lib/drop-helper
       - helper_incoming:/run/drop-helper-incoming
     cap_drop: [ALL]
-    # KILL permits GDB to stop/resume different-UID target threads inside only
-    # the Agent PID namespace; the typed target identity remains fenced.
+    # KILL能力仅让GDB在Agent PID命名空间内暂停/恢复不同UID目标线程，
+    # 请求中的类型化目标身份仍必须通过栅栏校验。
     cap_add: [PERFMON, SYS_PTRACE, DAC_READ_SEARCH, KILL]
     security_opt: [no-new-privileges:true, seccomp=./seccomp/agent-perfmon.json]
     read_only: true

@@ -1,3 +1,5 @@
+"""验证子进程阶段通道的固定记录、半行写入和输出上限，不触发现场采集。"""
+
 import tempfile
 from pathlib import Path
 import unittest

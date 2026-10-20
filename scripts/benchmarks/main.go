@@ -1,5 +1,5 @@
-// This bounded client exercises the real Core RPCs using generated contracts.
-// It does not collect a profile, create tasks or stand in for a business Agent.
+// 本工具使用生成的协议代码向隔离 Core 发起有界的真实 RPC，验证注册和心跳处理能力。
+// 它使用明确登记的模拟 Agent 身份，不采集性能文件、不创建业务任务，也不能代表业务 Agent 的完整负载。
 package main
 
 import (
@@ -50,6 +50,7 @@ type stageReport struct {
 	Statistics         statistics     `json:"measurement"`
 }
 
+// flags 限制轮数、并发、运行标识和不可变镜像身份；命令行不能选择任意远端目标或绕过基准边界。
 func flags(arguments []string) (options, error) {
 	var result options
 	parser := flag.NewFlagSet("heartbeat-baseline", flag.ContinueOnError)
@@ -90,7 +91,7 @@ func rpcCode(err error) string {
 	if err == nil {
 		return ""
 	}
-	return status.Code(err).String() // Never emit error text, TLS material or addresses.
+	return status.Code(err).String() // 只保留固定 gRPC 状态码，不输出错误原文、TLS 材料或地址。
 }
 
 func newAgent(ca *authority, id string) (*agent, error) {
@@ -160,6 +161,8 @@ func sleepUntil(ctx context.Context, deadline time.Time) bool {
 	}
 }
 
+// runStage 为指定数量的模拟 Agent 完成独立身份注册和预热，再按固定节拍发送有界并发心跳。
+// 将网络 RPC 延迟与本地调度排队分开记录，避免把客户端排队误算为服务端处理时间。
 func runStage(ctx context.Context, ca *authority, config options, count int) stageReport {
 	result := stageReport{Agents: count, Rounds: config.rounds, Concurrency: min(count, config.concurrency),
 		PlannedHeartbeats: count * config.rounds, SetupFailureCodes: map[string]int{}}
@@ -175,7 +178,7 @@ func runStage(ctx context.Context, ca *authority, config options, count int) sta
 		agents[index] = client
 		err = client.register(ctx, config.runID, ca.certificate.NotAfter)
 		if err == nil {
-			err = client.beat(ctx) // TLS/SQL/connection warmup, excluded from measurement.
+			err = client.beat(ctx) // TLS、SQL 与连接预热不计入正式测量。
 		}
 		setupErrors[index] = rpcCode(err)
 	})
@@ -212,8 +215,8 @@ func runStage(ctx context.Context, ca *authority, config options, count int) sta
 		})
 		completed += count
 	}
-	// Include the last two-second cadence interval in throughput, even when RPCs
-	// finish quickly. Scheduling stalls remain visible in elapsed and queue delay.
+	// 即使 RPC 很快完成，也把最后一个两秒心跳间隔计入吞吐的时间分母。
+	// 调度停顿仍体现在总耗时与排队延迟中，不能通过提前结束窗口抬高成绩。
 	_ = sleepUntil(ctx, started.Add(time.Duration(config.rounds)*cadence))
 	result.Statistics = summarize(samples[:completed], time.Since(started))
 	return result
@@ -282,7 +285,7 @@ func execute(arguments []string) int {
 		stages = append(stages, stage)
 		if stage.SetupFailed != 0 || stage.Statistics.Failed != 0 || stage.Statistics.Success != stage.PlannedHeartbeats || ctx.Err() != nil {
 			success = false
-			break // Stop on failed acceptance; do not raise load after an error.
+			break // 验收失败后停止，不在出现错误时继续提高负载。
 		}
 	}
 	report := map[string]any{"schema_version": 1, "tool": "drop-heartbeat-baseline-v1", "success": success,

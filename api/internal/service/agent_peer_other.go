@@ -1,5 +1,6 @@
 //go:build !linux
 
+// Package service：不支持 Linux SO_PEERCRED 的平台明确拒绝私有 AgentScope 运行，避免开发平台静默跳过身份校验。
 package service
 
 import (

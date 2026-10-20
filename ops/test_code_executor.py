@@ -1,3 +1,8 @@
+"""验证源码代理的登记边界、补丁限制和取消归属。
+
+使用合成源码及 Docker 控制夹具，不访问模型或真实业务仓库；需要 Linux 的内核行为单独受平台条件约束。
+"""
+
 import hashlib
 import importlib.util
 import json
@@ -96,7 +101,7 @@ class SourcePatchBoundaryTests(unittest.TestCase):
 
 
 class SandboxCancellationTests(unittest.TestCase):
-    """Imported Docker-control responses, real socket EOF and owned CLI child."""
+    """导入 Docker 控制响应夹具，使用真实 socket EOF 和本请求拥有的 CLI 子进程验证取消。"""
 
     key = 'a' * 64
     image = 'sha256:' + 'b' * 64

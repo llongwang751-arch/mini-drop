@@ -1,4 +1,4 @@
-"""Collect exact local Docker-image SBOMs, serially, without exporting images."""
+"""串行收集精确本机 Docker 镜像的 SBOM，不向外发布镜像。"""
 
 from __future__ import annotations
 
@@ -34,7 +34,7 @@ INSPECT_FORMAT = '{"Id":{{json .Id}},"Os":{{json .Os}},"Architecture":{{json .Ar
 
 
 class Failure(Exception):
-    """Only a fixed, nonsecret error code may cross the CLI boundary."""
+    """只有固定且不含敏感值的错误码可以越过 CLI 输出边界。"""
 
 
 class Parser(argparse.ArgumentParser):
@@ -104,11 +104,10 @@ def inspect_metadata(payload: bytes) -> dict:
 
 
 def disk_metadata(payload: bytes, expected_id: str) -> dict:
-    """Project just ID/byte size from one bounded, exact-reference image list.
+    """从有界、精确引用的镜像列表中只提取 ID 与字节大小。
 
-    Docker 29.1.3 inspect.Size includes packed content only with containerd.
-    The list endpoint's integer Size also includes unpacked snapshot usage.
-    Image-list labels are never selected, retained in reports, or logged.
+    Docker 29.1.3 使用 containerd 时，inspect.Size 只含打包内容；
+    列表接口的整数 Size 还包括展开的快照占用。镜像 labels 不选取、不写报告或日志。
     """
 
     def unique(pairs):
@@ -140,7 +139,7 @@ def disk_metadata(payload: bytes, expected_id: str) -> dict:
 
 
 class DockerConnection(http.client.HTTPConnection):
-    """Fixed local daemon socket; no TCP, proxy, context or environment input."""
+    """只连接固定本机 daemon socket，不接受 TCP、代理、context 或环境覆盖。"""
 
     def __init__(self):
         super().__init__("localhost", timeout=30)
@@ -179,6 +178,7 @@ def resource_gate(
     memory_psi: str,
     io_psi: str,
 ) -> None:
+    """先检查宿主空闲、磁盘和空间预算，拒绝资源不足时进行大镜像导出，避免拖慢现有服务。"""
     try:
         if any(
             type(value) is not int or not 0 < value <= 64 * GIB
@@ -197,8 +197,8 @@ def resource_gate(
         raise Failure("SBOM_RESOURCE_METRICS_REJECTED") from None
     mem, io = pressure(memory_psi), pressure(io_psi)
     if (
-        # Do not multiply inspect.Size: on Docker 29.1.3 it excludes snapshots.
-        # Budget packed tar + list content/snapshots + a production reserve.
+        # 不能直接倍乘 inspect.Size，Docker 29.1.3 中它不包含快照；
+        # 预算需包含打包 tar、列表内容/快照及生产保留空间。
         free_bytes < content_size + disk_size + GIB
         or memory < 768 * 1024**2
         or mem["some"] > 1
@@ -217,7 +217,7 @@ def secure_directory(path: Path, *, private: bool) -> None:
 
 
 def prepare_root(path: Path) -> None:
-    # No resolve(): it could hide a symlink in the trusted output ancestry.
+    # 此处不先 resolve()，否则可信输出祖先中的符号链接会被解析结果掩盖。
     for ancestor in reversed(path.parents):
         secure_directory(ancestor, private=False)
     try:
@@ -285,11 +285,10 @@ def same_lock(path: Path, identity: os.stat_result) -> bool:
 
 @contextmanager
 def collector_lock(root: Path):
-    """Keep one persistent inode; the kernel releases flock on last FD close.
+    """保留同一个锁文件 inode，最后一个文件描述符关闭时由内核释放 flock。
 
-    Never unlink a lock file: a waiter may already hold the original inode.
-    A legacy private lock marker is safe to reuse without reading its contents.
-    No historical workspace is claimed or removed during lock recovery.
+    不能 unlink 锁文件，否则等待者可能仍持有旧 inode，导致两个调用同时入场。
+    旧私有锁标记可复用但不读取内容；恢复锁时不接管或删除历史工作目录。
     """
     if sys.platform != "linux":
         raise Failure("SBOM_LOCK_UNAVAILABLE")
@@ -297,8 +296,8 @@ def collector_lock(root: Path):
 
     path = root / ".collector.lock"
     try:
-        # NONBLOCK prevents a malicious FIFO from hanging before fstat rejects
-        # it; NOFOLLOW rejects symlinks, including dangling ones, without writes.
+        # NONBLOCK 避免恶意 FIFO 在 fstat 拒绝前阻塞；
+        # NOFOLLOW 会在不写入的情况下拒绝所有符号链接，包括悬空链接。
         descriptor = os.open(
             path,
             os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK,
@@ -324,8 +323,8 @@ def collector_lock(root: Path):
         yield descriptor
     finally:
         changed = locked and not same_lock(path, identity)
-        # Close rather than LOCK_UN: an orphan Syft retaining its inherited FD
-        # must keep the lock until it exits, even when only Python is killed.
+        # 只关闭 FD，不显式 LOCK_UN；若 Python 被单独终止而孤儿 Syft
+        # 仍继承 FD，锁应一直保留到 Syft 退出。
         os.close(descriptor)
         if changed:
             raise Failure("SBOM_LOCK_IDENTITY_CHANGED")
@@ -338,8 +337,8 @@ def owned_workspace(root: Path):
     try:
         yield path
     finally:
-        # Only this invocation's freshly created inode can be removed. rmtree
-        # unlinks contained symlinks rather than following their destinations.
+        # 只删除本次新建的 inode；rmtree 对内部符号链接执行 unlink，
+        # 不跟随其目标删除其他位置。
         if (
             path.parent != root
             or not same_file(path, identity)
@@ -350,6 +349,7 @@ def owned_workspace(root: Path):
 
 
 def sanitized_sbom(payload: bytes, reference: str, image_id: str) -> tuple[bytes, int]:
+    """移除可能包含镜像配置的顶层元数据，保留包清单和依赖；不把 Docker labels 当作公开 SBOM 内容。"""
     if not 0 < len(payload) <= MAX_SBOM_BYTES:
         raise Failure("SBOM_DOCUMENT_REJECTED")
     try:
@@ -375,8 +375,8 @@ def sanitized_sbom(payload: bytes, reference: str, image_id: str) -> tuple[bytes
             or not all(isinstance(component, dict) for component in components)
         ):
             raise ValueError
-        # Syft 1.54.1 exports Docker Labels as metadata.properties. Omit image
-        # metadata wholesale; retain package inventory/dependencies unchanged.
+        # Syft 1.54.1 会把 Docker Labels 放入 metadata.properties；
+        # 整体省略镜像元数据，包清单与依赖关系保持不变。
         document["metadata"] = {
             "tools": {
                 "components": [
@@ -396,8 +396,8 @@ def sanitized_sbom(payload: bytes, reference: str, image_id: str) -> tuple[bytes
 
 
 def clean_environment(workspace: Path) -> dict[str, str]:
-    # Never inherit shell credentials, proxy URLs, Docker contexts or Syft
-    # overrides. An explicit Docker source cannot fall back to a registry.
+    # 不继承 shell 凭据、代理 URL、Docker context 或 Syft 覆盖项；
+    # 显式 Docker 源不能失败后回退到远程 registry。
     return {
         "PATH": "/usr/sbin:/usr/bin:/sbin:/bin",
         "HOME": str(workspace),
@@ -539,6 +539,7 @@ def names(root: Path, reference: str) -> tuple[Path, Path]:
 def collect_one(
     host: Host, root: Path, syft: Path, reference: str, expected_id: str
 ) -> dict:
+    """串行处理一个精确镜像引用，收集受限 SBOM 与摘要；临时目录与锁只清理本次拥有的对象。"""
     image_spec(reference + "=" + expected_id)
     target, record_path = names(root, reference)
     require_absent(target)

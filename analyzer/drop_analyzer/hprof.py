@@ -1,8 +1,7 @@
-"""HotSpot HPROF object graph with transactional, resumable SQLite indexing.
+"""将 HotSpot HPROF 转为对象图，使用事务化、可恢复的 SQLite 索引。
 
-Retained weights use serialized field/array payload sizes: HPROF does not encode
-the VM's compressed references, object headers or alignment. This is explicit in
-the result instead of inventing byte-accurate VM object sizes.
+保留大小依据序列化字段和数组载荷计算；HPROF 不包含 VM 压缩引用、对象头
+及对齐信息，因此结果明确说明计量口径，不伪造精确的 VM 对象占用。
 """
 
 import hashlib
@@ -264,8 +263,8 @@ def analyze_hprof(raw, *, work_dir=None, limits=None, on_progress=None):
                 if string_count % 1000 == 0:
                     checkpoint()
                 continue
-            # Heap sub-records may span large segments. Commit an exact
-            # sub-record boundary so SIGKILL recovery resumes within a segment.
+            # 堆子记录可能位于大 segment 内；只在精确的子记录边界提交检查点，
+            # SIGKILL 后才能在 segment 内安全继续，而不把半条记录当完整数据。
             tag = cursor.number(1)
             previous_end, cursor.end = cursor.end, segment_end
             if tag in ROOTS:
@@ -330,7 +329,7 @@ def analyze_hprof(raw, *, work_dir=None, limits=None, on_progress=None):
                 payload_size = length * TYPES[kind]
                 cursor.take(payload_size)
                 object_row(identifier, -kind, payload_size, b"", "primitive")
-            elif tag == 0xFE:  # Android heap dump info (does not define refs).
+            elif tag == 0xFE:  # Android heap dump info 记录不定义对象引用。
                 cursor.take(4 + identifier_size)
             else:
                 invalid(f"Unsupported HPROF heap sub-record 0x{tag:02x}")
@@ -389,8 +388,8 @@ def analyze_hprof(raw, *, work_dir=None, limits=None, on_progress=None):
                         layouts[cls] = layout(cls)
                     for field, field_kind, declaring in layouts[cls]:
                         value = data.value(field_kind)
-                        # Reference.referent is weak/soft/phantom, not a strong
-                        # retention edge. Other instance fields remain strong.
+                        # Reference.referent 属于弱、软或虚引用，不作为强保留边；
+                        # 实例的其他字段仍按强引用处理。
                         weak = (
                             declaring == "java.lang.ref.Reference"
                             and field_names.get(str(field)) == "referent"
@@ -431,8 +430,8 @@ def analyze_hprof(raw, *, work_dir=None, limits=None, on_progress=None):
         for identifier in graph["0"]:
             predecessors[identifier].append("0")
         notify("dominator")
-        # Iterative DFS and Cooper/Harvey/Kennedy immediate dominators. No
-        # recursive Python graph traversal or quadratic dominator-set storage.
+        # 采用迭代 DFS 与 Cooper/Harvey/Kennedy 直接支配节点算法，
+        # 避免递归遍历栈溢出及平方级支配集合存储。
         seen, postorder = {"0"}, []
         traversal = [("0", iter(graph["0"]))]
         while traversal:
@@ -490,8 +489,7 @@ def analyze_hprof(raw, *, work_dir=None, limits=None, on_progress=None):
         histogram = defaultdict(Counter)
         for identifier, (_, size, _) in objects.items():
             histogram[class_name(identifier)].update(instances=1, shallow_bytes=size)
-        # Per-class retained sum is intentionally non-additive across classes;
-        # nested dominators of the SAME class are counted once.
+        # 按类聚合的 retained 大小不能跨类相加；同类嵌套支配对象只计算一次。
         for identifier in order[1:]:
             cls, ancestor = class_name(identifier), dominator[identifier]
             while ancestor != "0" and class_name(ancestor) != cls:
@@ -521,8 +519,8 @@ def analyze_hprof(raw, *, work_dir=None, limits=None, on_progress=None):
                 "retained_bytes": retained[identifier],
             }
 
-        # Shortest root paths are a separate BFS from the dominator traversal.
-        # A DFS predecessor is a valid path but can hide a nearby GC root.
+        # 最短 GC root 路径单独用 BFS 求解；DFS 前驱虽然也是有效路径，
+        # 却可能掩盖更近的根节点。
         targets = set(top[:20])
         shortest, queue = {"0": None}, deque(["0"])
         while queue and targets:

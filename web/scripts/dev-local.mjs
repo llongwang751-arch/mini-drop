@@ -1,8 +1,11 @@
+/**
+ * 本地开发启动器只负责选择隔离代理并启动 Vite，避免开发页面误连生产。
+ */
 import { spawn } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-// Use the selected isolated backend without loading deploy/.env or production.
+// 只连接显式选中的隔离后端，不读取 deploy/.env，也不默认连接生产服务。
 const settingsPath = new URL(
   "../../.local/dev/local/settings.json",
   import.meta.url,

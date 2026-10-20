@@ -1,3 +1,7 @@
+/**
+ * 复合诊断的 DAG 草稿与执行视图：前端检查依赖关系，再交给服务端调度。
+ * 步骤的真实执行状态来自组合任务详情，不由浏览器定时器模拟推进。
+ */
 import TargetFields, {
   emptyTarget,
   targetPayload,

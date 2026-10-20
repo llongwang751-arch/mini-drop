@@ -1,4 +1,4 @@
-"""Bounded private OTLP/HTTP receiver and assertion for committed Server spans."""
+"""为已提交 Server span 提供有界私有 OTLP/HTTP 接收端与断言。"""
 import json
 import sys
 import time

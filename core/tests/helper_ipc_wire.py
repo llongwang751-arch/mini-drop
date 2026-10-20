@@ -1,4 +1,4 @@
-"""Bounded fake server for helper client corruption/credential regressions only."""
+"""有界假服务端，仅用于 Helper 客户端的损坏响应与身份校验回归。"""
 import hashlib
 import json
 import os

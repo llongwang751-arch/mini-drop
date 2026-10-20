@@ -1,3 +1,7 @@
+/**
+ * 采集器专用参数的通用渲染器，字段描述和约束来自任务类型 schema。
+ * 这里只生成结构化 options，不把用户输入拼成 shell 命令。
+ */
 import { fieldDefinitions } from "../task-schema";
 import type { TaskKind } from "../types";
 const labels: Record<string, string> = {

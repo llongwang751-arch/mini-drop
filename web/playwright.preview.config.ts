@@ -1,8 +1,8 @@
 import { defineConfig } from "@playwright/test";
 import base from "./playwright.config";
 
-// A test-owned foreground preview server: no detached/background process and
-// Playwright stops it after the suite. All API data in this suite is imported.
+// 使用测试自行管理的前台预览服务，避免遗留脱离控制的后台进程。
+// Playwright 在套件结束时关闭服务；这里的 API 数据全部来自导入夹具。
 export default defineConfig({
   ...base,
   testMatch: [

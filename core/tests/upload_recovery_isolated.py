@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""Actual PROC_CPU/PUT/PG recovery regression; never touches production data.
+"""真实 PROC_CPU、PUT 与 PostgreSQL 恢复回归，不接触生产数据。
 
-Run on the dedicated verification host with the preserved release image and
-already-built new binaries. Six cases execute serially under explicit limits.
+在专用验证宿主上使用保留发布镜像和已构建的新二进制，六种情况在显式资源上限内串行执行。
 """
 import hashlib
 import json
@@ -49,7 +48,7 @@ if not MODES or any(value not in ("mixed", "permanent", "restart", "late_log", "
 def command(arguments, check=True):
     result = subprocess.run(list(map(str, arguments)), capture_output=True, text=True, timeout=45)
     if check and result.returncode:
-        # Only container/tool diagnostics: commands may contain short-lived PUT URLs.
+        # 只保留容器和工具诊断；命令文本可能含短期 PUT URL，不能直接输出。
         raise RuntimeError("Private recovery fixture command failed: " + result.stderr[-600:])
     return result.stdout.strip()
 
@@ -69,9 +68,8 @@ def run_case(mode):
     helper = None
     perf_options = []
     if HELPER:
-        # The preserved tools *base* predates the perf manifest entry. Pin the
-        # executable in that immutable image explicitly, as the release's
-        # --manifest-only build step does, instead of disabling integrity checks.
+        # 保留的 tools base 早于 perf manifest 条目；应像发布的 --manifest-only 构建
+        # 一样显式固定该不可变镜像中的二进制，而不是禁用完整性检查。
         script = "import pathlib,hashlib,json; p=next(pathlib.Path('/usr/lib/linux-tools').glob('*/perf')); print(json.dumps({'path':str(p),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}))"
         perf = json.loads(command(["docker", "run", "--rm", "--network", "none", "--cap-drop", "ALL", "--read-only", "--user", "10001:10001", "--memory", "96m", "--cpus", ".2", "--entrypoint", "/usr/bin/python3", TOOLS, "-c", script]))
         perf_options = ["-e", "PERF_EXECUTABLE=" + perf["path"], "-e", "PERF_SHA256=" + perf["sha256"]]
@@ -82,8 +80,8 @@ def run_case(mode):
             path.mkdir(mode=0o700)
             helper_directories.append(path)
         helper_cache, helper_incoming, helper_socket = helper_directories
-        # Agent must register before any helper is running. The host's spool
-        # preparer owns only this fixed receive root; each task remains0700.
+        # 先让 Agent 登记，再启动 Helper；宿主 spool 准备器只拥有固定接收根目录，
+        # 各任务目录仍为 0700。
         os.chown(helper_incoming, 0, 10001)
         helper_incoming.chmod(0o1770)
 
@@ -139,8 +137,8 @@ def run_case(mode):
         if COOPERATIVE:
             target_options = ["--pid", "container:" + agent, "--read-only", "--cap-drop", "ALL", "--user", "10001:10001", "--memory", "192m", "--memory-swap", "192m", "--cpus", ".2", "--pids-limit", "64", "--tmpfs", "/tmp:rw,size=64m,mode=1777", "-v", f"{helper_incoming}:/run/drop-helper-incoming", "-v", f"{control}:/run/drop-fixture-control"]
             if KIND.startswith("JAVA"):
-                # Source-file mode compiles only this tiny fixture, within its
-                # own business cgroup; actual profiler writes are not simulated.
+                # 源码模式只在本夹具独立业务 cgroup 内编译这个小程序；
+                # 实际 profiler 写入不是模拟输出。
                 target_options += ["--entrypoint", "/usr/bin/java", "-v", f"{ROOT}/core/fixtures/DropJvmFixture.java:/fixture/DropJvmFixture.java:ro"]
                 target_arguments = ["-Xmx48m", "-Xms16m", "-XX:ReservedCodeCacheSize=32m", "-XX:MaxMetaspaceSize=48m", "-XX:+StartAttachListener", "/fixture/DropJvmFixture.java"]
                 process_name = "java"
@@ -153,8 +151,7 @@ def run_case(mode):
             process_sql = "SELECT p->>'pid' FROM agents,jsonb_array_elements(resources->'processes') p WHERE id='aliyun-local' AND p->>'name'='" + process_name + "'"
             pid = int(wait_value(lambda: sql(process_sql), timeout=50))
             if KIND.startswith("JAVA"):
-                # Seeing the launcher PID does not establish that source-file
-                # compilation finished or actual business methods are running.
+                # 看到启动器 PID 不代表源码编译已经完成，也不能证明实际业务方法正在运行。
                 wait_value(lambda: command(["docker", "logs", "--tail", "8", target]),
                            lambda value: "DROP_JVM_FIXTURE_READY" in value, timeout=90)
             else:
@@ -218,8 +215,8 @@ def run_case(mode):
             manifest_file = private_attempt / "collection-manifest.json"
             if mode == "manifest_restart":
                 before_manifest = hashlib.sha256(manifest_file.read_bytes()).hexdigest()
-            # Establish the first event in SQL before killing its process-local
-            # transport buffer; the post-restart count then detects resampling.
+            # 先确认首个事件已进入 SQL，再终止进程内传输缓冲；
+            # 重启后的事件数量才能检测是否发生重复采样。
             wait_value(lambda: sql(f"SELECT count(*) FROM agent_events WHERE type='RUNNER_ACCEPTED' AND (payload->>'attempt_id')::bigint={attempt}"), lambda count: count == "1", 20)
             command(["docker", "stop", "--time", "25", agent])
             if not raw_file.is_file() or hashlib.sha256(raw_file.read_bytes()).hexdigest() != before_restart:
@@ -228,8 +225,7 @@ def run_case(mode):
                 raise RuntimeError("Shutdown changed immutable collection manifest")
             sink("/allow", "POST")
             if COOPERATIVE:
-                # Collection already finished. Stop only this self-owned toy,
-                # so recovery cannot accidentally resample a live business PID.
+                # 采集已经完成，只停止本次拥有的玩具进程；避免恢复路径意外重新采样仍存活的业务 PID。
                 command(["docker", "stop", "--time", "10", target])
             command(["docker", "start", agent])
             if HELPER:
@@ -313,7 +309,7 @@ def run_case(mode):
                 raise RuntimeError("Permanent upload failure lost its fixed error code")
         if mode in ("restart", "manifest_restart") and stats["raw_sha256s"][-1] != before_restart:
             raise RuntimeError("Restart upload did not preserve original RAW SHA")
-        # Wait one heartbeat so the bounded Agent event buffer reaches SQL.
+        # 等待一个心跳，让 Agent 的有界事件缓冲写入 SQL。
         wait_value(lambda: sql(f"SELECT count(*) FROM agent_events WHERE type='RUNNER_ACCEPTED' AND (payload->>'attempt_id')::bigint={attempt}"), lambda count: count == "1", 20)
         if HELPER:
             command(["docker", "stop", "--time", "10", helper])
@@ -324,13 +320,13 @@ def run_case(mode):
             capability_transitions.append("helper_restarted_perf_reregistered")
         report = {"binary_sha256":BINARY_HASHES,"capability_transitions":capability_transitions,"case":mode,"kind":KIND,"event":JAVA_EVENT if KIND == "JAVA_CPU" else None,"success":True,"terminal":result,"raw_attempts":stats["raw_attempts"],"log_attempts":stats["log_attempts"],"manifest_attempts":stats["manifest_attempts"],"one_captured_raw_sha256":stats["raw_sha256s"][0],"restart_sha256":before_restart,"restart_manifest_sha256":before_manifest,"artifacts":rows,"fixture_source":f"actual isolated {KIND} Agent/Server/PUT/PG execution; actual capless UID10001 cooperative target and bounded filesystem when cooperative; helper+Agent actual different UIDs when helper; no production mutation"}
         (directory / "evidence.json").write_text(json.dumps(report, indent=2) + "\n")
-        # Keep failure RAW evidence but remove secret-bearing private task journals.
+        # 保留失败 RAW 证据，但删除含敏感值的私有任务日志。
         if mode == "permanent":
             (directory / ("retained-" + RAW_NAME)).write_bytes(raw_file.read_bytes())
         return report
     except Exception as failure:
-        # Service logs use the production redacting serializer. Never capture
-        # docker inspect Env/argv, task journals, grants or profiler RAW here.
+        # 服务日志使用生产脱敏序列化器；此处不采集 Docker inspect 的 Env/argv、
+        # 任务日志、授权值或 profiler RAW。
         import re
         diagnostics = {"success":False, "kind":KIND, "case":mode, "failure":str(failure)[:1000], "services":{}}
         try:
@@ -354,8 +350,7 @@ def run_case(mode):
         network_owner = command(["docker", "network", "inspect", "--format", '{{index .Labels "io.drop.owner"}}', network], False)
         if network_owner == owner:
             command(["docker", "network", "rm", network], False)
-        # This exact self-created journal is intentionally removed after its evidence
-        # was copied. It contains fixture URLs and is not a release artifact.
+        # 证据复制后只删除本次自建的精确日志；其中含夹具 URL，不属于发布制品。
         import shutil
         if journal.resolve().parent == directory.resolve():
             shutil.rmtree(journal)

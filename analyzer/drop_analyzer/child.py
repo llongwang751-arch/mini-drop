@@ -1,4 +1,8 @@
-"""One disposable analysis subprocess. Stdout contains one bounded JSON result."""
+"""一次性分析子进程；stdout 只输出一个有界 JSON 结果。
+
+父进程已下载并校验输入，子进程只解码私有目录中的文件，不继承存储凭据。
+解析失败和资源超限由固定错误协议返回，父进程决定是否重试或发布失败状态。
+"""
 
 import json
 from pathlib import Path
@@ -13,8 +17,8 @@ def main():
         import resource
         import ctypes
 
-        # Linux PR_SET_NO_NEW_PRIVS: analysis tools cannot gain privilege via
-        # setuid/file capabilities, even when a malformed profile reaches them.
+        # Linux PR_SET_NO_NEW_PRIVS 阻止工具通过 setuid 或文件 capabilities 提权；
+        # 畸形 profile 触发外部解码器时也不能越过此边界。
         ctypes.CDLL(None, use_errno=True).prctl(38, 1, 0, 0, 0)
         budget = context["limits"]
         resource.setrlimit(

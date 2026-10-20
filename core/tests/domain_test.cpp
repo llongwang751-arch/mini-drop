@@ -16,7 +16,7 @@ template <class F> void rejects(F f) {
   }
   throw std::runtime_error("Invalid input was accepted");
 }
-} // namespace
+} // 结束匿名命名空间
 
 int main() {
   using namespace dropcore;

@@ -1,3 +1,7 @@
+/**
+ * 将诊断 Markdown 转成有限 HTML：关闭原始 HTML，并在 AST 阶段移除媒体。
+ * 此模块产物还须经过 DOMPurify，不能因为使用 Markdown 语法就认为内容可信。
+ */
 import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
@@ -46,7 +50,7 @@ function safeTree() {
           if (node.type === "text") result.push(node);
           continue;
         }
-        // Media is removed before any HTML or browser resource is created.
+        // 在生成 HTML 之前移除媒体节点，避免图片等标签触发浏览器自动资源请求。
         if (node.tagName === "img") continue;
         children(node);
         if (["h1", "h2"].includes(node.tagName)) node.tagName = "h3";
@@ -107,7 +111,7 @@ function safeTree() {
   };
 }
 
-// One remark parser, with raw HTML disabled; all decoration precedes DOMPurify.
+// 统一使用一个禁用原始 HTML 的 remark 解析器；所有样式装饰都在 DOMPurify 清理之前完成。
 const processor = unified()
   .use(remarkParse)
   .use(remarkGfm)

@@ -1,3 +1,6 @@
+/**
+ * 调用树纯数据单测：拒绝环、超限和不守恒权重，并确认过滤没有篡改证据口径。
+ */
 import { describe, expect, it } from "vitest";
 import {
   functionRelations,

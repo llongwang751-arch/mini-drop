@@ -1,3 +1,7 @@
+/**
+ * 批量操作采用有上限的选择数和小并发池，逐项返回成功、跳过或失败。
+ * 点击后会重新读取每个任务，避免拿列表中已过期的权限或状态直接执行变更。
+ */
 import { isTerminal } from "./api";
 import type { Task } from "./types";
 
@@ -31,7 +35,7 @@ export function bulkEligibility(task: Task, action: BulkAction): string {
   return "";
 }
 
-/** Refresh authorization/state immediately before every mutation. The API remains authoritative. */
+/** 每次批量变更前重新读取权限和状态；前端检查改善体验，最终授权仍以 API 为准。 */
 export async function runTaskBatch(
   selected: Task[],
   action: BulkAction,
@@ -48,6 +52,7 @@ export async function runTaskBatch(
   const result: BulkItemResult[] = new Array(selected.length);
   let next = 0,
     completed = 0;
+  // 两个消费者共享递增索引，保持小并发；结果按原选择顺序落位，而不是按完成时间乱序。
   const worker = async () => {
     while (next < selected.length) {
       const index = next++,

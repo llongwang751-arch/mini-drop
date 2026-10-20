@@ -1,3 +1,7 @@
+/**
+ * 趋势图只消费服务端统计序列，不在浏览器伪造采样点或成功率。
+ * 图形提供快速阅读入口，具体数量与时间口径仍以页面文字和接口数据为准。
+ */
 import { useRef, useState, type KeyboardEvent } from "react";
 import type { Overview } from "../types";
 

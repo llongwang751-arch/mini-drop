@@ -1,4 +1,4 @@
-// Imported deterministic tool double: proves launcher policy, not GDB capture.
+// 确定性的导入工具替身，只证明启动器策略，不表示GDB真实采集通过。
 #include <cerrno>
 #include <cstring>
 #include <fcntl.h>

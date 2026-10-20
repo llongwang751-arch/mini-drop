@@ -1,4 +1,4 @@
-"""Copy only explicitly identified disposable toy fixtures into our test lane."""
+"""只将明确登记、可丢弃的玩具夹具复制到独立测试通道。"""
 
 import json
 from pathlib import Path

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""One new stage-only imported fixture and exact-byte S3 metadata regression.
+"""仅在 stage 新建一份导入夹具，验证 S3 元数据和精确字节。
 
-Only safe identifiers, hashes, sizes and boolean results reach stdout. This
-script never accepts an existing task, arbitrary bucket, key or service URL.
+stdout 只包含安全标识符、摘要、大小与布尔结果；不接受已有任务、任意 bucket、
+对象键或服务 URL，防止验证脚本误触其他数据。
 """
 
 import argparse
@@ -47,8 +47,8 @@ def require(condition, code):
 
 
 def require_fixed_stage_scope():
-    # The business S3 gateway deliberately rejects admin CopyObject. Only this
-    # one-time stage management container may reach the private backend.
+    # 业务 S3 网关主动拒绝管理员 CopyObject；只有本次一次性 stage 管理容器
+    # 可以访问私有后端。
     require(
         (API_ORIGIN, PUBLIC_ORIGIN, S3_ENDPOINT, BUCKET)
         == (
@@ -116,8 +116,8 @@ def select_artifact(task, task_id, run_id):
             "ATTEMPT_INVALID",
         )
     latest = max(attempts, key=lambda value: value["attempt"])
-    # The tool creates one import and never retries it. Refuse an externally
-    # retried/replaced collection rather than touching uncertain objects.
+    # 本工具只创建一次导入且不重试；发现外部重试或替换的采集时拒绝继续，
+    # 不能操作归属已不确定的对象。
     require(
         latest["attempt"] == 1 and latest.get("status") == "COLLECTED",
         "FIXTURE_ATTEMPT_REPLACED",
@@ -210,7 +210,7 @@ def secret_file(path, maximum=1024):
         return value
     except Failure:
         raise
-    except Exception:  # noqa: BLE001 - secret and OS errors must remain redacted.
+    except Exception:  # noqa: BLE001 - 密钥和系统错误始终脱敏。
         raise Failure("SECRET_FILE_INVALID") from None
     finally:
         if descriptor >= 0:
@@ -501,7 +501,7 @@ def main(argv=None):
         proof["error_code"] = str(error)
     except KeyboardInterrupt:
         proof["error_code"] = "VALIDATION_INTERRUPTED"
-    except Exception:  # noqa: BLE001 - public proof must never include SDK errors.
+    except Exception:  # noqa: BLE001 - 公开证据不得包含 SDK 原始错误。
         proof["error_code"] = "STAGE_VALIDATION_FAILED"
     print(json.dumps(proof, sort_keys=True))
     return 0 if proof["success"] else 1

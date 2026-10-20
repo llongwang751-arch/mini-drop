@@ -1,3 +1,6 @@
+// 子进程执行契约：argv、时间/空间/进程预算、取消回调及有界输出。
+// 调用者必须先选定受信工具和目标；不能把浏览器输入直接当作命令或文件路径传入。
+
 #pragma once
 
 #include <chrono>
@@ -20,19 +23,19 @@ struct ProcessLimits {
   std::uint64_t file_bytes = 64ULL * 1024 * 1024;
   std::uint64_t address_space_bytes = 8ULL * 1024 * 1024 * 1024;
   unsigned int cpu_seconds = 120;
-  // Concurrent tasks (threads included) in the owned tool process group.
-  // RLIMIT_NPROC counts the shared host UID, including unrelated containers.
-  // The poll enforces this budget; deployment cgroup pids.max is the hard cap.
+  // 预算统计当前工具进程组中的并发任务，Linux线程也计入，不能只数子进程。
+  // RLIMIT_NPROC按共享宿主UID计数，会把无关容器也算进来，不适合作为单次采集预算。
+  // 本层通过轮询执行任务预算；部署层cgroup的pids.max提供额外硬上限。
   unsigned int processes = 32;
-  // Only trusted tools may use an owner-controlled directory for nested tools.
+  // 只有受信工具可以为嵌套工具使用调用者持有的目录，外部请求不能任意指定工作目录。
   std::string executable_path_prefix;
-  // Public tool integrity metadata for the trusted nested GDB launcher only.
-  // Selected locally by Runner policy, never accepted through helper IPC.
+  // 仅供受信的嵌套GDB启动器核验工具完整性，这里不包含私密诊断内容。
+  // 由Runner本地策略选择，不能从helper IPC请求中接受此配置。
   std::string nested_tool_manifest_path;
-  // Locally pinned numeric target identity for the GDB launcher, never user
-  // IPC.
+  // GDB启动器使用本地固定的数字目标身份，不能由用户通过
+  // IPC自行声明并绕过身份校验。
   std::string nested_tool_target_identity;
-  // Empty preserves the inherited mask; otherwise only an allowed CPU subset.
+  // 空集合表示继承原CPU亲和性；非空时只允许缩小到已授权的CPU子集。
   std::vector<unsigned> cpu_affinity;
 };
 
@@ -58,4 +61,4 @@ void log(const std::string &service, const std::string &message,
          const std::string &task_id = "", const std::string &code = "",
          const LogContext &context = {});
 void log_configuration(const std::string &service);
-} // namespace dropcore
+} // 结束 dropcore 命名空间

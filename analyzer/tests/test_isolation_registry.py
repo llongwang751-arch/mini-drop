@@ -1,3 +1,5 @@
+"""验证格式注册表及隔离子进程的资源、清理和取消边界，测试输入为受控夹具。"""
+
 import hashlib
 from pathlib import Path
 import tempfile

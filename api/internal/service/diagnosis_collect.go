@@ -1,3 +1,5 @@
+// Package service：将人工批准的复测建议转换为普通采集任务，并记录与来源诊断的关系。
+// 事务期间锁住来源任务，保证点击确认和创建任务之间证据身份没有被重试、删除或重分析改变。
 package service
 
 import (
@@ -10,9 +12,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// Human-confirmed follow-up collection. The source task remains locked through
-// creation, fencing concurrent reanalysis, retry or deletion. Task creation and
-// the provenance event/audit are committed in the same transaction.
+// CollectDiagnosis 创建经人工确认的复测任务；创建期间始终锁住来源任务，
+// 以阻止并发重分析、重试或删除改变证据身份。任务、来源事件及审计在同一事务提交。
 func (s *Suggestions) CollectDiagnosis(ctx context.Context, u domain.User, taskID, runID int64, key, request string) (domain.Task, bool, error) {
 	var created domain.Task
 	var replay bool

@@ -1,3 +1,5 @@
+"""使用受控 IPv4 与模板夹具验证公网入口渲染，不修改云实例或在线网络配置。"""
+
 import importlib.util
 from pathlib import Path
 import tempfile

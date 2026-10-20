@@ -1,4 +1,4 @@
-"""Native-format regressions using the recorded real-tool fixture manifest."""
+"""根据已记录的真实工具夹具 manifest 验证原生格式解析。"""
 
 import hashlib
 import json

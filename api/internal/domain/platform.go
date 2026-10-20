@@ -1,3 +1,5 @@
+// Package domain：描述目标、导入、定时计划与组合任务的纯数据协议。
+// 校验依赖图、时区和输入边界在入库前完成；组合汇总区分必选与可选节点，不把部分成功误写为全部成功。
 package domain
 
 import (
@@ -64,6 +66,8 @@ func (i ImportInput) Decode() ([]byte, *Error) {
 	}
 	return b, nil
 }
+
+// NextSchedule 按时区和 cron 或固定间隔计算下一次触发点；定时器使用持久化时间，进程重启不应重置计划语义。
 func NextSchedule(expr, zone string, interval int, after time.Time) (time.Time, error) {
 	loc, err := time.LoadLocation(zone)
 	if err != nil {
@@ -189,6 +193,7 @@ type CompositeNode struct {
 	Result    json.RawMessage `json:"result,omitempty" gorm:"-"`
 }
 
+// AggregateComposite 根据子节点状态汇总父组合状态及计数；必选节点与可选节点的失败语义不同，部分结果不能包装成全部成功。
 func AggregateComposite(nodes []CompositeNode, partial bool) (string, map[string]int) {
 	summary := map[string]int{"total": len(nodes), "waiting": 0, "running": 0, "succeeded": 0, "failed": 0, "skipped": 0}
 	requiredFailed := false

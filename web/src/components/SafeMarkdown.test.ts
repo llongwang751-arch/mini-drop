@@ -1,3 +1,6 @@
+/**
+ * 不可信诊断文本的 AST 和链接策略测试；纯 Node 验证不等于浏览器 DOM 清理已验收。
+ */
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
@@ -6,8 +9,8 @@ import SafeMarkdownContent from "./SafeMarkdownContent";
 import { safeMarkdownUrl } from "./safe-markdown-policy";
 import { diagnosticMarkdownHTML } from "./markdown-html";
 
-// Synthetic imported model/rule text; no browser/network is used in unit tests.
-// Node tests exercise the inert AST; DOMPurify is tested in the real browser.
+// 使用导入的合成模型/规则文本；Node 单测只检查不会执行资源请求的 AST。
+// 本单测不访问浏览器或网络，DOMPurify 的实际清理行为另由浏览器测试验证。
 const html = diagnosticMarkdownHTML;
 
 describe("untrusted diagnostic Markdown", () => {

@@ -1,12 +1,15 @@
+// 分配器uprobe的短路径别名接口，用设备号/inode验证真实库身份。
+// 它只解决附加路径兼容问题，真实可用性仍需Runner的探测、授权与事件验证。
+
 #pragma once
 #include "drop/target.hpp"
 #include <string>
 #include <sys/types.h>
 
 namespace dropcore {
-// BCC's legacy uprobe event names contain the target path. A root-owned short
-// alias prevents a long container /proc/<pid>/root path overflowing that name.
-// It refers to the exact selected library inode; it is never a copied library.
+// BCC旧版uprobe事件名包含目标路径。使用root持有的短路径别名，
+// 避免容器/proc/<pid>/root长路径超出内核允许的事件名长度。
+// 别名必须指向已选中库文件的同一inode，不能复制一份库来冒充采集目标。
 class AllocatorProbeAlias {
 public:
   AllocatorProbeAlias(const ProcessIdentity &, std::string library);
@@ -25,4 +28,4 @@ private:
   dev_t directory_device_ = 0, link_device_ = 0;
   ino_t directory_inode_ = 0, link_inode_ = 0;
 };
-} // namespace dropcore
+} // 结束 dropcore 命名空间

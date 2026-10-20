@@ -1,7 +1,7 @@
-"""Build the HTTP reference from reviewed handlers and the shared TaskKind catalog.
+"""根据已审阅 handler 与共享 TaskKind catalog 生成 HTTP 参考文档。
 
-Run from any directory with Python + PyYAML. This never contacts a service.
-The companion check_http_contract.py compares every documented operation to Gin.
+仅需 Python 与 PyYAML，可从任意目录运行，不访问在线服务；
+配套 check_http_contract.py 会逐项比较文档操作与真实 Gin 路由。
 """
 from __future__ import annotations
 
@@ -228,7 +228,7 @@ S["CreateSchedule"] = obj({"name": string(maxLength=120), "interval_minutes": in
     description="Choose cron or interval_minutes. Template is immutable, live collection only. Missed slots advance to the next future slot; no replay flood. Each record stores the template snapshot and unique scheduled_at.",
     oneOf=[{"required": ["cron"], "properties": {"cron": string(minLength=1), "interval_minutes": integer(const=0)}},
            {"required": ["interval_minutes"], "properties": {"cron": string(maxLength=0), "interval_minutes": integer(minimum=1, maximum=10080)}}])
-# Go's optional interval is decoded as zero when a Cron expression is present.
+# 提供 Cron 表达式时，Go 可选 interval 字段按零值解码。
 S["CreateSchedule"]["properties"]["interval_minutes"] = integer(minimum=0, maximum=10080)
 S["Schedule"] = obj({"id": ID, "creator_id": string(), "name": string(), "interval_minutes": integer(minimum=1),
     "cron": string(), "timezone": string(), **GROUP_FIELDS, "template": ref("CreateTask"), "enabled": BOOL,
@@ -296,7 +296,7 @@ S["Feedback"] = obj({"id": ID, "suggestion_id": ID, "user_id": string(), "rating
 S["Audit"] = obj({"id": ID, "user_id": string(), "action": string(), "resource_type": string(), "resource_id": string(),
     "request_id": string(), "detail": MAP, "created_at": DATE}, ("id", "user_id", "action", "resource_type", "resource_id", "request_id", "detail", "created_at"))
 
-# Copy normalized schemas verbatim, rather than restating per-profiler options.
+# 直接复制规范化 Schema，不逐个 profiler 重写选项定义，避免多处契约漂移。
 for kind in CATALOG:
     S[f"NormalizedParameters_{kind['id']}"] = copy.deepcopy(kind["parameter_schema"])
 

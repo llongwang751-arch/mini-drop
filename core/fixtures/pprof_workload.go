@@ -1,4 +1,5 @@
-// Controlled live Go target. Uses the standard library's real pprof handlers.
+// 这是受控运行的 Go 合成采集目标，通过标准库真实 pprof 处理器暴露回环接口。
+// 两个工作协程有意在锁内执行计算与分配，形成 CPU、堆、mutex 和 block 的可观察线索；不能把夹具表现外推到生产。
 package main
 
 import (
@@ -27,6 +28,7 @@ func transform(seed int) float64 {
 	return value
 }
 
+// allocate 周期性分配并限制保留对象数量，为堆与分配采样提供合成信号，不代表业务内存泄漏。
 func allocate(seed int) {
 	retained = append(retained, make([]byte, 16384+seed%2048))
 	if len(retained) > 256 {

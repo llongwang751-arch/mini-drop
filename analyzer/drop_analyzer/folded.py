@@ -1,9 +1,8 @@
-"""Strict collapsed-stack parser with bounded memory and JSON-safe weights.
+"""严格解析 collapsed stack，限制内存并保证权重可安全写入 JSON。
 
-Each line is a root-to-leaf stack separated by semicolons, a space, and a
-positive decimal sample count. Counts are weights rather than wall-clock time.
-Recursive names count once per sample in function-inclusive TopN, while the
-flame tree retains each recursive frame at its actual depth.
+每行由分号分隔的根到叶调用栈、空格和正十进制采样数构成。采样数是权重，
+不是墙钟耗时。函数 inclusive TopN 中，同一采样里的递归函数只累计一次；
+火焰树仍保留每个递归栈帧的真实深度。
 """
 
 from dataclasses import dataclass

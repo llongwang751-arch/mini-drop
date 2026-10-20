@@ -1,10 +1,13 @@
+/**
+ * 使用导入模型与 API 响应验证诊断交互、只读权限和计划确认；不会调用真实模型或采集器。
+ */
 import { test, expect } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 
-// All intercepted data and model text are explicitly imported UI fixtures.
+// 所有被拦截的数据和模型文本都是显式导入的界面夹具，不代表真实模型诊断已执行。
 async function fixture(
   page: Page,
   options: {

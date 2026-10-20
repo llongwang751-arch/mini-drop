@@ -1,5 +1,5 @@
-# Tencent 82.157.81.79: isolated enrolled CRM test workload, no CRM release.
-# Merge last. No Docker socket, business config or source tree enters the API.
+# 腾讯云82.157.81.79上的已登记CRM隔离测试负载，不是原CRM业务发布。
+# 此覆盖最后合并；API不挂载Docker socket、真实业务配置或业务源码树。
 services:
   migration: {image: 'drop-api:20261020.10'}
   api:
@@ -12,7 +12,7 @@ services:
   web: {image: 'drop-web:20261021.1'}
   agent:
     environment:
-      # Only the Agent container namespace, not the server's host namespace.
+      # 仅开放Agent容器自己的命名空间，不开放服务器宿主命名空间。
       ALLOW_HOST_PROCESSES: 'true'
       ALLOWED_TARGET_UIDS: '10001'
   collector-helper:

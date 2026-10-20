@@ -1,5 +1,5 @@
-// Actual isolated-stage partial-result browser verification. No mocked routes,
-// trace, HAR, video, storage-state file or raw network diagnostics.
+// 隔离 stage 的真实部分结果验收：核对后台回执后，再让实际浏览器读取同一执行身份。
+// 不伪造路由响应，不记录 trace/HAR/录像/登录态文件或原始网络异常。
 import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
 import { lstatSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -14,8 +14,10 @@ export const IMAGE_PINS = {
     "sha256:b9e6b659e0494e5002ed5f49a43812a73c3eb7b966d050b2e325b5990e9af136",
   api: "sha256:94ad66ca5cd6a9a866c84c35916626b9cfe41e765c3cd648abb04970777abc47",
   web: "sha256:452ef2a6ca44e9ca5f4f3ff7c14821acad3bf3a7810b9b9f6f65215dc9141959",
-  "drop-server": "sha256:1310a7f48bf0cfba7f3de7e8b4e0dc3671bbbb91d2707b1d302f5f8db93a0355",
-  agent: "sha256:1310a7f48bf0cfba7f3de7e8b4e0dc3671bbbb91d2707b1d302f5f8db93a0355",
+  "drop-server":
+    "sha256:1310a7f48bf0cfba7f3de7e8b4e0dc3671bbbb91d2707b1d302f5f8db93a0355",
+  agent:
+    "sha256:1310a7f48bf0cfba7f3de7e8b4e0dc3671bbbb91d2707b1d302f5f8db93a0355",
 };
 const HEX = /^[0-9a-f]{64}$/;
 const identity = (value) =>
@@ -35,11 +37,13 @@ export function canonical(value) {
     );
   return value;
 }
+// 对字段递归排序后计算摘要，避免仅对象键顺序不同就被当成内容发生变化。
 export function partialDigest(value) {
   return createHash("sha256")
     .update(JSON.stringify(canonical(value)))
     .digest("hex");
 }
+// 同时检查执行身份、失败检查点、清理结果和冻结镜像；通过页面渲染不能替代这些后台约束。
 export function validateProof(value, pins = IMAGE_PINS) {
   const required = [
     "schema_version",
@@ -177,8 +181,8 @@ function readSecret(name, maximum) {
   return value;
 }
 
-// This function runs in the actual page and never returns credential/header or
-// raw native errors. Every HTTP response is read as a bounded byte stream.
+// 此函数在真实页面中运行，但不返回凭据、请求头或原生网络异常。
+// 每个响应都按有上限的字节流读取，不能因为是验收工具就放弃资源边界。
 async function browserRequest({ path, login }) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 20000);
@@ -241,6 +245,7 @@ async function browserRequest({ path, login }) {
   }
 }
 
+// 实际浏览器执行入口可能读取 stage 凭据；纯元数据测试只导入上面的校验函数。
 export async function run(args) {
   let browser;
   let context;

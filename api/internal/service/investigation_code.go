@@ -1,3 +1,5 @@
+// Package service：在调查与源码修复之间建立经过验证的关联，核对现场目标、已登记项目和不可变源码版本。
+// 只有运维 broker 的确切绑定可以触发后续修复，模型猜测的函数或路径不能建立身份关系。
 package service
 
 import (
@@ -8,8 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// Source versions are bound by the operator-owned broker to the exact live
-// process, not inferred by the language model from a similar function name.
+// codeRuntimeBinding 由运维控制的 broker 将源码版本绑定到确切的现场进程。
+// 模型不能凭相似函数名推断源码与当前运行目标是同一个版本。
 type codeRuntimeBinding struct {
 	ID       string `json:"id"`
 	Revision string `json:"source_revision"`
@@ -29,6 +31,9 @@ func (b codeRuntimeBinding) validate(agent string, p domain.Parameters) error {
 	}
 	return nil
 }
+
+// advanceLinkedCodeRepair 核验已登记源码与本次现场目标、版本的绑定，再关联或创建修复运行。
+// 源码修复成功指隔离快照上的回归和性能对照通过，不能扩展为生产版本已部署。
 func (s *Suggestions) advanceLinkedCodeRepair(ctx context.Context, tx *gorm.DB, u domain.User, run *Investigation, verification json.RawMessage) error {
 	if !u.IsPlatformAdmin() {
 		return domain.Fail("AUTHORIZATION_REVOKED", "源码权限已撤销")
@@ -41,7 +46,7 @@ func (s *Suggestions) advanceLinkedCodeRepair(ctx context.Context, tx *gorm.DB, 
 		if len(goalRunes) > 400 {
 			goalRunes = goalRunes[:400]
 		}
-		// RequestCodeRepair rechecks this immutable revision before creating a job.
+		// RequestCodeRepair 创建作业之前还会重新核验这个不可变源码版本，不能只相信前面的查询结果。
 		job, err := s.RequestCodeRepair(ctx, u, CodeRepairInput{ProjectID: *run.CodeProjectID, SourceRevision: *run.CodeSourceRevision, Goal: string(goalRunes) + "\n针对绑定项目的登记业务函数定位源码热点、生成优化补丁并运行原功能回归和交替CPU对照；明确结论的受控基准范围。", Consent: true}, fmt.Sprintf("investigation:%d:code", run.ID), "investigation-worker")
 		if err != nil {
 			return err

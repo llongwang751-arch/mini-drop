@@ -1,3 +1,7 @@
+/**
+ * 依据 /task-kinds 返回的参数 schema 构造表单，而不是在前端拼采集命令行。
+ * 这里的校验用于提前反馈输入问题，后端仍须独立验证采集器能力、目标身份和预算。
+ */
 export interface ParameterField {
   type?: string;
   title?: string;
@@ -28,6 +32,7 @@ const common = new Set([
   "budget",
   "options",
 ]);
+// 通用目标/预算由专门组件负责，只把采集器专有 options 展开成动态字段，避免重复输入冲突。
 export function fieldDefinitions(
   kind?: KindSchema,
 ): [string, ParameterField][] {
@@ -116,6 +121,7 @@ export function validateOptions(
   }
   return "";
 }
+// 校验完成后再转换对象型 JSON，并去掉空字段；不偷偷把非法输入变成默认有效值。
 export function normalizeOptions(
   kind: KindSchema | undefined,
   values: Record<string, unknown>,
@@ -130,6 +136,7 @@ export function normalizeOptions(
       result[key] = JSON.parse(result[key] as string);
   return result;
 }
+// 分段构造字节串，避免大文件一次展开为函数参数导致调用栈/参数数量溢出。
 export function encodeImport(data: Uint8Array): string {
   const chunks: string[] = [];
   for (let i = 0; i < data.length; i += 8192)

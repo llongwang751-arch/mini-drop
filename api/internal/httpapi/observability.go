@@ -1,3 +1,4 @@
+// Package httpapi：记录路由模板、状态码和耗时，并暴露 Prometheus 指标；避免用用户路径或私有请求内容作为高基数标签。
 package httpapi
 
 import (

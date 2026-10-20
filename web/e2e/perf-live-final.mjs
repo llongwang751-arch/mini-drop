@@ -1,3 +1,7 @@
+/**
+ * 真实环境性能链路的历史验收脚本，包含任务操作与制品下载；只有明确选择目标后才运行。
+ * 客户端与服务端时钟口径分开，不用跨机器绝对时间差估算延迟。
+ */
 import assert from "node:assert/strict";
 import { createHash, randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";

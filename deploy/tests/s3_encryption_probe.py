@@ -1,4 +1,4 @@
-"""Private SSE-S3 fixture; transport or unrelated S3 errors always fail closed."""
+"""私有 SSE-S3 夹具；传输错误或不相关的 S3 错误一律按失败处理。"""
 
 import argparse
 import hashlib
@@ -27,8 +27,8 @@ ENCODED_METADATA = {
 }
 PAYLOAD_BYTES = 2 * 1024 * 1024
 PHASES = ("legacy-write", "encrypt-legacy", "write", "wrong-key", "restored-key")
-# Some MinIO versions wrap a KMS authentication failure in InternalError.
-# A generic InternalError without a specific cryptographic reason is rejected.
+# 某些 MinIO 版本把 KMS 鉴权失败包装成 InternalError；
+# 缺少明确加密原因的通用 InternalError 不能被接受为预期解密失败。
 DECRYPTION_CODES = frozenset(
     {
         "InternalError",
@@ -36,7 +36,7 @@ DECRYPTION_CODES = frozenset(
         "XMinioKMSDecryptionFailed",
         "KMS.InternalException",
         "XMinioObjectTampered",
-        # Exact RELEASE.2025-07-23T15-54-02Z internal/kms/errors.go.
+        # 精确对应 RELEASE.2025-07-23T15-54-02Z 的 internal/kms/errors.go 定义。
         "kms:InvalidCiphertextException",
         "kms:DecryptionFailed",
     }
@@ -54,7 +54,7 @@ DECRYPTION_REASONS = (
 
 
 class ProbeFailure(Exception):
-    """Only fixed, non-sensitive diagnostic codes reach the CLI."""
+    """CLI 只输出固定、非敏感的诊断码。"""
 
     def __init__(self, code, *, algorithms=None, details=None):
         super().__init__(code)
@@ -77,7 +77,7 @@ def header(headers, name):
 
 def encryption_algorithm(headers):
     value = header(headers, "x-amz-server-side-encryption")
-    # Raw server values are never returned or logged.
+    # 原始服务器返回值既不回显也不写入日志。
     return value if value in {"AES256", "aws:kms"} else "absent"
 
 
@@ -93,7 +93,7 @@ def require_ready(client, http, *, bucket_exists=True):
             raise ProbeFailure("STORAGE_NOT_READY")
     finally:
         close_response(response)
-    # This is a separate authenticated S3 operation, not merely a live HTTP port.
+    # 这会单独执行一次鉴权 S3 操作，不是只检查 HTTP 端口能否连通。
     if bucket_exists and not client.bucket_exists(BUCKET):
         raise ProbeFailure("FIXTURE_BUCKET_MISSING")
 
@@ -143,8 +143,8 @@ def verify_roundtrip(
 
 
 def write_automatic(client, key, payload, *, system_metadata=None):
-    # Deliberately omit sse/SSE request headers: this proves server-side automatic
-    # encryption rather than silently enabling it from the test client.
+    # 故意不发送 sse/SSE 请求头，以证明服务端自动加密，
+    # 而不是由测试客户端暗中开启加密。
     client.put_object(
         BUCKET,
         key,
@@ -167,8 +167,8 @@ def configure_aes256_default(client):
 def expected_decryption_error(error):
     status = getattr(error.response, "status", None)
     reason = (error.message or "").lower()
-    # The built-in KMS uses distinct API codes and exact HTTP statuses. These
-    # are passed through by cmd/api-errors.go, rather than XMinioKMS codes.
+    # 内置 KMS 使用不同 API 码及精确 HTTP 状态，由 cmd/api-errors.go 透传，
+    # 不能当作 XMinioKMS 错误码处理。
     if error.code == "kms:InvalidCiphertextException" and status != 400:
         return False
     if error.code == "kms:DecryptionFailed" and status != 500:
@@ -231,8 +231,8 @@ def run_phase(phase, client, http, payload):
             **result,
         }
     if phase == "encrypt-legacy":
-        # This reuses the production migration primitive, not a fixture-only
-        # alternative. The isolated fixture has no application writers or DB.
+        # 这里复用生产迁移原语，不使用夹具专用替代实现；
+        # 隔离夹具中没有应用写入者或数据库。
         from encrypt_existing import Evidence, ReadBudget, S3Storage, migrate_object
 
         configure_aes256_default(client)
@@ -293,8 +293,8 @@ def run_phase(phase, client, http, payload):
             "storage_ready_after": True,
         }
 
-    # A freshly encrypted object must work with the currently loaded key. This
-    # excludes a generally broken KMS, access policy or encryption subsystem.
+    # 新加密对象必须能用当前加载的密钥读取，以排除 KMS、
+    # 访问策略或整体加密子系统本身故障。
     canary = os.urandom(64)
     write_automatic(client, "control/current-master-key.bin", canary)
     verify_roundtrip(client, "control/current-master-key.bin", canary)
@@ -317,7 +317,7 @@ def run_phase(phase, client, http, payload):
             refusal_count += 1
         else:
             raise ProbeFailure("WRONG_KEY_WAS_NOT_REJECTED")
-    # Network/timeout/SDK exceptions are deliberately not accepted above.
+    # 网络、超时和 SDK 异常均不能被上方判定接受。
     require_ready(client, http)
     return {
         "phase": phase,
@@ -368,8 +368,8 @@ def main(argv=None):
         )
         return 1
     except Exception:
-        # Never print exception messages, request headers, credentials or raw
-        # payloads. Unexpected failures must not become decryption evidence.
+        # 不输出异常正文、请求头、凭据或原始载荷；
+        # 意外失败不能被包装成解密失败的证据。
         print(
             json.dumps(
                 {

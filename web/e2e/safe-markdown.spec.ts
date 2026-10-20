@@ -1,9 +1,12 @@
+/**
+ * 向真实页面注入不可信规则文本，验证 HTML 清理、链接策略、布局与无障碍边界。
+ */
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-// Imported synthetic rule/model/SSE text. This suite never contacts production.
+// 使用导入的合成规则、模型与 SSE 文本；本套测试不会连接生产环境。
 test("renders bounded rule Markdown and omits model and stream displays", async ({
   page,
   baseURL,
@@ -197,8 +200,8 @@ echo "${"synthetic-imported-argument-".repeat(15)}"
   await expect(
     ruleMarkdown.getByRole("heading", { name: "先确认采样边界", exact: true }),
   ).toBeVisible();
-  // Markdown block flow must survive the surrounding suggestion metadata flex
-  // rule; a viewport-only overflow check would miss squeezed text columns.
+  // Markdown 的块级排版不能被外层建议元数据的 flex 规则挤坏；
+  // 只检查页面是否横向溢出，会漏掉被压成窄列却仍在视口内的正文。
   const headingBox = await ruleMarkdown
     .getByRole("heading", { name: "先确认采样边界", exact: true })
     .boundingBox();

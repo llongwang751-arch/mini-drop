@@ -1,5 +1,5 @@
-# Patch the already reviewed dependency closure; this does not clear its CVEs.
-# Build with the exact locally preserved release base and a new image tag.
+# 在已审阅依赖闭包上追加补丁，这不代表已有CVE自动清零。
+# 使用本地保留的精确发布基础镜像，并创建新的命名版本，不覆盖旧镜像。
 ARG OPS_BASE=drop-ops:20261018.1-rc4
 FROM ${OPS_BASE}
 COPY ops/maintenance.py /app/maintenance.py

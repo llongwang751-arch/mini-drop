@@ -1,3 +1,5 @@
+// 本文件验证二进制制品对象键与保留策略的匹配，路由字节为导入夹具，不是性能采样。
+// 测试名称标明具体场景；涉及真实数据库的用例需显式配置测试连接，协议夹具不代表生产或模型实测。
 package service
 
 import (
@@ -22,7 +24,7 @@ func TestPostgresBinaryObjectKeysMatchNinetyDayRetention(t *testing.T) {
 	}
 	store, repo := &fixtureStore{}, repository.New(db)
 	svc := &Tasks{Repo: repo, Storage: store}
-	// Explicit imported routing bytes, not a profiler/parser acceptance test.
+	// 明确导入的路由字节夹具，用于校验制品路径与保留策略，不是采集器或解析器验收。
 	input := &domain.ImportInput{Filename: "bolt.fdata", Format: "bolt_fdata", DataBase64: base64.StdEncoding.EncodeToString([]byte("no_lbr\n")), Auxiliary: []domain.ImportFile{{Filename: "target.elf", Format: "elf", DataBase64: base64.StdEncoding.EncodeToString([]byte("\x7fELF imported storage routing fixture"))}}}
 	task, _, err := svc.Create(ctx, owner, domain.CreateTask{Name: "Imported binary retention fixture", Kind: "BOLT_PROFILE", Import: input}, "binary-retention-import", "fixture")
 	if err != nil {

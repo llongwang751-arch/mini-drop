@@ -1,4 +1,4 @@
-"""Immutable real FTS5 query measurement; no full Saber startup or external API."""
+"""固定的真实 FTS5 查询测量，不启动完整 Saber，也不调用外部接口。"""
 import argparse
 import cProfile
 import hashlib

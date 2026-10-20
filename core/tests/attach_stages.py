@@ -1,8 +1,7 @@
-"""Diagnostic-only instrumentation of the pinned upstream memray GDB script.
+"""仅为诊断固定版本的上游 memray GDB 脚本添加观测点。
 
-Every upstream command remains byte-for-byte, in order. Only fixed diagnostic
-echo commands and bounded-call settings are inserted; no user input is GDB code.
-This module is never imported by production collection.
+上游每条命令的字节与顺序保持不变，只插入固定 echo 和有界调用设置，不把用户输入作为 GDB 代码。
+生产采集不会导入此模块。
 """
 
 
@@ -42,9 +41,8 @@ def instrument_attach(source):
         if stage:
             output.append(indentation + "echo DROP_STAGE_" + stage + "_BEGIN\\n" + newline)
         output.append(line if line.endswith(("\r", "\n")) else line + newline)
-        # 'commands' starts a command block: an echo inserted immediately after
-        # it is executed upon the breakpoint hit, which is intentionally named
-        # separately instead of claiming breakpoint installation completed.
+        # commands 会开启命令块，紧随其后的 echo 仅在断点命中时执行；
+        # 该阶段应单独命名，不能误报为断点安装已经完成。
         if stage == "BREAKPOINT_COMMANDS":
             output.append("    echo DROP_STAGE_BREAKPOINT_HIT\\n" + newline)
         elif stage:

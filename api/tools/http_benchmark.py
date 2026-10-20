@@ -1,4 +1,4 @@
-"""Small authenticated read baseline. Reads credentials from files; never prints them."""
+"""小规模鉴权只读基线；凭据从文件读取且不输出，不将请求耗时冒充完整生产性能结论。"""
 
 from __future__ import annotations
 

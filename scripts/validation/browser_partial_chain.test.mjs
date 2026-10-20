@@ -1,4 +1,4 @@
-// Pure imported metadata tests. No browser, server, network or credential reads.
+// 纯导入元数据单测：不启动浏览器、服务端或网络，也不读取真实凭据。
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -59,7 +59,8 @@ test("strict proof accepts imported metadata only with every actual-fault and cl
   assert.equal(imported.summary.total_samples, 100);
 });
 test("mismatched evidence cannot reuse the actual frozen release pins", () => {
-  for (const image of Object.values(IMAGE_PINS)) assert.match(image, /^sha256:[0-9a-f]{64}$/);
+  for (const image of Object.values(IMAGE_PINS))
+    assert.match(image, /^sha256:[0-9a-f]{64}$/);
   assert.throws(
     () => validateProof(proof()),
     /^Error: PARTIAL_STAGE_IMAGES_NOT_FROZEN$/,

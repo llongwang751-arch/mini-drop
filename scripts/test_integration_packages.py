@@ -1,4 +1,4 @@
-"""Imported synthetic source trees; never reads real CRM/Saber code or config."""
+"""只使用导入的合成源码树，不读取真实 CRM/Saber 代码或配置。"""
 
 import contextlib
 import hashlib

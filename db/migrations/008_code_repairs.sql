@@ -1,3 +1,7 @@
+-- 保存源码修复运行，并将调查关联到已登记的项目与固定源码版本。
+-- 模型补丁在隔离副本验证，数据库里的success不代表已自动修改或发布原业务仓库。
+-- lease、请求键与输入摘要继续约束恢复与幂等；本迁移只追加结构，不改历史诊断证据。
+
 BEGIN;
 SET LOCAL lock_timeout='5s';
 SET LOCAL statement_timeout='60s';

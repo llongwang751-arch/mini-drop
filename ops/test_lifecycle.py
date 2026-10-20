@@ -1,4 +1,4 @@
-"""Verify the actual lifecycle XML passed to the S3 SDK, using no live bucket."""
+"""核对实际传给 S3 SDK 的生命周期 XML，不访问真实 bucket。"""
 import unittest
 import xml.etree.ElementTree as ET
 

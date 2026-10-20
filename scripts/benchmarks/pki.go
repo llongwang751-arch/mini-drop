@@ -1,3 +1,5 @@
+// 为隔离心跳基准生成短期测试 CA、服务端证书和各模拟 Agent 独立的客户端身份。
+// 测试密钥只写入明确指定的临时夹具目录；不复用生产证书，也不允许覆盖其他运行的证书文件。
 package main
 
 import (
@@ -37,6 +39,8 @@ func writeExclusive(path, kind string, data []byte) error {
 	return file.Sync()
 }
 
+// prepareFixture 在受控普通目录里生成当前 runID 专用的短期证书材料。
+// 独占创建文件避免覆盖其他运行；后续 loadAuthority 还要核验 CA 名称与同一次运行绑定。
 func prepareFixture(directory, runID string) error {
 	info, err := os.Lstat(directory)
 	if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {

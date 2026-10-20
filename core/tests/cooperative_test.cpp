@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
                "IMPORTED_HPROF_BYTES_NOT_REAL_DUMP");
   store.sync(journal, "heap.hprof", 1024);
   fs::remove_all(
-      heap_output); // Crash after deleting RAW, before marker deletion.
+      heap_output); // 模拟删除RAW之后、删除标记之前崩溃，检查恢复清理是否仍正确。
   store.remove(journal);
   store.remove(journal);
   require(!fs::exists(heap_output) &&

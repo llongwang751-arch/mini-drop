@@ -2,6 +2,7 @@
 
 | 目的 | 文档 |
 | --- | --- |
+| 按源码学习与准备讲解 | [中文注释阅读路线](CODE_READING_GUIDE.md)：普通采集、AgentScope循环、复测与隔离修复 |
 | 理解当前实现 | [项目上下文](PROJECT_CONTEXT.md)、[权威契约](CONTRACT.md)、[HTTP OpenAPI](openapi.yaml) |
 | 开发与运行 | [本地开发](LOCAL_DEVELOPMENT.md)、[运维手册](RUNBOOK.md) |
 | Agent 设计与责任边界 | [AgentScope 接入](AGENTSCOPE_INTEGRATION.md)、[诊断与修复闭环](DIAGNOSIS_AGENT_V2.md)、[产品与研究对比](AGENT_V2_RESEARCH.md) |

@@ -1,3 +1,7 @@
+/**
+ * 导入事件流与任务状态夹具，运行真实浏览器的 fetch/AbortSignal 和页面可见性监听。
+ * 虚拟时钟用于验证重连间隔，不将本机测试耗时包装成服务端性能指标。
+ */
 import { test, expect } from "@playwright/test";
 import type { Page, Route } from "@playwright/test";
 import { createHash } from "node:crypto";

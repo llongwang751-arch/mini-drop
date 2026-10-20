@@ -1,4 +1,4 @@
-"""Bounded native configuration and structured logs; no network dependencies."""
+"""解析有界本地配置并输出结构化日志；本模块本身不依赖网络服务。"""
 
 import argparse
 import hashlib
@@ -15,7 +15,7 @@ from urllib.parse import urlsplit
 
 
 class ConfigurationError(ValueError):
-    """Only fixed public error codes are exposed, never rejected values."""
+    """只暴露固定错误码，不回显被拒绝的配置值。"""
 
 
 def require(condition, code="CONFIG_VALUE_INVALID"):
@@ -65,7 +65,7 @@ def parser():
 
 
 def resolve(defaults, secrets, args, environ, config_env):
-    """CLI > environment (_FILE first) > JSON (_FILE first) > defaults."""
+    """按 CLI、环境变量、JSON、默认值依次解析；同一层内优先使用 _FILE。"""
     source = {}
     path = args.config or environ.get(config_env)
     if path:
@@ -170,7 +170,7 @@ def endpoint(value, *, allow_path=False, require_scheme=False):
 
 
 def snapshot(values, secrets, endpoints=()):
-    # Secret contents AND secret-source paths are absent from hash input.
+    # 配置指纹的输入同时排除密钥内容和密钥来源路径，避免泄露或产生敏感派生信息。
     canonical = {
         key: "[redacted]" if key in secrets else value for key, value in values.items()
     }
@@ -298,8 +298,8 @@ def emit(
 def install_logging(service, version):
     class SafeHandler(logging.Handler):
         def emit(self, record):
-            # Library messages/format arguments may contain credentials or URLs.
-            # Preserve bounded module/class identifiers instead of their text.
+            # 库日志正文与格式化参数可能包含凭据或 URL；
+            # 仅保留有界模块名与异常类别标识，不保留原文。
             emit(
                 service,
                 version,

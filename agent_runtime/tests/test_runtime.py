@@ -1,4 +1,4 @@
-"""Imported synthetic provider/tool fixtures; no live model or task data."""
+"""导入的模型响应与工具结果合成夹具；测试不调用真实模型，也不读取线上任务数据。"""
 
 import asyncio
 import json

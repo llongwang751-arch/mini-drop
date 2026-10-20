@@ -1,3 +1,7 @@
+/**
+ * 交互使用指南：说明采集、分析、诊断、验证各环节留下的证据与结论边界。
+ * 页面只切换教学内容，不自动发起采集；写入口按会话角色显示，按钮点击再进入相应工作台。
+ */
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {

@@ -1,3 +1,5 @@
+// Package service：持久化只读诊断状态机：申请、领取租约、工具轨迹、完成与取消。
+// 每次写入都绑定原 task/attempt、analysis job/run、结果摘要和当前租约；旧工作器或重分析后的模型回答必须被拒绝。
 package service
 
 import (
@@ -15,9 +17,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// DiagnosisRun is separate from collection/analysis state: a diagnosis can fail
-// without changing the measured result. Trace contains tool observations only,
-// never hidden chain-of-thought, raw profiles or provider responses.
+// DiagnosisRun 与采集、分析状态独立；诊断失败不能改写已经测得的结果。
+// Trace 只保存工具观测，不保存隐藏思维链、原始性能文件或模型服务响应正文。
 type DiagnosisRun struct {
 	ID             int64           `json:"id,string"`
 	TaskID         int64           `json:"task_id,string"`
@@ -45,6 +46,8 @@ type DiagnosisInput struct {
 	Consent bool   `json:"consent"`
 }
 
+// RequestDiagnosis 在事务中锁定用户准入和来源任务，绑定当前 attempt、分析 job/run 与完整结果摘要。
+// 相同幂等键必须对应同一问题和证据；模型模式另需用户明确同意外发脱敏信息。
 func (s *Suggestions) RequestDiagnosis(ctx context.Context, u domain.User, id int64, in DiagnosisInput, request, key string) (DiagnosisRun, error) {
 	var run DiagnosisRun
 	if err := ValidateKey(key); err != nil {
@@ -62,7 +65,7 @@ func (s *Suggestions) RequestDiagnosis(ctx context.Context, u domain.User, id in
 	}
 	err := s.Repo.Context(ctx).Transaction(func(tx *gorm.DB) error {
 		r := repository.New(tx)
-		// Serializes per-user admission; concurrent requests cannot bypass the cap.
+		// 按用户串行化准入检查，防止并发请求同时读到旧计数后绕过活动诊断上限。
 		if err := tx.Exec("SELECT pg_advisory_xact_lock(hashtextextended(?,417626))", u.ID).Error; err != nil {
 			return err
 		}
@@ -129,6 +132,7 @@ type diagnosisAnalysisSource struct {
 	Attempt int
 }
 
+// diagnosisSource 确定完整成功结果对应的分析 job/run；仅凭 task ID 不足以区分重试或重分析前后的证据。
 func diagnosisSource(ctx context.Context, tx *gorm.DB, taskID, attemptID int64) (diagnosisAnalysisSource, error) {
 	var source diagnosisAnalysisSource
 	err := tx.WithContext(ctx).Raw("SELECT id,attempt FROM analysis_jobs WHERE task_id=? AND attempt_id=? AND status='success'", taskID, attemptID).Scan(&source).Error
@@ -137,6 +141,8 @@ func diagnosisSource(ctx context.Context, tx *gorm.DB, taskID, attemptID int64) 
 	}
 	return source, err
 }
+
+// ValidateDiagnosisSource 重新核验诊断绑定的采集轮次与分析身份，供关联工作流在继续推进前拒绝过期证据。
 func (s *Suggestions) ValidateDiagnosisSource(ctx context.Context, run DiagnosisRun) error {
 	job, err := diagnosisSource(ctx, s.Repo.Context(ctx), run.TaskID, run.AttemptID)
 	if err != nil {
@@ -168,11 +174,13 @@ func (s *Suggestions) RunDiagnosis(ctx context.Context) {
 	}
 }
 
+// processDiagnosis 领取可运行记录及租约，执行有界工具诊断，再以独立短 context 收尾。
+// 重启恢复会重新运行有限阶段，而非恢复模型 token；每一笔轨迹和终态都仍需租约与来源栅栏。
 func (s *Suggestions) processDiagnosis(ctx context.Context) error {
 	owner := RandomToken()
 	var run DiagnosisRun
-	// Crash recovery is explicit. A bounded read-only run is restarted at most 3
-	// times; lease ownership fences every trace and final commit.
+	// 崩溃恢复是显式且有界的：只读诊断最多重新启动 3 次，
+	// 每次保存轨迹或最终报告都必须核验当前租约持有者，旧工作器不能覆盖新工作器。
 	err := s.Repo.Context(ctx).Transaction(func(tx *gorm.DB) error {
 		var expired []DiagnosisRun
 		if err := tx.Raw("UPDATE diagnosis_runs SET status='failed',error_code='DIAGNOSIS_RETRY_EXHAUSTED',lease_owner=NULL,lease_expires_at=NULL,updated_at=now() WHERE status='running' AND lease_expires_at<now() AND attempts>=3 RETURNING *").Scan(&expired).Error; err != nil {
@@ -193,13 +201,15 @@ func (s *Suggestions) processDiagnosis(ctx context.Context) error {
 	defer cancel()
 	trace := []DiagnosisStep{}
 	report, err := s.diagnose(work, run, owner, &trace)
-	// A timed-out upstream must still commit a durable failure, not wait for lease
-	// recovery. Finalization gets a separate, bounded context.
+	// 上游超时也必须提交持久化失败状态，不能只等租约过期后再次恢复。
+	// 因此收尾使用独立且有界的 context，不继承已经取消的模型调用 context。
 	finish, stop := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
 	defer stop()
 	return s.finishDiagnosis(finish, run, owner, trace, report, err)
 }
 
+// diagnosisFence 集中核验当前用户授权、task/attempt、analysis job/run、结果摘要及工作器租约。
+// 它必须在工具读取、轨迹保存和最终提交时重复执行，因为任何一次网络等待都可能跨越取消或重分析。
 func (s *Suggestions) diagnosisFence(ctx context.Context, tx *gorm.DB, run DiagnosisRun, owner string) (domain.Task, error) {
 	var boundVerification VerificationRun
 	if err := tx.Raw("SELECT * FROM verification_runs WHERE candidate_diagnosis_id=? FOR UPDATE", run.ID).Scan(&boundVerification).Error; err != nil {
@@ -266,6 +276,7 @@ func (s *Suggestions) diagnosisFence(ctx context.Context, tx *gorm.DB, run Diagn
 	return t, nil
 }
 
+// persistDiagnosisStep 在租约与来源身份仍有效的事务中保存工具轨迹，不持久化模型隐藏思维链或未经验证的中间叙述。
 func (s *Suggestions) persistDiagnosisStep(ctx context.Context, run DiagnosisRun, owner string, trace []DiagnosisStep) error {
 	return s.Repo.Context(ctx).Transaction(func(tx *gorm.DB) error {
 		t, err := s.diagnosisFence(ctx, tx, run, owner)
@@ -280,6 +291,8 @@ func (s *Suggestions) persistDiagnosisStep(ctx context.Context, run DiagnosisRun
 		return tx.Create(&ev).Error
 	})
 }
+
+// finishDiagnosis 以当前来源与租约为条件提交成功或失败终态及事件；旧工作器的迟到回答不能覆盖已经取消或重新领取的运行。
 func (s *Suggestions) finishDiagnosis(ctx context.Context, run DiagnosisRun, owner string, trace []DiagnosisStep, report *DiagnosisReport, workErr error) error {
 	return s.Repo.Context(ctx).Transaction(func(tx *gorm.DB) error {
 		_, fenceErr := s.diagnosisFence(ctx, tx, run, owner)
@@ -320,6 +333,7 @@ func (s *Suggestions) finishDiagnosis(ctx context.Context, run DiagnosisRun, own
 	})
 }
 
+// CancelDiagnosis 核验当前用户及关联任务后持久化取消；后台模型连接会在下次栅栏检查发现取消并中断。
 func (s *Suggestions) CancelDiagnosis(ctx context.Context, u domain.User, taskID, runID int64, request string) error {
 	return s.Repo.Context(ctx).Transaction(func(tx *gorm.DB) error {
 		r := repository.New(tx)

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Stage-only synthetic Alertmanager -> maintenance -> audit transport check.
+"""仅在 stage 验证合成 Alertmanager → maintenance → audit 传输。
 
-Run on the Docker host after the root task hands over the isolated stage queue.
-Only this invocation's new synthetic alert is posted; rules are not evaluated.
+根任务交接隔离 stage 队列后在 Docker 宿主运行；只提交本次新建合成告警，
+不执行告警规则评估，因此不能把传输成功当作规则命中已验证。
 """
 
 import argparse
@@ -60,7 +60,7 @@ COMMIT;
 
 
 class Failure(Exception):
-    """Only fixed public error codes cross the command-line boundary."""
+    """命令行边界只允许固定公开错误码，不输出底层请求或配置。"""
 
 
 def require(condition, code):
@@ -115,8 +115,8 @@ def scalar(value):
 
 
 def validate_receivers(config, *, verified_redacted_url=False):
-    # Alertmanager /status returns its parsed, serialized active configuration.
-    # Inspect only its receiver section; never log the original configuration.
+    # Alertmanager /status 返回解析并序列化的当前配置；
+    # 只检查 receiver 部分，不记录完整原配置。
     require(
         isinstance(config, str) and len(config) <= MAX_OUTPUT, "ROUTE_CONFIG_INVALID"
     )
@@ -194,8 +194,8 @@ def parse_counts(payload):
 
 
 def docker(arguments, stdin=None):
-    # The local daemon is explicit: inherited Docker contexts/proxies/credentials
-    # cannot redirect an isolated-stage check to another host.
+    # 显式连接本机 daemon，继承的 Docker context、代理或凭据
+    # 不能把隔离 stage 检查重定向到其他宿主。
     require(stdin is None or len(stdin) < 4096, "COMMAND_INPUT_LIMIT")
     try:
         process = subprocess.Popen(
@@ -313,9 +313,8 @@ class Host:
 
 class API:
     def reload_reviewed_internal_receiver(self):
-        # New Alertmanager versions redact webhook URLs in /status. Verify the
-        # actual stage-only input, explicitly reload it, and fence acceptance by
-        # the successful reload timestamp. A redacted URL alone is insufficient.
+        # 新版 Alertmanager 在 /status 中隐藏 webhook URL，因此核对实际 stage 输入、
+        # 显式 reload，并以成功 reload 时间戳作为验收栅栏；仅看到脱敏 URL 不够。
         host = Host()
         host.preflight()
         container = host.containers["alertmanager"]

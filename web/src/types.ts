@@ -1,3 +1,7 @@
+/**
+ * 页面消费的 HTTP 数据形状；服务端契约仍以 contracts 和接口文档为准。
+ * 任务 ID 使用字符串保存；采集、分析、执行轮次和权限分别建模，不能用一个成功布尔值代替。
+ */
 export interface User {
   id: string;
   username: string;

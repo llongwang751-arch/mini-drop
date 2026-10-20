@@ -1,3 +1,5 @@
+// Package storage：封装对象写入、哈希与短期下载/上传授权；浏览器和采集 Agent 均不持有对象存储长期密钥。
+// 下载通过同源代理保持签名 Host，并把 identity 编码覆盖纳入签名，保证浏览器取得的字节与制品哈希一致。
 package storage
 
 import (
@@ -61,10 +63,12 @@ func (s *Store) PresignPut(ctx context.Context, key string) (string, error) {
 func (s *Store) PresignGet(ctx context.Context, key string) (string, error) {
 	return s.PresignGetFor(ctx, key, 5*time.Minute)
 }
+
+// PresignGetFor 根据调用方请求的有限 TTL 签名下载，同时把 identity 响应编码覆盖包含在签名内；大小和 SHA256 始终描述原始存储字节。
 func (s *Store) PresignGetFor(ctx context.Context, key string, ttl time.Duration) (string, error) {
-	// Integrity metadata describes exact stored bytes. A retained object
-	// Content-Encoding must not make browser fetch/download decode those bytes.
-	// Sign the response override so it cannot be removed from an authorized URL.
+	// 完整性元数据描述实际存储的原始字节。对象原有的 Content-Encoding
+	// 不能让浏览器下载时自动解压并改变这些字节；必须把响应覆盖项一起签名，
+	// 防止调用方从已授权 URL 中删除该约束而绕过大小、哈希语义。
 	u, err := s.Client.PresignedGetObject(ctx, s.Bucket, key, ttl, url.Values{"response-content-encoding": {"identity"}})
 	if err != nil {
 		return "", err
@@ -72,7 +76,7 @@ func (s *Store) PresignGetFor(ctx context.Context, key string, ttl time.Duration
 	return BrowserURL(s.PublicURL, u), nil
 }
 
-// Nginx forwards /objects with the original internal Host used in the S3 signature.
+// BrowserURL 通过同源 Nginx 转发 /objects，并保留 S3 签名使用的内部 Host，避免改写破坏授权。
 func BrowserURL(public string, u *url.URL) string {
 	return strings.TrimSuffix(public, "/") + "/objects" + u.EscapedPath() + "?" + u.RawQuery
 }

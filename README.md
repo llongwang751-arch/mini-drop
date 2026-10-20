@@ -2,9 +2,11 @@
 
 基于《Drop 性能诊断系统架构与复刻指南》的独立实现，使用 C++20 gRPC Server/Agent、Go Gin/GORM API、Python Analyzer、React/TypeScript Web、PostgreSQL 和私有 MinIO。该工程不是腾讯内部源码，也不声称与其内部系统完全等同。
 
+阅读源码可从 [中文注释阅读路线](docs/CODE_READING_GUIDE.md) 开始，先追一条采集任务，再看 AgentScope 工具循环、自动复测和隔离修复。注释重点解释上下游、设计原因和失败边界，不逐行复述代码。
+
 ## 全量实现与验收状态
 
-当前平台已部署至 **[https://82.157.81.79](https://82.157.81.79)**，API12 / AgentScope runtime2（SDK2.0.10）/ Web10 / Agent与Helper3，27运行容器、schema8。规划、诊断和源码修复使用真实AgentScope ReAct，Go保留权限、状态与验收。新Saber网页调查11共76.4秒、修复9通过原2+冻结6测试/384例/6组fresh对照，CPU中位1.5587倍（仅受控查询基准）。原16类Runner/20真实任务及BOLT、malloc证据保留。详见[本轮发布](docs/releases/20261020-agentscope.md)、[AgentScope接入](docs/AGENTSCOPE_INTEGRATION.md)、[面试步骤](docs/INTERVIEW_DEMO.md)与[接入范围](docs/SABER_INTEGRATION.md)。旧120.24.187.205属于历史部署。
+当前平台已部署至 **[https://82.157.81.79](https://82.157.81.79)**，API12 / AgentScope runtime2（SDK2.0.10）/ Web20261021.1 / Agent与Helper3，27运行容器、schema8。规划、诊断和源码修复使用真实AgentScope ReAct，Go保留权限、状态与验收。新Saber网页调查11共76.4秒、修复9通过原2+冻结6测试/384例/6组fresh对照，CPU中位1.5587倍（仅受控查询基准）。原16类Runner/20真实任务及BOLT、malloc证据保留。详见[本轮发布](docs/releases/20261020-agentscope.md)、[AgentScope接入](docs/AGENTSCOPE_INTEGRATION.md)、[面试步骤](docs/INTERVIEW_DEMO.md)与[接入范围](docs/SABER_INTEGRATION.md)。旧120.24.187.205属于历史部署。
 
 - 18 类任务契约、16 类 Agent Runner 与通用导入；Java/Go/Python/native 堆和 CPU、BPF I/O/内存、资源、受控脚本及 BOLT。工具、目标权限和内核能力按真实探测展示。
 - mTLS 注册与版本协商；PID/UID/starttime/namespace 校验、宿主与容器目标策略；持久化双状态机、attempt/lease fencing、事务事件与 Outbox、取消重试及恢复。

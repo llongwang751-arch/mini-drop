@@ -1,5 +1,5 @@
-# Merge with compose.yml. Run explicitly after stopping all writers and backing
-# up data/key material. This one-shot administrator bypasses the user gateway.
+# 与compose.yml合并；必须先停止所有写入方并备份
+# 数据和密钥材料，再显式执行。此一次性管理员会绕过用户网关。
 services:
   encrypt-existing:
     image: drop-ops:${OPS_RELEASE_TAG:-${RELEASE_TAG:-build}}

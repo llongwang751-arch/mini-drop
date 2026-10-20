@@ -1,5 +1,8 @@
-# Merge after the current application overlays. The framework owns no business
-# database, object-store, collector or Docker credential. Tools remain in Go.
+# AgentScope运行时只负责模型推理与工具循环，业务工具仍通过Go的私有有界回调执行。
+# 不把数据库、对象存储或Docker长期凭据交给智能体；协议结果还需Go独立校验后才能持久化。
+
+# 在现有应用覆盖之后合并。框架不持有业务
+# 数据库、对象存储、采集器或Docker凭据；真实工具执行仍由Go裁决。
 services:
   api:
     image: drop-api:${AGENTSCOPE_API_RELEASE_TAG:-20261020.12}

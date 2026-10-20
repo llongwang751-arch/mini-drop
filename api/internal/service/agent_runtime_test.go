@@ -1,3 +1,6 @@
+// 本文件验证Go 对 capability、回放、轮次、工具 schema、硬预算及最终运行证明的验收边界。
+// 这里使用明确导入的协议响应，不能作为真实 Python SDK 或模型服务已经执行的证明。
+// 测试名称标明具体场景；涉及真实数据库的用例需显式配置测试连接，协议夹具不代表生产或模型实测。
 package service
 
 import (
@@ -16,8 +19,8 @@ import (
 	"drop/api/internal/domain"
 )
 
-// These are imported protocol fixtures. They exercise Go's authority boundary;
-// they do not claim to execute a real model or the AgentScope SDK.
+// 这些是明确导入的协议夹具，用于检验 Go 的权限与验收边界。
+// 它们不代表执行了真实模型或 AgentScope SDK；真实 SDK 互通证据另行记录。
 type importedAgentRequest struct {
 	Version      int                `json:"version"`
 	RunID        string             `json:"run_id"`

@@ -1,6 +1,10 @@
+/**
+ * 富文本共用的长度和链接策略，供 AST 转换与最终 HTML 清理两层共同使用。
+ * 限制资源请求与导航协议，避免诊断文本成为脚本执行或凭据外送通道。
+ */
 export const MAX_MARKDOWN_CHARACTERS = 32_768;
 
-/** Conservative navigation policy. Markdown never creates a resource request. */
+/** 链接采用保守的导航白名单；解析 Markdown 本身不能发起任何资源请求。 */
 export function safeMarkdownUrl(value: string | undefined): string | undefined {
   if (
     !value ||
@@ -24,8 +28,7 @@ export function safeMarkdownUrl(value: string | undefined): string | undefined {
         ? value
         : undefined;
     }
-    // No other scheme, encoded scheme, protocol-relative URL, or backslash
-    // ambiguity can escape the same-origin base used for relative navigation.
+    // 拒绝其他协议、编码后的协议、无协议域名和反斜杠歧义，避免相对链接绕出同源边界。
     if (/^[^/?#]*:/.test(inspected)) return undefined;
     const origin = "https://markdown.invalid";
     return new URL(value, origin).origin === origin ? value : undefined;

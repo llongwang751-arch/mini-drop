@@ -1,4 +1,4 @@
-// Explicitly instrumented toy fixture; never imported production data.
+// 显式接入采集协议的玩具程序；数据来自受控负载，不是导入的生产数据。
 #include "drop/native_profiler.h"
 #include <atomic>
 #include <cmath>

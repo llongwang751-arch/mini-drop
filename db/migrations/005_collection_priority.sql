@@ -1,3 +1,6 @@
+-- 追加采集优先级及相关约束，队列仍需通过Agent级锁执行并发准入。
+-- 优先级越高越先调度；同优先级还需稳定排序，不能因多副本竞争重复下发。
+
 BEGIN;
 SET LOCAL lock_timeout='5s';
 SET LOCAL statement_timeout='60s';

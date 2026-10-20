@@ -1,3 +1,8 @@
+// 为具体采集动作提供统一生命周期，便于不同工具共享取消、超时与目标复核。
+// 调用顺序是Validate → Prepare → Start → Poll → Collect，退出路径最终执行Cleanup。
+// 工作线程的异常通过future传给调用方；本地runner.state用于解释执行阶段，不替代数据库状态。
+// Cleanup只清理可丢弃中间文件，不能在Server确认前删除RAW与恢复记录。
+
 #include "drop/artifact.hpp"
 #include "drop/runner.hpp"
 #include <atomic>
@@ -81,8 +86,8 @@ public:
       worker_.join();
     if (!prepared_)
       return;
-    // Only disposable files owned by this session are removed. Primary RAW,
-    // auxiliary ELF, and Agent recovery journals survive until server ACK.
+    // 只删除当前会话持有且可丢弃的临时文件；主RAW、
+    // 附属ELF与Agent恢复记录一直保留到Server确认，避免成功采集后丢数据。
     for (const auto *name : {"trace.raw", "bolt.perf.data", "perf.data",
                              "perf.script", "runtime.log", "detach.log"}) {
       std::error_code error;
@@ -110,11 +115,11 @@ private:
   bool prepared_ = false, started_ = false, collected_ = false;
   std::chrono::steady_clock::time_point deadline_;
 };
-} // namespace
+} // 结束匿名命名空间
 std::unique_ptr<Runner> make_managed_runner(
     RunnerAction validate, RunnerAction prepare,
     std::function<RunnerOutput(const RunnerContext &)> collect) {
   return std::make_unique<ManagedRunner>(
       std::move(validate), std::move(prepare), std::move(collect));
 }
-} // namespace dropcore
+} // 结束 dropcore 命名空间

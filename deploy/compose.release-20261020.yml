@@ -1,5 +1,5 @@
-# Merge AFTER compose.release-20261019.yml. Preserves other images and volumes.
-# API requires additive SQL migration 006.
+# 在compose.release-20261019.yml之后合并，保留其他命名镜像与数据卷。
+# 此API依赖追加式SQL迁移006，不能只换镜像而跳过schema前置条件。
 services:
   migration:
     image: drop-api:20261020.1

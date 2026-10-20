@@ -1,3 +1,5 @@
+// 本文件验证创建、取消、重试、导入与 Outbox 的事务原子性，使用隔离 schema 而非业务库表。
+// 测试名称标明具体场景；涉及真实数据库的用例需显式配置测试连接，协议夹具不代表生产或模型实测。
 package repository
 
 import (
@@ -21,7 +23,7 @@ import (
 	"drop/api/internal/domain"
 )
 
-// Uses an isolated PostgreSQL schema and leaves the application's schema untouched.
+// 测试使用隔离的 PostgreSQL schema，不修改应用正在使用的 schema。
 func TestPostgresAtomicWorkflow(t *testing.T) {
 	dsn := os.Getenv("TEST_DATABASE_URL")
 	if p := os.Getenv("TEST_DATABASE_URL_FILE"); p != "" {

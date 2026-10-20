@@ -1,3 +1,7 @@
+// 受信GDB启动器：在执行嵌套工具前固定文件描述符、工具SHA和数字目标身份。
+// 通过受限系统调用策略收窄GDB能操作的对象，防止“允许诊断工具”变成任意ptrace入口。
+// 此进程是采集权限边界的一部分，不接受用户直接提供shell命令或可执行路径。
+
 #include <array>
 #include <cerrno>
 #include <charconv>
@@ -265,7 +269,7 @@ void ptrace_only() {
       prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &program, 0, 0))
     throw std::runtime_error("seccomp installation");
 }
-} // namespace
+} // 结束匿名命名空间
 int main(int argc, char **argv) {
   try {
     if (argc > 128)

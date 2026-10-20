@@ -1,3 +1,8 @@
+// 目标解析与身份策略：将用户选择的进程/容器转换成控制器实际可见的进程身份。
+// PID会复用，容器内外PID也不同；因此同时记录启动时刻、UID、命名空间和可执行文件设备号/inode。
+// 允许范围来自本机策略，而不是请求自行声明；解析后仍需在采集中复核身份是否改变。
+// 这层回答“是否允许采这个对象”，Runner层回答“用什么固定工具采”。
+
 #include "drop/target.hpp"
 #include "drop/artifact.hpp"
 #include "drop/json.hpp"
@@ -275,4 +280,4 @@ ProcessIdentity resolve_target(const Target &t, const TargetPolicy &p,
   validate_identity(pinned, actual, p);
   return actual;
 }
-} // namespace dropcore
+} // 结束 dropcore 命名空间

@@ -7,5 +7,5 @@ services:
     tmpfs: ['/tmp:size=128m,mode=1777']
     environment:
       NATIVE_CONTROL_ROOT: /run/drop-profilers
-    # Tool presence and kernel/target permissions are separate capability probes.
-    # Host PID/runtime access is provided separately by systemd or DaemonSet.
+    # 工具是否存在与内核/目标是否允许采集分别探测，不能只看安装结果。
+    # 宿主PID或运行时访问由systemd/DaemonSet另行配置，不由本覆盖隐式开放。

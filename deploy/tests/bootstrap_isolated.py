@@ -1,7 +1,6 @@
-"""Real capless bootstrap regression, with private throwaway secrets only.
+"""使用私有一次性密钥执行真实的无 capabilities bootstrap 回归。
 
-Requires a cached Linux image containing bash and openssl. No production paths,
-network, daemon socket mounts or credential values enter the test output.
+需要缓存的 Linux bash/openssl 镜像，不将生产路径、网络、daemon socket 挂载或凭据值写入输出。
 """
 import argparse
 import hashlib
@@ -42,7 +41,7 @@ def main():
             if before is not None and snapshot != before:
                 raise RuntimeError("BOOTSTRAP_REPLACED_PERSISTENT_IDENTITY")
             before = snapshot
-        # Check the same file-bind semantics used by the unprivileged storage service.
+        # 核对低权限存储服务实际使用的相同文件绑定语义。
         result = subprocess.run(["docker", "run", "--rm", "--pull", "never", "--network", "none", "--read-only",
                                  "--cap-drop", "ALL", "--user", "10001:10001", "--memory", "64m",
                                  "--mount", f"type=bind,src={actual / 's3_kms_master_key'},dst=/fixture-key,readonly",

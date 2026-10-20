@@ -1,8 +1,17 @@
+"""把格式适配器输出转换为统一公开结果，保留真实单位、来源和解释边界。
+
+规则发现与 AI 诊断分属不同环节；这里的建议仅表示相关信号，不能直接标记为根因。
+"""
+
 from .errors import AnalysisError
 from .rules import suggestions
 
 
 def make_result(parsed: dict, kind: str, params: dict) -> dict:
+    """从适配器 parsed、任务 kind 和参数生成统一公开结果，保持来源与单位明确。
+
+    用户导入数据不能继承现场频率/时长的可信度；不存在的丢样等字段保持未知，规则发现只指向相关证据。
+    """
     sources = {
         "PERF_CPU": "perf",
         "PROC_CPU": "procfs",

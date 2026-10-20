@@ -1,4 +1,9 @@
-"""Actual AgentScope 2.x ReAct loop with Go-owned tool capabilities."""
+"""使用 AgentScope 2.x 的原生 ReAct 循环，工具能力归 Go 控制面管理。
+
+模型提出工具调用，GatewayTool 回调 Go 获得观察结果，再交回 SDK 继续决策。
+Python 不连接数据库，也不直接执行采集或补丁命令；Go 校验授权、证据与最终结果。
+每次运行同时受阶段白名单、模型轮数、工具次数、单轮上限和总超时约束。
+"""
 
 import asyncio
 import contextvars
@@ -48,7 +53,7 @@ from .wire import (
 
 
 class SafeRuntimeFailure(ProtocolError):
-    """Fixed private diagnostics, never exception text, class names or values."""
+    """将异常归类为固定诊断字段，不暴露原始异常文本、类名或携带的值。"""
 
     def __init__(self, failure: Exception, diagnostics: RunDiagnostics) -> None:
         cause: BaseException | None = failure
@@ -86,8 +91,8 @@ class SafeRuntimeFailure(ProtocolError):
         }
 
 
-# Some SDK exception paths include tool arguments. This service emits only
-# fixed application error codes, never library request/content logging.
+# SDK 的部分异常路径会带工具参数，因此本服务只输出固定应用错误码，
+# 不启用库的请求内容日志。
 for _logger_name in ("as", "openai", "httpx", "httpx2", "httpcore", "httpcore2"):
     _logger = logging.getLogger(_logger_name)
     _logger.handlers.clear()
@@ -120,7 +125,7 @@ _current_call: contextvars.ContextVar[ToolCallBlock] = contextvars.ContextVar(
 
 
 class AcceptedResult(BaseException):
-    """Stop the framework immediately after a terminal Go-owned plan acceptance."""
+    """Go 已接受终态采集计划时立即结束框架循环，避免模型再次改写已确认结果。"""
 
     def __init__(self, result: Any) -> None:
         self.result = result
@@ -128,6 +133,7 @@ class AcceptedResult(BaseException):
 
 @dataclass(frozen=True)
 class RunRequest:
+    """Go 下发的单阶段运行请求；预算与工具定义均为本轮快照，不由模型自行扩充。"""
     run_id: str
     capability: str
     phase: str
@@ -138,6 +144,11 @@ class RunRequest:
 
     @classmethod
     def parse(cls, body: Any, model: str) -> "RunRequest":
+        """严格验证私有协议请求并返回 RunRequest，未知字段、越界预算或阶段外工具直接拒绝。
+
+        run_id 是公开关联号，capability 是独立的回调授权值；两者不能混用。
+        预算取平台阶段硬上限以内的正整数，Schema 只接受闭合对象且不允许外部引用。
+        """
         fields = {
             "version",
             "run_id",
@@ -241,8 +252,7 @@ class RunRequest:
             ):
                 raise ProtocolError("AI_TOOL_REJECTED")
 
-            # Schema references could trigger network retrieval; Go currently
-            # sends entirely inline, bounded business schemas.
+            # Schema 引用可能触发网络加载；Go 当前只下发内联且有界的业务 Schema。
             def reject_refs(value: Any) -> None:
                 if isinstance(value, dict):
                     if any(
@@ -267,6 +277,7 @@ class RunRequest:
 
 
 class Session:
+    """保存一次运行的计数、工具调用去重、取消及错误状态，不承担跨请求的持久化业务状态。"""
     def __init__(self, request: RunRequest, gateway: Gateway) -> None:
         self.request = request
         self.gateway = gateway
@@ -281,12 +292,17 @@ class Session:
         self.failure: ProtocolError | None = None
 
     def check_active(self) -> None:
+        """在模型与工具边界检查取消或首个致命错误，阻止失败后继续产生副作用。"""
         if self.cancelled or self.gateway.cancelled:
             raise asyncio.CancelledError()
         if self.failure is not None:
             raise self.failure
 
     async def callback(self, kind: str, **fields: Any) -> dict:
+        """将模型开始/结束、工具调用或最终结果回传 Go，返回固定协议响应。
+
+        Go 的致命拒绝会锁定本 Session 失败；可纠正的工具或格式反馈才允许回到 ReAct 循环。
+        """
         self.check_active()
         set_stage(
             {
@@ -322,6 +338,7 @@ class Session:
 
 
 class GatewayTool(ToolBase):
+    """AgentScope 工具适配器：只转交 Go 已下发的名称与 Schema，本地不实现采集或任意执行。"""
     is_concurrency_safe = False
     is_read_only = True
 
@@ -335,12 +352,17 @@ class GatewayTool(ToolBase):
     async def check_permissions(
         self, tool_input: dict, context: Any
     ) -> PermissionDecision:
+        """允许框架进入回调适配层，不等于批准业务操作；真正授权在 Go capability 网关内校验。"""
         return PermissionDecision(
             PermissionBehavior.ALLOW,
             "Execution is delegated to Go's capability gateway.",
         )
 
     async def call(self, **kwargs: Any) -> ToolChunk:
+        """校验调用 ID、去重和工具预算后回调 Go，将观察结果转换为 SDK ToolChunk。
+
+        计数在发送前消耗，失败不能免费重试；采集计划被 Go 终态接受后用 AcceptedResult 立即收尾。
+        """
         session = self.session
         session.check_active()
         call = _current_call.get()
@@ -387,20 +409,24 @@ class GatewayTool(ToolBase):
 
 
 class RuntimeMiddleware(MiddlewareBase):
+    """在 SDK 的模型/acting 边界插入平台预算、严格参数校验和取消传播，不自行替代 ReAct 决策。"""
     def __init__(self, session: Session) -> None:
         self.session = session
 
     async def on_compress_context(
         self, agent: Agent, input_kwargs: dict, next_handler: Any
     ) -> None:
-        # The SDK invokes this hook every iteration, even below its threshold.
-        # Deliberately skip its autonomous model-driven compression; transport
-        # and phase limits reject oversized input instead.
+        # SDK 每轮都会调用此钩子。这里禁用自动模型压缩，避免额外调用逃出轮数预算；
+        # 超大上下文直接由传输与阶段上限拒绝。
         return None
 
     async def on_model_call(
         self, agent: Agent, input_kwargs: dict, next_handler: Any
     ) -> Any:
+        """模型请求发出前占用预算并通知 Go，返回后校验工具批次、参数 Schema 和响应大小。
+
+        诊断阶段预留的格式纠错轮不再允许工具调用；token 用量仅记录实际供应商返回的有界整数。
+        """
         session = self.session
         session.check_active()
         if session.model_calls >= session.request.budget["max_model_calls"]:
@@ -456,8 +482,8 @@ class RuntimeMiddleware(MiddlewareBase):
             except jsonschema.ValidationError:
                 raise ProtocolError("AI_TOOL_REJECTED") from None
             batch_ids.add(call.id)
-        # Retain only visible text and tool calls; hidden thought is never
-        # forwarded to Go, logs, persisted state, or a subsequent request.
+        # 只保留可见正文与工具调用；隐藏推理不转交 Go、不写日志或持久状态，
+        # 也不带入下一次请求。
         response.content = [
             item
             for item in response.content
@@ -489,13 +515,16 @@ class RuntimeMiddleware(MiddlewareBase):
     async def on_acting(
         self, agent: Agent, input_kwargs: dict, next_handler: Any
     ) -> Any:
+        """为当前 SDK 工具调用绑定上下文，并在完整耗尽结果后交还框架。
+
+        contextvars 将调用 ID 与工具执行关联，finally 恢复旧上下文；取消必须传播，不能转成成功观察。
+        """
         token = _current_call.set(input_kwargs["tool_call"])
         chunks = []
         try:
             async for chunk in next_handler():
-                # Tools are non-streaming and responses are bounded. Drain
-                # the SDK's final result before yielding: its interrupted
-                # result otherwise makes Agent break with generators open.
+                # 工具不是流式输出且响应有界，先耗尽 SDK 的最终结果再向外 yield；
+                # 否则 interrupted 结果可能让 Agent 在生成器尚未关闭时退出。
                 chunks.append(chunk)
         finally:
             _current_call.reset(token)
@@ -516,6 +545,12 @@ async def _run_agent(
     *,
     transport: httpx.AsyncBaseTransport | None = None,
 ) -> dict:
+    """执行一个受限阶段，返回 Go 接受的业务结果与本次真实 SDK 运行证明。
+
+    AgentScope 负责“模型→工具→观察”的原生循环；外层循环只处理 Go 对最终 JSON/证据的拒绝反馈。
+    模型本身不能生成可信 runtime 字段，SDK 版本、类、run_id、次数与耗时在这里核实组装。
+    超时或取消会停止网关并关闭模型客户端；没有失败后静默切换到另一实现的路径。
+    """
     started = time.monotonic()
     installed = version("agentscope")
     if installed != AGENTSCOPE_VERSION:
@@ -561,8 +596,8 @@ async def _run_agent(
             ),
             injection_config=InjectionConfig(inject_runtime_state=False),
         )
-        # Resolve the actual imported class through its public module; fail
-        # closed if SDK layout stops exporting the class we instantiated.
+        # 从公开模块核对实际导入的类；SDK 不再导出当前实例所属类时直接拒绝，
+        # 不能仅凭配置声明框架版本。
         import agentscope.agent as agent_module
 
         if type(agent) is not agent_module.Agent:
@@ -641,11 +676,12 @@ async def run_agent(
     *,
     transport: httpx.AsyncBaseTransport | None = None,
 ) -> dict:
+    """为一次运行建立独立诊断上下文；成功返回结构化结果，失败统一包装成不含原文的固定异常。"""
     diagnostics = RunDiagnostics()
     token = current_diagnostics.set(diagnostics)
     try:
         return await _run_agent(request, config, gateway, transport=transport)
-    except Exception as failure:  # noqa: BLE001 -- sanitized at the private control boundary.
+    except Exception as failure:  # noqa: BLE001 -- 在私有控制边界统一脱敏。
         raise SafeRuntimeFailure(failure, diagnostics) from None
     finally:
         current_diagnostics.reset(token)

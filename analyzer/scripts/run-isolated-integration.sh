@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
-# Run from repository root on a Docker host. Resources are disposable and have
-# no published ports or persistent volumes; application databases are unused.
+# 在具备Docker的宿主上从仓库根目录运行；全部资源都是本次一次性夹具，
+# 不发布端口、不使用持久卷，也不连接应用数据库。
 context_root=$(pwd)
 prefix=${ANALYZER_TEST_PREFIX:-drop-analyzer-test-$(openssl rand -hex 8)}
 case "$prefix" in
@@ -37,8 +37,8 @@ cleanup() {
   fi
   exit "$result"
 }
-# Refuse collisions before installing cleanup: an unsuccessful create must not
-# lead to deleting resources from an earlier run or another project.
+# 注册清理逻辑前先拒绝资源名冲突，创建失败不能导致
+# 删除上一次运行或其他项目持有的资源。
 for name in "$runner" "$database" "$storage"; do
   if docker container inspect "$name" >/dev/null 2>&1; then
     echo 'Refusing to reuse an existing isolated test container' >&2

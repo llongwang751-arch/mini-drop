@@ -1,5 +1,5 @@
-# Unofficial Drop fixture repackage of the unchanged official MinIO binary.
-# This recipe does not replace any running production storage container.
+# Drop自行打包的测试依赖，内部使用未修改的官方MinIO二进制，不冒称官方镜像。
+# 此构建配方不替换任何正在运行的生产存储容器。
 FROM ubuntu:24.04
 ARG TARGETARCH
 LABEL org.opencontainers.image.title="Drop MinIO integration-test fixture" \

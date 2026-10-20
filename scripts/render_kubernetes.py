@@ -1,4 +1,4 @@
-"""Render reviewable Kubernetes resources; credentials are supplied separately."""
+"""渲染可审阅的 Kubernetes 资源，凭据通过独立渠道注入，不写入生成配置。"""
 import json
 from pathlib import Path
 
@@ -26,9 +26,8 @@ def workload(name, image, replicas, *, env=None, command=None, tls=None, secrets
     mounts = [{'name':'tmp','mountPath':'/tmp'}]
     if secrets:
         volumes.append({'name':'secrets','secret':{'secretName':'drop-runtime','defaultMode':0o440,'items':[{'key':key,'path':key} for key in secrets]}})
-        # Core deliberately rejects leaf symlinks for its generic KEY_FILE
-        # reader. Bind each Secret item as a regular read-only file. These
-        # values are loaded at startup; rotate them with a controlled rollout.
+        # Core 的通用 KEY_FILE 读取器主动拒绝叶子符号链接，因此每个 Secret item
+        # 以普通只读文件绑定。值在启动时读取，密钥轮换应通过受控 rollout 生效。
         mounts.extend({'name':'secrets','subPath':key,'mountPath':'/run/secrets/'+key,'readOnly':True} for key in secrets)
     if tls:
         volumes.append({'name':'tls','secret':{'secretName':'drop-'+tls+'-tls','defaultMode':0o440}})

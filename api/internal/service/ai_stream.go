@@ -1,3 +1,4 @@
+// Package service：消费有界模型流，把片段整理为可验证的建议数据；连接、事件和总响应都有限制，避免上游流无限占用工作器。
 package service
 
 import (

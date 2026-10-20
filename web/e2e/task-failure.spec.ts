@@ -1,3 +1,6 @@
+/**
+ * 导入失败状态和制品列表，验证阶段证据、只读结果与恢复入口，不触发真实采集。
+ */
 import { test, expect } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";

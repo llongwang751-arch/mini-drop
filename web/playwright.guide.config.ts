@@ -1,8 +1,8 @@
 import { defineConfig } from "@playwright/test";
 import base from "./playwright.config";
 
-// Imported UI fixtures run in the real App shell. Playwright owns this local
-// preview process, and no production credentials or API are used by this suite.
+// 导入的 UI 夹具运行在真实应用外壳中；Playwright 负责本地预览进程的启动与退出。
+// 本套测试不使用生产凭据，也不访问生产 API。
 export default defineConfig({
   ...base,
   testMatch: ["guide.spec.ts"],

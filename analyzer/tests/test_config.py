@@ -1,4 +1,4 @@
-"""Configuration regressions use imported fixture values, never live secrets."""
+"""配置回归只使用导入夹具值，不使用真实密钥。"""
 
 from contextlib import redirect_stdout
 import io

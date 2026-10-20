@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 umask 077
-# One serialized, bounded fixture. No production credentials or volumes.
+# 只运行一个串行、有资源边界的夹具，不使用生产凭据或卷。
 root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 binary=''
 core_image=''
@@ -53,7 +53,7 @@ cleanup() {
   done
   owner="$(docker network inspect --format '{{index .Labels "drop.heartbeat.fixture"}}' "$network" 2>/dev/null || true)"
   if [[ "$owner" = "$run_id" ]]; then docker network rm "$network" >/dev/null 2>&1 || true; fi
-  # Unlink only the known files in this run's mktemp directory. No recursive rm.
+  # 只删除本次mktemp目录里已知的文件，不使用递归rm扩大清理范围。
   for name in ca.crt ca.key server.crt server.key postgres.env database-url; do rm -f -- "$state/$name"; done
   rmdir -- "$state" 2>/dev/null || true
   exit "$result"
@@ -149,7 +149,7 @@ snapshot() {
   snapshot "$client" client
   printf ']}\n'
 } > "$output/resources.json"
-# Keep only fixed startup/operational logs, never docker inspect .Config.Env.
+# 只保留固定的启动/运行日志，不能输出docker inspect中的.Config.Env以免泄密。
 docker logs "$server" > "$output/core.log" 2>&1
 [[ "$attached_status" = 0 && "$client_status" = 0 ]] || { printf 'HEARTBEAT_BASELINE_FAILED\n' >&2; exit 1; }
 for name in "$database" "$server" "$client"; do

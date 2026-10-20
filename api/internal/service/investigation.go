@@ -1,3 +1,5 @@
+// Package service：面向自然语言问题的持久化调查状态机，串联规划、人工确认、采集、诊断、复测与结果比较。
+// 状态推进依赖已落库事实和统一准入锁顺序，重启可继续；模型提出计划不能绕过目标授权或自动确认写操作。
 package service
 
 import (
@@ -32,6 +34,9 @@ type CollectionPlan struct {
 	Options         map[string]any `json:"options,omitempty"`
 	Rationale       string         `json:"rationale"`
 }
+
+// Investigation 保存一条自然语言调查的阶段、目标和派生运行关系。
+// 它引用普通采集任务、诊断和复测记录，不另造一套采集或分析状态。
 type Investigation struct {
 	ID                 int64           `json:"id,string"`
 	RequestedBy        string          `json:"requested_by"`
@@ -59,6 +64,8 @@ type Investigation struct {
 	UpdatedAt          time.Time       `json:"updated_at"`
 }
 
+// RequestInvestigation 校验用户、目标、模型同意和幂等键后建立持久化规划记录。
+// 来源项目及目标绑定由控制面选择，模型问题中的 PID、路径或项目名不能改变授权范围。
 func (s *Suggestions) RequestInvestigation(ctx context.Context, u domain.User, in InvestigationInput, key, request string) (Investigation, error) {
 	var out Investigation
 	if err := ValidateKey(key); err != nil {
@@ -183,6 +190,8 @@ func (s *Suggestions) AuthorizeInvestigation(ctx context.Context, u domain.User,
 	}
 	return out, nil
 }
+
+// ConfirmInvestigation 将用户确认作为独立持久化动作，重验计划和目标授权后再推进采集；规划完成不等于已经获准执行。
 func (s *Suggestions) ConfirmInvestigation(ctx context.Context, u domain.User, id int64, request string) error {
 	return s.Repo.Context(ctx).Transaction(func(tx *gorm.DB) error {
 		var locked Investigation
@@ -214,6 +223,8 @@ func (s *Suggestions) ConfirmInvestigation(ctx context.Context, u domain.User, i
 		return tx.Create(ptrAuditDiagnosis(Audit(u, "investigation.confirm", "investigation", fmt.Sprint(id), request))).Error
 	})
 }
+
+// CancelInvestigation 取消调查及其仍活动的关联工作，按当前执行身份撤销后续写入资格；已经完成的测量事实仍保留用于审计。
 func (s *Suggestions) CancelInvestigation(ctx context.Context, u domain.User, id int64, request string) error {
 	return s.Repo.Context(ctx).Transaction(func(tx *gorm.DB) error {
 		var locked Investigation
@@ -402,6 +413,7 @@ func (s *Suggestions) planNextInvestigation(ctx context.Context) error {
 	})
 }
 
+// planningFence 在每次规划工具与最终提交前核验当前用户、目标和规划租约；模型网络等待期间的撤权或取消必须立即失效。
 func (s *Suggestions) planningFence(ctx context.Context, tx *gorm.DB, run Investigation) error {
 	u, err := repository.New(tx).User(ctx, run.RequestedBy)
 	if err != nil || !u.CanWrite() {
@@ -423,6 +435,8 @@ func (s *Suggestions) planningFence(ctx context.Context, tx *gorm.DB, run Invest
 	return nil
 }
 
+// planCollection 通过受限 list_collectors/propose_collection 工具生成计划；模型只能从实际能力目录选择。
+// 有效计划由 Go 校验并终止本阶段，随后等待人工确认，不能让一次规划回复直接执行采样。
 func (s *Suggestions) planCollection(ctx context.Context, u domain.User, run Investigation, persist func(string, any) error) (CollectionPlan, error) {
 	a, err := s.Repo.AuthorizedAgent(ctx, u, run.AgentID, true)
 	if err != nil {
@@ -598,12 +612,14 @@ func (s *Suggestions) advanceInvestigations(ctx context.Context) error {
 		return nil
 	})
 }
+
+// advanceInvestigation 在事务内依据已落库阶段推进采集、诊断、复测与比较关联。
+// 先获取统一准入锁再锁来源任务，避免与直接诊断及复测工作器互锁；每个派生动作都要可幂等恢复。
 func (s *Suggestions) advanceInvestigation(ctx context.Context, tx *gorm.DB, run *Investigation) error {
 	if time.Since(run.CreatedAt) > 20*time.Minute {
 		return domain.Fail("DIAGNOSIS_TIMEOUT", "调查超过20分钟预算")
 	}
-	// Shared admission mutex precedes any task lock, matching verification
-	// workers and direct diagnosis requests across both linked workflows.
+	// 先获取共享准入锁再获取任务锁；关联调查、复测工作器和直接诊断请求必须采用相同顺序。
 	if err := tx.Exec("SELECT pg_advisory_xact_lock(hashtextextended(?,417626))", run.RequestedBy).Error; err != nil {
 		return err
 	}

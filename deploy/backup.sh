@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# Online logical backup. Never stops services or copies a live database volume.
+# 在线备份入口：数据库使用逻辑导出，对象按清单和摘要保存，再记录恢复所需校验信息。
+# 备份成功只说明取得了这份备份；真正可恢复还需要restore-check在独立资源中实跑验证。
+
+# 在线逻辑备份，不停止服务，也不直接复制正在运行的数据库数据卷。
 set -euo pipefail
 umask 077
 deploy_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
@@ -55,8 +58,8 @@ data.mkdir(parents=True, mode=0o700)
 count = total = 0
 with (root / 'objects' / 'manifest.jsonl').open('x', encoding='utf-8') as manifest:
     for item in client.list_objects(bucket, recursive=True):
-        # Object names are untrusted paths. Store by digest, retaining the exact
-        # S3 name only in the manifest; no key becomes a filesystem pathname.
+        # 对象名属于不可信输入；按摘要存储本地文件，仅在清单中保留精确
+        # S3对象名，不能把对象key直接当作文件系统路径，避免路径穿越。
         info = client.stat_object(bucket, item.object_name)
         free_bytes = os.statvfs(root).f_bavail * os.statvfs(root).f_frsize
         database_bytes = int((root / 'database-size-bytes.txt').read_text())

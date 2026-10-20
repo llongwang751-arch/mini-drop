@@ -1,3 +1,8 @@
+// 供受控原生应用主动接入的本地采集控制库，配合已配置的性能/内存分配器工具。
+// 控制socket与临时文件都限制在应用持有的0700目录，只有授权UID可以发起固定操作。
+// 业务必须自己链接或预加载需要的采集库；此实现不会替用户替换分配器。
+// 结果交给采集Agent处理，本库不接触数据库或对象存储授权。
+
 #include "drop/native_profiler.h"
 #include <array>
 #include <atomic>
@@ -169,9 +174,9 @@ private:
   void begin(const std::string &mode) {
     if (!mode_.empty())
       throw std::runtime_error("An active profiling session already exists");
-    // The embedding application preconfigures this owned0700 control root.
-    // Both profiler scratch and socket stay on its filesystem; no peer supplies
-    // a path and a schema2 controller can require a real filesystem quota.
+    // 业务程序提前创建自己持有、权限0700的控制根目录。
+    // 工具临时文件与socket都留在此文件系统，对端不能提供
+    // 任意路径；schema2控制端还可以要求真实的文件系统容量限制。
     std::vector<char> temporary;
     const auto name =
         root_ + "/drop-native-" + std::to_string(getpid()) + "-XXXXXX";
@@ -293,7 +298,7 @@ private:
 };
 std::mutex mutex;
 std::unique_ptr<Adapter> adapter;
-} // namespace
+} // 结束匿名命名空间
 extern "C" int drop_native_profiler_start(const char *directory,
                                           uint32_t controller_uid) {
   try {

@@ -1,3 +1,5 @@
+// 本文件验证路由日志采用模板和任务上下文，私有请求头与用户 URL 不进入日志。
+// 测试名称标明具体场景；涉及真实数据库的用例需显式配置测试连接，协议夹具不代表生产或模型实测。
 package httpapi
 
 import (
@@ -18,7 +20,7 @@ func TestRequestLogUsesTemplateAndTaskContextWithoutPrivateHeaders(t *testing.T)
 	previous := slog.Default()
 	slog.SetDefault(logging.New(&output, "drop-api", "fixture"))
 	t.Cleanup(func() { slog.SetDefault(previous) })
-	// Explicit HTTP-only fixture: no repository or task lifecycle is simulated.
+	// 明确的纯 HTTP 测试夹具：不模拟仓储、数据库事务或任务生命周期。
 	server := &Server{}
 	router := gin.New()
 	router.Use(server.requestID())

@@ -1,3 +1,5 @@
+// Package service：把现有诊断证据与业务校验接入独立 AgentScope runner。
+// Python 负责真正的 ReAct 循环，Go 闭包负责读取授权证据与验证报告，最终运行证明只能由控制面附加。
 package service
 
 import (
@@ -8,6 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
+// diagnosisAgentScope 把初始脱敏证据交给 AgentScope，并将工具执行与最终验收留在 Go 闭包中。
+// 必要热点、质量和复测比较必须真实调用；runner 返回的 JSON 只有与 Go 保存的 accepted 结果一致才能形成报告。
 func (s *Suggestions) diagnosisAgentScope(ctx context.Context, run DiagnosisRun, owner string, first json.RawMessage, invoke func(string, json.RawMessage) (json.RawMessage, error), trace *[]DiagnosisStep) (*DiagnosisReport, error) {
 	used := map[string]bool{"read_profile_summary": true}
 	var initial DiagnosisStep

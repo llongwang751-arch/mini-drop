@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# Explicit isolated database/control-plane regression. Production data and
-# services are never written or restarted. Only the three named TLS identities
-# needed by this regression are mounted; the CA signing key is never mounted.
+# 显式执行的隔离数据库/控制面回归，不会写入或重启生产数据与
+# 服务。只挂载此回归需要的三个TLS身份，
+# 不挂载CA签名私钥，防止测试进程具备签发证书的权限。
 workspace="$(realpath "${1:?workspace required}")"
 tls="$(realpath "${2:?TLS certificate directory required}")"
 image="${3:-drop-core-toolchain:v2}"
@@ -56,8 +56,8 @@ done
 test "$ready" = true
 sleep 2
 if test "${TEST_ONLY_DISPATCH_RACE:-false}" != true && test "${TEST_ONLY_ENQUEUE_RACE:-false}" != true; then
-  # Build an actual schema-4 database, rather than merely deleting its version
-  # marker. The final Server must reject startup before opening its RPC socket.
+  # 构造真正的schema4数据库，而不是只删除版本
+  # 标记；最终Server必须在开放RPC端口之前拒绝不兼容schema。
   docker exec "$prefix-postgres" createdb -U postgres drop_schema4
   for migration in "$workspace"/db/migrations/*.sql; do
     migration_name="$(basename "$migration")"
@@ -114,8 +114,8 @@ if test "${TEST_ONLY_DISPATCH_RACE:-false}" != true; then
   run_probe drop_enqueue_probe
 fi
 if test "${TEST_ONLY_ENQUEUE_RACE:-false}" != true; then
-  # The enqueue admission fixture deliberately has no caller trace context.
-  # Start this receiver only for the following explicitly linked RPC fixture.
+  # 队列准入夹具刻意不携带调用方trace上下文，便于独立验证准入逻辑。
+  # 只为下方显式关联的RPC夹具启动接收器，不扩展到其他测试。
   docker run -d --name "$prefix-otlp" "${ownership[@]}" --network "$network" --network-alias otlp \
     --user 10001:10001 --read-only --cap-drop ALL --security-opt no-new-privileges \
     --memory=48m --cpus=.1 --entrypoint /usr/bin/python3 \

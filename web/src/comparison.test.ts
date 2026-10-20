@@ -1,3 +1,6 @@
+/**
+ * 使用明确构造的调用树检查比较口径、递归聚合和非法权重拒绝，不把夹具数值当实测性能。
+ */
 import { describe, expect, it } from "vitest";
 import type { AnalysisResult, Task, FlameNode } from "./types";
 import {

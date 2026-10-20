@@ -1,7 +1,7 @@
-"""Bounded, fail-closed SSE-S3 migration through authenticated S3 APIs only.
+"""仅通过鉴权 S3 API 执行有界的 SSE-S3 迁移，校验失败即停止写入。
 
-Dry-run is the default. Apply requires stopped writers and a database-held
-maintenance fence. No object names, profile bytes or credentials are logged.
+默认 dry-run；实际 apply 要求业务写入已停止且持有数据库维护栅栏。
+对象名称、profile 字节及凭据都不进入日志。
 """
 
 from contextlib import contextmanager, nullcontext
@@ -23,7 +23,7 @@ import urllib3
 
 
 class MigrationFailure(Exception):
-    """Only fixed codes from reviewed call sites may reach the report."""
+    """只有经过审查的调用点给出的固定错误码可以进入报告。"""
 
 
 @dataclass(frozen=True)
@@ -105,11 +105,9 @@ def user_metadata(headers):
 
 
 def system_metadata(headers):
-    # S3 REPLACE also replaces these HTTP representation/cache fields. Keep
-    # them distinct from identically named x-amz-meta-* user metadata.
-    # minio-py 7.2.20 would silently normalize Expires into user metadata.
-    # Refuse before writing instead of claiming to preserve an unsupported
-    # representation field. The application gateway never accepts this field.
+    # S3 REPLACE 也会替换 HTTP 表示与缓存字段，必须与同名 x-amz-meta-*
+    # 用户元数据分开处理。minio-py 7.2.20 会将 Expires 静默转成用户元数据，
+    # 因此在写入前拒绝这种不支持的表示字段；应用网关本身不接收此字段。
     if header(headers, "Expires") is not None:
         raise MigrationFailure("UNSUPPORTED_SYSTEM_METADATA")
     return {
@@ -147,7 +145,7 @@ class S3Storage:
         self.client, self.bucket = client, bucket
 
     def require_unversioned(self):
-        # Copying current versions cannot establish encryption of older versions.
+        # 复制当前版本不能证明旧版本也已加密。
         if self.client.get_bucket_versioning(self.bucket).status is not None:
             raise MigrationFailure("VERSIONED_BUCKET_UNSUPPORTED")
         config = self.client.get_bucket_encryption(self.bucket)
@@ -155,8 +153,8 @@ class S3Storage:
             raise MigrationFailure("BUCKET_AES256_DEFAULT_REQUIRED")
 
     def keys(self, page_size, max_pages):
-        # Explicitly bounded adapter for the pinned minio-py 7.2.20 SDK. Its
-        # public list_objects does not expose a bounded page count or max-keys.
+        # 为固定 minio-py 7.2.20 使用显式有界适配器；公开 list_objects
+        # 未提供有界页数或 max-keys 控制。
         token = None
         for _ in range(max_pages):
             query = {
@@ -180,8 +178,8 @@ class S3Storage:
             if len(objects) > page_size:
                 raise MigrationFailure("LIST_RESPONSE_LIMIT")
             for item in objects:
-                # With no delimiter, a trailing-slash Contents entry is still
-                # a real zero-byte object and remains in the migration scope.
+                # 未设置 delimiter 时，以斜杠结尾的 Contents 仍是真实零字节对象，
+                # 应纳入迁移范围，不能当成虚拟目录跳过。
                 if not item.object_name or item.is_delete_marker:
                     raise MigrationFailure("INVALID_LIST_ENTRY")
                 yield item.object_name
@@ -252,11 +250,11 @@ class S3Storage:
         return actual
 
     def copy(self, key, before):
-        # MetadataDirective.REPLACE permits a same-key copy. Encryption comes
-        # from the already verified bucket AES256 default, with no client SSE.
+        # MetadataDirective.REPLACE 允许同键复制；加密来自已核实的 bucket
+        # 默认 AES256 策略，不使用客户端 SSE。
         metadata = {"Content-Type": before.content_type, **before.system_metadata}
-        # Explicit prefixes preserve user fields named e.g. content-type or
-        # x-amz-copy-source; the SDK must not reinterpret them as control headers.
+        # 显式加前缀保留 content-type、x-amz-copy-source 等同名用户字段，
+        # 避免 SDK 将它们重新解释为控制头。
         metadata.update(
             {"x-amz-meta-" + key: value for key, value in before.metadata.items()}
         )
@@ -276,12 +274,13 @@ class SQLRepository:
 
     @contextmanager
     def quiescent(self, apply):
+        """实际迁移期间持有维护 advisory lock 和表锁，防止对账器及残留写入者并发修改。"""
         if not apply:
             with nullcontext():
                 yield
             return
-        # Same advisory key as the existing maintenance reconciler. The table
-        # locks block DML from writers which were accidentally left running.
+        # 与现有 maintenance 对账器共用 advisory key；表锁进一步阻止
+        # 意外仍在运行的写入者执行 DML。
         self.connection.execute("SET LOCAL lock_timeout = '3s'")
         row = self.connection.execute(
             "SELECT pg_try_advisory_xact_lock("
@@ -309,7 +308,7 @@ class SQLRepository:
         row = self.connection.execute(
             "SELECT size,sha256 FROM artifacts WHERE object_key=%s", (key,)
         ).fetchone()
-        # Expired/quarantined objects remain in scope; status is not filtered.
+        # 过期或隔离对象仍在迁移范围内，不能按状态过滤掉。
         return Evidence(row["size"], row["sha256"]) if row else None
 
     def keys(self, page_size, max_rows):
@@ -327,6 +326,10 @@ class SQLRepository:
 def migrate_object(
     storage, key, evidence, *, apply, budget, max_object_bytes, assert_quiescent
 ):
+    """先完整读取校验一个对象；apply 时同键复制，再复核内容、元数据与 AES256。
+
+    读预算在修改前预留，修改前后检查维护栅栏；只看复制成功或响应头不能当作内容完整的证据。
+    """
     before = storage.verify(key, evidence, budget, max_object_bytes)
     baseline_only = evidence is None
     if before.algorithm == "AES256":
@@ -334,7 +337,7 @@ def migrate_object(
     if not apply:
         return "would_encrypt", baseline_only
     assert_quiescent()
-    # Reserve enough read capacity before any mutation, including orphan data.
+    # 任何修改前先预留完整读取预算，孤儿对象也必须计入。
     budget.require(before.size)
     copied_etag = etag(storage.copy(key, before))
     after = storage.verify(
@@ -357,6 +360,11 @@ def migrate_object(
 def migrate(
     storage, repository, *, apply=False, confirm_writers_stopped=False, limits=None
 ):
+    """在对象数、单对象大小和总读取预算内执行 dry-run 或迁移，返回不含敏感值的报告。
+
+    apply 需要显式确认写入者已停止，并在数据库维护栅栏内运行；完整扫描、加密验证与数据完整性分开记录，
+    任何中途失败都保留 incomplete 状态，不将部分成功报告成迁移完成。
+    """
     limits = limits or Limits()
     budget = ReadBudget(limits.max_bytes)
     result = {
@@ -407,7 +415,7 @@ def migrate(
         result["complete"] = result["scan_complete"] = False
         result["error"] = str(error)
     except Exception:
-        # SDK/database exceptions may contain signed request details or keys.
+        # SDK 或数据库异常可能携带签名请求细节与密钥，不直接写入报告。
         result["complete"] = result["scan_complete"] = False
         result["error"] = "STORAGE_OR_DATABASE_FAILURE"
     result["bytes_read"] = budget.used
@@ -415,8 +423,7 @@ def migrate(
 
 
 def main(argv=None):
-    # Lazy import keeps the reviewed migration primitive usable as a standalone
-    # read-only bind mount by the private storage fixture.
+    # 延迟导入使已审查的迁移原语可由私有存储夹具以独立只读绑定方式复用。
     from ops_runtime import Config, ConfigurationError, VERSION, emit
 
     started = time.monotonic()
@@ -470,7 +477,7 @@ def main(argv=None):
         duration_ms=int((time.monotonic() - started) * 1000),
         stream=sys.stderr,
     )
-    # This stdout document is a machine-readable CLI report, not a log stream.
+    # stdout 输出的是机器可读 CLI 报告，与日志流分开。
     print(json.dumps(result, sort_keys=True))
     return (
         0

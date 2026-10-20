@@ -1,3 +1,6 @@
+// 仅在显式启用受控演示时启动的CPU负载，为现场采样提供可预测目标。
+// 它不是线上业务，也不能用本负载的结果推导真实应用的请求延迟或收益。
+
 #include <atomic>
 #include <chrono>
 #include <cmath>
@@ -27,11 +30,11 @@ __attribute__((noinline)) void benchmark() {
   std::uint64_t iteration = 0;
   while (running) {
     observed = aggregate(iteration++);
-    // Keep the validation workload under roughly half of one CPU.
+    // 将验证负载控制在约半个CPU以内，避免测试程序持续挤占整核。
     std::this_thread::sleep_for(std::chrono::milliseconds(2));
   }
 }
-} // namespace
+} // 结束匿名命名空间
 
 int main() {
   std::signal(SIGTERM, stop);

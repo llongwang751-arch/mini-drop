@@ -1,3 +1,5 @@
+"""验证指标与链路观测的字段约束，避免任务标识和敏感值进入高基数标签。"""
+
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 import importlib.util
 import os

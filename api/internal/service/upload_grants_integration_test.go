@@ -1,3 +1,5 @@
+// 本文件验证删除任务撤销公开日志授权，历史 RAW 文件名变化不能扩大或破坏 attempt 级上传范围。
+// 测试名称标明具体场景；涉及真实数据库的用例需显式配置测试连接，协议夹具不代表生产或模型实测。
 package service
 
 import (
@@ -72,8 +74,8 @@ func TestPostgresPublicLogGrantUsesAttemptPrefixAcrossCatalogRawNameChange(t *te
 	if attempt.RawObjectKey != fmt.Sprintf("raw/tasks/%d/attempts/1/%s", task.ID, kind.RawName) {
 		t.Fatal("new attempt did not use the authoritative RAW basename")
 	}
-	// Explicit historical import fixture: queued attempts from the old catalog
-	// keep their existing key while new descriptions use the current raw format.
+	// 明确标记的历史导入夹具：旧目录中已排队的 attempt 保留原对象键，
+	// 新任务描述则使用当前 RAW 格式，以验证升级不会破坏已有授权。
 	attempt.RawObjectKey = domain.RawKey(task.ID, 1)
 	if err := db.Model(&attempt).Update("raw_object_key", attempt.RawObjectKey).Error; err != nil {
 		t.Fatal(err)

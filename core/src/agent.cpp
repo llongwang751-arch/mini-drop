@@ -1,3 +1,9 @@
+// 采集端Agent入口：负责接单、固定目标身份、执行采样、上传制品和恢复未完成回传。
+// 这里的Agent是驻留节点的C++采集进程，不是Python中调用模型的AgentScope智能体。
+// 主线程维持mTLS心跳并接收取消；工作线程执行单个attempt，避免采样阻塞控制面连接。
+// 阅读顺序建议：run → execute_task → collected_result/complete → recover。
+// RAW上传成功与Server确认是两个不同阶段；中途断网时保留恢复记录，不重新采集来“补成功”。
+
 #include "drop.grpc.pb.h"
 #include "drop/artifact.hpp"
 #include "drop/config.hpp"
@@ -61,8 +67,8 @@ std::string perf_executable() {
           "PERF_EXECUTABLE must be an existing absolute executable");
     return configured;
   }
-  // Ubuntu's /usr/bin/perf wrapper requires an exact host-kernel package. The
-  // packaged perf binary can also inspect kernels through the stable perf ABI.
+  // Ubuntu的/usr/bin/perf包装脚本可能要求安装与宿主内核完全匹配的包；
+  // 实际打包的perf二进制还可通过稳定perf ABI工作，因此优先检查可执行工具。
   const fs::path tools("/usr/lib/linux-tools");
   if (fs::exists(tools)) {
     for (const auto &entry : fs::directory_iterator(tools)) {
@@ -106,7 +112,7 @@ public:
   }
   int pid = 0;
 };
-} // namespace
+} // 结束匿名命名空间
 
 class Agent {
   struct Clients {
@@ -192,6 +198,8 @@ public:
                  certificate_.at("not_after_unix_seconds").get<double>());
   }
 
+  // 主循环只处理心跳、取消与工作线程调度。任务采集和恢复另放工作线程，
+  // 这样控制面断连或采样较慢时仍能持续维护节点状态。
   void run() {
     while (alive && !initialize())
       std::this_thread::sleep_for(3s);
@@ -371,6 +379,8 @@ private:
     helper_capabilities_ = std::move(details);
     return available;
   }
+  // 初始化会注册节点身份、协议版本与自检能力，选择可用控制面连接。
+  // 能力来自本机实际探测，不是把TaskKind目录全部宣称为可执行。
   bool initialize() {
     refresh_helper();
     registration_dirty_ = false;
@@ -584,7 +594,7 @@ private:
       if (status.error_code() == grpc::StatusCode::NOT_FOUND) {
         if (terminal)
           *terminal = true;
-        return true; // Superseded attempts cannot overwrite current state.
+        return true; // 已被重试替换的旧attempt不得覆盖当前任务状态。
       }
       if (status.error_code() != grpc::StatusCode::UNAVAILABLE &&
           status.error_code() != grpc::StatusCode::DEADLINE_EXCEEDED &&
@@ -609,6 +619,8 @@ private:
            std::chrono::steady_clock::now() < end)
       std::this_thread::sleep_for(100ms);
   }
+  // 先原子保存结果与后续回传所需字段，再尝试网络发送。
+  // 网络成功但响应丢失时，可依据同一记录重放，避免重新执行昂贵采样。
   void persist_result(const fs::path &directory,
                       const dv::ResultRequest &result) {
     atomic_write((directory / "result.pb").string(),
@@ -720,8 +732,8 @@ private:
     };
     if ((artifact.kind() == "RAW" || artifact.kind() == "BINARY") &&
         fs::is_regular_file(directory / "uploaded"))
-      return saved_receipt(); // N-1 journal never repeats already completed
-                              // data PUTs.
+      return saved_receipt(); // 兼容上一协议版本的恢复记录，不重复已经完成的
+                              // 数据PUT；避免把网络重试变成再次采集或重复上传。
     if (fs::is_regular_file(marker) &&
         read_file(marker.string(), 128) == artifact.sha256())
       return saved_receipt();
@@ -764,7 +776,7 @@ private:
         retry_after = error.retry_after_seconds;
       } catch (const std::exception &) {
         throw UploadFailure(
-            false); // Local file/configuration failures are permanent.
+            false); // 本地文件或配置错误是永久失败，继续做网络重试无法修复。
       }
       const auto delay = std::max<std::uint64_t>(
           upload_retry_delay_ms(retry, retry_entropy()),
@@ -778,7 +790,7 @@ private:
       pause_retry(delay, renew);
     }
     throw UploadFailure(
-        true); // Shutdown keeps the successful collection journal.
+        true); // 退出时保留已成功采集的恢复记录，下次启动继续上传与确认。
   }
   static void apply_receipt(dv::ArtifactInfo &artifact,
                             const UploadReceipt &receipt) {
@@ -804,7 +816,7 @@ private:
           target.max_file_bytes() == 65536)
         grant = &target;
     if (!grant)
-      return; // N-1 attempts never received this feature grant.
+      return; // 上一版本attempt没有收到此能力授权，不额外要求它提交新版本制品。
     for (int i = result.artifacts_size() - 1; i >= 0; --i)
       if (result.artifacts(i).kind() == "MANIFEST")
         result.mutable_artifacts()->DeleteSubrange(i, 1);
@@ -870,7 +882,7 @@ private:
     artifact->set_metadata_json("{\"schema_version\":1}");
     persist_result(
         directory,
-        result); // Immutable manifest bytes survive any interrupted PUT.
+        result); // 清单字节生成后保持不变，PUT中断后重放同一份内容，而不是重新计算。
     const auto receipt =
         upload_retry(directory, task, *artifact, grant->put_url(), 65536, true);
     apply_receipt(*artifact, receipt);
@@ -924,6 +936,8 @@ private:
     }
     return bytes;
   }
+  // 采样已经完成后负责上传和通知，不再启动采集工具。
+  // RAW、日志与清单有不同授权及恢复要求，只有服务端确认后才清理对应记录。
   void complete(const fs::path &directory, const dv::TaskDesc &task,
                 dv::ResultRequest result) {
     const auto upload_started = unix_ns();
@@ -968,8 +982,8 @@ private:
         result.set_error_message(
             "Bounded artifact upload did not complete; RAW retained for the "
             "configured recovery period");
-        // Failed requests may only commit a safe LOG, never an incomplete
-        // RAW/BINARY.
+        // 失败任务只允许提交经过限制的安全LOG，不能把尚未完成的
+        // RAW或BINARY登记为成功制品。
         result.clear_artifacts();
       }
     }
@@ -1014,8 +1028,8 @@ private:
         fs::remove(directory / "log-pending.json");
       }
       if (log_pending && result.success() && !terminal) {
-        // Keep only a short replay journal for the already committed RAW and
-        // retry its missing LOG; uploaded SHA markers prevent another RAW PUT.
+        // RAW已经提交后，只保留短期重放记录以补齐缺失LOG；
+        // 上传成功的SHA标记阻止再次PUT同一RAW，保证恢复不会重复覆盖数据。
       } else if ((result.success() && !terminal) ||
                  (!has_raw(directory, task, result) && !log_pending))
         remove_attempt(directory);
@@ -1027,6 +1041,8 @@ private:
           task_context(task, "notify"));
     }
   }
+  // 扫描本机有界恢复目录，重放仍需上传或确认的attempt。
+  // 过期、终态和身份不匹配分别处理；不能用旧记录覆盖当前attempt。
   void recover() {
     if (worker_.joinable())
       worker_.join();
@@ -1121,8 +1137,8 @@ private:
           }
           attempt_ = 0;
         });
-        return; // Recovery runs on a worker; heartbeat/lease renewal never
-                // pauses.
+        return; // 恢复任务放到工作线程执行，心跳与租约续约因此
+                // 不会因恢复网络重试而停顿。
       } catch (...) {
         log("drop-agent", "Could not recover local attempt journal", "",
             "JOURNAL_RECOVERY_FAILED");
@@ -1214,7 +1230,7 @@ private:
           read_file((directory / "helper-request.json").string(), 65536));
       helper_->acknowledge(request.at("token"));
     } catch (...) {
-      // The durable Agent result is authoritative; helper TTL remains bounded.
+      // 以Agent已持久化的结果为准，helper端缓存仍按有界TTL回收。
       metrics_.add("drop_helper_ack_errors_total");
     }
   }
@@ -1273,6 +1289,8 @@ private:
         {"collector_child_cpu_affinity", collector_affinity_}};
   }
 
+  // 单次任务的执行入口：先核对目录/schema、目标身份与预算，
+  // 再选择普通Runner或helper路径；错误与取消统一走可恢复的结果回传。
   void execute_task(const dv::TaskDesc &task) {
     const auto started_ns = unix_ns();
     record_event("RUNNER_ACCEPTED", {{"task_id", task.task_id()},
@@ -1320,7 +1338,7 @@ private:
             {"container_pid", task.target().container_pid()},
             {"expected_uid", task.target().expected_uid()},
             {"check_uid", task.target().check_uid()}};
-      // Omit irrelevant empty fields before applying the authoritative schema.
+      // 校验真源schema前先去掉无关空字段，避免把不适用的选项误当作用户输入。
       if (full.contains("target")) {
         auto &t = full["target"];
         if (t["pid"] == 0)
@@ -1470,8 +1488,8 @@ private:
         } catch (const HelperFailure &failure) {
           if (failure.error_code != "HELPER_UNAVAILABLE")
             throw;
-          // The helper may already have durably completed its capture. Replay
-          // that exact token; never issue a second collect after uncertain IPC.
+          // helper可能已经完成并持久化采集；IPC响应不确定时应重放
+          // 同一个token查询原结果，不能重新发起第二次采集。
           output = helper_->collect(request, true);
         }
       } else {
@@ -1584,7 +1602,7 @@ private:
   std::atomic<std::uint64_t> event_sequence_{0};
   std::jthread worker_;
 };
-} // namespace dropcore
+} // 结束 dropcore 命名空间
 
 int main(int argc, char **argv) {
   std::signal(SIGTERM, dropcore::stop);

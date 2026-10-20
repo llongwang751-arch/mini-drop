@@ -1,3 +1,7 @@
+/**
+ * 浏览器唯一装配入口：挂载 Router、共享 Query 缓存和页面错误边界所需的上下文。
+ * 请求的取消、短暂故障重试由下层统一处理，页面不各自维护一套全局请求状态。
+ */
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

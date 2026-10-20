@@ -1,3 +1,5 @@
+// Package httpapi：已登记源码项目与隔离修复运行的 HTTP 边界。
+// 读取源码和申请修复都要检查当前权限；修复结果只描述隔离副本中的验证，不代表已经修改生产代码。
 package httpapi
 
 import (

@@ -1,3 +1,5 @@
+// Package service：把组合任务 DAG 转为多个普通任务，并在依赖满足后推进节点。
+// 取消和失败传播按必选、可选语义执行；父任务状态由子任务事实汇总，不能跳过普通任务校验。
 package service
 
 import (
@@ -13,6 +15,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+// CreateComposite 校验 DAG、节点输入和可写范围后持久化组合及节点；真正可运行的节点随后复用普通任务创建链路。
 func (s *Tasks) CreateComposite(ctx context.Context, u domain.User, in domain.CreateComposite, key, request string) (domain.CompositeRun, bool, error) {
 	var run domain.CompositeRun
 	if !u.CanWrite() {
@@ -160,6 +163,8 @@ func (s *Tasks) stopComposite(ctx context.Context, run domain.CompositeRun, stat
 	b, _ := json.Marshal(summary)
 	return s.Repo.Context(ctx).Model(&run).Updates(map[string]any{"status": status, "summary": string(b), "updated_at": time.Now().UTC()}).Error
 }
+
+// TickComposite 按已经提交的子任务状态推进依赖并汇总父状态；失败或取消传播只依据确定性规则，不能从缺少心跳猜测子任务成功。
 func (s *Tasks) TickComposite(ctx context.Context) error {
 	return s.Repo.Context(ctx).Transaction(func(tx *gorm.DB) error {
 		var run domain.CompositeRun

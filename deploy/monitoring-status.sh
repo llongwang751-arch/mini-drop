@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# 维护监控状态的显式入口，与业务采集任务分离。
+# 运维状态只报告真实执行结果，不能因可选监控未接入就伪造健康数据。
+
 set -euo pipefail
 umask 022
 status_dir=/opt/drop-monitoring

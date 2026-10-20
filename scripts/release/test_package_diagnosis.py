@@ -1,4 +1,4 @@
-"""Packaging security boundaries; no model requests, build, Docker or server."""
+"""验证打包安全边界，不请求模型、不构建、不访问 Docker 或服务器。"""
 import importlib.util
 from pathlib import Path
 import tempfile

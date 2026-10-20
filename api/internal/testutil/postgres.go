@@ -1,3 +1,5 @@
+// Package testutil：供集成测试创建独立 PostgreSQL schema，应用真实迁移与能力目录，并在测试结束时清理。
+// 未配置 TEST_DATABASE_URL 时显式跳过；这里的通过只能证明隔离测试边界，不能冒充生产采样或模型验收。
 package testutil
 
 import (
@@ -15,6 +17,8 @@ import (
 	"gorm.io/gorm/logger"
 )
 
+// Postgres 为当前测试创建随机独立 schema，运行真实迁移并登记 Cleanup 清除 schema。
+// 缺少显式测试连接时跳过，连接失败时失败；不能自动寻找生产数据库或降级为内存 SQL 模拟。
 func Postgres(t *testing.T) *gorm.DB {
 	t.Helper()
 	dsn := os.Getenv("TEST_DATABASE_URL")

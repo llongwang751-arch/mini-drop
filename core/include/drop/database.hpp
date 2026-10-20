@@ -1,3 +1,7 @@
+// libpq薄封装：Rows负责结果生命周期，Database使用参数化SQL，Transaction提供RAII回滚。
+// 调用方仍需按固定顺序持有数据库互斥锁及业务行锁；封装本身不自动解决多副本竞争。
+// 只有显式commit后析构才不回滚，因此状态、制品和事件应放在同一业务事务内。
+
 #pragma once
 
 #include <libpq-fe.h>
@@ -44,8 +48,8 @@ public:
       PQreset(connection_.get());
       if (PQstatus(connection_.get()) != CONNECTION_OK)
         throw std::runtime_error("Database unavailable");
-      // A lost connection invalidates its transaction. Do not silently continue
-      // an in-flight transaction on a fresh connection.
+      // 连接丢失时，原事务已经失效；不能换一条新连接后继续执行剩余语句，
+      // 否则原本应当原子提交的状态与事件会被拆开。
       throw std::runtime_error("Database reconnected; retry the operation");
     }
     std::vector<const char *> values;
@@ -81,4 +85,4 @@ private:
   Database &db_;
   bool committed_ = false;
 };
-} // namespace dropcore
+} // 结束 dropcore 命名空间

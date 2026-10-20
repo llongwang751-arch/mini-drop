@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Diagnostic-only attach to the explicit UID10001 Python toy, never production.
+"""只附加到明确指定的 UID10001 Python 玩具进程，不面向生产目标。
 
-The parent fixture owns the helper/container and a real bounded receive mount.
-No verbose backtrace, evaluated pointer, command line or RAW byte is persisted.
-Only the verified UID0 debugger child may be interrupted; never the business PID.
+父夹具拥有 Helper、容器和真实有界接收挂载；不持久化详细回溯、指针值、命令行或 RAW。
+只可中断已核对身份的 UID0 调试器子进程，绝不向业务 PID 发送中断。
 """
 import hashlib
 import json
@@ -61,8 +60,7 @@ def main():
     started = time.monotonic()
     cpu_before = Path("/sys/fs/cgroup/cpu.stat").read_text()
     checkpoint = {}
-    # Only this diagnostic process substitutes the pinned script with its
-    # instrumented copy. The production memray package/manifest is untouched.
+    # 只有本诊断进程替换为插桩脚本，生产 memray 包与 manifest 保持不变。
     entry = ("import pathlib,sys; import memray.commands.attach as attach; "
              "from memray.commands import main; attach.GDB_SCRIPT=pathlib.Path(sys.argv.pop(1)); "
              "sys.argv[0]='memray'; raise SystemExit(main())")
@@ -89,7 +87,7 @@ def main():
                     fields = (Path("/proc") / value / "stat").read_text().rsplit(")",1)[1].split()
                     checkpoint["debugger_children"].append({"pid":selected["pid"], "state":fields[0], "cpu_ticks":int(fields[11])+int(fields[12]), "waits":inspect_waits(selected)})
             for selected in debugger:
-                # Recheck identity and direct parent immediately before signalling.
+                # 发送信号前再次核对身份与直接父进程，避免目标变化时误杀业务进程。
                 state = (Path("/proc") / str(selected["pid"]) / "stat").read_text().rsplit(")",1)[1].split()
                 if identity(selected["pid"]) != selected or int(state[1]) != process.pid:
                     raise RuntimeError("Debugger identity changed before checkpoint")

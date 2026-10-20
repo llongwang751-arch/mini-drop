@@ -1,3 +1,5 @@
+// Package main：组合根：读取经过校验的配置，初始化 PostgreSQL、mTLS Core 客户端、对象存储和 HTTP 路由，再启动任务与智能诊断后台循环。
+// 各后台循环共享进程取消信号；数据库迁移是独立启动模式，正常服务不能在 schema 缺失时继续运行。
 package main
 
 import (
@@ -49,6 +51,9 @@ func required(name string) (string, error) {
 	}
 	return v, nil
 }
+
+// run 加载配置并构造跨服务依赖，随后启动受同一取消信号控制的后台循环。
+// 迁移模式执行完即退出；正常模式要求 schema、mTLS 和必要凭据全部就绪，防止部分初始化的 API 对外接单。
 func run() error {
 	slog.SetDefault(logging.New(os.Stdout, "drop-api", "0.2.0"))
 	var err error

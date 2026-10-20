@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Real RunnerRegistry collection against independent toy business PIDs.
+"""通过真实 RunnerRegistry 对独立的合成业务进程执行采集。
 
-Run in full-tools, no network or host PID namespace; explicitly grant fixture
-SYS_PTRACE/PERFMON and allow their syscalls. Nothing accesses production PIDs.
+在 full-tools 中运行，不使用网络或宿主 PID 命名空间；仅为夹具显式授予
+SYS_PTRACE/PERFMON 及所需系统调用权限，不访问生产 PID。
+结果证明受控负载的真实采集链路，不代表生产性能。
 """
 import hashlib,json,os,pathlib,subprocess,time
 ROOT=pathlib.Path('/src')

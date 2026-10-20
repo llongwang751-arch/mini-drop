@@ -1,6 +1,6 @@
-# Frozen release for the authorized 2-vCPU / 3.42-GiB server.
-# Merge after compose.yml, compose.tools.yml, compose.helper.yml,
-# compose.helper-ebpf.yml and compose.https.yml. Preserve the drop project volumes.
+# 面向当时已授权2核/3.42GiB服务器的冻结发布配置，保留作历史依据。
+# 在compose.yml、compose.tools.yml、compose.helper.yml、
+# compose.helper-ebpf.yml和compose.https.yml之后合并；保留drop项目数据卷。
 services:
   postgres: {mem_limit: 192m, memswap_limit: 192m}
   storage-backend: {mem_limit: 512m, memswap_limit: 512m}

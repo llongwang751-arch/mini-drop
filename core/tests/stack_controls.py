@@ -1,4 +1,4 @@
-"""Fixed diagnostic variants of an actual allocator RunnerBuilder program."""
+"""基于真实分配器 RunnerBuilder 程序生成固定的诊断变体，不扩展生产执行能力。"""
 
 
 def compare_argv(arguments, pid):
@@ -29,8 +29,8 @@ def stop_gate_argv(arguments, pid):
     if probes != 3:
         raise RuntimeError("Stop-gate control requires exactly three allocator probes")
     program = "".join(output).replace("{ exit(); }", "{ @drop_done=1; exit(); }")
-    # Keep the gate set while bpftrace drains END events. Clearing it here would
-    # reactivate a multi-uprobe whose link remains open in affected tool builds.
+    # bpftrace 排空 END 事件时保持 gate；过早清除可能重新激活
+    # 某些工具构建中尚未关闭 link 的 multi-uprobe。
     program = program.replace("END { ", "END { @drop_done=1; ")
     result = selected.copy()
     result[5] = program

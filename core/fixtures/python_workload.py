@@ -1,4 +1,4 @@
-"""Explicit toy workload for py-spy and memray attach regression."""
+"""供 py-spy 与 memray 附加回归使用的明确合成业务负载，不代表生产性能。"""
 import math
 import time
 

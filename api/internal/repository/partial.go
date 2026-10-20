@@ -1,3 +1,5 @@
+// Package repository：按当前采集 attempt、RAW 和分析运行身份读取不完整结果。
+// 重分析或重试会改变身份，旧检查点即使仍在磁盘或数据库中，也不能作为当前页面证据返回。
 package repository
 
 import (
@@ -8,8 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// The identity belongs to the latest collection attempt and latest ready RAW.
-// No object keys, lease owners, or parser checkpoint paths cross this boundary.
+// 分析身份必须属于最新采集 attempt 和最新 ready RAW 制品。
+// 此查询边界不向浏览器暴露对象键、租约持有者或解析器检查点路径。
 const currentAnalysisIdentity = `
  FROM analysis_jobs j
  JOIN tasks t ON t.id=j.task_id
@@ -36,6 +38,8 @@ func (r *Repository) AnalysisIdentity(ctx context.Context, id int64) (*domain.An
 	return &value, nil
 }
 
+// PartialResult 读取当前分析身份绑定的部分结果，再通过领域白名单解码。
+// 身份不匹配或结果不可用时不回退到历史内容，避免旧 attempt 的排障线索冒充当前测量。
 func (r *Repository) PartialResult(ctx context.Context, id int64) (*domain.PartialResult, error) {
 	var row struct{ Result json.RawMessage }
 	query := r.Context(ctx).Raw(`SELECT j.result`+currentAnalysisIdentity+`

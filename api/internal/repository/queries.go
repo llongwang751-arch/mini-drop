@@ -1,3 +1,5 @@
+// Package repository：聚合结果、趋势、审计和调度记录的读取侧，以及启动时 schema 兼容性检查。
+// 大结果与轻量摘要分开查询，用户范围必须在 SQL 聚合之前约束，不能先统计全库再在响应中过滤。
 package repository
 
 import (
@@ -44,6 +46,8 @@ type Trend struct {
 	Total   int64     `json:"total"`
 	Success int64     `json:"success"`
 }
+
+// Overview 先套用用户可见范围，再在数据库中计算任务计数与趋势；聚合接口同样可能泄露跨用户数据。
 type Overview struct {
 	AgentsOnline     int64            `json:"agents_online"`
 	AgentsTotal      int64            `json:"agents_total"`
@@ -58,6 +62,7 @@ type Overview struct {
 	StorageBytes     int64            `json:"storage_bytes"`
 }
 
+// Overview 先套用用户可见范围，再在数据库中计算任务计数与趋势；聚合接口同样可能泄露跨用户数据。
 func (r *Repository) Overview(ctx context.Context, u domain.User) (Overview, error) {
 	v := Overview{Trend: []Trend{}, RecentTasks: []domain.Task{}, CollectionCounts: map[string]int64{}, AnalysisCounts: map[string]int64{}}
 	db := r.Context(ctx)
@@ -157,6 +162,7 @@ func (r *Repository) Ready(ctx context.Context) error {
 
 const MinimumSchemaVersion = 8
 
+// CheckSchema 确认数据库至少包含当前二进制依赖的迁移版本；缺少表或列时启动失败，比运行中出现部分写入更容易安全恢复。
 func (r *Repository) CheckSchema(ctx context.Context) error {
 	var version int
 	return r.Context(ctx).Raw("SELECT max(version) FROM schema_migrations WHERE version BETWEEN 1 AND ? HAVING count(*)=?", MinimumSchemaVersion, MinimumSchemaVersion).Row().Scan(&version)

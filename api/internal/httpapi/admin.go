@@ -1,3 +1,4 @@
+// Package httpapi：提供定时任务、用户与审计管理接口；入口先校验角色和参数，再交给带授权约束的仓储或账户服务。
 package httpapi
 
 import (

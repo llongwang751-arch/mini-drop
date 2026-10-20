@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Actual bounded-FS/helper capture of isolated UID10001 toy processes.
+"""对隔离 UID10001 玩具进程执行真实 Helper 采集和有界文件系统检查。
 
-No production network, PID, credentials or volume is selected. The optional
-uprobe_multi check records an actual count and verbose attachment diagnostics;
-it never promotes zero samples or a failed attachment to supported collection.
+不选择生产网络、PID、凭据或数据卷。可选 uprobe_multi 检查记录真实计数及挂载诊断，
+不会把零采样或挂载失败改写成能力已支持。
 """
 import hashlib
 import json
@@ -74,7 +73,7 @@ def remove_owned(name):
 
 
 def cleanup_owned(names):
-    # Evaluate every result before all(): one failed removal cannot skip others.
+    # 先执行所有清理再调用 all()，避免一次失败短路掉其余删除。
     results = [remove_owned(name) for name in names]
     return all(results)
 
@@ -114,8 +113,8 @@ def probe(name, value):
 
 
 def start_target(name, arguments, environment=()):
-    # Fixed fixture-only shell creates the pinned PID marker, then exec replaces
-    # that shell. Profiler production execution continues to use argv directly.
+    # 仅夹具使用固定 shell 创建 PID 标记，再由 exec 替换此 shell；
+    # 生产 profiler 执行仍直接使用 argv。
     script = "echo $$ >/target-data/" + name + ".pid; exec " + " ".join(arguments)
     target = PREFIX + "-target-" + name
     targets.append(target)
@@ -135,7 +134,7 @@ def start_target(name, arguments, environment=()):
 
 
 def diagnose_gdb(pid):
-    """Read-only toy attachment: retain only fixed metadata and tool errors."""
+    """只读附加到玩具进程，仅保留固定元数据与工具错误，不保留内存或回溯。"""
     metadata = (
         "python import os,pathlib; print('DROP_GDB_UID='+str(os.geteuid())); "
         "print('DROP_GDB_CAPEFFECTIVE='+next(x.split(':',1)[1].strip() for x in pathlib.Path('/proc/self/status').read_text().splitlines() if x.startswith('CapEff:')))"
@@ -165,8 +164,7 @@ def diagnose_gdb(pid):
                           timeout=30, check=False)
         selected = []
         for line in (sampled.stdout + sampled.stderr).splitlines():
-            # No backtrace, evaluated pointers, source lines or memory bytes are
-            # retained. This process and every path belong to the explicit toy.
+            # 不保留回溯、求值指针、源码行或内存字节；进程和所有路径均属于明确的玩具夹具。
             if line.startswith(("DROP_GDB_", "Symbol \"PyMem_Malloc\"", "GDB's data directory", "warning:", "Warning:", "Error:", "error:", "BFD:", "Cannot ", "No symbol ", "Python Exception", "Traceback ", "PermissionError:", "OSError:", "FileNotFoundError:", "gdb.MemoryError:", "gdb.error:")):
                 selected.append(re.sub(r"0x[0-9a-fA-F]+", "<address>", line[:2000]))
         result[name] = {"returncode":sampled.returncode, "diagnostics":selected[:64],
@@ -295,8 +293,8 @@ try:
             if diagnostic.is_file():
                 text = diagnostic.read_text(errors="replace")
                 if kind == "MEMORY_TRACE":
-                    # execute merges private trace stdout/stderr. Keep only
-                    # errors in the diagnostic artifact, never stack/RAW rows.
+                    # execute 会合并私有 trace 的 stdout/stderr；诊断制品只保留错误，
+                    # 不能保存调用栈或 RAW 记录行。
                     text = "\n".join(line for line in text.splitlines() if any(word in line.lower() for word in ("error", "failed", "permission", "denied", "warning", "not permitted", "read-only")))
                 (OUTPUT / (name + "-tool-diagnostic.txt")).write_text(text[-5000:])
         if result.get("ok"):
@@ -329,8 +327,7 @@ try:
         print(json.dumps({key:result[key] for key in ("kind", "category", "ok", "size", "error_code") if key in result}), flush=True)
         (OUTPUT / "evidence.json").write_text(json.dumps(reports, indent=2) + "\n")
     if diagnostic_only == memray_diagnostic_only == stack_diagnostic_only == "false" and ("MEMORY_TRACE", "alloc") in cases:
-        # Diagnose multi-uprobe support separately from the production Runner. The
-        # glob list must resolve to exactly the requested allocator symbol first.
+        # multi-uprobe 能力与生产 Runner 分开诊断；glob 列表必须先精确解析到所请求分配器符号。
         maps = execute(["cat", "/proc/" + str(io) + "/maps"]).stdout.splitlines()
         libc = next(line[line.index("/"):] for line in maps if "libc.so" in line and "/" in line)
         library = "/proc/" + str(io) + "/root" + libc

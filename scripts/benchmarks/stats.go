@@ -1,3 +1,5 @@
+// 统计受控 Core 心跳基准的成功延迟、调度排队延迟和吞吐，失败按固定错误码单独计数。
+// 这些样本来自合成负载，不能当作业务请求延迟；没有成功样本时百分位应为空，而不是捏造零延迟。
 package main
 
 import (
@@ -41,6 +43,8 @@ func ranks(values []float64) percentiles {
 	return percentiles{value(.50), value(.95), value(.99)}
 }
 
+// summarize 只对成功 RPC 计算延迟分位，失败次数和错误码单独保留。
+// 吞吐使用完整测量窗口，不能只取成功调用耗时之和，也不能把失败样本当作零延迟成功。
 func summarize(samples []sample, elapsed time.Duration) statistics {
 	result := statistics{Attempted: len(samples), ElapsedSeconds: elapsed.Seconds(), FailureCodes: map[string]int{}}
 	var latency, queued []float64

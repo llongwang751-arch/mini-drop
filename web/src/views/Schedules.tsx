@@ -1,3 +1,7 @@
+/**
+ * 计划任务表单与运行记录：时区、Cron 和任务模板都交给服务端持久化与触发。
+ * 页面中的倒计时或列表刷新不会代替后端调度，禁用计划也不等于删除历史执行记录。
+ */
 import TargetFields, {
   emptyTarget,
   targetPayload,

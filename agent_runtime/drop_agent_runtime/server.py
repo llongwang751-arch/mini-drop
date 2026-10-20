@@ -1,4 +1,8 @@
-"""Private Linux Unix-socket control endpoint; no DB, file, shell or MCP tools."""
+"""Linux 私有 Unix socket 控制入口，不提供数据库、文件、shell 或 MCP 工具。
+
+先核对内核给出的对端 UID，再解析有界请求；调用方断连会取消本次 SDK 任务。
+就绪信息与固定错误码可返回 Go，供应商异常及配置内容不能进入响应或日志。
+"""
 
 import asyncio
 import os
@@ -32,6 +36,7 @@ def health() -> dict:
 
 
 def validate_socket_parent(path: Path, *, owner_uid: int, group_gid: int) -> None:
+    """核对 socket 父目录的属主与权限，防止非可信进程替换本机控制入口。"""
     if not path.is_absolute():
         raise ValueError("invalid runner socket directory")
     try:
@@ -57,6 +62,10 @@ class Server:
     async def handle(
         self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter
     ) -> None:
+        """处理单连接：先校验 UID 与请求，再争取并发名额并驱动一次运行。
+
+        同时监听调用方 EOF；断连、服务停止或超时都应取消对应 SDK 任务，结束后释放运行登记与资源。
+        """
         current = asyncio.current_task()
         self.tasks.add(current)
         job = None
@@ -94,8 +103,7 @@ class Server:
                 request.capability,
             )
             job = asyncio.create_task(run_agent(request, self.config, gateway))
-            # A half-close is a cancellation too: normal Go HTTP clients keep
-            # the request connection open until they consume the response.
+            # 写端半关闭也视作取消；正常 Go HTTP 客户端会保持连接，直到完整读完响应。
             disconnected = asyncio.create_task(reader.read(1))
             done, _ = await asyncio.wait(
                 {job, disconnected}, return_when=asyncio.FIRST_COMPLETED
@@ -109,7 +117,7 @@ class Server:
             await send_response(writer, 200, response)
         except asyncio.CancelledError:
             raise
-        except Exception as failure:  # noqa: BLE001 -- SDK errors must be sanitized.
+        except Exception as failure:  # noqa: BLE001 -- SDK 异常必须脱敏。
             code = (
                 failure.code
                 if isinstance(failure, ProtocolError)
@@ -149,6 +157,7 @@ class Server:
 
 
 async def serve(config: Config) -> None:
+    """绑定私有控制 socket 并管理服务关闭；不暴露公网 HTTP 端口或通用命令工具。"""
     if not health()["ready"] or not 1 <= config.max_concurrent <= 16:
         raise ValueError("invalid runner configuration")
     config.read_api_key()
@@ -181,8 +190,8 @@ async def serve(config: Config) -> None:
 def main() -> None:
     try:
         asyncio.run(serve(Config.from_env()))
-    except (Exception, KeyboardInterrupt):  # noqa: BLE001 -- never print SDK/config details.
-        # Never format an SDK exception or trusted config: it can contain a
-        # provider URL, request body or credential. Readiness tells Go failure.
+    except (Exception, KeyboardInterrupt):  # noqa: BLE001 -- 不输出 SDK 或配置细节。
+        # SDK 异常和配置可能携带供应商 URL、请求内容或凭据，不能格式化输出；
+        # Go 通过固定就绪信息判断失败。
         print("AGENT_RUNTIME_STOPPED", flush=True)
         raise SystemExit(1) from None

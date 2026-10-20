@@ -1,3 +1,6 @@
+/**
+ * 检查结构化目标参数，尤其区分容器内 PID 与宿主机 PID；这里不解析真实容器或进程。
+ */
 import { expect, it } from "vitest";
 import { emptyTarget, targetPayload } from "./TargetFields";
 it("separates container-local PID 1 from an unresolved host PID", () => {

@@ -1,3 +1,5 @@
+/* 全站基础层按 reset/base/components/responsive/workspace 分层，避免后导入页面样式意外盖过工作空间规范。
+ * 这里只定义视觉与响应式规则，状态含义来自页面数据，不能用颜色代替文字说明。 */
 @layer reset,base,components,responsive,workspace;
 @import "./styles/workspace.css" layer(workspace);
 @font-face {
@@ -12,6 +14,7 @@
     U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193,
     U+2212, U+2215, U+FEFF, U+FFFD;
 }
+/* 重置浏览器差异后再定义基础排版；保持后续组件在一致的盒模型上布局。 */
 @layer reset {
   *,
   *::before,
@@ -215,6 +218,7 @@
     margin-bottom: 0;
   }
 }
+/* 共享组件层覆盖基础标签，但工作空间专用层仍在其后，便于逐步统一视觉规范。 */
 @layer components {
   .skip-link {
     position: fixed;

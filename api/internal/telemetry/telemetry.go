@@ -1,3 +1,5 @@
+// Package telemetry：连接 HTTP、gRPC、任务 trace 与 Prometheus 指标，帮助观察跨服务调用链。
+// 标签使用固定路由和低基数类别；trace 传播用于关联工作，不承载认证或目标授权。
 package telemetry
 
 import (
@@ -153,6 +155,8 @@ func HTTPLabels(method, route string, status int) (string, string, string) {
 	}
 	return method, route, strconv.Itoa(status)
 }
+
+// TaskAttributes 构造跨服务任务关联属性，保留 task 与 attempt 的区别；trace 用于观测，不作为权限或租约凭据。
 func TaskAttributes(id int64) []attribute.KeyValue {
 	return []attribute.KeyValue{attribute.String("task.id", fmt.Sprint(id))}
 }

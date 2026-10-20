@@ -1,3 +1,7 @@
+/**
+ * 同源 API 客户端：统一请求标识、CSRF、幂等键、超时与取消信号。
+ * 认证依赖浏览器的同源会话 Cookie；CSRF 只保留在内存，不在浏览器保存后端长期密钥。
+ */
 import type { Auth } from "./types";
 export class APIError extends Error {
   code: string;
@@ -15,9 +19,10 @@ export class APIError extends Error {
     this.status = status;
   }
 }
+// 会话 Cookie 由浏览器自动携带；此值仅是写请求的 CSRF 防护材料，不是长期访问密钥。
 let csrf = "";
 const kindLabels = new Map<string, string>();
-// getRandomValues is available on plain IP HTTP origins, unlike randomUUID.
+// 兼容直接通过 IP/HTTP 访问的部署：getRandomValues 可用，randomUUID 则可能要求安全上下文。
 export function newIdempotencyKey(): string {
   const b = crypto.getRandomValues(new Uint8Array(16));
   b[6] = (b[6] & 15) | 64;
@@ -45,6 +50,7 @@ export async function api<T>(
   } = options;
   if (!Number.isFinite(timeoutMs) || timeoutMs < 1 || timeoutMs > 120000)
     throw new RangeError("请求超时须为 1–120000 毫秒");
+  // 请求 ID 用于跨服务排查；幂等键用于识别同一次业务提交，二者不能互相替代。
   const headers = new Headers(options.headers);
   const requestId = headers.get("X-Request-ID") || newIdempotencyKey();
   headers.set("X-Request-ID", requestId);
@@ -54,6 +60,7 @@ export async function api<T>(
     if (idempotencyKey) headers.set("Idempotency-Key", idempotencyKey);
     else if (idempotent) headers.set("Idempotency-Key", newIdempotencyKey());
   }
+  // 合并调用者取消与本请求超时：同一个 fetch 只接收一个 signal，但保留原取消原因。
   const controller = new AbortController();
   const cancel = () => controller.abort(callerSignal?.reason);
   if (callerSignal?.aborted) cancel();
@@ -64,7 +71,7 @@ export async function api<T>(
     controller.abort(new DOMException("Request timed out", "TimeoutError"));
   }, timeoutMs);
   const cancellation = () => {
-    // A user/navigation cancellation takes precedence over a later timer.
+    // 用户取消或离开页面的意图优先于稍后触发的超时，避免把主动取消误报成服务故障。
     if (callerSignal?.aborted) throw callerSignal.reason;
     if (timedOut)
       throw new APIError(
@@ -102,6 +109,7 @@ export async function api<T>(
       );
     }
     cancellation();
+    // 认证过期通知应用外壳清理缓存；其他业务错误仍保留服务端 code/request_id 便于定位。
     if (!response.ok) {
       if (response.status === 401 && !path.startsWith("/auth/"))
         window.dispatchEvent(new Event("drop:unauthorized"));
@@ -122,6 +130,7 @@ export async function api<T>(
     }
     return body.data as T;
   } finally {
+    // 成功、失败和取消都走 finally，清掉监听器，避免已完成请求继续持有页面对象。
     clearTimeout(timer);
     callerSignal?.removeEventListener("abort", cancel);
   }

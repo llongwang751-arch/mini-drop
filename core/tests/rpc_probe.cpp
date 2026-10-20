@@ -34,16 +34,16 @@ std::shared_ptr<grpc::Channel> channel(const char *cert, const char *key,
   if (address.empty()) {
     address = secret("DROP_SERVER_ADDRESS", "drop-server:50051");
   } else {
-    // Both isolated Server replicas use the same explicitly mounted identity.
+    // 两个隔离Server副本使用同一个显式挂载的身份，控制证书差异这一变量。
     arguments.SetSslTargetNameOverride("drop-server");
   }
   return grpc::CreateCustomChannel(address, grpc::SslCredentials(tls),
                                    arguments);
 }
-} // namespace
+} // 结束匿名命名空间
 
-// Explicit operational regression probe. It creates and removes its own scoped
-// database fixtures, and is deliberately not part of default offline CTest.
+// 显式运行的运维回归探针，会创建并删除自己限定范围内的
+// 数据库夹具，因此不放入默认离线CTest中。
 int main() {
   std::string task_id, user_id = "core-probe-" + std::to_string(getpid());
   std::unique_ptr<Database> db;
@@ -199,9 +199,9 @@ int main() {
             "Disabled state was overwritten");
     db->exec("UPDATE agents SET status='online' WHERE id=$1", {agent_id});
     if (secret("TEST_ONLY_DISPATCH_RACE") != "true") {
-      // The two sweepers must commit one transition and one event, even when
-      // both observe the same expired heartbeat. Re-registration starts a new
-      // outage, rather than reusing or multiplying the preceding event.
+      // 即使两个清扫器同时看到心跳过期，也只能提交一次状态迁移和事件；
+      // 再注册后发生的新失联属于新一轮故障，
+      // 不能复用或重复放大上一轮的事件。
       db->exec("DELETE FROM agent_events WHERE agent_id=$1", {agent_id});
       for (int outage = 1; outage <= 2; ++outage) {
         db->exec(
@@ -405,8 +405,8 @@ int main() {
     db->exec("DELETE FROM artifacts WHERE task_id=$1::bigint", {task_id});
     const bool dispatch_only = secret("TEST_ONLY_DISPATCH_RACE") == "true";
     if (!dispatch_only) {
-      // A grant requires the new artifact; old Agents have no such grant and
-      // remain valid. Failed validation must roll back RAW and job insertion.
+      // 收到新能力授权时才要求新制品；旧Agent没有此授权，
+      // 仍可兼容。校验失败必须一并回滚RAW登记与分析job插入。
       const auto key =
           "manifest/tasks/" + task_id + "/attempts/2/collection-manifest.json";
       const auto manifest_grants =
@@ -478,8 +478,8 @@ int main() {
       db->exec("DELETE FROM analysis_jobs WHERE task_id=$1::bigint", {task_id});
       db->exec("DELETE FROM artifacts WHERE task_id=$1::bigint", {task_id});
       binary_result.clear_artifacts();
-      // This synthetic manifest fixture tests control-plane authorization. The
-      // actual Agent/PUT fixture separately verifies uploaded bytes and SHA.
+      // 此合成清单夹具用于控制面授权测试；真实Agent与PUT的
+      // 上传字节和SHA由另一组现场夹具独立验证，两类证据不能混用。
       const auto log_key = "raw/tasks/" + task_id + "/attempts/2/runner.log";
       const auto grants =
           "[{\"name\":\"runner.log\",\"kind\":\"LOG\",\"object_key\":\"" +
@@ -643,8 +643,8 @@ int main() {
           "UPDATE agents SET status='online',last_seen_at=now() WHERE id=$1",
           {agent_id});
       {
-        // Establish secondary mTLS before opening the race window; otherwise
-        // handshake latency could accidentally serialize the negative control.
+        // 打开竞争窗口前先建立第二条mTLS连接，否则
+        // 握手延迟可能偶然把负控串行化，使真正的并发漏洞未被触发。
         dv::CollectRequest request;
         request.set_agent_id(agent_id);
         dv::HeartbeatResponse reply;
@@ -654,9 +654,9 @@ int main() {
                     reply.tasks_size() == 0,
                 "Secondary Server fixture connection failed");
       }
-      // Make the otherwise narrow race deterministic in this private DB. With
-      // no Agent row lock, both Server replicas pass the active-task check,
-      // then lock different QUEUED tasks and sleep before either can commit.
+      // 在私有数据库里把狭窄竞争窗口固定下来：没有
+      // Agent行锁时，两副本都能通过活动任务检查，
+      // 再锁住不同QUEUED任务并在提交前暂停，稳定复现错误并发下发。
       db->exec("CREATE FUNCTION drop_rpc_fixture_delay() RETURNS trigger "
                "LANGUAGE plpgsql AS $$ BEGIN PERFORM pg_sleep(0.4); RETURN "
                "NEW; END $$");
@@ -684,7 +684,7 @@ int main() {
         descriptor.set_task_id(std::stoll(queued.get(0, "id")));
         descriptor.set_attempt_id(std::stoll(queued_attempt.get(0, "id")));
         descriptor.set_target_agent_id(agent_id);
-        // Proto default zero models an N-1 API that cannot express priority.
+        // 用Proto默认0模拟上一版本API不能表达优先级的兼容场景。
         grpc::ClientContext context;
         timeout(context);
         require(control->CreateTask(&context, descriptor, &response).ok(),

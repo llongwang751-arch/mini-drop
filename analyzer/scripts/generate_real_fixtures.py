@@ -1,7 +1,6 @@
-"""Generate small profiles with actual tools in the isolated fixtures image.
+"""在隔离的夹具镜像中，使用真实工具生成小型 profile。
 
-Fixtures are imported test data, not profiles collected from production. The
-manifest records executable versions and the SHA-256 of every generated file.
+这些文件是导入测试数据，不是生产采集结果；manifest 记录工具版本及每个生成文件的 SHA-256。
 """
 
 import hashlib
@@ -150,7 +149,7 @@ int main(int argc,char**argv){void *blocks[32];for(int i=0;i<32;i++){blocks[i]=m
             },
         )
         shutil.copyfile(work / "jemalloc-fixture", FIXTURES / "jemalloc-target.elf")
-        # LLVM's instrumentation emits real fdata without requiring host perf.
+        # LLVM 插桩可直接生成真实 fdata，不要求宿主提供 perf。
         bolt = str(
             Path(shutil.which("llvm-bolt") or shutil.which("llvm-bolt-16")).resolve()
         )
@@ -167,8 +166,8 @@ int main(int argc,char**argv){void *blocks[32];for(int i=0;i<32;i++){blocks[i]=m
         )
         run([work / "instrumented", "cpu", work / "instrumented.profile"])
         shutil.copyfile(work / "native-fixture", FIXTURES / "bolt-target.elf")
-        # Real process observations in the frozen JSON schema. These explicit
-        # self-instrumented fixtures do not claim eBPF/tracefs Runner coverage.
+        # 按固定 JSON Schema 记录真实进程观测；这些显式自插桩夹具
+        # 不能作为 eBPF/tracefs Runner 已覆盖的证据。
         fixture_file = work / "io.fixture"
         events = []
         descriptor = os.open(fixture_file, os.O_RDWR | os.O_CREAT, 0o600)
@@ -275,8 +274,8 @@ int main(int argc,char**argv){void *blocks[32];for(int i=0;i<32;i++){blocks[i]=m
         (FIXTURES / "proc.folded").write_text(
             f"fixture-process;thread:{os.getpid()} {delta}\n"
         )
-        # Tool-specific CPU captures use isolated toy children and explicit
-        # capabilities granted only to the fixture container.
+        # 各工具 CPU 采集使用隔离的玩具子进程；所需 capabilities
+        # 只显式授予夹具容器。
         python_busy = work / "python_busy.py"
         python_busy.write_text(
             "import time\nend=time.monotonic()+3\nwhile time.monotonic()<end:\n sum(i*i for i in range(10000))\n"
@@ -332,8 +331,8 @@ int main(int argc,char**argv){void *blocks[32];for(int i=0;i<32;i++){blocks[i]=m
                 child.wait(timeout=5)
         perf_executable = os.environ.get("PERF_EXECUTABLE") or shutil.which("perf")
         if not os.environ.get("PERF_EXECUTABLE"):
-            # Ubuntu /usr/bin/perf is a kernel-version wrapper. Locate the
-            # actual packaged binary instead of assuming host/container match.
+            # Ubuntu 的 /usr/bin/perf 是内核版本包装器；应定位实际安装的二进制，
+            # 不能假定宿主与容器内核工具版本相同。
             for candidate in sorted(Path("/usr/lib").glob("linux-tools*/perf")):
                 if candidate.is_file():
                     perf_executable = str(candidate.resolve())

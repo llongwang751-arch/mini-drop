@@ -1,7 +1,7 @@
-"""Bounded pprof profile.proto decoder, including inline frames and labels.
+"""有界解析 pprof profile.proto，保留内联栈帧与标签。
 
-Wire field numbers follow github.com/google/pprof/proto/profile.proto. No
-application protobuf schema or generated service code is coupled to this parser.
+wire 字段号遵循 github.com/google/pprof/proto/profile.proto；该解析器不耦合
+平台自己的 protobuf 契约或生成的服务代码。
 """
 
 import gzip

@@ -1,4 +1,4 @@
-"""Container probe uses no model and discloses only fixed readiness metadata."""
+"""容器就绪探针：不调用模型，仅检查并返回固定格式的运行信息。"""
 
 import asyncio
 import os
@@ -29,5 +29,5 @@ async def probe() -> None:
 if __name__ == "__main__":
     try:
         asyncio.run(asyncio.wait_for(probe(), 3))
-    except Exception:  # noqa: BLE001 -- container probe discloses only its exit status.
+    except Exception:  # noqa: BLE001 -- 容器探针只暴露退出状态。
         raise SystemExit(1) from None

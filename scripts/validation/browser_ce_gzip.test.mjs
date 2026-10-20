@@ -1,3 +1,4 @@
+// 显式构造的导入回执和合成签名，只验证元数据与授权路径边界，不读取 stage 账户或启动浏览器。
 import test from "node:test";
 import assert from "node:assert/strict";
 import { validateProof, validateGrant } from "./browser_ce_gzip.mjs";

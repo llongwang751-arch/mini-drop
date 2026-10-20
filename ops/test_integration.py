@@ -1,4 +1,4 @@
-"""Real isolated PostgreSQL/S3 deletion, corruption, orphan and lifecycle tests."""
+"""在隔离的真实 PostgreSQL/S3 环境验证删除、损坏、孤儿对象及生命周期行为。"""
 import hashlib
 import io
 import os
@@ -52,7 +52,7 @@ class StorageIntegration(unittest.TestCase):
         self.assertEqual(result['multipart_aborted'],1)
         self.assertEqual(list(self.storage.multipart()),[])
         self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM audit_logs').fetchone()['n'],5)
-        # A repeated pass neither invents additional events nor deletes valid inputs.
+        # 重复对账不得凭空增加事件，也不能删除仍有效的输入对象。
         again = reconcile(self.repo,self.storage,orphan_grace=timedelta(seconds=0))
         self.assertEqual(again['expired'],0); self.assertEqual(again['orphans'],0)
         self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM audit_logs').fetchone()['n'],5)

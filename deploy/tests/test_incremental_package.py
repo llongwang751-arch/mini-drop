@@ -1,3 +1,5 @@
+"""验证增量交付白名单、敏感内容扫描及归档边界，输入均为本地合成夹具，不连接服务器。"""
+
 import importlib.util
 from pathlib import Path
 import unittest

@@ -1,4 +1,4 @@
-"""Linux kernel Unix-socket tests with imported synthetic model/tool fixtures."""
+"""使用导入的合成模型与工具夹具，验证 Linux 内核的 Unix socket 身份及取消语义。"""
 
 import asyncio
 import os
@@ -98,8 +98,7 @@ class UnixTests(unittest.IsolatedAsyncioTestCase):
                 if not reader.at_eof():
                     await send_response(writer, 200, response)
             except (OSError, ProtocolError):
-                # Peer rejection and cancellation deliberately close a
-                # connection before its imported fixture handler can reply.
+                # 对端拒绝与取消会主动关闭连接，合成夹具的处理器可能尚未来得及回复。
                 pass
             finally:
                 self.callback_jobs.discard(current)

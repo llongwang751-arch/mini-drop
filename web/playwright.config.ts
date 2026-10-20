@@ -1,3 +1,7 @@
+/**
+ * 浏览器测试的共享默认值；具体套件再选择本地夹具或显式授权的集成环境。
+ * 不要把此配置存在默认地址理解成允许任意测试写入生产。
+ */
 import { defineConfig } from "@playwright/test";
 export default defineConfig({
   testDir: "./e2e",

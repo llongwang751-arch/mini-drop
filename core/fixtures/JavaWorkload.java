@@ -1,4 +1,4 @@
-// Instrumented toy; heap bounded so HPROF tests fit the small build host.
+// 显式接入采集的玩具负载；限制堆大小，让HPROF测试适用于小型构建宿主，不代表真实业务规模。
 import java.util.ArrayList;
 public class JavaWorkload {
     static volatile double sink;

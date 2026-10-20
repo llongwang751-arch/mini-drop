@@ -1,3 +1,5 @@
+"""以显式构造的格式夹具验证 HPROF 对象图与原生 profile 解析边界。"""
+
 import struct
 import tempfile
 import unittest
@@ -18,7 +20,7 @@ def record(tag, body):
 
 
 def hprof_fixture():
-    # Constructed HPROF-format golden graph, never labelled as a JVM capture.
+    # 显式构造的 HPROF 格式标准图，不标记为 JVM 现场采集。
     raw = b"JAVA PROFILE 1.0.2\0" + number(4) + number(123, 8)
     raw += (
         record(1, number(50) + b"FixtureNode")

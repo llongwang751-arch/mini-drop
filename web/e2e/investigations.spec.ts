@@ -1,7 +1,10 @@
+/**
+ * 调查计划、复测与源码修复的 UI 状态机夹具；特别覆盖跨列表缓存读取关联详情的身份边界。
+ */
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-// Explicit imported UI fixtures. Actual CRM/DeepSeek evidence is separate.
+// 显式导入的界面夹具；真实 CRM/DeepSeek 执行的证据独立保存。
 async function fixture(page: Page, admin = true, project = "crm-python") {
   const saber = project === "saber-python",
     pid = saber ? 42 : 41;
@@ -290,8 +293,8 @@ test("a second enrolled project binds its own identity without overwriting the u
   expect(f.errors).toEqual([]);
 });
 
-// Imported fixtures reproduce a list-cache race: the linked Saber record is
-// available only from its identity-scoped detail API; the list still has CRM.
+// 导入夹具复现列表缓存竞争：列表仍保留 CRM，而关联的 Saber 记录
+// 只能通过按自身 ID 读取的详情接口获得，页面不能拿列表缓存替代身份校验。
 async function staleLinkedSource(page: Page) {
   const f = await fixture(page, true, "saber-python");
   const report = (summary: string, project: string, path: string) => ({

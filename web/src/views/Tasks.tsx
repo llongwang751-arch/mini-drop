@@ -1,3 +1,7 @@
+/**
+ * 任务列表、筛选、对比和批量恢复入口；查询键包含筛选条件，避免不同页面共享错缓存。
+ * 批量操作逐项重新确认权限与状态，部分失败不会被当作整批成功。
+ */
 import { useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";

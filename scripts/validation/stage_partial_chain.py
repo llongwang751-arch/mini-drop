@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Stage-only real partial checkpoint/final-commit fault acceptance manager.
+"""仅在 stage 验证真实部分检查点与最终提交故障的验收管理器。
 
-No Docker/SSH, arbitrary endpoint/task/key, runtime patch or synthetic DB result.
-Only fixed imported data, one new task, its own DDL and four exact orphan keys.
+不接受 Docker/SSH、任意端点/任务/键、运行时补丁或合成数据库结果；
+只操作固定导入数据、本次新任务、自建 DDL 和四个精确孤儿对象键。
 """
 
 from __future__ import annotations
@@ -285,7 +285,7 @@ class Database:
             row = self.row(connection, state["task_id"], lock=True)
             validate_row(row, state, prepared=True)
             require(not self.fingerprints(connection, state["run_id"]), "PARTIAL_DDL_ALREADY_EXISTS")
-            # Also reject collisions with another relation or trigger table.
+            # 同时拒绝与其他 relation 或触发器所属表的名称冲突。
             for kind, name in n.items():
                 if kind == "function":
                     continue
@@ -312,7 +312,7 @@ class Database:
                 sql.Identifier(n["trigger"]), sql.Literal(int(state["task_id"])), sql.Literal(int(state["attempt_id"])), q("function")))
             state.update(phase="prepared", objects=self.fingerprints(connection, state["run_id"]))
             require(set(state["objects"]) == {"trigger", "function", "sequence"}, "PARTIAL_DDL_IDENTITY_REJECTED")
-            journal.save(state)  # durable ownership before CREATE transaction commits
+            journal.save(state)  # CREATE 事务提交前先持久记录本次归属。
 
     def facts(self, state):
         with self.connect() as connection:
@@ -338,7 +338,7 @@ class Database:
             expected = state.get("objects", {})
             require(all(kind in expected and value == expected[kind] for kind, value in actual.items()), "PARTIAL_DDL_IDENTITY_REJECTED")
             n = names(state["run_id"])
-            # No CASCADE; all identities are checked before any drop.
+            # 不用 CASCADE；任何 drop 之前先核对所有对象身份。
             if "trigger" in actual:
                 connection.execute(self.sql.SQL("DROP TRIGGER {} ON public.artifacts").format(self.sql.Identifier(n["trigger"])))
             if "function" in actual:
@@ -410,7 +410,7 @@ def clean_orphans(database, storage, journal, state):
     if not records:
         records = [record for key in allowed if (record := storage.inspect(key)) is not None]
         state["orphans"] = records
-        journal.save(state)  # durable exact list before any destructive action
+        journal.save(state)  # 删除前先持久记录精确对象清单，恢复时只操作本次拥有的对象。
     require(all(not database.referenced(record["key"]) for record in records), "PARTIAL_OBJECT_REFERENCED")
     for record in records:
         require(not database.referenced(record["key"]), "PARTIAL_OBJECT_REFERENCED")
@@ -460,8 +460,8 @@ def cleanup(database, storage, journal, run_id):
         state = {"run_id": run_id, "objects": {}}
     else:
         state = journal.load()
-    # Orphan deletion requires the real final-failure fence; otherwise retain
-    # unknown/in-flight bytes. DDL cleanup still always runs in the finally.
+    # 只有核实真实最终失败栅栏后才删除孤儿；否则保留归属未知或仍在途的字节。
+    # DDL 清理仍在 finally 中执行。
     try:
         if all(name in state for name in IDS):
             row = database.snapshot(state["task_id"])
@@ -480,7 +480,7 @@ def main(argv=None):
     parser.add_argument("--run-id", required=True)
     args = parser.parse_args(argv)
     require(sys.platform == "linux" and os.geteuid() == 0, "PARTIAL_MANAGER_HOST_REJECTED")
-    read_scope(args.run_id)  # before any credential, SQL or HTTP access
+    read_scope(args.run_id)  # 在读取任何凭据或执行 SQL/HTTP 前先验证操作边界。
     logging.disable(logging.CRITICAL)
     os.umask(0o077)
     import urllib3
@@ -508,7 +508,7 @@ if __name__ == "__main__":
             code = "PARTIAL_MANAGER_FAILED"
         print(json.dumps({"success": False, "error_code": code}))
         raise SystemExit(1) from None
-    except Exception as error:  # noqa: BLE001 -- no native message/body/URL/DSN
+    except Exception as error:  # noqa: BLE001 -- 不输出原始消息、正文、URL 或 DSN
         import traceback
         sdk_code = getattr(error, "code", None)
         sql_state = getattr(error, "sqlstate", None)

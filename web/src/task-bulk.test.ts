@@ -1,3 +1,6 @@
+/**
+ * 给批量执行器注入可控读写函数，检查权限刷新、并发上限和逐项结果，避免真实删除或重试。
+ */
 import { describe, expect, it } from "vitest";
 import type { Task } from "./types";
 import {

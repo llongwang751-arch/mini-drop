@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Annotate self-collected native fixture with its actual bounded record count.
+"""在资源上限内统计自采集原生夹具的真实记录数，补充来源元数据。
 
-This is fixture provenance, never a parser shortcut for imported/untrusted RAW.
-Analyzer must independently inspect the native file before reporting any loss.
+此脚本记录夹具来源，不为导入或不可信 RAW 提供绕过解析的捷径。
+Analyzer 在报告任何丢失信息前，仍须独立检查原生文件。
 """
 import hashlib
 import json

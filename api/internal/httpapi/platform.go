@@ -1,3 +1,5 @@
+// Package httpapi：注册组成员、目标授权、共享、组合任务与 OIDC 接口。
+// 资源共享不等于授予执行权限；列表、详情和管理动作分别使用当前用户的可见范围或管理能力。
 package httpapi
 
 import (

@@ -1,3 +1,6 @@
+// Package service：Go 与独立 Python AgentScope 之间的控制协议和授权网关。
+// 每次运行使用随机 capability、阶段工具白名单与硬预算；Python 发出模型和工具回调，Go 重新核验租约、目标、权限和最终结果。
+// 结果按原始 JSON 数值词法严格比对，不能用浮点重编码或自报运行证明掩盖内容变化。
 package service
 
 import (
@@ -22,7 +25,7 @@ import (
 	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 
-// AgentRuntime is control-plane metadata, never a model-authored report field.
+// AgentRuntime 是控制平面生成的运行证明，不是模型可以撰写或覆盖的报告字段。
 type AgentRuntime struct {
 	Framework        string          `json:"framework"`
 	FrameworkVersion string          `json:"framework_version"`
@@ -97,6 +100,8 @@ type cachedAgentCallback struct {
 	Response []byte
 }
 
+// agentSession 持有一次 runner 调用的临时能力、阶段 schema、预算、回放缓存和 Go 已接受结果。
+// 互斥锁串行化回调，防止两个模型动作同时通过旧计数；会话注销后 capability 立即失效。
 type agentSession struct {
 	mu          sync.Mutex
 	ctx         context.Context
@@ -114,8 +119,8 @@ type agentSession struct {
 	schemas     map[string]*jsonschema.Schema
 }
 
-// AgentRunner delegates the real model loop to AgentScope. Only its temporary
-// callback capability can reach a registered, phase-bound Go tool closure.
+// AgentRunner 将真正的模型和工具循环交给 AgentScope。
+// 只有本次运行的临时 capability 能访问已登记且绑定阶段的 Go 工具闭包；模型没有数据库或执行器凭据。
 type AgentRunner struct {
 	mu       sync.Mutex
 	sessions map[string]*agentSession
@@ -128,6 +133,8 @@ func validAgentSocket(socket string) bool {
 	return filepath.IsAbs(socket) && len(socket) <= 200 && !strings.ContainsAny(socket, "\x00\r\n")
 }
 
+// NewAgentRunner 创建两条独立 Unix socket 通路，并核验 Python UID 与网关目录边界。
+// 模型密钥只属于 runner 配置；Go 在这里注册临时工具会话，不向 Python 提供数据库或执行器连接。
 func NewAgentRunner(runnerSocket, gatewaySocket string) (*AgentRunner, error) {
 	if !validAgentSocket(runnerSocket) || !validAgentSocket(gatewaySocket) || runnerSocket == gatewaySocket {
 		return nil, errors.New("invalid AgentScope socket configuration")
@@ -173,6 +180,8 @@ func decodeAgentJSON(data []byte, out any) bool {
 	return d.Decode(out) == nil && d.Decode(&tail) == io.EOF
 }
 
+// canonicalAgentJSON 规范化对象键和空白，同时用 UseNumber 保留数值词法与精度。
+// 0.000001、1e-6、-0 或超 float64 精度的小数不能在 Python 重编码后悄悄改变，再被宽松浮点比较掩盖。
 func canonicalAgentJSON(data []byte) ([]byte, bool) {
 	var value any
 	d := json.NewDecoder(bytes.NewReader(data))
@@ -200,6 +209,8 @@ func safeAgentError(err error) string {
 	return "AGENT_RUNTIME_ERROR"
 }
 
+// ServeHTTP 处理私有工具回调，先验证 capability、请求上限和固定字段，再在会话锁内校验回放、轮次、schema 与业务栅栏。
+// 相同 call_id 与相同规范请求重放只返回缓存；相同 ID 携带不同内容会撤销整次运行，不能重复执行副作用。
 func (r *AgentRunner) ServeHTTP(w http.ResponseWriter, request *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	deny := func(status int, code string) {
@@ -259,6 +270,8 @@ func (r *AgentRunner) ServeHTTP(w http.ResponseWriter, request *http.Request) {
 	_, _ = w.Write(encoded)
 }
 
+// callback 在 Go 侧保留模型调用、工具调用和最终报告的最后决定权。
+// model_start 先预留连续轮次，tool 独立校验阶段与参数，finish 通过后封存 accepted 结果；封存后不能追加模型或工具。
 func (s *agentSession) callback(call agentCallback) map[string]any {
 	fail := func(code string) map[string]any {
 		s.cancel(domain.Fail(code, "AgentScope运行协议或预算无效"))
@@ -367,6 +380,8 @@ func validAgentUsage(raw json.RawMessage) bool {
 	return true
 }
 
+// Run 为一次阶段生成随机 capability 和公开 run_id，启动来源栅栏轮询并调用独立 runner。
+// 取消或撤权会关闭上游 context 并注销能力；返回时严格核对 accepted JSON、框架证明和独立计数，不能信任 Python 单方面宣称成功。
 func (r *AgentRunner) Run(ctx context.Context, spec agentRunSpec) (json.RawMessage, *AgentRuntime, error) {
 	if r == nil {
 		return nil, nil, domain.Fail("AGENT_RUNTIME_UNAVAILABLE", "AgentScope未配置")
@@ -393,7 +408,7 @@ func (r *AgentRunner) Run(ctx context.Context, spec agentRunSpec) (json.RawMessa
 		r.mu.Lock()
 		delete(r.sessions, id)
 		r.mu.Unlock()
-		// Wait for an executor callback to unwind before worker finalization.
+		// 工作器收尾前，等待仍在执行的工具回调退出，避免终态落库后旧回调继续写入。
 		session.mu.Lock()
 		session.mu.Unlock()
 	}()
@@ -467,8 +482,8 @@ func (r *AgentRunner) Run(ctx context.Context, spec agentRunSpec) (json.RawMessa
 	return append(json.RawMessage(nil), session.accepted...), &m, nil
 }
 
-// The private runner emits a fixed application enum on failure. Never retain
-// its response body, SDK exception text, arbitrary enum, or additional fields.
+// 私有 runner 失败时只返回固定的应用错误枚举。
+// 不得保存响应正文、SDK 异常原文、任意枚举或额外字段；诊断字段也必须单独经过白名单校验。
 func agentRuntimeFailure(status int, raw []byte, budget agentBudget) error {
 	fallback := domain.Fail("AGENT_RUNTIME_ERROR", "AgentScope响应无效")
 	if status < 400 || status > 599 || len(raw) > 512 {
@@ -536,6 +551,8 @@ func cleanAgentSocket(socket string) bool {
 	return err == nil && info.IsDir() && info.Mode()&os.ModeSymlink == 0 && info.Mode().Perm()&0022 == 0
 }
 
+// compileAgentTools 把 Go 权威工具定义编译为独立 JSON Schema，确保 Python 和 Go 两侧都验证参数。
+// 工具名称限定本阶段，不能从模型输出扩展；先转换 Go 容器类型再编译，避免 required 列表被误解。
 func compileAgentTools(phase string, tools []map[string]any) (map[string]*jsonschema.Schema, error) {
 	schemas := map[string]*jsonschema.Schema{}
 	for _, tool := range tools {
@@ -549,8 +566,8 @@ func compileAgentTools(phase string, tools []map[string]any) (map[string]*jsonsc
 		}
 		compiler := jsonschema.NewCompiler()
 		uri := "https://drop.invalid/agent-tools/" + name
-		// The compiler accepts JSON value types. Definitions authored in Go
-		// contain []string for required, which must become JSON's []any first.
+		// JSON Schema 编译器只接受标准 JSON 值类型。Go 中手写的 required 使用 []string，
+		// 必须先序列化再反序列化为 JSON 的 []any，才能正确编译 planning 与 repair 工具约束。
 		raw, err := json.Marshal(function["parameters"])
 		var document any
 		if err != nil || json.Unmarshal(raw, &document) != nil || compiler.AddResource(uri, document) != nil {

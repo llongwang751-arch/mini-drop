@@ -1,3 +1,5 @@
+// Package httpapi：有界内存固定窗口限流器，供没有仓储依赖的路由测试使用。
+// 它不承担多实例生产配额，生产准入以共享仓储为准。
 package httpapi
 
 import (

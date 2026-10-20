@@ -1,3 +1,8 @@
+// 生成采集端制品清单，用固定允许字段记录版本、质量、文件大小及SHA等可追溯信息。
+// 该清单属于采集阶段，不是Analyzer生成的结果清单；两者职责与对象键独立。
+// 清单不包含预签名URL、凭据、业务路径或完整stderr，避免“增加证据”反而泄漏原始现场。
+// 恢复时重传同一份已冻结字节，让哈希校验与幂等登记保持一致。
+
 #include "drop/manifest.hpp"
 #include <algorithm>
 #include <set>
@@ -18,7 +23,7 @@ std::string version(const std::string &input) {
     return "unavailable";
   return value;
 }
-} // namespace
+} // 结束匿名命名空间
 std::string build_collection_manifest(const CollectionManifest &context) {
   using json = nlohmann::json;
   const std::string alphabet =
@@ -114,4 +119,4 @@ std::string build_collection_manifest(const CollectionManifest &context) {
     throw std::invalid_argument("Collection manifest byte budget exceeded");
   return serialized;
 }
-} // namespace dropcore
+} // 结束 dropcore 命名空间

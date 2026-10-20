@@ -1,3 +1,7 @@
+/**
+ * 本地/指定预览环境的辅助登录脚本，不是日常前端测试的默认入口。
+ * 执行时会使用配置的凭据，不能将登录态或密码复制到公开证据目录。
+ */
 import { chromium } from "playwright";
 import { mkdir } from "node:fs/promises";
 const browser = await chromium.launch();

@@ -1,3 +1,4 @@
+// Package repository：有界清理会话、OIDC 状态与限流窗口等临时记录，不处理生产制品卷或业务结果。
 package repository
 
 import "context"

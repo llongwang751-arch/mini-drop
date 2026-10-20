@@ -1,3 +1,6 @@
+-- 追加平台层身份、共享授权、调度与审计等结构；实际授权判断仍由API统一执行。
+-- 数据库约束负责兜底数据形状，不能把“SQL插入成功”理解成已通过用户权限检查。
+
 BEGIN;
 SELECT pg_advisory_xact_lock(41762,2);
 ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check;

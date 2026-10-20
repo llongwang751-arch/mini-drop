@@ -1,3 +1,5 @@
+// Package service：把浏览器提交的目标与 Agent 最近上报的资源策略对照。
+// 用户能看到进程不代表可随意指定 PID、端口或能力；规范目标身份要在入库前归一化并验证。
 package service
 
 import (
@@ -6,6 +8,7 @@ import (
 	"strings"
 )
 
+// validateTargetResources 把请求目标与 Agent 上报的规范资源清单、语言和能力策略对照，不能接受客户端凭空指定的进程、端口或其他目标。
 func validateTargetResources(in *domain.CreateTask, raw json.RawMessage) *domain.Error {
 	var resource struct {
 		Processes []struct {

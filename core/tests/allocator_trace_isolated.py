@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Real malloc/free helper regression; all processes and artifacts are isolated.
+"""真实 malloc/free Helper 回归，所有进程和制品均位于隔离环境。
 
-Uses a freshly built helper and the explicitly synthetic UID10001 I/O workload.
-RAW stays in the bounded private spool. The receipt contains counts and digests.
-Load the dedicated Helper and target profiles before running on an AppArmor host.
+使用新构建 Helper 与明确的合成 UID10001 I/O 负载；RAW 保留在有界私有 spool，
+收据只含计数与摘要。在启用 AppArmor 的宿主运行前，需要加载专用 Helper 和目标策略。
 """
 import json
 import os
@@ -158,12 +157,12 @@ try:
         receipt.write_text(json.dumps({'cases': reports, 'scope': 'isolated_actual_helper'}, indent=2) + '\n')
         print(json.dumps({'case': mode, 'passed': True, 'wall_seconds': item['wall_seconds']}), flush=True)
 finally:
-    # Leave private RAW for receipt auditing; remove only our labelled containers.
+    # 保留私有 RAW 供收据审计，只删除带本次归属标签的容器。
     cleanup = []
     if name in started:
         label = command(['docker', 'inspect', '--format', '{{index .Config.Labels "io.drop.owner"}}', name], check=False)
         if label.returncode == 0 and label.stdout.strip() == owner:
-            # Keep the target alive until the Helper has canceled and detached.
+            # 目标进程需保持存活，直到 Helper 完成取消和解除附加。
             command(['docker', 'stop', '--time', '8', name], timeout=15, check=False)
     for container in reversed(started):
         label = command(['docker', 'inspect', '--format', '{{index .Config.Labels "io.drop.owner"}}', container], check=False)

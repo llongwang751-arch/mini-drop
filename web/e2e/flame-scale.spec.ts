@@ -1,3 +1,7 @@
+/**
+ * 大规模合成调用树的真实 Worker 浏览器验收，观察完整节点保留、虚拟滚动和可交互性。
+ * 夹具的节点数可复现，但不是业务系统采集结果或性能基准。
+ */
 import { test, expect } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { createHash } from "node:crypto";
@@ -57,9 +61,9 @@ const hashes = (files: string[]) =>
   );
 const sourcesAtStart = hashes(sourceFiles);
 
-// Explicit imported synthetic input, never presented as a measured profile.
-// A 96-frame spine gives genuine offscreen depths; each node has consistent
-// inclusive/self weights. Small leaves also exercise subpixel render culling.
+// 显式导入的合成输入，不将它冒充实测 profile。
+// 构造 96 层调用链以覆盖真正的视口外深度，并保持节点总计/自身权重一致。
+// 细小叶节点还用于验证低于像素阈值的渲染裁剪，不改变原始数据。
 function fixtureTree(count: number) {
   const tree: TreeNode = { name: "all", value: 0, self: 0, children: [] };
   const spine: TreeNode[] = [];
@@ -113,8 +117,8 @@ async function installProbe(page: Page, expectedNodes: number) {
           probe.result_fetch_started_at = performance.now();
         return nativeFetch(input, init);
       };
-      // This is instrumentation around a real browser Worker, not a Worker mock:
-      // native construction, source, arguments, transfer and messages are unchanged.
+      // 只给真实浏览器 Worker 加观测记录，不用假 Worker 替代：
+      // 原生构造过程、脚本、参数、转移对象和消息内容均保持不变。
       const NativeWorker = window.Worker;
       class ObservedNativeWorker extends NativeWorker {
         measurement?: WorkerRecord;

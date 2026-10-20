@@ -1,3 +1,7 @@
+/**
+ * 节点能力与诊断证据视图：可用采集器来自节点自检结果，而不是“安装过工具”的推断。
+ * 资源诊断由用户显式触发，节点启停等管理操作还受后端平台管理员授权约束。
+ */
 import { useContext, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, dateTime } from "../api";

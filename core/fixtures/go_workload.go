@@ -1,4 +1,5 @@
-// Instrumented toy: standard Go pprof on a loopback-only listener.
+// 这是用于采集验收的可控 Go 合成负载，不是业务服务或生产性能证据。
+// 标准库 pprof 仅监听回环地址；持续计算和有界保留内存让 CPU、分配与堆采样具备稳定可观察目标。
 package main
 
 import (
@@ -12,6 +13,7 @@ import (
 var retained [][]byte
 var sink float64
 
+// goFixtureHotspot 保留独立热点函数，便于核验采集栈能否定位到预期符号；不得移除下面的编译器指令。
 //go:noinline
 func goFixtureHotspot(seed float64) float64 {
 	for i := 0; i < 200000; i++ {

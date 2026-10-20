@@ -1,3 +1,6 @@
+/**
+ * 直接调用真实布局函数检查完整节点与深度索引；原生 Worker 调度由浏览器套件另测。
+ */
 import { describe, expect, it } from "vitest";
 import { buildFlameLayout } from "./flame.worker";
 import { graphHeight, visibleDepthRange } from "./Flamegraph";

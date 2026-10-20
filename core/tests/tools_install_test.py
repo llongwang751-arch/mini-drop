@@ -1,4 +1,4 @@
-"""Build input rejection checks; no compiler, network or real /opt write required."""
+"""验证构建输入拒绝规则，不运行编译器、访问网络或写入真实 /opt。"""
 import os
 from pathlib import Path
 import subprocess
@@ -15,7 +15,7 @@ class OfflineProfilerInputTests(unittest.TestCase):
             archive = root / 'input.tar.gz'
             with archive.open('wb') as output:
                 output.truncate(size)
-            # Redirect only the fixed build output directory for the isolated test.
+            # 隔离测试只重定向固定构建输出目录，不改变真实工具安装目标。
             self.assertEqual(source.count("pathlib.Path('/opt/drop-tools')"), 1)
             source = source.replace("pathlib.Path('/opt/drop-tools')", f'pathlib.Path({str(root / "tools")!r})')
             script = root / 'installer.py'

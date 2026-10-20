@@ -1,3 +1,7 @@
+/**
+ * 火焰图的纯数据处理：先验证树，再按线程、系统帧或自身开销生成展示视图。
+ * 保留原树作为证据源，且始终校验总计 = 自身 + 子节点总计，避免过滤后权重失真。
+ */
 import type { FlameNode } from "../types";
 
 export interface FlameOptions {
@@ -15,10 +19,11 @@ export interface FlameThread {
   sample_count: number;
 }
 
-// Explicit symbol conventions only. Unknown addresses and user frames stay.
+// 只识别明确的系统符号约定；未知地址和用户函数不能被猜测成系统栈后隐藏。
 export const systemFramePattern =
   /^(?:\[kernel(?:\.kallsyms)?\]|\[vdso\]|__x64_sys_|__arm64_sys_|__libc_|entry_SYSCALL|do_syscall_|el0_svc)/;
 
+// 使用显式栈校验，避免递归深度由不可信输入决定；环、重复引用和权重不守恒都拒绝。
 export function validateFlameTree(data: FlameNode) {
   const pending = [{ node: data, depth: 0 }];
   const seen = new Set<FlameNode>();
@@ -50,8 +55,7 @@ export function validateFlameTree(data: FlameNode) {
 }
 
 export function prepareFlameTree(data: FlameNode, options: FlameOptions = {}) {
-  // Validate the entire input before pruning so filters cannot hide malformed,
-  // cyclic or excessive branches from the resource bounds.
+  // 过滤前先校验整棵树；否则被过滤的分支可能藏住环、坏节点或超限数据，绕过资源保护。
   validateFlameTree(data);
   let root = data;
   if (options.threadRoot) {
@@ -83,14 +87,14 @@ export function prepareFlameTree(data: FlameNode, options: FlameOptions = {}) {
       ];
     };
     root = prune(root, true)[0];
-    // Preserve measured total weight; removed self cost is explicitly attributed
-    // to the displayed root instead of being reassigned to a business function.
+    // 保留测得的总权重；被隐藏帧的自身开销记到展示根节点，不能悄悄归给业务函数。
     root = {
       ...root,
       self: root.self + hiddenSelf,
       value: root.value + hiddenSelf,
     };
   }
+  // 自身开销视图按函数名聚合 self，不把包含子调用的 total 再累加造成重复计费。
   if (options.metric === "self") {
     const costs = new Map<string, number>();
     const pending = [root];
@@ -115,6 +119,7 @@ export function prepareFlameTree(data: FlameNode, options: FlameOptions = {}) {
   return { root, hiddenSelf, hiddenFrames };
 }
 
+// 关联路径始终从完整树计算，不能把当前 SVG 可见节点误当成全部调用关系。
 export function functionRelations(data: FlameNode, name: string) {
   validateFlameTree(data);
   const callers = new Map<string, number>();

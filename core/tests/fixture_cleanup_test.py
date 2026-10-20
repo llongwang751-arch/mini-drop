@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run actual fixture cleanup code against synthetic Docker metadata only."""
+"""只用合成 Docker 元数据执行真实夹具清理代码，不访问真实 daemon。"""
 import ast
 import pathlib
 import shutil
@@ -28,7 +28,7 @@ class FixtureCleanupTests(unittest.TestCase):
         source = (ROOT / "core/tests/rpc_isolated.sh").read_text(encoding="utf-8")
         start = source.index("cleanup() {\n")
         end = source.index("\n}\n", start) + 3
-        # This synthetic command never invokes Docker or mutates a filesystem.
+        # 该合成命令不调用 Docker，也不修改文件系统。
         stub = """
 owner=expected
 prefix=fixture
@@ -61,9 +61,8 @@ docker() {
             calls.append(arguments)
             return ""
 
-        # Only execute actual Docker cleanup statements, before the recovery
-        # fixture's separate filesystem/journal cleanup. No filesystem removal
-        # code is included in this synthetic-metadata test.
+        # 只执行恢复夹具中真实的 Docker 清理语句，不包含后续独立文件系统/日志清理；
+        # 此合成元数据测试不得删除任何宿主文件。
         statements = []
         for statement in attempt.finalbody:
             if isinstance(statement,ast.Import):

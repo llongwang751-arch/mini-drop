@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Actual V2 Runner perf_script plus native perf.data offline-import fixtures."""
+"""生成真实 V2 Runner perf_script 及原生 perf.data 离线导入夹具。
+
+采集目标是本脚本构建的合成业务进程，产物不代表生产现场或生产性能。
+"""
 import hashlib
 import json
 import os

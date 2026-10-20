@@ -1,4 +1,4 @@
-"""Verify database least privilege against an isolated real PostgreSQL container."""
+"""使用隔离的真实 PostgreSQL 容器核验数据库最小权限，不连接现有业务库。"""
 
 from __future__ import annotations
 
@@ -31,7 +31,7 @@ def main() -> None:
         if password in result.stdout or password in result.stderr:
             raise AssertionError("A database secret appeared in process output")
         if result.returncode and not allow_error:
-            # Never dump arbitrary database output or process arguments.
+            # 不输出任意数据库响应或进程参数。
             raise AssertionError("An isolated database test command failed")
         return result
 
@@ -72,8 +72,8 @@ def main() -> None:
                    "-e", "POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256", args.image)
             started = True
             for _ in range(60):
-                # The entrypoint's temporary initialization server uses only a
-                # Unix socket. Wait for the final TCP listener before testing.
+                # entrypoint 的临时初始化服务器仅使用 Unix socket；
+                # 必须等最终 TCP 监听启动后再测试，避免将初始化阶段误判为服务已就绪。
                 if docker("exec", name, "pg_isready", "-h", "127.0.0.1", "-U", "postgres", allow_error=True).returncode == 0:
                     break
                 time.sleep(0.25)

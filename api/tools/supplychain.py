@@ -1,8 +1,7 @@
-"""Collect exact image SBOMs and sign/verify a bounded offline release manifest.
+"""收集精确镜像的 SBOM，对有界离线发布 manifest 签名并验签。
 
-This does not publish images, contact Rekor/Fulcio, or claim CI/registry trust.
-Private keys live outside the repository in an access-restricted directory.
-Requires Python cryptography; the sbom subcommand additionally requires Syft.
+不会发布镜像、访问 Rekor/Fulcio 或宣称获得 CI/registry 信任；
+私钥位于仓库外的受限目录。依赖 Python cryptography，sbom 子命令还需要 Syft。
 """
 
 from __future__ import annotations
@@ -143,7 +142,7 @@ def export_image(args):
             ssh_prefix(args.host) + [shlex.join(["docker", "image", "inspect", image])]
         ).stdout
     )[0]
-    # Deliberately exclude image Env, command strings and labels from reports.
+    # 报告主动排除镜像 Env、命令文本及 labels，避免携带凭据与内部配置。
     record = {
         "reference": image,
         "image_id": metadata["Id"],
@@ -176,7 +175,7 @@ def sbom(args):
     archive = Path(args.archive).resolve()
     output = Path(args.output).resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
-    # Syft temp material stays on the artifact drive, not a system TEMP volume.
+    # Syft 临时文件留在制品磁盘，不写系统 TEMP 卷。
     temp = output.parent / ".syft-tmp"
     temp.mkdir(exist_ok=True)
     env = dict(
@@ -220,8 +219,8 @@ def sbom(args):
 
 
 def windows_private_acl(path):
-    # A Windows account name can contain non-ASCII characters. Extract its
-    # ASCII SID from raw output rather than decoding localized console text.
+    # Windows 账号名可能包含非 ASCII 字符；从原始输出提取 ASCII SID，
+    # 避免依赖本地化控制台文本的解码。
     result = subprocess.run(
         ["whoami", "/user", "/fo", "csv", "/nh"],
         capture_output=True,

@@ -1,3 +1,7 @@
+/**
+ * 工作空间账户与审计管理：管理员查询按需启用，不向普通成员预加载用户列表。
+ * 表单成功后清空密码；账户凭据不写入查询缓存、日志或浏览器持久化偏好。
+ */
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, ShieldCheck } from "@phosphor-icons/react";

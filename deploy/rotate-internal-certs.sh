@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# Rotate only leaf certificates under the existing trust root. Never publishes CA keys.
+# 内部证书轮换入口：沿用原CA，只替换叶证书，并按服务依赖重新建立连接。
+# Agent重建后helper要重新加入其命名空间；代理也可能需要reload以刷新旧Docker地址。
+
+# 只在既有信任根下轮换叶证书，绝不发布或分发CA签名私钥。
 set -euo pipefail
 umask 077
 root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
@@ -39,13 +42,13 @@ done
 healthy=0
 recreate_services() {
  "${compose[@]}" up -d --no-deps --no-build --pull never --force-recreate drop-server api agent || return
- # The helper shares the Agent container's PID/network namespace. After an
- # Agent recreation it must join the new container rather than retain the old
- # namespace. The helper itself has no TLS credentials to rotate.
+ # helper共享Agent容器的PID/网络命名空间；Agent
+ # 重建后，helper必须加入新容器，不能继续停留在旧的
+ # 命名空间中；helper自身没有需要轮换的TLS凭据。
  if "${compose[@]}" config --services | grep -qx collector-helper; then
   "${compose[@]}" up -d --no-deps --no-build --pull never --force-recreate collector-helper || return
  fi
- # API recreation can change its Docker address while Web remains healthy.
+ # API重建可能改变Docker地址，即使Web容器健康也仍需刷新上游解析。
  bash "$root/reload-proxies.sh" --project-directory "$root" || return
 }
 if recreate_services; then

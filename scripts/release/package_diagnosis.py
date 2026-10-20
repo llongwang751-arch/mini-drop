@@ -1,7 +1,7 @@
-"""Build a secret-free, hashed Linux release bundle without touching a server.
+"""在本地构建无密钥、带哈希的 Linux 发布包，不连接服务器。
 
-Requires an already tested web/dist and successful PostgreSQL/browser receipts.
-Does not package .env, .local, secrets, private keys or arbitrary workspace files.
+要求已有通过测试的 web/dist 和成功 PostgreSQL/浏览器收据；
+不打包 .env、.local、密钥、私钥或任意工作区文件。
 """
 from __future__ import annotations
 import argparse
@@ -22,6 +22,7 @@ EXTENSIONS = {".go", ".mod", ".sum", ".py", ".json", ".proto", ".md", ".yaml", "
 KEY = re.compile(rb"sk-[a-zA-Z0-9]{24,}")
 
 def source_files(root: Path):
+    """只选择允许目录和扩展名，拒绝符号链接及必需文件缺失，不打包整个用户工作区。"""
     root = root.resolve()
     files = set()
     for folder in ("api/cmd", "api/gen", "api/internal", "api/tools", "contracts", "db/migrations", "web/src", "web/e2e", "core", "analyzer", "ops", "deploy", "integrations"):
@@ -48,12 +49,18 @@ def source_files(root: Path):
     return sorted(files)
 
 def safe_bytes(path: Path):
+    """读取待发布文件并拒绝明显密钥/私钥内容，不在错误中回显扫描命中。"""
     raw = path.read_bytes()
     if KEY.search(raw) or (b"-----BEGIN " + b"PRIVATE KEY-----") in raw or (b"-----BEGIN " + b"RSA PRIVATE KEY-----") in raw:
         raise ValueError("CREDENTIAL_CONTENT_REJECTED")
     return raw
 
 def main():
+    """核对成功验收收据、源码快照与已构建 ELF 后，生成带逐文件摘要的本地发布包。
+
+    业务源码使用明确登记快照，不能复制外部 CRM 的配置或数据；源码/镜像/部署收据分别绑定，
+    不能仅因本地打包成功就宣称服务已上线。
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", default=".local/agent-v2-20261020")
     parser.add_argument("--api-binary", type=Path, help="Use the exact ignored local binary whose SHA matches deployment evidence")
@@ -83,8 +90,8 @@ def main():
     if not binary.read_bytes().startswith(b"\x7fELF"):
         raise ValueError("LINUX_ELF_REQUIRED")
     members = {p.relative_to(ROOT).as_posix(): safe_bytes(p) for p in source_files(ROOT)}
-    # Include only the exact credential-free enrollment, never the external
-    # CRM workspace or its .env/data/tmp. Version must match real acceptance.
+    # 只纳入已核对且不含凭据的登记快照，不打包外部 CRM 工作区或其 .env/data/tmp；
+    # 版本必须与真实验收一致。
     snapshot = ROOT / ".local/agent-v2-20261020/crm-context"
     descriptor = json.loads((snapshot / "manifest.json").read_text(encoding="utf-8"))
     live = json.loads((evidence / "live-crm-agent.json").read_text(encoding="utf-8"))

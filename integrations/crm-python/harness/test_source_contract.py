@@ -1,4 +1,4 @@
-"""Frozen integration contracts; generated code cannot modify this file."""
+"""固定的集成契约回归，模型生成的补丁不能修改此文件。"""
 from crm.services.brand_palette import derive, ramp
 
 
@@ -29,7 +29,7 @@ def test_preview_limit_and_identity_remain_enforced():
     from crm.config import Settings
     from crm.auth import Identity
     from crm.seed import DEMO_USER, DEMO_ORG, create_demo_repository
-    # Synthetic memory data only. Repeated cached colors keep this test cheap.
+    # 只使用合成内存数据；重复缓存色值，降低该回归本身的资源成本。
     identity = Identity(DEMO_USER, DEMO_ORG, 'viewer')
     app = create_app(Settings(environment='test', repository_backend='memory'), create_demo_repository(), lambda _: identity)
     with TestClient(app) as client:

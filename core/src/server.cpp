@@ -1,3 +1,9 @@
+// C++控制面：把Go API已经持久化的任务安全地下发给节点，并接收采集状态与制品。
+// API创建task/attempt/Outbox，本服务不再创建第二份任务；双方共享数据库契约。
+// mTLS确认调用身份，行锁协调多副本下发，当前attempt校验拦住旧执行的迟到结果。
+// 状态、制品登记、分析job与事件必须在相应事务中一致提交；成功返回不等于分析已结束。
+// 阅读顺序建议：Init注册 → Do心跳/dispatch → ReportProgress → NotifyResult → sweep超时收尾。
+
 #include "drop.grpc.pb.h"
 #include "drop/catalog.hpp"
 #include "drop/config.hpp"
@@ -65,8 +71,8 @@ void event(Database &db, const std::string &task, const std::string &attempt,
           "VALUES($1::bigint,$2::bigint,$3,'drop-server',$4::jsonb)",
           {task, attempt, type, payload.dump()});
 }
-// Terminal authorization retains only the fixed public diagnostic metadata;
-// rebuilding the object discards every credential/unknown extension field.
+// 终态仅保留固定的公开诊断授权元数据；重新构造对象，
+// 彻底丢弃凭据和未知扩展字段，而不是从原对象中挑着删。
 constexpr char terminal_log_grants_sql[] =
     R"SQL(COALESCE((SELECT jsonb_agg(jsonb_build_object(
 'name','runner.log','kind','LOG','object_key',v->>'object_key',
@@ -95,7 +101,7 @@ void fail(Database &db, const std::string &task, const std::string &attempt,
   event(db, task, attempt, "TASK_FAILED",
         {{"error_code", code}, {"message", message}});
 }
-} // namespace
+} // 结束匿名命名空间
 
 class Services final : public dv::InitAgent::Service,
                        public dv::HealthCheck::Service,
@@ -181,6 +187,8 @@ public:
     });
   }
 
+  // 心跳不仅更新节点资源，也在事务内确认当前执行并领取下一任务。
+  // 多Server副本共享数据库，因此必须依靠数据库行锁，而不是仅靠进程内锁。
   grpc::Status Do(grpc::ServerContext *context,
                   const dv::HeartbeatRequest *request,
                   dv::HeartbeatResponse *response) override {
@@ -223,8 +231,8 @@ public:
           response->add_cancel_attempt_ids(attempt);
           continue;
         }
-        // Lock the task before reading the latest attempt in a fresh statement.
-        // A retry may have committed while this heartbeat waited for the lock.
+        // 先锁任务，再用新的SQL语句读取最新attempt，保证读到锁等待之后的状态。
+        // 因为心跳等待行锁时，另一事务可能已经提交了重试并切换当前attempt。
         db_.exec("SELECT id FROM tasks WHERE id=$1::bigint FOR UPDATE",
                  {owner.get(0, "task_id")});
         auto rows =
@@ -304,6 +312,8 @@ public:
     });
   }
 
+  // 将采集结果转成可分析状态：核对当前attempt及制品授权，
+  // 同事务登记RAW/附件、终态事件与待执行分析job，避免结果和状态各写一半。
   grpc::Status NotifyResult(grpc::ServerContext *context,
                             const dv::ResultRequest *request,
                             dv::Ack *response) override {
@@ -481,6 +491,8 @@ public:
     });
   }
 
+  // Go已经写入任务与Outbox；这里幂等接收下发请求并进入队列。
+  // RPC重复到达或旧API回滚时，持久化状态仍是真源，不能重新创建任务。
   grpc::Status CreateTask(grpc::ServerContext *context,
                           const dv::TaskDesc *request,
                           dv::Ack *response) override {
@@ -490,14 +502,14 @@ public:
       validate_priority(request->priority());
       std::lock_guard lock(db_.mutex);
       Transaction transaction(db_);
-      // Queue admission has a separate per-Agent namespace. Taking the Agent
-      // row after Task locks would invert Collect's Agent->Task lock order.
+      // 队列准入使用独立的Agent级锁空间；若持有Task锁之后再取Agent
+      // 行锁，就会与Collect的Agent→Task顺序相反，从而引入死锁。
       db_.exec("SELECT pg_advisory_xact_lock(hashtextextended($1,41762032))",
                {request->target_agent_id()});
       auto rows = current(request->task_id(), request->attempt_id(),
                           request->target_agent_id());
-      // Zero is also the N-1 API's absent-field default; persisted priority
-      // remains authoritative even when a rollback client cannot express it.
+      // 上一版本API没有priority字段时会发送默认0；数据库持久化优先级
+      // 仍是真源，不能因为回滚客户端无法表达此字段就覆盖为0。
       if (request->priority() != 0 &&
           request->priority() != std::stoi(rows.get(0, "priority")))
         throw std::invalid_argument(
@@ -664,6 +676,8 @@ public:
     });
   }
 
+  // 后台处理失联节点与过期执行，让崩溃后的状态可以收敛。
+  // 清扫也要与正常心跳/回传竞争同一状态，事件不能因多副本重复产生。
   void sweep() {
     std::lock_guard lock(db_.mutex);
     {
@@ -844,8 +858,8 @@ private:
     try {
       metrics_.trace(operation, request_id, task, started, true, parent);
     } catch (...) {
-      // Best-effort telemetry must never change an already committed RPC
-      // result.
+      // 追踪上报属于尽力而为的旁路，不能改变已经提交的RPC
+      // 结果，更不能因为遥测失败让调用方误以为业务事务未提交。
     }
   }
   void trace_dispatched(const dv::HeartbeatResponse &response,
@@ -854,10 +868,12 @@ private:
       trace_committed("dispatch.task", task.request_id(), task.task_id(),
                       started, task.traceparent());
   }
+  // 为一个Agent串行分配任务，再按优先级与先入先出选择候选。
+  // Task的SKIP LOCKED避免争抢同一任务，Agent行锁另外约束节点总并发。
   void dispatch(const std::string &agent, dv::HeartbeatResponse *response) {
-    // Every dispatch entry point must serialize on the Agent row. Heartbeat
-    // already owns this lock, while direct Collect may reach another Server
-    // replica. Task SKIP LOCKED alone permits two different tasks to escape.
+    // 每个任务下发入口都必须锁同一Agent行。心跳路径已持有该锁，
+    // 但直接Collect可能进入另一个Server副本；只对Task使用
+    // SKIP LOCKED会让两个副本分别领到不同任务，突破同节点并发限制。
     auto registered = db_.exec(
         "SELECT id,labels FROM agents WHERE id=$1 AND status='online' AND "
         "last_seen_at>now()-interval '15 seconds' FOR UPDATE",
@@ -1012,7 +1028,7 @@ private:
   Catalog catalog_;
   Telemetry metrics_;
 };
-} // namespace dropcore
+} // 结束 dropcore 命名空间
 
 int main(int argc, char **argv) {
   using namespace dropcore;

@@ -1,3 +1,7 @@
+// 采样数据的小型解析器与质量计算：处理原生perf丢样、文本栈和线程CPU tick差。
+// 采样单位决定结果含义：proc线程tick不等于perf函数栈，未知丢样也不能写成零丢样。
+// 解析严格限制输入并保留不确定性，后续AI诊断只能在这些真实度量边界内解释。
+
 #include "drop/sampling.hpp"
 
 #include <algorithm>
@@ -56,7 +60,7 @@ PerfLossStats scan_perf_loss(const std::filesystem::path &path) {
       const auto size = number(record.data() + 6, 2);
       if (size < 8 || size > length - consumed)
         return stats;
-      if (type == 81) // PERF_RECORD_COMPRESSED may contain nested loss records.
+      if (type == 81) // PERF_RECORD_COMPRESSED内可能嵌套样本丢失记录，不能只检查外层事件。
         return stats;
       if (type == 9) {
         ++stats.samples;
@@ -79,7 +83,7 @@ PerfLossStats scan_perf_loss(const std::filesystem::path &path) {
     }
     stats.complete = true;
   } catch (const std::exception &) {
-    // Unknown/truncated data must never be reported as zero loss.
+    // 数据未知或被截断时不能报告零丢失，否则会给诊断造成错误的质量保证。
     stats.complete = false;
   }
   return stats;
@@ -91,7 +95,7 @@ void accumulate_thread_cpu(const ThreadCpuSnapshot &previous,
     const auto before = previous.find(tid);
     const auto old_ticks = before == previous.end() ? 0 : before->second.ticks;
     if (sample.ticks <= old_ticks)
-      continue; // Exited/reused/reset thread, never subtract unsigned ticks.
+      continue; // 线程退出、TID复用或计数器重置时不做无符号减法，防止下溢变成巨大CPU值。
     auto &accumulated = totals[tid];
     accumulated.name = sample.name;
     accumulated.ticks += sample.ticks - old_ticks;
@@ -104,7 +108,7 @@ std::string safe_frame(std::string frame) {
       c = '_';
   return frame.substr(0, 512);
 }
-} // namespace
+} // 结束匿名命名空间
 std::map<std::string, std::uint64_t> parse_perf_script(std::istream &input) {
   std::map<std::string, std::uint64_t> stacks;
   std::vector<std::string> frames;
@@ -141,8 +145,8 @@ std::map<std::string, std::uint64_t> parse_perf_script(std::istream &input) {
     frame >> address;
     if (address.empty() || address.find_first_not_of(
                                "0123456789abcdefABCDEF") != std::string::npos) {
-      // perf right-aligns command names by default, so event headers may also
-      // have leading whitespace. They are distinct from hexadecimal frames.
+      // perf默认右对齐命令名，事件头也可能带前导空格，
+      // 因此不能只凭缩进区分事件头与十六进制栈帧。
       if (line.find(':') != std::string::npos && !address.empty()) {
         flush();
         process = address;
@@ -180,4 +184,4 @@ void fold_perf_script(const std::filesystem::path &input,
   if (!folded)
     throw std::runtime_error("Cannot write folded artifact");
 }
-} // namespace dropcore
+} // 结束 dropcore 命名空间

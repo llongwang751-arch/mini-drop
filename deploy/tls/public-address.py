@@ -1,4 +1,4 @@
-"""Render the canonical public edge for a validated deployment IPv4 address."""
+"""根据已验证的部署 IPv4 渲染规范公网入口配置。"""
 import ipaddress
 import os
 from pathlib import Path

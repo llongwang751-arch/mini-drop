@@ -1,3 +1,6 @@
+// 本文件验证源码修复的权限、取消、准入、证据引用与实测源码行门禁。
+// 执行器和模型响应均为协议夹具，不应据此宣称真实补丁性能改善。
+// 测试名称标明具体场景；涉及真实数据库的用例需显式配置测试连接，协议夹具不代表生产或模型实测。
 package service
 
 import (
@@ -25,8 +28,8 @@ func TestPostgresDiagnosisCodeRepairProtocolAndLineGate(t *testing.T) {
 			db, s, u, _ := investigationFixture(t)
 			ctx := context.Background()
 			revision := strings.Repeat("a", 64)
-			// All executor measurements in this regression are explicit protocol
-			// fixtures. Real Docker/CRM/DeepSeek evidence is recorded separately.
+			// 本回归中的全部执行器测量均为明确的协议夹具。
+			// 真实 Docker、CRM 和 DeepSeek 的运行证据单独记录，不能将协议测试当作性能实测。
 			executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				var req struct {
 					Action      string `json:"action"`

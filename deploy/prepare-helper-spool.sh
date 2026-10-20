@@ -1,5 +1,5 @@
 #!/bin/sh
-# Host-only provisioning. The helper receives directory binds, never SYS_ADMIN.
+# 仅在宿主进行spool预置；helper只接收目录绑定，不授予SYS_ADMIN。
 exec python3 - "$@" <<'DROP_HELPER_SPOOL_PY'
 # PYTHON_BEGIN
 import argparse
@@ -289,8 +289,8 @@ def create_image(root, image, metadata):
         sync_directory(root)
         return data
     except Exception:
-        # Only unlink this invocation's incomplete files after positively
-        # observing no mount. A completed image survives later mount failures.
+        # 必须明确确认当前没有挂载后，才删除本次调用留下的
+        # 不完整文件；已创建完成的磁盘镜像不能因后续挂载失败而删除。
         try:
             if mount_info(root / MOUNT) is None:
                 remove_owned_partial(metadata, metadata_identity)
@@ -307,7 +307,7 @@ def prepare_subdirectories(point):
             path.mkdir(mode=0o700)
             os.chown(path, 0, gid)
             path.chmod(mode)
-        # The sticky incoming directory is intentionally group-writable.
+        # incoming目录刻意设置组可写与sticky位，让协作方写入但不能任意删除他人文件。
         if name == "incoming":
             info = path.lstat()
             require(
@@ -359,8 +359,8 @@ def prepare_locked(root):
         mounted = mount_info(point)
         require(mounted is not None, "SPOOL_MOUNT_MISSING")
     verify_mount(point, image, data, mounted)
-    # mkfs creates a root:root filesystem root. Grant traversal to the shared
-    # target group, keeping both private image metadata and cache inaccessible.
+    # mkfs生成的文件系统根目录归root:root，给共享
+    # 目标组授予遍历权限，但私有镜像元数据与缓存仍不可访问。
     secure_directory(point)
     os.chown(point, 0, 10001)
     point.chmod(0o750)

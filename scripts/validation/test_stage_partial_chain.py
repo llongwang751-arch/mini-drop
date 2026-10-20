@@ -1,4 +1,4 @@
-"""Imported account/row fixtures only: no DB, browser or credential reads."""
+"""只使用导入的账号和数据行夹具，不读数据库、浏览器或凭据。"""
 import unittest
 from unittest.mock import Mock, patch
 import stage_partial_chain as stage

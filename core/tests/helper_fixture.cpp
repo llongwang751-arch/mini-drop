@@ -1,5 +1,5 @@
-// Explicitly imported deterministic profiler data for IPC fault tests only.
-// This executable is not installed in release images and proves no sampling.
+// 显式导入的确定性采集器数据，仅用于IPC故障测试。
+// 此可执行文件不安装进发布镜像，其通过不构成现场采样证据。
 #include <chrono>
 #include <cstdint>
 #include <filesystem>
@@ -53,7 +53,7 @@ std::string imported_perf_mapping(int pid) {
   header.resize(104, 0);
   return header + data;
 }
-} // namespace
+} // 结束匿名命名空间
 int main(int argc, char **argv) {
   const std::string mode = std::filesystem::path(argv[0]).filename();
   if (argc == 2 && (std::string(argv[1]) == "version" ||
@@ -67,8 +67,8 @@ int main(int argc, char **argv) {
     for (int index = 1; index + 1 < argc; ++index)
       if (std::string(argv[index]) == "-p")
         input = argv[index + 1];
-    // The imported aggregator must enforce the execution dependency as the
-    // real tool does; otherwise an early invocation could falsely pass IPC.
+    // 导入的聚合器必须像真实工具一样检查前置执行依赖，
+    // 否则过早调用也可能让IPC测试假通过。
     if (input.empty() || !std::filesystem::is_regular_file(input) ||
         !std::filesystem::is_regular_file(input.string() +
                                            ".imported-buildid"))

@@ -1,3 +1,7 @@
+/**
+ * 采样质量的原始上下文：线程、时钟和丢样信息决定热点解释是否可信。
+ * 缺少数据时显示未知；纳秒时钟保留字符串，不因 JS 数值精度或格式化而丢失位数。
+ */
 import { number } from "../api";
 import { parseFlameThreads } from "./flame-analysis";
 import { ResultTable } from "./AnalysisSections";

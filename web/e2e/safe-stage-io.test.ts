@@ -1,3 +1,6 @@
+/**
+ * 安全报告包装器的纯单测，只使用合成 Cookie/签名，验证错误和存储字节处理不会泄漏凭据。
+ */
 import assert from "node:assert/strict";
 import { after, before, test } from "node:test";
 import { createServer } from "node:http";
@@ -9,7 +12,7 @@ import {
   stageArtifactBytes,
 } from "./safe-stage-io.ts";
 
-// Imported synthetic signatures and cookies only. Never load stage credentials.
+// 仅使用导入的合成签名和 Cookie；单测绝不读取实际环境的凭据。
 const signature = "IMPORTED_SIGNATURE_MUST_NOT_APPEAR_IN_ERRORS";
 const encodedArtifact = gzipSync(Buffer.from("imported-profile-gzip-bytes"));
 const requests: { path: string; cookie?: string; referer?: string }[] = [];
@@ -24,8 +27,8 @@ const server = createServer((request, response) => {
   if (path === "/objects/redirect") {
     response.writeHead(302, { Location: "/objects/redirect-target" }).end();
   } else if (path === "/objects/stored-gzip") {
-    // Object metadata can retain Content-Encoding even if a client asks for
-    // identity. Integrity is over stored bytes, so the helper must not decode.
+    // 即使请求 identity，对象元数据仍可能携带 Content-Encoding。
+    // 完整性校验针对存储的原始字节，因此辅助函数不能提前解压。
     response
       .writeHead(200, {
         "Content-Encoding": "gzip",

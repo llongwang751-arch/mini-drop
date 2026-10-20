@@ -1,4 +1,4 @@
-# Preserve the frozen runtime and old content-addressed chunks for cache grace.
+# 保留冻结的运行镜像与旧哈希资源块，让仍缓存旧 HTML 的浏览器有平滑升级窗口。
 ARG WEB_RUNTIME_BASE=drop-web:20261019.3
 FROM ${WEB_RUNTIME_BASE}
 COPY web/dist/ /usr/share/nginx/html/

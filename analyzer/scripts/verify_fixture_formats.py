@@ -1,4 +1,4 @@
-"""Run each imported real profile through the actual isolated registry."""
+"""将每份导入的真实格式 profile 送入实际隔离注册表，验证格式与分析链路。"""
 
 import hashlib
 import json

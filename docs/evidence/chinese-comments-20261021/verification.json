@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-20T18:02:58.320864+00:00",
+  "baseline_commit": "98f619c3012478c1a291f5ddd071d9e3e2e69679",
+  "scope": "Chinese explanatory comments and reading documentation; no executable logic/UI text/protocol identifiers changed",
+  "modified_source_and_config_files": 522,
+  "equivalence": {
+    "go_ast_files": 101,
+    "python_ast_without_docstrings": 168,
+    "python_compile_files": 168,
+    "web_compared_files": 122,
+    "web_changed_files": 117,
+    "validation_javascript_changed_files": 4,
+    "other": {
+      "yaml_values_and_custom_tags": 24,
+      "noncomment_lines": 43,
+      "c_cpp_proto_lexical": 56,
+      "sql_noncomment_statements": 9
+    },
+    "all_equivalent": true,
+    "machine_directives_and_licenses_preserved": true
+  },
+  "checks": {
+    "web_unit_tests": 137,
+    "web_build": true,
+    "prettier": true,
+    "validation_metadata_node_tests": 9,
+    "api_go_test_command": "go test -json -tags=nomsgpack ./...",
+    "api_including_subtests": {
+      "passed": 124,
+      "skipped": 42,
+      "failed": 0
+    },
+    "api_top_level": {
+      "passed": 58,
+      "skipped": 27
+    },
+    "go_vet": true,
+    "benchmark_go_tests": 5,
+    "go_fixtures_build_and_vet": 2,
+    "cpp_domain_checks": 20,
+    "cpp_domain_compiler_mode": "Windows MinGW -std=c++2a -Wall -Wextra -Wpedantic -Werror; not the full Linux C++20 build",
+    "bash_syntax_only_files": 17,
+    "powershell_syntax": true,
+    "task_kinds": 18,
+    "grpc_services": 4,
+    "proto_v1_compatibility_and_negative_control": true,
+    "http_routes": 76,
+    "http_schemas": 91
+  },
+  "runtime": {
+    "production_accessed": false,
+    "deployment_performed": false,
+    "collection_or_model_executed": false,
+    "previous_web_release_assets_unchanged": [
+      "index-C7DQ5LHq.js",
+      "index-DQwrLC_9.css",
+      "Guide-Bh8kHQJ4.js",
+      "Guide-Bz58qDfk.css"
+    ],
+    "frozen_business_sources_and_historical_receipts_rewritten": false
+  },
+  "limitations": [
+    "PostgreSQL/model opt-in tests were not configured; all skips are counted explicitly.",
+    "Docker Desktop Linux engine was unavailable; full Linux C++20 build and kernel collection were not run locally.",
+    "Python docstrings intentionally change documentation metadata, while their executable AST is unchanged.",
+    "Source comment bytes change repository hashes; frozen runtime images and original business snapshots retain their prior source identity."
+  ],
+  "github_ci_status": "Not yet observed for the new comment commit; no success claimed."
+}

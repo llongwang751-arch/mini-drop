@@ -1,3 +1,5 @@
+"""验证固定测量 harness 的 Python 类型比较契约，不连接 CRM 数据库或外部服务。"""
+
 import importlib.util
 import json
 from pathlib import Path

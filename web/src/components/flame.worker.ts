@@ -1,4 +1,8 @@
 /// <reference lib="webworker" />
+/**
+ * 火焰图布局 Worker：把校验后的调用树转换为标准化矩形和逐深度索引。
+ * 细小帧只影响 SVG 是否绘制，仍保留在完整布局数据中，供搜索和键盘定位使用。
+ */
 import { hierarchy, partition } from "d3-hierarchy";
 import type { FlameNode } from "../types";
 import { prepareFlameTree, type FlameOptions } from "./flame-analysis";
@@ -63,6 +67,7 @@ export function buildFlameLayout(
   options: FlameOptions = {},
 ): FlameLayout {
   const prepared = prepareFlameTree(data, options);
+  // 用 self 求和得到每个节点的总权重，再按 1000 单位的标准坐标分区，实际像素缩放交给 SVG。
   const root = hierarchy(prepared.root, (node) => node.children).sum(
     (node) => node.self,
   );
@@ -78,11 +83,12 @@ export function buildFlameLayout(
     start: -1,
     end: -1,
   }));
-  // Breadth-first traversal makes every depth one contiguous range.
+  // 广度优先遍历让相同深度的节点在数组中连续，主线程可按可见深度快速切片。
   tree.each((node) => {
     const index = rects.length;
     if (rows[node.depth].start < 0) rows[node.depth].start = index;
     rows[node.depth].end = index + 1;
+    // 细帧标记只控制绘制；仍将每个节点放入 rects，不能因视觉裁剪丢掉证据。
     const renderable = node.depth === 0 || node.x1 - node.x0 >= 0.6;
     if (renderable) renderableRows = Math.max(renderableRows, node.depth + 1);
     else tinyFrames++;

@@ -1,4 +1,4 @@
-"""Execute actual cleanup functions with imported Docker metadata; no Docker."""
+"""以导入的 Docker 元数据调用实际清理函数，不连接 Docker。"""
 import ast
 from pathlib import Path
 import subprocess

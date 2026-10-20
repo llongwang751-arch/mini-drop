@@ -1,3 +1,7 @@
+/**
+ * 工作空间总览的数据来自 /overview 与节点列表，按统一策略轮询。
+ * 统计口径、最近任务和活动序列均来自服务端，不在界面写死演示数值。
+ */
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight, Cpu, Database, ArrowRight } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";

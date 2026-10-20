@@ -1,5 +1,5 @@
-// Synthetic, deterministic integer CPU workload for real perf/BOLT sampling.
-// --once is a frozen equivalence input, never user-provided executable code.
+// 受控的确定性整数计算负载，供真实perf/BOLT采样使用，不代表线上业务性能。
+// --once只执行冻结的等价性输入，用于比较优化前后输出，不执行用户提供的代码。
 #include <atomic>
 #include <cstdint>
 #include <csignal>
@@ -27,7 +27,7 @@ __attribute__((noinline)) std::uint64_t hotspot(std::uint64_t seed) {
   }
   return seed;
 }
-} // namespace
+} // 结束匿名命名空间
 
 int main(int argc, char **argv) {
   if (argc == 2 && std::string_view(argv[1]) == "--once") {
@@ -42,6 +42,6 @@ int main(int argc, char **argv) {
   std::uint64_t value = 0x123456789abcdefULL;
   while (running)
     value = hotspot(value);
-  // Keeping the checksum observable prevents the sampling loop being erased.
+  // 保留可观察的校验和，避免编译器把没有外部效果的计算循环直接优化掉。
   std::cout << std::hex << value << '\n';
 }

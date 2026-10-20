@@ -1,9 +1,8 @@
-"""Portable PostgreSQL benchmark, without Docker or a Windows service.
+"""不依赖 Docker 或 Windows 服务的便携 PostgreSQL 基准。
 
-Only a fresh directory below this repository's ignored .local/supplychain is
-created/removed. PostgreSQL and the benchmark share a Windows Job Object with a
-512 MiB committed-memory limit and one allowed logical CPU. All DB connections
-use a random loopback port and a per-run secret that is never printed.
+只在仓库忽略的 .local/supplychain 下创建和清理新目录；PostgreSQL 与基准程序
+共用限制 512 MiB 提交内存、单逻辑 CPU 的 Windows Job Object。
+数据库仅使用随机回环端口和本轮随机凭据，凭据值不输出。
 """
 from __future__ import annotations
 import argparse
@@ -62,7 +61,7 @@ class Job:
             raise ctypes.WinError(ctypes.get_last_error())
         self.affinity = current.value & -current.value
         limits = ExtendedLimits()
-        limits.basic.flags = 0x10 | 0x200 | 0x2000  # affinity, job memory, kill on close
+        limits.basic.flags = 0x10 | 0x200 | 0x2000  # 限制 CPU 亲和性与 Job 内存，并在 Job 关闭时清理所属进程。
         limits.basic.affinity = self.affinity
         limits.job_memory = 512 << 20
         if not self.kernel.SetInformationJobObject(self.handle, 9, ctypes.byref(limits), ctypes.sizeof(limits)):
@@ -201,10 +200,10 @@ def main():
     finally:
         if process and process.poll() is None:
             run([binaries / "pg_ctl.exe", "-D", cluster / "data", "-m", "fast", "-w", "-t", "20", "stop"], check=False, timeout=30)
-        job.close()  # kills only this runner's assigned processes if still alive
+        job.close()  # 只终止仍存活且已分配给本 runner 的进程。
         if process:
             process.wait(timeout=30)
-        # Confirm absolute containment again immediately before recursive removal.
+        # 递归删除之前再次验证绝对路径仍位于本次私有工作目录内。
         resolved = cluster.resolve()
         if resolved.parent != base or not resolved.is_relative_to((ROOT / ".local").resolve()) or not resolved.name.startswith("bench-cluster-"):
             raise RuntimeError("Refusing to remove a directory outside this run's fixture")

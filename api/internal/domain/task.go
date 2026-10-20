@@ -1,3 +1,5 @@
+// Package domain：定义 HTTP、服务层与仓储共用的任务领域对象和纯校验规则，不连接数据库或远程服务。
+// task 表示用户可见的逻辑任务，attempt 表示一次实际执行；collection 与 analysis 两条状态轴不能相互冒充。
 package domain
 
 import (
@@ -56,6 +58,8 @@ type CreateTask struct {
 	Import        *ImportInput `json:"import,omitempty"`
 }
 
+// Normalize 归一化目标、参数与默认值，使请求摘要和后续能力校验使用同一表达。
+// 归一化不意味着合法，调用方仍必须执行 Validate 和当前 Agent 资源授权。
 func (c *CreateTask) Normalize() {
 	if c.Name == "" {
 		c.Name = c.Kind
@@ -84,6 +88,9 @@ func (c *CreateTask) Normalize() {
 		c.Visibility = "private"
 	}
 }
+
+// Validate 校验创建参数的协议边界，包括目录能力、目标、时长、大小与导入限制。
+// 它是纯规则校验，不查询当前用户、目标在线状态或数据库，因此服务层还要继续授权。
 func (c CreateTask) Validate() *Error {
 	if c.Priority < -10 || c.Priority > 10 {
 		return Fail("INVALID_PARAMETERS", "队列优先级须为 -10 至 10")
@@ -162,6 +169,8 @@ func (c CreateTask) Validate() *Error {
 	return nil
 }
 
+// Task 表示用户可见的逻辑任务，采集状态与分析状态分别保存。
+// 重试不会创建新的逻辑身份，但会创建新 Attempt；页面、事件与权限以 task 为入口，发布与取消还必须核对 attempt。
 type Task struct {
 	Permissions      *TaskPermissions `json:"permissions,omitempty" gorm:"-"`
 	ID               int64            `json:"id,string" gorm:"primaryKey"`
@@ -189,10 +198,14 @@ type Task struct {
 	UpdatedAt        time.Time        `json:"updated_at"`
 }
 
+// Terminal 综合采集与分析两条状态轴判断逻辑任务是否结束。
+// 采集失败或取消立即终止；采集成功还必须等待分析成功或失败，COLLECTED 本身不代表结果已经就绪。
 func (t Task) Terminal() bool {
 	return t.CollectionStatus == "FAILED" || t.CollectionStatus == "CANCELED" || (t.CollectionStatus == "COLLECTED" && (t.AnalysisStatus == "SUCCESS" || t.AnalysisStatus == "FAILED"))
 }
 
+// Attempt 表示一次采集执行的身份与上传授权范围。
+// 旧轮次即使网络请求迟到，也不能把制品、事件或日志写入新的执行轮次。
 type Attempt struct {
 	ID             int64           `json:"id,string" gorm:"primaryKey"`
 	TaskID         int64           `json:"task_id,string"`
@@ -261,6 +274,8 @@ type Artifact struct {
 	RetentionClass  string          `json:"retention_class"`
 	DownloadAllowed bool            `json:"download_allowed" gorm:"default:true"`
 }
+
+// Event 表示与领域状态同事务提交的可重放事实，Sequence 供 SSE 断线续传使用。
 type Event struct {
 	Sequence  int64           `json:"sequence,string" gorm:"primaryKey;autoIncrement"`
 	TaskID    int64           `json:"task_id,string"`
@@ -302,6 +317,8 @@ type Audit struct {
 
 func (Audit) TableName() string { return "audit_logs" }
 
+// Outbox 保存与业务状态一起提交、稍后再投递的跨服务消息。
+// 它只能保证可重试投递，接收端仍要幂等；数据库事务无法把远端 RPC 一起原子提交。
 type Outbox struct {
 	ID          int64 `gorm:"primaryKey"`
 	TaskID      int64
@@ -316,6 +333,8 @@ type Outbox struct {
 }
 
 func (Outbox) TableName() string { return "outbox" }
+
+// EventFor 从当前领域快照构造事件身份；调用方应与相应状态更新在同一事务内写入，避免页面观察到不存在的中间状态。
 func EventFor(t Task, attemptID *int64, kind string, payload any) Event {
 	b, _ := json.Marshal(payload)
 	return Event{TaskID: t.ID, AttemptID: attemptID, Type: kind, Source: "api", Payload: b, CreatedAt: time.Now().UTC()}

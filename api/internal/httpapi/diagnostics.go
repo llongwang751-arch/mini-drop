@@ -1,3 +1,4 @@
+// Package httpapi：提供授权范围内的 Agent 事件与固定诊断字段，避免浏览器获取采集进程原始 stderr 或私有运行配置。
 package httpapi
 
 import (

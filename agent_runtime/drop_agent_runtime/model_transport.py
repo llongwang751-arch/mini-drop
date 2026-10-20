@@ -1,4 +1,7 @@
-"""Bound the official SDK transport before it materializes a provider response."""
+"""在官方 SDK 将响应读入内存前限制模型传输。
+
+该层约束请求与响应字节、编码及基本结构，避免仅在反序列化后才发现超大响应。失败向上游返回固定错误码，不泄露供应商响应。
+"""
 
 import httpx2 as httpx
 
@@ -6,6 +9,7 @@ from .wire import ProtocolError, set_stage, strict_json
 
 
 class BoundedTransport(httpx.AsyncBaseTransport):
+    """包裹官方 HTTP transport，在 SDK 解码前核对字节和响应结构；内部 transport 可替换为离线测试夹具。"""
     def __init__(self, inner: httpx.AsyncBaseTransport | None = None) -> None:
         self.inner = inner or httpx.AsyncHTTPTransport(retries=0, trust_env=False)
 

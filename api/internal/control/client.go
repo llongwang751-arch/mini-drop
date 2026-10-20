@@ -1,3 +1,5 @@
+// Package control：将 Go 的类型化调度和取消请求转换为 Core gRPC 调用；mTLS 校验对端身份，context 控制超时与取消。
+// 这里只传任务描述和临时上传授权，长期对象存储凭据留在服务端。
 package control
 
 import (
@@ -22,6 +24,7 @@ type Client struct {
 	RPC  pb.ControlClient
 }
 
+// New 建立带双向 TLS 的 Core 客户端；证书认证限定控制面身份，业务操作仍携带 task 与 attempt。
 func New(address, ca, cert, key string, metrics ...*telemetry.Metrics) (*Client, error) {
 	pem, err := os.ReadFile(ca)
 	if err != nil {
@@ -58,6 +61,9 @@ func (c *Client) Ready(ctx context.Context) error {
 	}
 	return nil
 }
+
+// Dispatch 发送类型化 TaskDesc，调用超时或 ACK 丢失并不等于 Core 没有接受任务。
+// 调用方必须借 Outbox 重放和 attempt 栅栏收敛，不能直接回滚远端状态。
 func (c *Client) Dispatch(ctx context.Context, t *pb.TaskDesc) error {
 	ack, err := c.RPC.CreateTask(ctx, t)
 	if err != nil {

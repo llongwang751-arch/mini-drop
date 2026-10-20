@@ -22,7 +22,7 @@ template <class F> void rejects(F &&action) {
 }
 int main() {
   {
-    // Explicit synthetic native perf headers; never presented as measured data.
+    // 显式构造的合成原生perf头，不把它们当作实测数据。
     const auto fixture = std::filesystem::current_path() /
                          ("perf-loss-fixture-" + std::to_string(getpid()));
     const auto data = [](bool little, std::uint64_t ring_lost,

@@ -1,3 +1,5 @@
+// 本文件验证任务全部 HTTP 读面和写面的资源授权，含降权后关联源码的访问隔离。
+// 测试名称标明具体场景；涉及真实数据库的用例需显式配置测试连接，协议夹具不代表生产或模型实测。
 package httpapi
 
 import (
@@ -78,8 +80,8 @@ func TestPostgresHTTPAuthorizationCoversEveryTaskSurface(t *testing.T) {
 			t.Fatal("non-admin entered source boundary", surface.path, w.Code)
 		}
 	}
-	// Former source administrators must not retain source access through their
-	// own linked investigation after downgrade, even with an active Agent grant.
+	// 源码管理员降权后，即使 Agent 授权仍有效，也不能通过自己关联的调查继续读取源码。
+	// 该测试验证列表、详情和关联修复路径都重新检查当前权限。
 	db.Create(&domain.Group{ID: "source-fixture-group", Name: "Source role regression"})
 	db.Create(&domain.Agent{ID: "source-fixture-agent", Hostname: "source-fixture", Version: "fixture", Platform: "linux", Status: "online", Capabilities: []byte(`[]`), Labels: []byte(`{}`), Resources: []byte(`{}`)})
 	db.Exec("INSERT INTO group_members(group_id,user_id,role) VALUES(?,?,'operator')", "source-fixture-group", other.ID)

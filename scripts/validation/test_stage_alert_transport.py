@@ -1,4 +1,4 @@
-"""Local fake-clock/transport tests; no Docker, HTTP or database is started."""
+"""本地假时钟和传输回归，不启动 Docker、HTTP 或数据库。"""
 
 from contextlib import redirect_stdout
 from datetime import datetime, timedelta, timezone

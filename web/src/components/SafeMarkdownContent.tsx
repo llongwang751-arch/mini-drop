@@ -1,3 +1,7 @@
+/**
+ * 富文本渲染的最终安全边界：先生成受限 HTML，再用 DOMPurify 白名单清理。
+ * 清理器不可用时回退纯文本；不允许模型文本创建脚本、媒体或表单资源。
+ */
 import { useMemo } from "react";
 import createDOMPurify from "dompurify";
 import { diagnosticMarkdownHTML, diagnosticTags } from "./markdown-html";
@@ -45,8 +49,8 @@ if (purifier?.isSupported)
 
 export function sanitizeDiagnosticHTML(html: string): string | undefined {
   if (!purifier?.isSupported) return;
-  // USE_PROFILES overrides ALLOWED_TAGS. Apply the HTML-only profile first,
-  // then the stricter allowlist; neither intermediate string enters the DOM.
+  // DOMPurify 的 USE_PROFILES 会覆盖 ALLOWED_TAGS，因此先限制为 HTML，再应用更窄的白名单。
+  // 两步清理的中间字符串都不进入 DOM，只有最终安全片段可被渲染。
   const profile = purifier.sanitize(html, {
     USE_PROFILES: { html: true },
     ALLOWED_ATTR: attributes,

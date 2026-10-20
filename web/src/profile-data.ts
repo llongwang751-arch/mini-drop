@@ -1,3 +1,7 @@
+/**
+ * 性能报告的边界校验：分别限制压缩大小、解压大小和调用树规模。
+ * 读取接口失败时只返回受控错误类型；下载链接、对象错误正文和原始 profile 不进入界面错误详情。
+ */
 import type { AnalysisResult, Artifact, FlameNode, Task } from "./types";
 import { validateFlameTree } from "./components/flame-analysis";
 
@@ -49,6 +53,7 @@ export function safeRequestId(value: unknown) {
     ? value
     : "";
 }
+// 即使 Content-Length 缺失或不可信，也逐块累计实际字节；超限时取消 reader 并释放锁。
 export async function readBounded(
   body: ReadableStream<Uint8Array> | null,
   limit: number,
@@ -92,7 +97,7 @@ export function parseUTF8JSON(buffer: ArrayBuffer) {
     throw new ProfileDataError("PROFILE_JSON_INVALID");
   }
 }
-// Production callers execute this only inside the dedicated profile Worker.
+// 正式页面只在专用 profile Worker 内调用此解析入口，避免大型 JSON 阻塞主线程。
 export async function decodeFlameGzip(
   buffer: ArrayBuffer,
   expandedLimit = EXPANDED_LIMIT,
@@ -119,6 +124,7 @@ export async function decodeFlameGzip(
   }
   return tree;
 }
+// 拒绝跨源、带用户信息、片段和反斜杠的地址；预签名参数只能在当前对象路径中临时使用。
 export function signedURL(value: unknown, origin: string) {
   try {
     if (
@@ -154,6 +160,7 @@ export function expiredSignature(status: number, body: string) {
       /<Message>Request has expired<\/Message>/.test(body))
   );
 }
+// 只有成功完成的最新采集轮次可提供完整火焰图，旧轮次与过期/禁止下载的制品都不能回退使用。
 export function selectFlameArtifact(task: Task): Artifact | undefined {
   if (
     task.analysis_status !== "SUCCESS" ||
@@ -183,6 +190,7 @@ export function selectFlameArtifact(task: Task): Artifact | undefined {
     )
     .sort((a, b) => (BigInt(a.id) > BigInt(b.id) ? -1 : 1))[0];
 }
+// 接口封装和调用树分别验证；HTTP 成功不代表 body.data 已满足前端读取约定。
 export function parseAnalysisEnvelope(
   buffer: ArrayBuffer,
   status: number,

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Runs only the bundled controlled workload. Not a production Agent entrypoint.
+# 只运行内置受控负载，用于采样检查，不是生产Agent启动入口。
 set -eu
 out="${1:-/tmp/drop-perf-probe}"
 mkdir -p "$out"

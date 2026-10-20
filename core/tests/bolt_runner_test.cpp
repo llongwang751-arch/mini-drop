@@ -1,4 +1,4 @@
-// Explicitly imported diagnostics: these tests do not claim live sampling.
+// 显式导入的诊断样本，只测试分类逻辑，不冒充现场采样结果。
 #include "drop/runner.hpp"
 #include "drop/bolt.hpp"
 #include <filesystem>
@@ -36,7 +36,7 @@ std::string imported_mapping(const dropcore::ProcessIdentity &target) {
   number(data, 48, body.size(), 8);
   return data + body;
 }
-} // namespace
+} // 结束匿名命名空间
 
 int main() {
   using namespace dropcore;
@@ -100,7 +100,7 @@ int main() {
     throw std::runtime_error("Imported complete native MMAP2 rejected");
   for (const auto offset : {112U, 144U, 148U, 152U}) {
     auto wrong = data;
-    wrong[offset] ^= 1; // stale PID, different major/minor device or inode.
+    wrong[offset] ^= 1; // 覆盖PID过期、主次设备号不同或inode不同等身份不匹配情况。
     if (accepted(wrong, target))
       throw std::runtime_error("BOLT accepted another recorded target identity");
   }

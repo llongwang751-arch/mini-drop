@@ -1,8 +1,7 @@
-"""Frozen adapter for the real Saber SQLite FTS5 component, not the full app.
+"""真实 Saber SQLite FTS5 组件的固定适配器，不代表整个应用。
 
-The enrolled source is loaded by an exact file path. The application's rag
-package initializer loads external engines and is deliberately not executed.
-All documents, users and query strings below are synthetic local test data.
+按精确路径加载已登记源码，跳过会加载外部引擎的 rag 包初始化；
+文档、用户和查询字符串全部是本地合成测试数据。
 """
 from __future__ import annotations
 
@@ -27,8 +26,7 @@ def load_component(source, *, original_namespace=False):
     sys.modules[name] = module
     spec.loader.exec_module(module)
     if original_namespace:
-        # Only these package placeholders are installed; no app entry point,
-        # environment file, persistent database or engine initializer is read.
+        # 仅安装这些包占位符，不读取应用入口、环境文件、持久数据库或引擎初始化器。
         for package in ("internal", "internal.rag"):
             stub = types.ModuleType(package)
             stub.__path__ = [str(source.joinpath(*package.split(".")))]
@@ -38,7 +36,7 @@ def load_component(source, *, original_namespace=False):
 
 
 class ObservedConnection(sqlite3.Connection):
-    """Observe actual bound SELECT parameters without rebuilding the query."""
+    """观察实际 SELECT 的绑定参数，不重新拼装查询，因此保留真实 SQL 行为。"""
     query_context = None
 
     def execute(self, sql, parameters=()):
@@ -68,9 +66,8 @@ def query_cases(seed):
     rng = random.Random(seed)
     queries = ["", " \t\n", "知识库", "RAG performance", '"sqlite" OR NOT NEAR *',
                "Straße CAFÉ Σίσυφος １２３ 数据", "性能 性能 性能", "知识库_fts5 quote'\"()"]
-    # Long natural-language/keyword requests can contain many distinct terms.
-    # The source already advertises a 64-unique-token query limit. The harness
-    # exercises that existing contract; it does not insert a defect or sleep.
+    # 长自然语言或关键词请求可能包含大量不同词项；源码已有最多 64 个唯一 token 的契约，
+    # harness 只触发这一既有行为，不植入缺陷或额外 sleep。
     for _ in range(56):
         head = ["rag", "performance", "sqlite", "知识库"]
         head.extend(f"term{value:03d}" for value in rng.sample(range(256), 80))
@@ -90,7 +87,7 @@ def execute_case(module, conn, case):
 
 
 def typed(value):
-    """Preserve exact Python container/scalar types, including float scores."""
+    """保留 Python 容器和标量的精确类型，包括浮点评分。"""
     if type(value) is dict:
         return ["dict", [[typed(key), typed(item)] for key, item in sorted(value.items())]]
     if type(value) in (list, tuple):

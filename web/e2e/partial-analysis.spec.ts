@@ -1,3 +1,6 @@
+/**
+ * 导入失败检查点验证页面不会串用旧结果，并覆盖离开路由取消、重分析后清缓存与权限错误。
+ */
 import { test, expect } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";

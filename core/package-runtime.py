@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Package already-tested cmake --install output; never build or retag images.
+"""打包已经测试的 cmake --install 产物，不构建镜像或改写镜像标签。
 
-Run serially in the deployment resource queue. The manifest-only tool snapshot
-uses an isolated, bounded cached-image container, without credentials/network.
+在部署资源队列中串行运行；仅生成 manifest 的工具快照使用有资源上限的
+缓存镜像容器，不挂载凭据，不访问网络。
 """
 import argparse
 import hashlib
@@ -33,6 +33,7 @@ def image_id(name):
 
 
 def copy_regular(source, target, executable=False):
+    """只复制有界普通文件，拒绝叶子符号链接及多重硬链接；可执行产物额外核对 ELF 签名。"""
     metadata = source.lstat()
     if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1 or not 0 < metadata.st_size <= 134217728:
         raise RuntimeError("Runtime packaging accepts only bounded ordinary installed files")
@@ -46,6 +47,7 @@ def copy_regular(source, target, executable=False):
 
 
 def tools_manifest(image, launcher):
+    """从精确缓存镜像取得工具 manifest，以受限、无网络容器固定实际可执行文件来源。"""
     owner = secrets.token_hex(12)
     name = "drop-core-runtime-manifest-" + owner
     script = "import runpy,sys,pathlib; sys.argv=['tools-install.py','--manifest-only']; runpy.run_path('/fixture/tools-install.py',run_name='__main__'); print(pathlib.Path('/opt/drop-tools/manifest.json').read_text())"
@@ -66,6 +68,7 @@ def tools_manifest(image, launcher):
 
 
 def main():
+    """打包已测试的安装产物和工具摘要，不重新编译或改标签；交付清单用于后续精确绑定。"""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--install", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
@@ -90,8 +93,8 @@ def main():
     copy_regular(ROOT / "contracts/task-kinds.json", output / "task-kinds.json")
     full = tools_manifest(arguments.tools_base, output / "runtime/bin/drop_gdb_ptrace")
     (output / "tools-manifest.json").write_text(json.dumps(full, indent=2) + "\n")
-    # Snapshot the minimal base's own executable, which can differ from the
-    # full tools image. Never reuse one image's perf hash for another image.
+    # 对最小 base 镜像自身的可执行文件取快照，其字节可能与完整 tools 镜像不同；
+    # 不能把一个镜像的 perf 哈希复用给另一个镜像。
     script = 'for profiler in /usr/lib/linux-tools/*/perf; do if test -x "$profiler"; then sha256sum "$profiler"; break; fi; done'
     perf = run(["docker", "run", "--rm", "--network", "none", "--read-only", "--cap-drop", "ALL", "--user", "10001:10001",
                 "--memory", "32m", "--memory-swap", "32m", "--cpus", ".2", "--entrypoint", "/bin/sh", arguments.core_base, "-c", script])

@@ -1,3 +1,7 @@
+// 采集领域的轻量约束：基础参数、状态迁移、优先级与当前attempt匹配。
+// 这些函数刻意不访问网络或数据库，便于把状态边界作为独立单元测试验证。
+// 重试产生新attempt；旧attempt即使晚到成功结果，也不能回写当前任务。
+
 #pragma once
 
 #include <cstdint>
@@ -55,6 +59,8 @@ inline std::vector<std::string> perf_record_argv(const SamplingParameters &p,
           std::to_string(p.duration_seconds)};
 }
 
+// 采集状态只按合法方向迁移；重复同态回报允许幂等，但终态不可复活。
+// 分析状态由分析链路独立维护，不能用采集COLLECTED表示分析也成功。
 inline bool collection_transition_allowed(const std::string &from,
                                           const std::string &to) {
   if (from == to)
@@ -80,9 +86,10 @@ inline bool safe_identifier(const std::string &text) {
   return true;
 }
 
+// 迟到请求必须同时匹配当前执行身份；只匹配task_id不足以区分重试前后。
 inline bool current_attempt_matches(std::int64_t requested,
                                     std::int64_t current) {
   return requested > 0 && requested == current;
 }
 
-} // namespace dropcore
+} // 结束 dropcore 命名空间
