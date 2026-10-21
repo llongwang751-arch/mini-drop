@@ -88,6 +88,119 @@ func invalidDiagnosisFact() error {
 	return domain.Fail("AI_INVALID_REPORT", "结构化事实、单位、数值或工具来源未通过核验")
 }
 
+// 专用反馈只携带程序枚举与已验证的定位信息，不携带候选值、任意字段路径、上游异常或观测正文。
+// 非导出方法把实现限制在本服务包；运行时仍在序列化前重验白名单，普通domain错误不会自动获得详细回显。
+type diagnosisReportFeedbackProvider interface {
+	safeDiagnosisReportFeedback() diagnosisReportFeedback
+}
+
+type diagnosisReportFeedback struct {
+	Reason       string `json:"reason"`
+	Section      string `json:"section"`
+	Index        *int   `json:"index,omitempty"`
+	Field        string `json:"field,omitempty"`
+	EvidenceID   string `json:"evidence_id,omitempty"`
+	ExpectedTool string `json:"expected_tool,omitempty"`
+	ActualTool   string `json:"actual_tool,omitempty"`
+	ExpectedUnit string `json:"expected_unit,omitempty"`
+}
+
+type diagnosisReportValidationError struct{ feedback diagnosisReportFeedback }
+
+func (e *diagnosisReportValidationError) Error() string {
+	return "AI_INVALID_REPORT: 结构化报告未通过当前观测核验"
+}
+func (e *diagnosisReportValidationError) Unwrap() error { return invalidDiagnosisFact() }
+func (e *diagnosisReportValidationError) safeDiagnosisReportFeedback() diagnosisReportFeedback {
+	return e.feedback
+}
+
+var diagnosisFeedbackRepairs = map[string]string{
+	"fact_id_invalid":                       "facts.id须为F1等唯一有效编号。",
+	"fact_id_duplicate":                     "为每条facts分配唯一编号，并同步hypotheses.fact_ids。",
+	"fact_source_not_found":                 "只能引用实际trace返回的当前观测E编号，不能补造来源。",
+	"fact_operator_invalid":                 "operator只允许eq、count或count_positive_self，并遵守对应路径白名单。",
+	"fact_path_not_allowed":                 "该工具的path/operator组合不在白名单；按系统协议选择已返回的固定字段，或移除此事实并同步假设引用。",
+	"fact_path_missing":                     "实际观测没有该字段；不能补默认值，可移除此事实并同步假设引用。",
+	"fact_unit_mismatch":                    "使用expected_unit标明的原观测单位，不能换算或给不同来源套用单位。",
+	"fact_value_mismatch":                   "value必须逐项等于实际观测或程序聚合结果，不能使用近似或推测值。",
+	"fact_observation_invalid":              "来源结构、标量或范围不满足事实协议；不要补造缺失值，改用其他有效观测。",
+	"fact_observation_unavailable":          "available=false的业务源不允许引用其数值；可保留/available=false事实或使用其他有效来源。",
+	"fact_measurement_not_comparable":       "对照未证明同口径，不能给两侧权重套用同一单位。",
+	"verification_parameters_out_of_bounds": "时长只允许1至60秒、频率只允许0至999Hz；工具计划参数还必须逐项等于实际返回。",
+	"verification_source_not_found":         "source_evidence_id只能指向trace中实际返回的propose_verification编号。",
+	"verification_source_tool_mismatch":     "改为origin=model_proposal并删除source_evidence_id，或在普通轮内调用真正propose_verification后引用其返回；不得增加权限或预算",
+	"verification_source_invalid":           "来源观测没有合法的复测计划结构，不能用默认值补成已校验计划。",
+	"verification_instruction_mismatch":     "tool_instruction仅允许实际requires_manual_import=true的manual_import，且不接受时长或频率。",
+	"verification_plan_unavailable":         "tool_plan仅允许propose_verification真实返回的repeat_collection草案，人工导入/独立配置不能冒充可执行计划。",
+	"verification_plan_parameters_missing":  "来源没有返回完整合法的时长/频率，不能补默认值；改为model_proposal并删除source_evidence_id，或引用真正可用的复测草案。",
+	"verification_parameter_mismatch":       "工具计划的时长/频率必须与所引用propose_verification实际返回逐项相等；自行建议须改为model_proposal并删除source_evidence_id。",
+	"model_proposal_source_forbidden":       "origin=model_proposal时必须删除source_evidence_id，不把模型建议归因给任何工具。",
+	"verification_kind_invalid":             "仅使用系统协议列出的kind，不得自造执行动作。",
+	"verification_origin_invalid":           "origin只允许tool_plan、tool_instruction或model_proposal。",
+}
+
+func diagnosisFeedbackKnownTool(tool string) bool {
+	return slices.Contains([]string{"read_profile_summary", "inspect_hotspots", "check_collection_quality", "inspect_call_paths", "propose_verification", "compare_profiles", "read_diagnostic_knowledge", "query_business_signals", "inspect_service_topology", "propose_followup_collection"}, tool)
+}
+
+func (f diagnosisReportFeedback) safeJSON() (string, bool) {
+	repair, ok := diagnosisFeedbackRepairs[f.Reason]
+	if !ok || f.Index == nil {
+		return "", false
+	}
+	if f.Section == "facts" {
+		if *f.Index < 0 || *f.Index >= 24 {
+			return "", false
+		}
+	} else if f.Section == "verification_requests" {
+		if *f.Index < 0 || *f.Index >= 3 {
+			return "", false
+		}
+	} else {
+		return "", false
+	}
+	if !slices.Contains([]string{"id", "evidence_id", "path", "operator", "unit", "value", "origin", "kind", "source_evidence_id", "duration_seconds", "frequency_hz"}, f.Field) {
+		return "", false
+	}
+	if f.EvidenceID != "" && !diagnosisEvidenceNumber.MatchString(f.EvidenceID) {
+		return "", false
+	}
+	if f.ExpectedTool != "" && f.ExpectedTool != "propose_verification" || f.ActualTool != "" && !diagnosisFeedbackKnownTool(f.ActualTool) {
+		return "", false
+	}
+	if f.ExpectedUnit != "" && !slices.Contains([]string{"samples", "cpu_ticks", "bytes", "objects", "allocations", "operations", "nanoseconds", "milliseconds", "count", "unknown", "seconds", "hertz", "percent", "percentage_points", "ratio", "requests_per_second", "category", "unit", "boolean", "rank", "status_code", "timestamp"}, f.ExpectedUnit) {
+		return "", false
+	}
+	raw, err := json.Marshal(struct {
+		diagnosisReportFeedback
+		Repair string `json:"repair"`
+	}{f, repair})
+	return string(raw), err == nil && len(raw) <= 1024
+}
+
+func diagnosisFeedbackError(reason, field string, step DiagnosisStep) *diagnosisReportValidationError {
+	f := diagnosisReportFeedback{Reason: reason, Field: field}
+	if diagnosisEvidenceNumber.MatchString(step.EvidenceID) {
+		f.EvidenceID = step.EvidenceID
+	}
+	if diagnosisFeedbackKnownTool(step.Tool) {
+		f.ActualTool = step.Tool
+	}
+	return &diagnosisReportValidationError{feedback: f}
+}
+
+// 索引来自校验器循环而非模型值；复制错误对象，防止并发回调或缓存复用改变既有定位。
+func diagnosisFeedbackAt(err error, section string, index int) error {
+	if typed, ok := err.(*diagnosisReportValidationError); ok {
+		copied := *typed
+		copied.feedback.Section = section
+		copied.feedback.Index = &index
+		return &copied
+	}
+	return err
+}
+
 func diagnosisDecodeObject(raw json.RawMessage) (map[string]any, error) {
 	if len(raw) == 0 || len(raw) > 64<<10 {
 		return nil, invalidDiagnosisFact()
@@ -333,16 +446,22 @@ func diagnosisFactScalarType(value any, unit string) bool {
 }
 
 func diagnosisResolveFact(request diagnosisFactRequest, step DiagnosisStep, measurementUnit string) (DiagnosisVerifiedFact, error) {
+	bad := func(reason, field string) (DiagnosisVerifiedFact, error) {
+		return DiagnosisVerifiedFact{}, diagnosisFeedbackError(reason, field, step)
+	}
+	if !slices.Contains([]string{"eq", "count", "count_positive_self"}, request.Operator) {
+		return bad("fact_operator_invalid", "operator")
+	}
 	unit, label, allowed := diagnosisAllowedFact(step.Tool, request.Path, request.Operator, measurementUnit)
 	if !allowed {
-		return DiagnosisVerifiedFact{}, invalidDiagnosisFact()
+		return bad("fact_path_not_allowed", "path")
 	}
 	body, err := diagnosisDecodeObject(step.Observation)
 	if err != nil {
-		return DiagnosisVerifiedFact{}, err
+		return bad("fact_observation_invalid", "evidence_id")
 	}
 	if step.Tool == "query_business_signals" && request.Path != "/available" && body["available"] != true {
-		return DiagnosisVerifiedFact{}, invalidDiagnosisFact()
+		return bad("fact_observation_unavailable", "evidence_id")
 	}
 	if unit == "signal_metric" {
 		prefix := strings.TrimSuffix(request.Path, "/value")
@@ -352,33 +471,35 @@ func diagnosisResolveFact(request diagnosisFactRequest, step DiagnosisStep, meas
 		metricName, validName := name.(string)
 		unit = units[metricName]
 		if !okName || !okUnit || !validName || unit == "" || actualUnit != unit {
-			return DiagnosisVerifiedFact{}, invalidDiagnosisFact()
+			return bad("fact_observation_invalid", "unit")
 		}
 	}
 	if step.Tool == "compare_profiles" && (request.Path == "/baseline_weight" || request.Path == "/candidate_weight") {
 		// 不可比结果的两侧可能使用不同单位，不能把基线单位套到候选数值上。
 		observedUnit, ok := body["unit"].(string)
 		if body["comparable"] != true || !ok || observedUnit != measurementUnit {
-			return DiagnosisVerifiedFact{}, invalidDiagnosisFact()
+			return bad("fact_measurement_not_comparable", "evidence_id")
 		}
 	}
 	if request.Unit != unit {
-		return DiagnosisVerifiedFact{}, invalidDiagnosisFact()
+		err := diagnosisFeedbackError("fact_unit_mismatch", "unit", step)
+		err.feedback.ExpectedUnit = unit
+		return DiagnosisVerifiedFact{}, err
 	}
 	value, exists := diagnosisFactValue(body, request.Path)
 	if !exists {
-		return DiagnosisVerifiedFact{}, invalidDiagnosisFact()
+		return bad("fact_path_missing", "path")
 	}
 	if step.Tool == "query_business_signals" && strings.HasSuffix(request.Path, "/change_type") {
 		changeType, ok := value.(string)
 		if !ok || !slices.Contains([]string{"deployment", "configuration", "feature_flag"}, changeType) {
-			return DiagnosisVerifiedFact{}, invalidDiagnosisFact()
+			return bad("fact_observation_invalid", "value")
 		}
 	}
 	if request.Operator == "count" || request.Operator == "count_positive_self" {
 		rows, ok := value.([]any)
 		if !ok || len(rows) > 64 {
-			return DiagnosisVerifiedFact{}, invalidDiagnosisFact()
+			return bad("fact_observation_invalid", "operator")
 		}
 		count := len(rows)
 		if request.Operator == "count_positive_self" {
@@ -386,11 +507,11 @@ func diagnosisResolveFact(request diagnosisFactRequest, step DiagnosisStep, meas
 			for _, row := range rows {
 				item, valid := row.(map[string]any)
 				if !valid {
-					return DiagnosisVerifiedFact{}, invalidDiagnosisFact()
+					return bad("fact_observation_invalid", "operator")
 				}
 				number, valid := diagnosisNumeric(item["self_percent"])
 				if !valid || number.Sign() < 0 || number.Cmp(big.NewRat(100, 1)) > 0 {
-					return DiagnosisVerifiedFact{}, invalidDiagnosisFact()
+					return bad("fact_observation_invalid", "value")
 				}
 				if number.Sign() > 0 {
 					count++
@@ -399,12 +520,15 @@ func diagnosisResolveFact(request diagnosisFactRequest, step DiagnosisStep, meas
 		}
 		value = json.Number(strconv.Itoa(count))
 	}
-	if !diagnosisFactScalarType(value, unit) || !diagnosisSameScalar(value, request.Value) {
-		return DiagnosisVerifiedFact{}, invalidDiagnosisFact()
+	if !diagnosisFactScalarType(value, unit) {
+		return bad("fact_observation_invalid", "value")
+	}
+	if !diagnosisSameScalar(value, request.Value) {
+		return bad("fact_value_mismatch", "value")
 	}
 	encoded, err := json.Marshal(value)
 	if err != nil {
-		return DiagnosisVerifiedFact{}, invalidDiagnosisFact()
+		return bad("fact_observation_invalid", "value")
 	}
 	return DiagnosisVerifiedFact{ID: request.ID, EvidenceID: step.EvidenceID, Tool: step.Tool, Path: request.Path, Operator: request.Operator, Value: encoded, Unit: unit, Description: fmt.Sprintf("%s：%s=%s（%s）", step.EvidenceID, label, string(encoded), unit)}, nil
 }
@@ -431,51 +555,68 @@ func diagnosisSafeInterpretation(text string) bool {
 }
 
 func diagnosisVerificationText(request diagnosisVerificationRequest, steps map[string]DiagnosisStep) (string, error) {
-	if request.DurationSeconds != nil && (*request.DurationSeconds < 1 || *request.DurationSeconds > 60) || request.FrequencyHz != nil && (*request.FrequencyHz < 0 || *request.FrequencyHz > 999) {
-		return "", invalidDiagnosisFact()
+	bad := func(reason, field string, step DiagnosisStep) (string, error) {
+		return "", diagnosisFeedbackError(reason, field, step)
+	}
+	if request.DurationSeconds != nil && (*request.DurationSeconds < 1 || *request.DurationSeconds > 60) {
+		return bad("verification_parameters_out_of_bounds", "duration_seconds", DiagnosisStep{})
+	}
+	if request.FrequencyHz != nil && (*request.FrequencyHz < 0 || *request.FrequencyHz > 999) {
+		return bad("verification_parameters_out_of_bounds", "frequency_hz", DiagnosisStep{})
 	}
 	switch request.Origin {
 	case "tool_plan", "tool_instruction":
 		step, ok := steps[request.SourceEvidenceID]
-		if !ok || step.Tool != "propose_verification" {
-			return "", invalidDiagnosisFact()
+		if !ok {
+			return bad("verification_source_not_found", "source_evidence_id", DiagnosisStep{})
+		}
+		if step.Tool != "propose_verification" {
+			err := diagnosisFeedbackError("verification_source_tool_mismatch", "source_evidence_id", step)
+			err.feedback.ExpectedTool = "propose_verification"
+			return "", err
 		}
 		body, err := diagnosisDecodeObject(step.Observation)
 		if err != nil {
-			return "", err
+			return bad("verification_source_invalid", "source_evidence_id", step)
 		}
 		if request.Origin == "tool_instruction" {
 			if request.Kind != "manual_import" || body["requires_manual_import"] != true || request.DurationSeconds != nil || request.FrequencyHz != nil {
-				return "", invalidDiagnosisFact()
+				return bad("verification_instruction_mismatch", "kind", step)
 			}
 			return fmt.Sprintf("工具%s仅要求人工导入同条件对照数据，没有返回可执行采集计划或时长/频率；后续采集参数需要另外审阅。", step.EvidenceID), nil
 		}
 		if request.Kind != "repeat_collection" || body["requires_manual_import"] == true || body["requires_manual_configuration"] == true {
-			return "", invalidDiagnosisFact()
+			return bad("verification_plan_unavailable", "kind", step)
 		}
 		duration, okD := body["duration_seconds"].(json.Number)
 		frequency, okF := body["frequency_hz"].(json.Number)
 		if !okD || !okF {
-			return "", invalidDiagnosisFact()
+			return bad("verification_plan_parameters_missing", "source_evidence_id", step)
 		}
 		d, errD := strconv.Atoi(duration.String())
 		f, errF := strconv.Atoi(frequency.String())
-		if errD != nil || errF != nil || d < 1 || d > 60 || f < 0 || f > 999 || request.DurationSeconds != nil && *request.DurationSeconds != d || request.FrequencyHz != nil && *request.FrequencyHz != f {
-			return "", invalidDiagnosisFact()
+		if errD != nil || errF != nil || d < 1 || d > 60 || f < 0 || f > 999 {
+			return bad("verification_plan_parameters_missing", "source_evidence_id", step)
+		}
+		if request.DurationSeconds != nil && *request.DurationSeconds != d {
+			return bad("verification_parameter_mismatch", "duration_seconds", step)
+		}
+		if request.FrequencyHz != nil && *request.FrequencyHz != f {
+			return bad("verification_parameter_mismatch", "frequency_hz", step)
 		}
 		kind, validKind := body["kind"].(string)
 		if !validKind || kind == "" || len(kind) > 64 {
-			return "", invalidDiagnosisFact()
+			return bad("verification_source_invalid", "source_evidence_id", step)
 		}
 		return fmt.Sprintf("工具%s实际返回同类复测草案：%d秒、%dHz；草案仍需审阅，未由报告自动执行，也未完成因果验证。", step.EvidenceID, d, f), nil
 	case "model_proposal":
 		if request.SourceEvidenceID != "" {
-			return "", invalidDiagnosisFact()
+			return bad("model_proposal_source_forbidden", "source_evidence_id", DiagnosisStep{})
 		}
 		actions := map[string]string{"repeat_collection": "在相同目标、单位与稳定负载下补充对照采集", "collect_memory": "另行授权内存、分配或GC观测", "collect_wait_io": "另行授权线程等待或IO观测", "inspect_source": "通过授权源码映射核对业务语义", "correlate_business_signals": "对齐请求延迟、吞吐、错误率与采样窗口", "controlled_intervention": "实施受控干预并进行功能和性能对照", "manual_import": "人工导入可比的对照数据"}
 		action, ok := actions[request.Kind]
 		if !ok {
-			return "", invalidDiagnosisFact()
+			return bad("verification_kind_invalid", "kind", DiagnosisStep{})
 		}
 		parameters := ""
 		if request.DurationSeconds != nil {
@@ -486,7 +627,7 @@ func diagnosisVerificationText(request diagnosisVerificationRequest, steps map[s
 		}
 		return "模型待审建议（不是工具返回或已校验计划）：" + action + parameters + "。执行前须独立核验采集器契约和权限；本报告不执行该建议。", nil
 	}
-	return "", invalidDiagnosisFact()
+	return bad("verification_origin_invalid", "origin", DiagnosisStep{})
 }
 
 func diagnosisV2Summary(trace []DiagnosisStep) (string, []string, error) {
@@ -652,29 +793,29 @@ func validateDiagnosisModelReportV2(content string, trace []DiagnosisStep) (*Dia
 	unit := diagnosisMeasurementUnit(trace)
 	report := &DiagnosisReport{ReportVersion: 2, Facts: []DiagnosisVerifiedFact{}, Hypotheses: []DiagnosisHypothesis{}}
 	indexed := map[string]DiagnosisVerifiedFact{}
-	for _, request := range submitted.Facts {
+	for index, request := range submitted.Facts {
 		if !diagnosisFactID.MatchString(request.ID) {
-			return nil, invalidDiagnosisFact()
+			return nil, diagnosisFeedbackAt(diagnosisFeedbackError("fact_id_invalid", "id", DiagnosisStep{}), "facts", index)
 		}
 		if _, exists := indexed[request.ID]; exists {
-			return nil, invalidDiagnosisFact()
+			return nil, diagnosisFeedbackAt(diagnosisFeedbackError("fact_id_duplicate", "id", DiagnosisStep{}), "facts", index)
 		}
 		step, exists := steps[request.EvidenceID]
 		if !exists {
-			return nil, invalidDiagnosisFact()
+			return nil, diagnosisFeedbackAt(diagnosisFeedbackError("fact_source_not_found", "evidence_id", DiagnosisStep{}), "facts", index)
 		}
 		fact, err := diagnosisResolveFact(request, step, unit)
 		if err != nil {
-			return nil, err
+			return nil, diagnosisFeedbackAt(err, "facts", index)
 		}
 		indexed[fact.ID] = fact
 		report.Facts = append(report.Facts, fact)
 	}
 	verification := []string{}
-	for _, request := range submitted.VerificationRequests {
+	for index, request := range submitted.VerificationRequests {
 		text, err := diagnosisVerificationText(request, steps)
 		if err != nil {
-			return nil, err
+			return nil, diagnosisFeedbackAt(err, "verification_requests", index)
 		}
 		verification = append(verification, text)
 	}

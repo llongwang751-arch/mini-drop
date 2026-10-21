@@ -2,6 +2,10 @@
 
 ## 八项 Agent 扩展（2026-10-21，已部署，真实场景验收中）
 
+API20261021.5候选增加报告专用安全纠错提示，66项Go定向回归、全API vet及SDK新增3项通过；原错误来源仍拒绝，预算保持，尚待真实模型复验。收据见 [安全反馈回归](evidence/agent-expansion-20261021/report-feedback-go.json)。
+
+当前修正版本API/runtime/Web20261021.4、SQL10，Linux SDK50/50、0skip，29运行健康/7监控up；仅应用三容器替换，其余26及broker PID/登记快照保持。Web公网双宽10视图、严格CSP、长diff方向键、真实补丁下载和32静态文件/index SHA通过。见 [21.4部署](evidence/agent-expansion-20261021/deployment-r4.json)、[公网实际检查](evidence/agent-expansion-20261021/public-r4/summary.json)。跨信号调查14已真实采集/查询并生成补证草案，但最终报告的复测来源混淆被拒，尚不能称完整补证闭环；修正安全反馈后继续验收。
+
 已部署功能670da84：API/runtime/Web20261021.3、SDK2.0.10、SQL10，29运行健康、7监控up、HTTPS readiness200；Linux SDK44/44通过。应用三容器替换、其余24身份/镜像不变，新增双服务遥测；旧卷/命名镜像、CRM/Saber完整登记快照保持。真实DeepSeek通用Python修复10已在32.36秒完成，新增回归红绿/原回归/正负对照通过，8.2122×仅合成购物车函数，不代表生产延迟。见 [部署](evidence/agent-expansion-20261021/deployment.json)与[真实模型修复](evidence/agent-expansion-20261021/live-generic-acceptance.json)。跨信号、追加补证和24次真实重复试验正在验收。
 
 代码已实现事实协议2、动态补证、四类业务信号/登记拓扑、通用Python登记、审阅方法库、持久化恢复/预算/重试、可复现重复评测和生成回归/补丁包，详见 [实现与边界](AGENT_EXPANSION.md)。本地整体PG384通过/1真实模型skip、Go vet通过；Web153单测、相关浏览器33/33与两宽页面检查通过；通用Python在Linux Docker实际红绿+正负性能对照通过，双服务Linux实际HTTP7通过。见 [本轮本地收据](evidence/agent-expansion-20261021/local-checks.json)，实际平台发布与模型结果单列于上段。
