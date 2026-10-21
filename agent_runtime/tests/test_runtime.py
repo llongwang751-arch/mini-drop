@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import ssl
 import stat
 import sys
 import tempfile
@@ -17,6 +18,11 @@ import httpx2 as httpx
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from drop_agent_runtime.config import Config
+from drop_agent_runtime.provider_retry import (
+    ProviderCircuit,
+    _circuits,
+    retry_after_seconds,
+)
 from drop_agent_runtime.runner import RunRequest, SafeRuntimeFailure, run_agent
 from drop_agent_runtime.server import Server, validate_socket_parent
 from drop_agent_runtime.wire import (
@@ -135,6 +141,70 @@ class Provider:
         return httpx.Response(200, json=self.responses.pop(0))
 
 
+class ImportedProcessExit(BaseException):
+    """导入夹具模拟进程在回执完成但响应未送达时退出，不代表真实进程被终止。"""
+
+
+class DurableFixtureGateway(FixtureGateway):
+    def __init__(self, crash_after_first_tool=False):
+        super().__init__()
+        self.snapshot = {
+            "sequence": 0,
+            "model_calls": 0,
+            "tool_calls": 0,
+            "round_tools": 0,
+            "format_only": False,
+            "state": {},
+            "usage": {},
+            "completed_call_ids": [],
+        }
+        self.receipts = {}
+        self.executions = []
+        self.crash_after_first_tool = crash_after_first_tool
+
+    async def call(self, payload):
+        self.calls.append(deepcopy(payload))
+        kind = payload["type"]
+        if kind == "checkpoint":
+            saved = json.loads(payload["content"])
+            assert saved["sequence"] == self.snapshot["sequence"] + 1
+            self.snapshot.update(saved)
+        elif kind == "model_start":
+            assert payload["round"] == self.snapshot["model_calls"] + 1
+            self.snapshot["model_calls"] = payload["round"]
+            self.snapshot["round_tools"] = 0
+        elif kind == "model_end":
+            for key, value in payload.get("usage", {}).items():
+                self.snapshot["usage"][key] = self.snapshot["usage"].get(key, 0) + value
+        elif kind == "tool":
+            call_id = payload["call_id"]
+            if call_id in self.receipts:
+                return deepcopy(self.receipts[call_id])
+            self.executions.append(call_id)
+            self.snapshot["tool_calls"] += 1
+            self.snapshot["round_tools"] += 1
+            self.snapshot["completed_call_ids"].append(call_id)
+            response = {
+                "ok": True,
+                "observation": {
+                    "evidence_id": "E" + str(self.snapshot["tool_calls"] + 1),
+                    "source": "explicit imported durable fixture",
+                },
+            }
+            self.receipts[call_id] = response
+            if self.crash_after_first_tool:
+                self.crash_after_first_tool = False
+                raise ImportedProcessExit()
+            return deepcopy(response)
+        elif kind == "finish":
+            return {
+                "ok": True,
+                "accepted": True,
+                "result": {"summary": "Go accepted fixture"},
+            }
+        return {"ok": True}
+
+
 class RuntimeTests(unittest.IsolatedAsyncioTestCase):
     async def test_diagnostic_knowledge_uses_native_sdk_and_bounded_gateway(self):
         """新知识工具必须能通过真实SDK解析和回调，不能只在Go白名单中存在。"""
@@ -155,7 +225,267 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(calls[0]["arguments"], {})
         self.assertEqual(len(provider.requests), 2)
 
+    async def test_native_checkpoint_resumes_partial_tool_batch_without_reexecution(
+        self,
+    ):
+        gateway = DurableFixtureGateway(crash_after_first_tool=True)
+        body = run_body(
+            tools=[
+                tool_definition("inspect_hotspots"),
+                tool_definition("check_collection_quality"),
+            ]
+        )
+        body["checkpoint"] = deepcopy(gateway.snapshot)
+        provider = Provider(
+            [
+                completion(
+                    calls=[
+                        ("durable-first", "inspect_hotspots", "{}"),
+                        ("durable-second", "check_collection_quality", "{}"),
+                    ]
+                )
+            ]
+        )
+        with self.assertRaises(ImportedProcessExit):
+            await run_agent(
+                RunRequest.parse(body, self.config.model),
+                self.config,
+                gateway,
+                transport=httpx.MockTransport(provider),
+            )
+        self.assertEqual(gateway.executions, ["durable-first"])
+        self.assertEqual(gateway.snapshot["state"]["cursor"], "tools")
+        self.assertEqual(gateway.snapshot["model_calls"], 1)
+        self.assertEqual(gateway.snapshot["tool_calls"], 1)
+        restored_body = run_body(tools=body["tools"])
+        restored_body["checkpoint"] = deepcopy(gateway.snapshot)
+        result, resumed_provider, _ = await self.execute(
+            [completion('{"summary":"recovered"}')], restored_body, gateway
+        )
+        self.assertEqual(gateway.executions, ["durable-first", "durable-second"])
+        self.assertEqual(
+            (result["runtime"]["model_calls"], result["runtime"]["tool_calls"]), (2, 2)
+        )
+        self.assertEqual(
+            result["runtime"]["usage"], {"input_tokens": 20, "output_tokens": 10}
+        )
+        messages = resumed_provider.requests[0]["messages"]
+        self.assertEqual(len([m for m in messages if m["role"] == "user"]), 1)
+        self.assertEqual(
+            [m["tool_call_id"] for m in messages if m["role"] == "tool"],
+            ["durable-first", "durable-second"],
+        )
+        serialized = json.dumps(gateway.snapshot)
+        self.assertNotIn("capability", serialized)
+        self.assertNotIn("imported-fixture-key", serialized)
+        self.assertNotIn('"thinking"', serialized)
+
+    async def test_provider_retries_charge_every_attempt_and_cap_retry_after(self):
+        requests = []
+
+        async def provider(request):
+            requests.append(json.loads(request.content))
+            if len(requests) == 1:
+                return httpx.Response(
+                    429,
+                    headers={"Retry-After": "999"},
+                    json={"error": {"message": "fixture-provider-secret"}},
+                )
+            if len(requests) == 2:
+                return httpx.Response(
+                    503, json={"error": {"message": "fixture-provider-secret"}}
+                )
+            return httpx.Response(200, json=completion('{"summary":"recovered"}'))
+
+        gateway = FixtureGateway()
+        with patch(
+            "drop_agent_runtime.runner.asyncio.sleep", new_callable=AsyncMock
+        ) as sleep:
+            result = await run_agent(
+                RunRequest.parse(run_body(), self.config.model),
+                self.config,
+                gateway,
+                transport=httpx.MockTransport(provider),
+            )
+        self.assertEqual(len(requests), 3)
+        self.assertEqual(result["runtime"]["model_calls"], 3)
+        self.assertEqual(
+            result["runtime"]["usage"], {"input_tokens": 10, "output_tokens": 5}
+        )
+        self.assertEqual(
+            [c["type"] for c in gateway.calls],
+            ["model_start", "model_end"] * 3 + ["finish"],
+        )
+        self.assertEqual([call.args[0] for call in sleep.await_args_list], [2.0, 0.2])
+        self.assertNotIn("fixture-provider-secret", json.dumps(gateway.calls))
+
+    async def test_checkpoint_final_cursor_and_accepted_result_need_no_new_provider(
+        self,
+    ):
+        """最终文本已落检查点时只重新验收；Go 已接受时原样返回，数值词法不经浮点重编码。"""
+
+        class InterruptedFinishGateway(DurableFixtureGateway):
+            async def call(self, payload):
+                if payload["type"] == "finish":
+                    raise ImportedProcessExit()
+                return await super().call(payload)
+
+        gateway = InterruptedFinishGateway()
+        body = run_body()
+        body["checkpoint"] = deepcopy(gateway.snapshot)
+        with self.assertRaises(ImportedProcessExit):
+            await self.execute([completion('{"summary":"saved final"}')], body, gateway)
+        self.assertEqual(gateway.snapshot["state"]["cursor"], "finish")
+        self.assertEqual(gateway.snapshot["model_calls"], 1)
+        resumed_gateway = FixtureGateway()
+        body["run_id"] = str(uuid.uuid4())
+        body["checkpoint"] = deepcopy(gateway.snapshot)
+        result, provider, _ = await self.execute([], body, resumed_gateway)
+        self.assertEqual(provider.requests, [])
+        self.assertEqual([call["type"] for call in resumed_gateway.calls], ["finish"])
+        self.assertEqual(result["runtime"]["model_calls"], 1)
+        self.assertEqual(
+            result["runtime"]["usage"], {"input_tokens": 10, "output_tokens": 5}
+        )
+        accepted = '{"report_version":2,"facts":[{"value":0.000001},{"value":1e-6},{"value":-0},{"value":0.12345678901234567890123456789},{"value":90071992547409931234567890123456789}]}'
+        body["checkpoint"]["accepted_json"] = accepted
+        result, provider, resumed_gateway = await self.execute([], body)
+        self.assertEqual(provider.requests, [])
+        self.assertEqual(resumed_gateway.calls, [])
+        self.assertIsInstance(result["result"], AcceptedJSON)
+        self.assertEqual(result["result"].raw, accepted.encode())
+        self.assertIn(b'"result":' + accepted.encode(), json_bytes(result))
+
+    async def test_expanded_diagnosis_eighth_finish_earns_only_ninth_format_round(self):
+        """新请求可用八次普通推理；第九次仍仅纠正格式，旧五轮请求沿用原测试。"""
+        body = run_body()
+        body["budget"].update(max_model_calls=9, max_tool_calls=14)
+        finishes = 0
+
+        def callback(payload):
+            nonlocal finishes
+            if payload["type"] == "finish":
+                finishes += 1
+                if finishes == 1:
+                    return {
+                        "ok": False,
+                        "fatal": False,
+                        "accepted": False,
+                        "format_only": True,
+                        "feedback": "仅修正JSON格式，不得新增工具或当前证据。",
+                    }
+            return None
+
+        result, provider, gateway = await self.execute(
+            [
+                completion(calls=[(f"expanded-{i}", "inspect_hotspots", "{}")])
+                for i in range(7)
+            ]
+            + [completion("invalid"), completion('{"summary":"fixed"}')],
+            body,
+            FixtureGateway(callback),
+        )
+        self.assertEqual(result["runtime"]["model_calls"], 9)
+        self.assertEqual(result["runtime"]["tool_calls"], 7)
+        self.assertEqual(len(provider.requests), 9)
+        self.assertNotIn("tools", provider.requests[-1])
+        self.assertEqual(provider.requests[-1].get("tool_choice"), "none")
+        self.assertEqual(
+            [call["round"] for call in gateway.calls if call["type"] == "model_start"],
+            list(range(1, 10)),
+        )
+
+    async def test_backoff_cancel_and_permanent_http_error_do_not_retry(self):
+        for status in (400, 401, 403, 404, 422):
+            with self.subTest(status=status):
+                calls = []
+
+                async def permanent(request, calls=calls, status=status):
+                    calls.append(1)
+                    return httpx.Response(
+                        status, json={"error": {"message": "fixture-only"}}
+                    )
+
+                with self.assertRaises(ProtocolError):
+                    await run_agent(
+                        RunRequest.parse(run_body(), self.config.model),
+                        self.config,
+                        FixtureGateway(),
+                        transport=httpx.MockTransport(permanent),
+                    )
+                self.assertEqual(len(calls), 1)
+        ended = asyncio.Event()
+        gateway = FixtureGateway(
+            lambda payload: ended.set() if payload["type"] == "model_end" else None
+        )
+        calls = []
+
+        async def limited(request):
+            calls.append(1)
+            return httpx.Response(
+                429,
+                headers={"Retry-After": "2"},
+                json={"error": {"message": "fixture-only"}},
+            )
+
+        task = asyncio.create_task(
+            run_agent(
+                RunRequest.parse(run_body(), self.config.model),
+                self.config,
+                gateway,
+                transport=httpx.MockTransport(limited),
+            )
+        )
+        await asyncio.wait_for(ended.wait(), 2)
+        task.cancel()
+        with self.assertRaises(asyncio.CancelledError):
+            await task
+        self.assertEqual(len(calls), 1)
+        self.assertTrue(gateway.cancelled)
+
+    async def test_certificate_failure_and_pre_provider_rejection_release_probe(self):
+        """证书失败不能退避重试；半开探测在Go拒绝前置预留时也不能永久占锁。"""
+        requests = []
+
+        async def provider(request):
+            requests.append(1)
+            raise httpx.ConnectError(
+                "imported certificate fixture"
+            ) from ssl.SSLCertVerificationError("imported certificate fixture")
+
+        with self.assertRaises(SafeRuntimeFailure):
+            await run_agent(
+                RunRequest.parse(run_body(), self.config.model),
+                self.config,
+                FixtureGateway(),
+                transport=httpx.MockTransport(provider),
+            )
+        self.assertEqual(len(requests), 1)
+        circuit = ProviderCircuit()
+        circuit.opened_until = 1.0
+        circuit.failures = 5
+        gateway = FixtureGateway(
+            lambda payload: {"ok": False, "fatal": True, "error_code": "STALE_LEASE"}
+        )
+        provider = Provider([])
+        with (
+            patch("drop_agent_runtime.runner.provider_circuit", return_value=circuit),
+            self.assertRaisesRegex(ProtocolError, "STALE_LEASE"),
+        ):
+            await run_agent(
+                RunRequest.parse(run_body(), self.config.model),
+                self.config,
+                gateway,
+                transport=httpx.MockTransport(provider),
+            )
+        self.assertEqual(provider.requests, [])
+        self.assertFalse(circuit.probing)
+        circuit.before()
+        self.assertTrue(circuit.probing)
+        circuit.abandon()
+
     async def asyncSetUp(self):
+        _circuits.clear()
         self.directory = tempfile.TemporaryDirectory()
         secret = Path(self.directory.name) / "test-only-key"
         secret.write_text("imported-fixture-key", encoding="utf-8")
@@ -245,7 +575,7 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
         self,
     ):
         accepted = (
-            b'{"fixed":0.000001,"exponent":1e-6,"negative_zero":-0,"precise":0.12345678901234567890123456789,"padding":"'
+            b'{"report_version":2,"facts":[{"value":0.000001},{"value":1e-6},{"value":-0},{"value":0.12345678901234567890123456789},{"value":90071992547409931234567890123456789}],"summary":"'
             + b"x" * 24576
             + b'"}'
         )
@@ -279,7 +609,7 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
             {
                 "stage": "provider_request",
                 "exception_kind": "transport",
-                "model_calls": 1,
+                "model_calls": 3,
                 "tool_calls": 0,
             },
         )
@@ -716,6 +1046,27 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
 
 
 class ValidationTests(unittest.TestCase):
+    def test_provider_circuit_scope_half_open_and_retry_after_bounds(self):
+        circuit = ProviderCircuit()
+        for _ in range(5):
+            circuit.before()
+            circuit.failure()
+        with self.assertRaisesRegex(ProtocolError, "AGENT_PROVIDER_CIRCUIT_OPEN"):
+            circuit.before()
+        with patch(
+            "drop_agent_runtime.provider_retry.time.monotonic",
+            return_value=circuit.opened_until + 1,
+        ):
+            circuit.before()
+            with self.assertRaises(ProtocolError):
+                circuit.before()
+            circuit.success()
+            circuit.before()
+        self.assertEqual(retry_after_seconds("999"), 2.0)
+        self.assertEqual(retry_after_seconds("0"), 0.0)
+        for invalid in ("NaN", "Infinity", "-1", "not-a-date", "x" * 129):
+            self.assertIsNone(retry_after_seconds(invalid))
+
     def test_raw_accepted_result_preserves_numeric_lexemes_and_rejects_duplicate_fields(
         self,
     ):

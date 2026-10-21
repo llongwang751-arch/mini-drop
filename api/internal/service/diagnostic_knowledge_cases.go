@@ -569,7 +569,15 @@ func (s *Suggestions) readDiagnosticKnowledge(ctx context.Context, u domain.User
 		return out, err
 	}
 	out.Skills, err = MatchDiagnosticSkills(task, raw)
-	if err != nil || !out.HistoryEnabled {
+	if err != nil {
+		return out, err
+	}
+	methods, methodErr := s.matchedDiagnosticPlaybooks(ctx, current, task, run)
+	if methodErr != nil {
+		return out, methodErr
+	}
+	out.Skills = append(out.Skills, methods...)
+	if !out.HistoryEnabled {
 		return out, err
 	}
 	features, err := diagnosticFeatureSet(task, raw)

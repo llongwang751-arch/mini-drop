@@ -18,6 +18,7 @@ import {
   Skeleton,
 } from "../components/ui";
 import "../styles/knowledge.css";
+import DiagnosticPlaybooks from "../components/DiagnosticPlaybooks";
 
 function SkillCard({ skill }: { skill: DiagnosticSkill }) {
   return (
@@ -187,7 +188,12 @@ function CaseCard({
 export default function Knowledge() {
   const location = useLocation();
   const [params, setParams] = useSearchParams();
-  const tab = params.get("tab") === "cases" ? "cases" : "skills";
+  const tab =
+    params.get("tab") === "playbooks"
+      ? "playbooks"
+      : params.get("tab") === "cases"
+        ? "cases"
+        : "skills";
   const canWrite = useCanWrite();
   const skills = useQuery({
     queryKey: ["diagnostic-skills"],
@@ -213,7 +219,7 @@ export default function Knowledge() {
     }
   }, [location.hash, skills.dataUpdatedAt, cases.dataUpdatedAt]);
   const select = (value: string) =>
-    setParams(value === "cases" ? { tab: "cases" } : {});
+    setParams(value === "skills" ? {} : { tab: value });
   return (
     <div className="knowledge-page">
       <PageHeading
@@ -225,6 +231,7 @@ export default function Knowledge() {
         {[
           { value: "skills", label: "诊断 Skill" },
           { value: "cases", label: "我的复核案例" },
+          { value: "playbooks", label: "项目与团队方法" },
         ].map((item, index) => (
           <button
             key={item.value}
@@ -240,13 +247,15 @@ export default function Knowledge() {
                 event.key === "Home"
                   ? 0
                   : event.key === "End"
-                    ? 1
-                    : ["ArrowLeft", "ArrowRight"].includes(event.key)
-                      ? 1 - index
-                      : undefined;
+                    ? 2
+                    : event.key === "ArrowRight"
+                      ? (index + 1) % 3
+                      : event.key === "ArrowLeft"
+                        ? (index + 2) % 3
+                        : undefined;
               if (next !== undefined) {
                 event.preventDefault();
-                select(next ? "cases" : "skills");
+                select(["skills", "cases", "playbooks"][next]);
                 event.currentTarget.parentElement
                   ?.querySelectorAll<HTMLButtonElement>("button")
                   [next]?.focus();
@@ -270,60 +279,68 @@ export default function Knowledge() {
         aria-labelledby={`knowledge-tab-${tab}`}
         tabIndex={0}
       >
-        <div className="knowledge-section-heading">
-          <div>
-            <h2>
-              {tab === "skills" ? "版本化排查方法" : "由我确认保存的案例"}
-            </h2>
-            <p>
-              {tab === "skills"
-                ? "每份 Skill 明确步骤、反证、停止条件与验收要求。"
-                : "在诊断报告中保存固定纠正类别，或从已通过的关联修复中保存案例。撤销后停止后续复用。"}
-            </p>
-          </div>
-          <span className="mono">
-            {activeQuery.data?.items.length ?? "—"} 项
-          </span>
-        </div>
-        {activeQuery.isPending ? (
-          <div role="status" aria-label="正在加载诊断知识">
-            <Skeleton />
-          </div>
-        ) : activeQuery.error ? (
-          <ErrorPanel
-            error={activeQuery.error}
-            retry={() => {
-              void activeQuery.refetch();
-            }}
-          />
-        ) : activeQuery.data?.items.length ? (
-          <div className="knowledge-grid">
-            {tab === "skills"
-              ? skills.data?.items.map((skill) => (
-                  <SkillCard
-                    skill={skill}
-                    key={`${skill.id}:${skill.version}`}
-                  />
-                ))
-              : cases.data?.items.map((item) => (
-                  <CaseCard item={item} canWrite={canWrite} key={item.id} />
-                ))}
-          </div>
+        {tab === "playbooks" ? (
+          <DiagnosticPlaybooks />
         ) : (
-          <Empty
-            title={tab === "skills" ? "暂无可用诊断 Skill" : "还没有复核案例"}
-            description={
-              tab === "skills"
-                ? "服务端尚未返回可用方法，可稍后重试。"
-                : "完成本次证据复核后，在诊断报告或通过的关联修复中主动保存。系统不会自动将未复核报告加入经验。"
-            }
-            icon={<BookOpen size={28} />}
-            action={
-              <Link className="button secondary" to="/tasks">
-                查看诊断任务
-              </Link>
-            }
-          />
+          <>
+            <div className="knowledge-section-heading">
+              <div>
+                <h2>
+                  {tab === "skills" ? "版本化排查方法" : "由我确认保存的案例"}
+                </h2>
+                <p>
+                  {tab === "skills"
+                    ? "每份 Skill 明确步骤、反证、停止条件与验收要求。"
+                    : "在诊断报告中保存固定纠正类别，或从已通过的关联修复中保存案例。撤销后停止后续复用。"}
+                </p>
+              </div>
+              <span className="mono">
+                {activeQuery.data?.items.length ?? "—"} 项
+              </span>
+            </div>
+            {activeQuery.isPending ? (
+              <div role="status" aria-label="正在加载诊断知识">
+                <Skeleton />
+              </div>
+            ) : activeQuery.error ? (
+              <ErrorPanel
+                error={activeQuery.error}
+                retry={() => {
+                  void activeQuery.refetch();
+                }}
+              />
+            ) : activeQuery.data?.items.length ? (
+              <div className="knowledge-grid">
+                {tab === "skills"
+                  ? skills.data?.items.map((skill) => (
+                      <SkillCard
+                        skill={skill}
+                        key={`${skill.id}:${skill.version}`}
+                      />
+                    ))
+                  : cases.data?.items.map((item) => (
+                      <CaseCard item={item} canWrite={canWrite} key={item.id} />
+                    ))}
+              </div>
+            ) : (
+              <Empty
+                title={
+                  tab === "skills" ? "暂无可用诊断 Skill" : "还没有复核案例"
+                }
+                description={
+                  tab === "skills"
+                    ? "服务端尚未返回可用方法，可稍后重试。"
+                    : "完成本次证据复核后，在诊断报告或通过的关联修复中主动保存。系统不会自动将未复核报告加入经验。"
+                }
+                icon={<BookOpen size={28} />}
+                action={
+                  <Link className="button secondary" to="/tasks">
+                    查看诊断任务
+                  </Link>
+                }
+              />
+            )}
+          </>
         )}
       </section>
     </div>

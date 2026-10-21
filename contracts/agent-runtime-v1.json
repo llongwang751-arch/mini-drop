@@ -26,6 +26,9 @@
       "tools",
       "budget"
     ],
+    "request_optional_fields": [
+      "checkpoint"
+    ],
     "messages": "initial user messages {role:user,content:string}; system_prompt is separate",
     "tools": "OpenAI function definitions supplied by Go; only these business tools may be registered",
     "budget_fields": [
@@ -60,6 +63,7 @@
       "framework_version": "2.0.10",
       "agent_class": "agentscope.agent.Agent"
     },
+    "runtime_counter_scope": "model_calls/tool_calls/usage在启用checkpoint时为该持久阶段的累计账本值；elapsed_ms只表示本次Python会话墙钟（包含本会话退避），不表示累计调查耗时或Go已收费的活跃预算。",
     "failure": {
       "required_fields": [
         "error_code"
@@ -116,10 +120,12 @@
       "model_start",
       "model_end",
       "tool",
-      "finish"
+      "finish",
+      "checkpoint"
     ],
-    "field_presence": "type/round/call_id required; name+arguments only for tool; content only for finish; usage optional only for model_end",
+    "field_presence": "type/round/call_id required; name+arguments only for tool; content only for finish or checkpoint; usage optional only for model_end; round=0 only permitted for an initial checkpoint, otherwise it is the current reserved model round",
     "request_max_bytes": 65536,
+    "checkpoint_request_max_bytes": 262144,
     "response_max_bytes": 65536,
     "success_response": {
       "ok": true,
@@ -135,12 +141,13 @@
       "format_only": "optional true for last diagnosis format repair",
       "fatal": "boolean; fatal cancels whole run"
     },
-    "idempotency": "serialize per session; identical call_id and canonical request replay returns cached response without re-execution; changed content for same call_id is fatal",
-    "model_start": "reserve next strictly consecutive round before every actual provider call; no implicit provider retries",
+    "idempotency": "serialize per session; identical call_id and canonical request replay returns cached response without re-execution; changed content for same call_id is fatal. Durable tool receipts additionally survive process and capability changes, after current source/authorization/lease fences pass.",
+    "model_start": "reserve next strictly consecutive round before every actual provider attempt, including each controlled retry; SDK implicit retries remain disabled",
     "model_end": "optional actual provider usage; once per reserved round, never provider body or hidden thought",
     "tool": "round must be current, <=2 per round; names/schema/budget/domain fences independently enforced by Go",
     "finish": "Go validates required tools, evidence and report; accepted result is stored server-side; no further tools/model calls after acceptance",
-    "planning_terminal": "a valid propose_collection tool may return terminal=true+result. Runner stops its Agent without another model call; only Go-confirmed plan is returned"
+    "planning_terminal": "a valid propose_collection tool may return terminal=true+result. Runner stops its Agent without another model call; only Go-confirmed plan is returned",
+    "checkpoint": "content is a JSON string containing exactly sequence and state. sequence must equal the persisted cursor plus one. Go validates the bounded visible SDK projection and independently preserves authoritative counts, usage, accepted result and receipts. Model/tool definitions cannot invoke this private control operation."
   },
   "phases": {
     "planning": {
@@ -150,15 +157,17 @@
       "timeout_ms": 150000
     },
     "diagnosis": {
-      "tools": ["read_profile_summary", "inspect_hotspots", "check_collection_quality", "inspect_call_paths", "propose_verification", "compare_profiles", "read_diagnostic_knowledge"],
-      "knowledge": "可选知识先验由Go绑定，自动E2与模型工具合计最多8条trace；Skill必需工具和当前测量引用由Go验收，撤销及来源变化在终态事务再次校验。",
-      "oversized_tool_batch": "仅对通过名称/参数/ID校验的数量超限批次整批不执行；记录真实usage和model_end，并在原4次普通模型预算内反馈重选。禁止截取前两个执行；格式纠错轮仍禁止工具。",
-      "max_model_calls": 5,
-      "regular_model_calls": 4,
-      "max_tool_calls": 7,
+      "tools": ["read_profile_summary", "inspect_hotspots", "check_collection_quality", "inspect_call_paths", "propose_verification", "compare_profiles", "read_diagnostic_knowledge", "query_business_signals", "inspect_service_topology", "propose_followup_collection"],
+      "knowledge": "可选知识先验由Go绑定。新协议SDK最多14次回调，Go同时限制含自动E1/知识E2在内的trace总数15；知识开启时至多13次后续SDK工具。运行时tool_calls仅计SDK回调，不含Go预先提供的E1/E2。Skill必需工具和当前测量引用由Go验收，撤销及来源变化在终态事务再次校验。旧报告协议仍使用5模型/7回调工具及最多8条trace。",
+      "new_tools_boundary": "业务信号与拓扑工具只读取当前授权范围内的登记数据；补采工具只生成待审阅计划，不直接启动采集、写任意SQL或访问模型提供的URL。",
+      "oversized_tool_batch": "仅对通过名称/参数/ID校验的数量超限批次整批不执行；记录真实usage和model_end，并在请求原普通模型预算内反馈重选。禁止截取前两个执行；格式纠错轮仍禁止工具。",
+      "max_model_calls": 9,
+      "regular_model_calls": 8,
+      "max_tool_calls": 14,
       "max_tools_per_round": 2,
       "timeout_ms": 150000,
-      "format_retry": "fifth call only after invalid fourth-round finish, no tools; Go independently enforces"
+      "format_retry": "Only the final requested model round may be format-only, earned by an invalid finish in round max_model_calls-1; no tools and Go independently enforces. New requests use 8+1; older 4+1 requests remain valid within their lower budgets.",
+      "compatibility": "Wire version remains 1. Budget fields are explicit bounded caps; report-protocol selection belongs to Go, not the model. A lower historical budget is never silently raised on recovery."
     },
     "repair": {
       "max_model_calls": 8,
@@ -168,12 +177,41 @@
       "max_sandbox_tests": 2
     }
   },
-  "cancellation": "Go polls domain fences <=500ms, cancels upstream HTTP context and revokes capability. Runner detects disconnect/deadline, cancels framework/model/callback tasks. In-flight domain writes remain lease/attempt fenced. Restart reruns bounded persisted phase, not exact token-level continuation.",
+  "checkpoint": {
+    "enabled_by": "Go may attach checkpoint to any planning/diagnosis/repair run. Omitted checkpoint retains the original bounded in-memory behavior; Python cannot opt itself into durable storage.",
+    "snapshot_required_fields": ["sequence", "model_calls", "tool_calls", "round_tools", "format_only", "state", "usage", "completed_call_ids"],
+    "snapshot_optional_fields": ["accepted_json"],
+    "state_fields": ["context", "cursor", "pending_text", "seen_ids"],
+    "cursor_values": ["model", "tools", "finish"],
+    "visible_state": "Only bounded user/assistant visible text, tool-call IDs/names/schema-validated arguments, and authorized textual tool observations are projected from AgentScope public AgentState. No hidden reasoning, SDK credential/permission cache or executable objects are serialized.",
+    "state_max_bytes": 131072,
+    "go_envelope_max_bytes": 262144,
+    "usage_max_bytes": 16384,
+    "receipt_response_max_bytes": 65536,
+    "binding": "Go binds scope type/id to original business input digest and a digest of phase/model/system/messages/tools/budget. A renewed session gets a fresh public run_id and memory-only capability. Source, authorization, attempt and lease are rechecked before load and every durable mutation.",
+    "transaction_order": "business fence and its established domain lock order, then checkpoint FOR UPDATE, then tool receipt; never reverse this order to acquire domain locks",
+    "tool_recovery": "Go charges and commits a pending receipt before business invocation, then commits the complete response. Exact canonical request plus call_id may reuse a completed response without invoking or charging the tool again. Any pending receipt makes recovery fail AGENT_CHECKPOINT_AMBIGUOUS; a crash between an external action and its receipt does not authorize blind replay and is not an exactly-once guarantee.",
+    "accepted_json": "Go-accepted result is stored as a JSON string inside the JSONB envelope, then returned as an opaque validated raw JSON token. This preserves numeric lexemes/precision across PostgreSQL and Python. Resume after acceptance performs no new provider/tool request.",
+    "retention": "24 hours from initial checkpoint insertion; retention is not an execution-time budget and does not renew on resume.",
+    "active_budget": "Go persistently prepays non-refundable slices of at most 5000ms before execution and renews before the current slice expires. A separate watchdog cancels at the last confirmed reservation deadline if renewal or its fence fails. Offline lease wait is excluded; crash/early-renewal unused slices are never refunded. All sessions share the original timeout_ms cumulative charged active budget, model count and tool count.",
+    "limits": "Recovery resumes only completed visible message/tool boundaries or retries an already-saved final candidate through Go validation. It does not resume partial provider tokens, recreate hidden reasoning, or infer success from unconfirmed external side effects."
+  },
+  "provider_retry": {
+    "transient_http_statuses": [429, 500, 502, 503, 504],
+    "transient_transport": "temporary network/timeout failures; certificate verification failures are hard errors",
+    "attempts_per_logical_model_call": 3,
+    "backoff_seconds": [0.1, 0.2],
+    "retry_after_max_seconds": 2,
+    "budget": "Every actual provider attempt first reserves a new Go model_start and consumes the same phase-wide model and charged active-time budget. Failed attempts close model_end without inventing token usage; only returned actual usage is accumulated. SDK/OpenAI automatic retries remain zero.",
+    "hard_failures": "No retry for other HTTP statuses, invalid protocol/JSON/schema/tool IDs, rejected authorization/lease/source, exhausted budget or cancellation. Final format-only restrictions remain in force during retries.",
+    "circuit": "Shared only within one runner process for the trusted server-configured endpoint/model pair: five consecutive transient failures open for 30 seconds, then allow one probe. Success resets; cancellation/hard errors release probe ownership without proving recovery. Process restart resets the circuit, never the durable phase budget."
+  },
+  "cancellation": "Go polls domain fences <=500ms, cancels upstream HTTP context and revokes capability. Runner detects disconnect/deadline, cancels framework/model/backoff/callback tasks. In-flight domain writes remain lease/attempt fenced. A new lease can resume only validated durable boundaries under the remaining cumulative budget; ambiguous pending actions fail safely.",
   "security": [
     "Runner has no database, object-store, Docker, collector or root code-executor credential/socket.",
     "Model credentials come from runner server-side secret configuration, never request/model/tool parameters.",
     "Runner rejects model mismatch and tools outside phase allowlist. No builtin shell/file/network/MCP tools or autonomous context-compression tool is enabled.",
-    "Disable SDK request/tool/content printing and hidden-thought persistence; only bounded safe runtime counters may be persisted.",
+    "Disable SDK request/tool/content printing and hidden-thought persistence. Durable visible context is stored only in Go's authorized checkpoint tables, not logs; it may include authorized source excerpts/tool observations and has the same access/source fences as its phase.",
     "Go remains authoritative for authorization, user consent, target identity, transactions, lease/attempt, tool outcomes and final acceptance. No automatic fallback to legacy on AgentScope failure.",
     "Socket directories have separate owners, group 10003, setgid and no consumer write permission; mount consumer socket volume read-only.",
     "Health endpoint GET /health returns framework/version/readiness metadata only and performs no model call."

@@ -1,0 +1,71 @@
+/* 扩展组件使用已有蓝灰设计token；局部表单/审批布局不依赖宿主页的偶然样式。 */
+.agent-extension-stack {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.agent-extension-stack > label,
+.agent-extension-form > label {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.agent-extension-form {
+  padding: 24px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.agent-extension-form input:not([type="checkbox"]),
+.agent-extension-form select,
+.agent-extension-form textarea,
+.agent-extension-stack > label > select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-strong, var(--border));
+  border-radius: 7px;
+  color: var(--text);
+  background: var(--surface);
+  font: inherit;
+}
+.agent-extension-form > label:has(textarea),
+.agent-extension-form > p,
+.agent-extension-form > button,
+.agent-extension-form > .error-panel {
+  grid-column: 1 / -1;
+}
+.agent-extension-form textarea {
+  resize: vertical;
+}
+.agent-extension-form small {
+  color: var(--muted);
+  line-height: 1.6;
+}
+.agent-extension-stack label.agent-extension-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+.agent-extension-check input {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+}
+.agent-extension-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+@media (max-width: 600px) {
+  .agent-extension-form {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 18px;
+  }
+}

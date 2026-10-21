@@ -4,6 +4,7 @@
 """
 
 import hashlib
+import copy
 import importlib.util
 import json
 import socket
@@ -13,6 +14,7 @@ import threading
 import time
 from pathlib import Path
 import tempfile
+import shutil
 import unittest
 from unittest.mock import patch
 
@@ -241,6 +243,115 @@ class SandboxCancellationTests(unittest.TestCase):
         finally:
             server.close()
             caller.close()
+
+
+class GenericProjectContractTests(unittest.TestCase):
+    """新协议的静态拒绝边界；合成模板与假镜像 ID 不充当 Docker 或模型验收。"""
+
+    root = Path(__file__).resolve().parents[1]
+
+    def manifest(self):
+        value = json.loads((self.root / 'integrations/generic-python/fixture/project.json').read_text(encoding='utf-8'))
+        names = value['editable_files'] + value['frozen_files']
+        source = self.root / 'integrations/generic-python/fixture'
+        value['files'] = {name: module.file_hash(source / name) for name in names}
+        value['source_revision'] = hashlib.sha256(json.dumps(value['files'], sort_keys=True).encode()).hexdigest()
+        value['runner_image_id'] = 'sha256:' + 'a' * 64
+        return value
+
+    def test_manifest_has_no_shell_or_unimplemented_language_or_mutable_measurement_driver(self):
+        value = self.manifest()
+        self.assertEqual(module.validate_generic_manifest(value), value)
+        for change in ('language', 'shell', 'driver', 'timeout', 'frozen', 'path', 'source_import'):
+            candidate = copy.deepcopy(value)
+            if change == 'language':
+                candidate['language'] = 'go'
+            elif change == 'shell':
+                candidate['commands']['test']['argv'] = ['sh', '-c', 'echo PASS']
+            elif change == 'driver':
+                candidate['commands']['benchmark']['argv'][1] = 'business.py'
+            elif change == 'timeout':
+                candidate['commands']['test']['timeout_seconds'] = 300
+            elif change == 'frozen':
+                candidate['editable_files'].append('tests/test_original.py')
+            elif change == 'path':
+                candidate['files']['../outside.py'] = 'a' * 64
+            else:
+                candidate['allowed_imports'].append('subprocess')
+            with self.subTest(change=change), self.assertRaises(module.Rejected):
+                module.validate_generic_manifest(candidate)
+
+    def test_regression_is_new_assertive_unittest_not_original_replacement_skip_mock_or_io(self):
+        manifest = self.manifest()
+        valid = {'path': 'drop_regression/test_edge.py', 'content': 'import unittest\nfrom business import price_cart\nclass Edge(unittest.TestCase):\n def test_edge(self):\n  self.assertEqual(price_cart([]), {})\n'}
+        self.assertEqual(len(module.validate_regression_tests([valid], manifest)), 1)
+        invalid = [
+            {**valid, 'path': 'tests/test_original.py'},
+            {**valid, 'path': '../drop_regression/test_edge.py'},
+            {**valid, 'content': 'import unittest\n@unittest.skip("skip")\nclass Edge(unittest.TestCase):\n def test_edge(self):\n  self.assertTrue(True)\n'},
+            {**valid, 'content': valid['content'].replace('self.assertEqual(price_cart([]), {})', 'print("PASS")')},
+            {**valid, 'content': valid['content'].replace('self.assertEqual(price_cart([]), {})', 'self._outcome.result.failures.clear()')},
+            {**valid, 'content': valid['content'].replace('import unittest', 'from unittest import skip\nimport unittest').replace('class Edge', '@skip("skip")\nclass Edge')},
+            {**valid, 'content': valid['content'] + '\nimport os\n'},
+            {**valid, 'content': valid['content'] + '\nunittest.TestCase.assertEqual = lambda *a: None\n'},
+            {**valid, 'command': 'anything'},
+        ]
+        for item in invalid:
+            with self.subTest(item=item['path']), self.assertRaises(module.Rejected):
+                module.validate_regression_tests([item], manifest)
+
+    def test_generic_edits_cannot_modify_frozen_tests_and_bundle_contains_separate_new_test_diff(self):
+        source = self.root / 'integrations/generic-python/fixture'
+        manifest = self.manifest()
+        edit = {'path': 'business.py', 'sha256': manifest['files']['business.py'], 'old': "key = str(row['sku']).lower()", 'new': "key = str(row['sku']).strip().lower()"}
+        changed = module.validate_patch(source, [edit], manifest)
+        test = {'drop_regression/test_edge.py': 'import unittest\nclass Edge(unittest.TestCase):\n def test_edge(self):\n  self.assertTrue(True)\n'}
+        bundle = module.patch_bundle(source, changed, test, manifest)
+        self.assertEqual(bundle['sha256'], hashlib.sha256(bundle['content'].encode()).hexdigest())
+        self.assertIn('--- a/business.py', bundle['content'])
+        self.assertIn('--- /dev/null', bundle['content'])
+        self.assertFalse(bundle['production_deployed'])
+        original = {'path': 'tests/test_original.py', 'sha256': manifest['files']['tests/test_original.py'], 'old': '375', 'new': '0'}
+        with self.assertRaisesRegex(module.Rejected, 'PATCH_PATH_NOT_ENROLLED'):
+            module.validate_patch(source, [original], manifest)
+
+    def test_manifest_changes_and_regression_inputs_have_distinct_execution_keys(self):
+        manifest = self.manifest()
+        args = {'code_edits': [], 'regression_tests': {'test.py': 'assert True'}, 'manifest_sha256': 'a' * 64}
+        key = module.execution_key(manifest, 'test', args, 'repair:1')
+        self.assertNotEqual(key, module.execution_key(manifest, 'test', {**args, 'regression_tests': {'test.py': 'assert False'}}, 'repair:1'))
+        self.assertNotEqual(key, module.execution_key(manifest, 'test', {**args, 'manifest_sha256': 'b' * 64}, 'repair:1'))
+
+    def test_real_harness_rejects_test_that_does_not_reproduce_defect(self):
+        self.run_real_rejection('self.assertEqual(price_cart([]), {})', 'DEFECT_REGRESSION_NOT_ESTABLISHED')
+
+    def test_real_harness_rejects_type_breaking_patch_after_defect_regression(self):
+        # 新边界断言允许 tuple 只是为了让阶段继续；冻结原测试仍应拒绝返回类型变化。
+        self.run_real_rejection("self.assertEqual(dict(price_cart([{'sku': ' Book ', 'qty': 1, 'price_cents': 125}])), {'book': 125})", 'ORIGINAL_TEST_EXECUTION_FAILED', tuple_result=True)
+
+    def run_real_rejection(self, assertion, code, tuple_result=False):
+        with tempfile.TemporaryDirectory() as folder:
+            job = Path(folder) / 'job'
+            job.mkdir()
+            fixture = self.root / 'integrations/generic-python/fixture'
+            for side in ('baseline', 'candidate'):
+                shutil.copytree(fixture, job / side, ignore=shutil.ignore_patterns('__pycache__'))
+            text = (job / 'candidate/business.py').read_text(encoding='utf-8').replace("key = str(row['sku']).lower()", "key = str(row['sku']).strip().lower()")
+            if tuple_result:
+                text = text.replace('return totals', 'return tuple(totals.items())')
+            (job / 'candidate/business.py').write_text(text, encoding='utf-8')
+            (job / 'manifest.json').write_text(json.dumps(self.manifest()), encoding='utf-8')
+            (job / 'job.json').write_text('{"seed":1984}', encoding='utf-8')
+            (job / 'regression-tests').mkdir()
+            test = 'import unittest\nfrom business import price_cart\nclass Edge(unittest.TestCase):\n def test_edge(self):\n  ' + assertion + '\n'
+            (job / 'regression-tests/test_edge.py').write_text(test, encoding='utf-8')
+            out = Path(folder) / 'output'
+            call = subprocess.run([sys.executable, str(self.root / 'integrations/generic-python/harness/run_job.py'), '--action', 'test', '--workspace', str(job), '--output', str(out)], capture_output=True, timeout=30)
+            result = json.loads((out / 'result.json').read_text(encoding='utf-8'))
+            self.assertFalse(result['success'])
+            self.assertFalse(result['accepted'])
+            self.assertEqual(result['error_code'], code)
+            self.assertIn(call.returncode, (0, 1))
 
 
 if __name__ == '__main__':

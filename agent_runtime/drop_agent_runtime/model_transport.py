@@ -5,11 +5,13 @@
 
 import httpx2 as httpx
 
+from .provider_retry import RetryableProviderFailure, retry_after_seconds
 from .wire import ProtocolError, set_stage, strict_json
 
 
 class BoundedTransport(httpx.AsyncBaseTransport):
     """包裹官方 HTTP transport，在 SDK 解码前核对字节和响应结构；内部 transport 可替换为离线测试夹具。"""
+
     def __init__(self, inner: httpx.AsyncBaseTransport | None = None) -> None:
         self.inner = inner or httpx.AsyncHTTPTransport(retries=0, trust_env=False)
 
@@ -38,6 +40,16 @@ class BoundedTransport(httpx.AsyncBaseTransport):
                         raise ProtocolError("AI_INVALID_RESPONSE")
                     parts.append(part)
                 body = b"".join(parts)
+            if response.status_code == 429 or response.status_code in (
+                500,
+                502,
+                503,
+                504,
+            ):
+                raise RetryableProviderFailure(
+                    "rate_limit" if response.status_code == 429 else "server",
+                    retry_after_seconds(response.headers.get("retry-after")),
+                )
             if response.status_code != 200:
                 raise ProtocolError("AI_UPSTREAM_ERROR")
             parsed = strict_json(body)

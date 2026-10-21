@@ -4,6 +4,8 @@
 
 阅读源码可从 [中文注释阅读路线](docs/CODE_READING_GUIDE.md) 开始，先追一条采集任务，再看 AgentScope 工具循环、自动复测和隔离修复。注释重点解释上下游、设计原因和失败边界，不逐行复述代码。
 
+新增实现入口：[Agent八项扩展](docs/AGENT_EXPANSION.md)说明结构化事实校验、动态补证、业务信号与拓扑、版本方法库、持久检查点及评测边界；[实时双服务演示](integrations/observability-demo/README.md)和[通用Python接入](integrations/generic-python/README.md)分别提供真实HTTP遥测与独立红绿回归/补丁交付。实现说明不代替下方线上版本和发布验收记录。
+
 ## 全量实现与验收状态
 
 当前平台已部署至 **[https://82.157.81.79](https://82.157.81.79)**，API / AgentScope runtime / Web 均为 **20261021.2**，官方 AgentScope SDK **2.0.10**、SQL **9**、**27** 个运行容器；Agent 与 Helper 保持版本3。规划、诊断和源码修复使用真实 AgentScope ReAct，Go 保留权限、状态与验收。详见[本轮诊断知识发布](docs/releases/20261021-diagnostic-knowledge.md)、[知识层说明](docs/DIAGNOSTIC_KNOWLEDGE.md)与[面试步骤](docs/INTERVIEW_DEMO.md)。旧120.24.187.205属于历史部署。

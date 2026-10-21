@@ -1,0 +1,64 @@
+# 仅新增两个受控合成业务服务，无外部端口、凭据或数据卷；不会替换现有Agent/Helper。
+# 与现有部署文件合并后只up这两个service，禁止down -v。
+x-observability-demo: &observability-demo
+  image: drop-observability-demo:${OBSERVABILITY_DEMO_TAG:-20261021.1}
+  build: { context: ../integrations/observability-demo, network: none }
+  entrypoint:
+    [/opt/drop-tools/venv/bin/python, /opt/drop-observability-demo/server.py]
+  user: "10001:10001"
+  pid: service:agent
+  depends_on: { agent: { condition: service_started } }
+  networks: [control]
+  restart: unless-stopped
+  init: true
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  tmpfs: ["/tmp:size=32m,mode=1777,nosuid,nodev,noexec"]
+  mem_limit: 192m
+  memswap_limit: 192m
+  cpus: 0.5
+  pids_limit: 32
+  logging: { driver: json-file, options: { max-size: 2m, max-file: "2" } }
+services:
+  observability-catalog:
+    <<: *observability-demo
+    command: [--role, catalog, --port, "8131"]
+    healthcheck:
+      test:
+        [
+          CMD,
+          /opt/drop-tools/venv/bin/python,
+          -c,
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8131/health', timeout=2).read()",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+  observability-gateway:
+    <<: *observability-demo
+    command:
+      [
+        --role,
+        gateway,
+        --port,
+        "8130",
+        --downstream,
+        "http://observability-catalog:8131",
+      ]
+    depends_on:
+      {
+        agent: { condition: service_started },
+        observability-catalog: { condition: service_healthy },
+      }
+    healthcheck:
+      test:
+        [
+          CMD,
+          /opt/drop-tools/venv/bin/python,
+          -c,
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8130/health', timeout=2).read()",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 5

@@ -317,7 +317,8 @@ func fixtureDiagnosisProvider(t *testing.T, s *Suggestions, hook func(int)) (*ht
 			message["tool_calls"] = []any{call("verification", "propose_verification")}
 		} else {
 			reason = "stop"
-			message["content"] = `{"summary":"测试响应：热点需要复测","hypotheses":[{"claim":"导入样本集中，但不能证明业务延迟","evidence_ids":["E2","E3"],"verification":"同负载复测并记录P99"}],"limitations":["明确导入的测试响应，不是真实模型输出"]}`
+			// 新Request固定走v2：控制器只声明真实E2字段，不再输出未经程序核验的自由摘要。
+			message["content"] = `{"report_version":2,"facts":[{"id":"F1","evidence_id":"E2","path":"/top_functions/0/self_percent","operator":"eq","value":80,"unit":"percent"}],"hypotheses":[{"kind":"cpu_hotspot","fact_ids":["F1"],"evidence_ids":["E2"]}],"verification_requests":[{"origin":"model_proposal","kind":"controlled_intervention"}]}`
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]any{"choices": []any{map[string]any{"finish_reason": reason, "message": message}}})

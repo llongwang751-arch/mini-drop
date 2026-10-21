@@ -110,3 +110,36 @@ API 报告目前是自由文本，没有受约束的根因类别枚举。因此�
 没有人工审阅时，类别命中、拒答和误报的分母为零、rate 为 `null`，同时显示人工审阅覆盖率。所有率保留分子和分母；小样本不能外推生产。延迟仅报告实际采集器的墙钟 median/min/max，不虚构 P95。token 只取真实 `report.agent_runtime.usage.input_tokens/output_tokens`，缺失保持未知；没有核验定价来源，费用始终为 `null`。指标输出不复写报告正文、原符号、Cookie、token 值或用户问题。
 
 JSON 来源由外部采集器声明，运行元数据与 SHA 一致性也不是加密证明。公开结果必须保留数据来源、样本范围、模型版本及未覆盖边界。
+
+## v2：事实协议与重复试验
+
+`diagnostic_cases_v2.json` 单独保留 4 个新增 holdout：正常高负载、证据不足、复合线索、错误分配归因负控；另复用两个未改动的 dev 经验种子。v1 的 22 个案例及其 canonical SHA 保持不变。默认 CLI 仍读取 v1；验证新协议时明确指定 v2 文件：
+
+```powershell
+python -X utf8 scripts/evaluation/evaluate_diagnostics.py --mode offline --cases scripts/evaluation/diagnostic_cases_v2.json --output .local/diagnostic-evaluation-20261022/facts-offline.json
+python -X utf8 scripts/evaluation/diagnostic_experiment.py plan --repetitions 3 --seed 20261022 --output .local/diagnostic-evaluation-20261022/plan.json
+```
+
+第一条运行真正的 `TestDiagnosisFactEvaluation*`：当前观测、错误正 self 数量、错误单位、人工导入冒充参数计划、无分配证据却归因分配等正负控均经过实际工具和 v2 验证器。其报告由明确控制器构造，模型调用为零，语义评分仍是 `null`。
+
+第二条只生成预登记计划，不执行模型。4 个 holdout、3 次重复、`off/experience` 两组共有 24 个待执行 trial。固定种子决定分块顺序，并在同一 case/重复编号内随机两组先后。外部采集器应原样保留计划，把其中 `experiment` 放进 live 输入顶层，每行增加 `replicate_id`，每次实际调用使用独立诊断运行 ID。不能复用同一结果，也不能丢掉失败重复只报成功。CLI 会拒绝缺失的预登记 case/重复编号、重复运行 ID、不同问题或不同来源身份的成对结果。
+
+计划由调用方声明，没有外部时间戳背书；同一合成情境重复调用模型不等于新增独立业务故障。固定问题、模型配置、输入、经验种子和环境条件由实际采集器负责，偏差需要记录。工具不会把随机波动、小样本延迟差异或 token 数变化解释成语义准确率提升。
+
+v2 模型提交结构化事实请求：E 编号、有限字段路径、运算、声明值和单位。Go 对照真实工具观测核验后生成现有摘要、假设中的事实描述与验证步骤。模型不再提交权威 `summary/claim/verification` 自由文字。热点数量只描述已返回 Top 表；调用路径计数只描述有界上下文，不推广为全树或所有时段的唯一性。工具来源计划必须确有对应参数；模型自行建议的 60 秒/99 Hz 可以作为待审建议，不能写成工具已经返回或校验的计划。
+
+`unverified_interpretation` 如存在，属于单独标记的未核验模型解释。算术、单位和出处一致并不证明这段解释、业务根因或建议收益正确。v2 报告覆盖指标也只表示收到相应协议事实字段，不是语义正确率。
+
+## 独立人工评审录入
+
+实际成对试验完成后，可生成未填写的审阅模板。模板不包含问题、报告全文或原符号，也不预填类别分数：
+
+```powershell
+python -X utf8 scripts/evaluation/diagnostic_experiment.py review-template --input .local/diagnostic-evaluation-20261022/private/pairs.json --output .local/diagnostic-evaluation-20261022/private/reviews-blank.json
+python -X utf8 scripts/evaluation/diagnostic_experiment.py apply-reviews --input .local/diagnostic-evaluation-20261022/private/pairs.json --reviews .local/diagnostic-evaluation-20261022/private/reviews-filled.json --output .local/diagnostic-evaluation-20261022/private/pairs-reviewed.json
+python -X utf8 scripts/evaluation/evaluate_diagnostics.py --mode live --cases scripts/evaluation/diagnostic_cases_v2.json --input .local/diagnostic-evaluation-20261022/private/pairs-reviewed.json --output .local/diagnostic-evaluation-20261022/reviewed-metrics.json
+```
+
+人工通过实际平台报告和对应分析结果审阅后填写 `reviewer`、`category`、`abstained`、`actionable_defect`，明确确认 `independence_attested=true`。每行绑定实际运行 ID、case、重复编号、报告和分析投影 SHA，报告改变后旧审阅不能继续套用。新增类别允许 `mixed_signals`、`business_latency`、`downstream_dependency`、`deployment_regression`，都属于待核验方向；时间重合或登记依赖不是因果证明。
+
+未审阅行保留 null；部分审阅只按实际覆盖量计算。`agent_review` 不能导入为 `manual_review`，已有人工记录不能静默覆盖，CLI 也不会覆盖原始输入文件。v2 的人工分数必须附明确人类来源、独立性声明及报告 SHA。工具不能证明填写者真实身份；只有实际遮蔽知识模式后才可勾选盲评。没有独立人工结论时，真实语义评分继续保持 null。

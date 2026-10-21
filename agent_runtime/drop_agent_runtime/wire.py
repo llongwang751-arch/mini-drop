@@ -124,6 +124,7 @@ def accepted_json_field(raw: bytes, field: str = "result") -> AcceptedJSON:
 
 def strict_json(raw: bytes | str) -> Any:
     """解析严格 JSON，重复键、NaN/Infinity、无效编码和过深嵌套均作为协议错误拒绝。"""
+
     def object_pairs(pairs: list[tuple[str, Any]]) -> dict:
         result = {}
         for key, value in pairs:
@@ -236,6 +237,7 @@ async def close_writer(writer: asyncio.StreamWriter) -> None:
 
 class Gateway:
     """每次回调使用本机 Unix socket，按运行 capability 授权，并再次校验 Go 对端 UID。"""
+
     def __init__(self, path: str, peer_uid: int, run_id: str, capability: str) -> None:
         self.path = path
         self.peer_uid = peer_uid
@@ -251,7 +253,7 @@ class Gateway:
         if self.cancelled:
             raise asyncio.CancelledError()
         raw = json_bytes(payload)
-        if len(raw) > 65536:
+        if len(raw) > (262144 if payload.get("type") == "checkpoint" else 65536):
             raise ProtocolError("AGENT_RUNTIME_BODY_TOO_LARGE")
         reader, writer = await asyncio.open_unix_connection(
             self.path, limit=MAX_HEADER_BYTES

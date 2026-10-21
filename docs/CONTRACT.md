@@ -1,5 +1,7 @@
 # 实现契约 v2
 
+2026-10-21实现增量：SQL010增加报告协议2、受控业务信号、动态补证分支、版本化方法库和Agent持久检查点；新增6个HTTP操作，源码执行器新增通用Python协议4。详见本文末尾的“Agent扩展增量契约”和 [实现说明](AGENT_EXPANSION.md)。这是源码契约，线上版本与部署验收另以发布收据为准。
+
 2026-10-21增量：SQL009增加 `diagnosis_runs.knowledge_mode` 与个人 `diagnostic_cases`。新增诊断方法目录、案例保存/查询/撤销四个HTTP操作；诊断工具增加 `read_diagnostic_knowledge`，报告可含程序生成的knowledge。模式off/skills/experience参与幂等及来源摘要，旧行off兼容原摘要。知识不授予权限、不修改采集契约或Protobuf编号；每项假设必须引用本轮测量观测。详见 [知识层说明](DIAGNOSTIC_KNOWLEDGE.md) 与OpenAPI。
 
 日期：2026-10-16。`contracts/drop.proto`、`contracts/task-kinds.json`、`db/migrations/*.sql` 为共享契约，修改先协调对应模块，保留既有 Protobuf 字段编号。本文描述当前实现接口，完整 HTTP Schema 见 [openapi.yaml](openapi.yaml)，不将预发布能力当作生产已验收结果。
@@ -45,15 +47,15 @@ Agent perf record实际采样→perf script解析为folded；PROC_CPU每线程/p
 
 统一授权：
 
-| 主体或范围 | 读取 | 操作与管理 |
-| --- | --- | --- |
-| viewer | 仅自己/组可见/显式share所授权资源 | 不创建、取消、重试或管理；可对已授权任务提交建议反馈 |
-| operator、group_admin | 仍按资源范围过滤；全局group_admin并不自动拥有所有组 | 创建需Agent operate和目标组operator/group_admin权限；仅相应组的成员group_admin可管理本组 |
-| platform_admin、兼容admin | 全平台未软删除资源 | 平台用户/规则/Agent启停/管理员重分析；其余生命周期限制仍适用 |
-| Task owner | 自己未软删除任务 | 有写角色时cancel/retry/share/delete，终态和配额等限制独立适用 |
-| visibility=group | 同组成员可读 | 同组operator/group_admin加全局写角色可operate；组管理员可管理任务共享 |
-| 显式Task share | read覆盖详情、result、suggestions、events/SSE、artifact | operate额外允许cancel/retry，不能仅凭share管理共享或软删 |
-| Agent | group_agents授权对应组成员；平台管理员可读全部 | operate还要求组成员operator/group_admin和全局写角色 |
+| 主体或范围                | 读取                                                    | 操作与管理                                                                               |
+| ------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| viewer                    | 仅自己/组可见/显式share所授权资源                       | 不创建、取消、重试或管理；可对已授权任务提交建议反馈                                     |
+| operator、group_admin     | 仍按资源范围过滤；全局group_admin并不自动拥有所有组     | 创建需Agent operate和目标组operator/group_admin权限；仅相应组的成员group_admin可管理本组 |
+| platform_admin、兼容admin | 全平台未软删除资源                                      | 平台用户/规则/Agent启停/管理员重分析；其余生命周期限制仍适用                             |
+| Task owner                | 自己未软删除任务                                        | 有写角色时cancel/retry/share/delete，终态和配额等限制独立适用                            |
+| visibility=group          | 同组成员可读                                            | 同组operator/group_admin加全局写角色可operate；组管理员可管理任务共享                    |
+| 显式Task share            | read覆盖详情、result、suggestions、events/SSE、artifact | operate额外允许cancel/retry，不能仅凭share管理共享或软删                                 |
+| Agent                     | group_agents授权对应组成员；平台管理员可读全部          | operate还要求组成员operator/group_admin和全局写角色                                      |
 
 Task/Schedule/Composite均按owner、group+visibility、平台管理员过滤，Task另支持显式share；所有Task读取面共用同一授权。越权读取通常404，避免资源探测。SSE每轮重新检查当前会话、角色和Task权限。Task详情`permissions:{read,operate,share,delete,reanalyze}`由同一授权service计算，UI仍需遵守状态限制。
 
@@ -105,9 +107,9 @@ Task/Schedule/Composite均按owner、group+visibility、平台管理员过滤，
 
 主要HTTP错误：400输入/角色/DAG无效；401未登录/凭据错；403权限/CSRF/目标策略拒绝；404不存在或不可见；409状态/幂等冲突/结果未就绪；410制品过期；429共享限流或配额；503Agent/能力/对象存储/身份源/模型不可用；500内部异常。日志不输出Cookie、密码、密钥、签名URL或原始profile。
 
-配置：除数据库/S3/TLS外，OIDC_ISSUER/OIDC_CLIENT_ID/OIDC_CLIENT_SECRET[_FILE]/OIDC_REDIRECT_URL，AI_ENDPOINT/AI_API_KEY[_FILE]/AI_MODEL，OTEL_EXPORTER_OTLP_ENDPOINT（HTTP根路径自动补/v1/traces）。OIDC_ALLOW_HTTP/AI_ALLOW_HTTP只在明确受控测试启用、默认false。migration命令顺序执行全部SQL，当前API要求schema1至8完整存在；缺失任何一项拒绝启动。可选CODE_EXECUTOR_SOCKET为绝对Unix socket路径。实际外部能力及部署验收以证据文档为准。
+配置：除数据库/S3/TLS外，OIDC_ISSUER/OIDC_CLIENT_ID/OIDC_CLIENT_SECRET[_FILE]/OIDC_REDIRECT_URL，AI_ENDPOINT/AI_API_KEY[_FILE]/AI_MODEL，OTEL_EXPORTER_OTLP_ENDPOINT（HTTP根路径自动补/v1/traces）。OIDC_ALLOW_HTTP/AI_ALLOW_HTTP只在明确受控测试启用、默认false。migration命令顺序执行全部SQL，本轮源码的API要求schema1至10完整存在；缺失任何一项拒绝启动。可选CODE_EXECUTOR_SOCKET为绝对Unix socket路径，AI_OBSERVABILITY_CONFIG为管理员登记JSON文件的路径。实际外部能力及部署验收以证据文档为准。
 
-契约检查：`python api/tools/sync_openapi.py`生成参考；`python api/tools/check_http_contract.py`核对全部61个Gin路由、75个Schema、CSRF/幂等、公共DTO字段、18项共享参数Schema及边界fixture；安装openapi-spec-validator后加`--spec-validator`执行OpenAPI3.1结构校验。静态校验不替代真实HTTP/PG/对象存储集成。
+契约检查：`python api/tools/sync_openapi.py`生成参考；`python api/tools/check_http_contract.py`核对实际Gin路由、Schema、CSRF/幂等、公共DTO字段、18项共享参数Schema及边界fixture，数量以本次命令输出为准；安装openapi-spec-validator后加`--spec-validator`执行OpenAPI3.1结构校验。静态校验不替代真实HTTP/PG/对象存储集成。
 
 ## 分析结果
 
@@ -128,14 +130,13 @@ flamegraph.value为inclusive，self为自身，children之和+self=value。TopN�
 
 `JAVA_HEAP`使用清单固定并校验SHA的asprof原生jattach诊断命令执行`GC.heap_dump`，`live=false`才增加`-all`，产物仍为真实HPROF，类型/字段/分析流水线不变。该方式支持同一PID namespace、不同mount namespace的受控同UID JVM；不需要SYS_ADMIN或加入目标mount namespace。工具要求与runner名称同步在TaskKind真源更新，API读取同一只读catalog；不保留指向旧jcmd要求的API目录。诊断命令的输出路径仅接受绝对路径中的ASCII字母、数字、`/._-`且最多4096字符；拒绝空白、引号、换行或反斜杠，调用方不能拼入其他JVM命令。目标仍须显式授权、同UID，并通过PID/starttime/namespace身份复核。
 
-
 ## 诊断 Agent 增量契约（2026-10-20，SQL006）
 
 - POST /tasks/:id/diagnoses：完整成功结果及 operate 权限；严格输入 goal（trim后1–600字符）、mode（evidence/model）、consent。模型模式必须 consent=true。Idempotency-Key 必填，按请求用户去重，不同输入冲突409；最多3个活跃诊断。异步202。
 - GET /tasks/:id/diagnoses：read 权限，最新20条；所有 bigint 标识均为十进制字符串。记录绑定 task/attempt、analysis_job_id/analysis_run 和完整结果哈希，包含状态、工具 trace、结构化 report 或固定 error_code，不含租约凭据、上游原文、隐藏思维链。
 - POST /tasks/:id/diagnoses/:run_id/cancel：operate 权限；pending/running 原子转 failed/DIAGNOSIS_CANCELED，写事件与审计。已终态409，过期 worker 不能提交。
 - POST /tasks/:id/diagnoses/:run_id/collect：operate 权限、confirm=true、Idempotency-Key；仅成功且当前的诊断草案。锁定来源任务，在同一事务复核证据、复用原目标及正常采集校验、创建新任务与 DIAGNOSIS_VERIFICATION_CREATED/审计。首次201，幂等重放200。导入结果不自动采集。
-- 每次执行最多4轮工具交互、8次工具；最后报告未通过校验时可额外1次仅修正报告的模型请求，不提供工具、仍须通过原校验，总预算150秒，HTTP30秒/64KiB。180秒租约，崩溃最多3次执行。任务/分析版本、输入摘要或授权变化禁止后续工具及最终提交。失败不改原任务的采集/分析状态。故障恢复可能重复只读模型调用。
+- 原协议1/legacy传输最多4轮普通模型调用、8条工具证据；最后报告未通过校验时可额外1次仅修正报告的模型请求，不提供工具、仍须通过原校验，总预算150秒，HTTP30秒/64KiB。180秒租约，崩溃最多3次执行。任务/分析版本、输入摘要或授权变化禁止后续工具及最终提交。失败不改原任务的采集/分析状态。本轮SDK协议2及持久恢复预算见末尾增量，不将旧预算自动提升。
 - DIAGNOSIS_QUEUED、DIAGNOSIS_TOOL_COMPLETED、DIAGNOSIS_COMPLETED、DIAGNOSIS_FAILED、DIAGNOSIS_VERIFICATION_CREATED 都使用既有 task_events/SSE，不修改 protobuf 字段号或 TaskKind 清单。
 - 模型只接收问题文本与数值/哈希符号/本地枚举线索。工具不能指定 task、PID、路径、URL、SQL或命令。复测时长/频率仍受共享 schema 限制；模型输出的证据引用必须指向实际工具观测。具体数据边界见 [DIAGNOSIS_AGENT](DIAGNOSIS_AGENT.md)。
 
@@ -153,6 +154,7 @@ flamegraph.value为inclusive，self为自身，children之和+self=value。TopN�
 - 源码执行器内部契约3：服务端以code_repair ID固定execution_id；不同修复的profile/补丁测试分别实测，同一修复内重复或恢复可复用其自己的durable receipt。观测明确cache_hit。模型工具参数不能设置execution_id，普通HTTP输入不暴露这个内部控制字段。只读源码片段依旧按SHA读取。
 - 首个源码场景是Python CRM品牌配色函数和原回归测试。必须验证原测试、384组合成输出一致性、6组交替A/B；CPU时间中位加速比至少1.10且至少5组超过1.05才采纳。保存补丁后profile，报告位置必须来自实际原profile行号。该实用门槛仅适用于登记基准，不证明生产P95/P99收益或全CRM根因。
 - 源码工具需单独同意发送登记片段，区别于普通诊断的化名统计。源码输出只保存在管理员报告，进程运行身份不发送模型。原CRM配置、数据、鉴权/限流、测试和测量harness不能被模型修改。
+
 ## AgentScope internal runtime contract (2026-10-20)
 
 `contracts/agent-runtime-v1.json` defines the private Go ↔ Python control
@@ -171,11 +173,11 @@ identical canonical request; different content reusing an ID terminates the run.
 
 Go reserves every actual model call before provider I/O, checks all tool calls
 against phase schemas and domain fences, and accepts only its own validated
-JSON result. Diagnosis keeps the original evidence budget: one initial evidence
-plus at most seven callbacks; its fifth model call is available only for a
-fourth-round invalid report correction and cannot call tools. The runner
-disables provider retries and autonomous context compression. No automatic
-fallback to `legacy` occurs after a runtime error.
+JSON result. Historical protocol1 diagnosis keeps one initial evidence plus
+at most seven callbacks and a 4+1 model budget. The SQL010 extension below
+defines protocol2 budgets, durable recovery and explicitly charged provider
+retries. SDK automatic retries and autonomous context compression remain
+disabled. No automatic fallback to `legacy` occurs after a runtime error.
 
 Successful diagnosis and repair reports include server-derived `agent_runtime`
 metadata (framework/version/class, public run UUID, model/tool counts, elapsed
@@ -195,7 +197,81 @@ fixed error codes. These diagnostics are not model input or report content.
 
 Cancellation and lease/authorization revocation close the model/callback
 connection. The source-test broker also observes caller disconnection and
-stops only the verified job container by immutable Docker ID. Recovery begins
-a fresh bounded persisted phase; token-level framework continuation is not a
-contract.
+stops only the verified job container by immutable Docker ID. SQL010 recovery
+restores validated visible boundaries under the remaining persisted budget;
+token-level framework continuation is not a contract.
 
+## Agent扩展增量契约（2026-10-21，SQL010）
+
+本节覆盖新源码实现；不宣称对应二进制、主机或外部模型已经完成上线验收。共享Proto字段号和TaskKind ID保持不变。实现与演示边界见 [AGENT_EXPANSION](AGENT_EXPANSION.md)。
+
+### HTTP与输入绑定
+
+以下继续省略 `/api/v1`。所有写操作沿用会话、CSRF和共享限流，不向模型暴露管理凭据。列表沿用 `{items,total,page,page_size}`，`total`仅表示当前有界结果。bigint ID仍为十进制字符串。
+
+| 操作                                                       | 输入与结果                                                                                    | 权限和重放                                                                                                                                 |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `GET /diagnostic-data-sources?agent_id=...`                | 目标Agent ID为1–100字节；返回 `{id,label,signal_types}`，不返回地址、查询、令牌或登记文件路径 | 重新读取当前用户，校验Agent operate及每个数据源的组权限；只列该目标已授权来源                                                              |
+| `GET /diagnostic-playbooks`                                | 最多100条未过期方法，按逻辑键/版本排序                                                        | 本人草稿和版本、本人有权查看的已发布团队方法；平台管理员可查看管理范围内记录；不把列表截断当作匹配时的候选上限                             |
+| `POST /diagnostic-playbooks`                               | `{logical_key,version,group_id?,project_id?,skill,expires_days}` →201方法记录                 | 全局写角色；团队方法需相应组管理员，项目方法需平台管理员和已登记源码项目。按owner/key/version串行，同内容重放返回同ID，不同内容或作用域409 |
+| `POST /diagnostic-playbooks/:id/review`                    | `{action:'publish'                                                                            | 'retire',review_confirmed:true}` →200方法记录                                                                                              | 当前平台管理员明确复核；锁等待后重新检查角色、状态与有效期，不允许模型自行发布 |
+| `GET /investigations/:id/followups`                        | 最多2条已持久化追加分支                                                                       | 沿用当前调查、目标及业务信号来源授权                                                                                                       |
+| `POST /investigations/:id/followups/:followup_id/decision` | `{confirm:boolean,reviewed:true}` →200分支记录；true入队、false拒绝                           | 当前写角色、调查及来源版本有效；需逐项人工审阅，不由根调查的首次确认代替。相同已处理决定可重放，矛盾决定拒绝                               |
+
+方法 `version` 为1–10000，`expires_days` 为1–90；`skill` 使用既有Skill字段，但客户端不得填写 `id/version/match_reasons`。任务类型和工具不得重复，工具必须来自固定只读白名单；步骤、反证、停止条件和验收数组各1–6项、单项最多600字节。纯文本拒绝控制字符、HTML和URL。服务端生成版本身份与内容摘要；同一owner/logical_key的团队和项目范围跨版本不可改变。
+
+匹配先选择申请时已创建且已发布、当前未过期的最高有效版本，再核对项目、任务类型和可用信号。新版整体替代旧版；新版不适配本任务时不回退旧版。成功提交前锁定已使用方法及实际授权行，再重核退役、期限、发布时刻和权限。该方法不赋予新的工具、目标或数据源访问能力。
+
+`POST /tasks/:id/diagnoses` 和 `POST /investigations` 可选 `telemetry_service_id`。ID只能来自管理员登记且匹配当前Agent和用户权限的服务，不能提交连接器地址或任意查询。新诊断由Go固定 `report_protocol=2`，客户端不能自行降级；该版本与数据源绑定进入来源/幂等摘要。`knowledge_mode=off|skills|experience`保留原约定。`GET /tasks/:id/diagnoses`在任务read之外逐条重核该运行实际读取的数据源read权限；分享profile任务不能绕过业务组撤权。关联调查历史也重验业务来源，不将保存时授权视为永久许可。
+
+### 报告协议2与业务观测
+
+模型最终输入对象只接受 `{report_version:2,facts,hypotheses,verification_requests}`：facts为1–24项，hypotheses为1–4项，verification_requests为1–3项。模型不能填写summary、可信标签、engine、knowledge或agent_runtime。
+
+- 事实输入为 `{id,evidence_id,path,operator,value,unit}`。E编号必须属于当前实际工具返回；path仅允许预定义JSON Pointer，operator仅 `eq/count/count_positive_self`。Go按精确数值、标量、单位和来源核对，再生成 `description`。`count_positive_self`只计算已返回Top表中的正self项目，不证明完整树的唯一叶帧。
+- 假设输入为 `{kind,fact_ids,evidence_ids,unverified_interpretation?}`，按类别核验最低事实条件。Go生成公开 `claim/verification/summary/limitations`；可选自由解释始终单列“未经事实核验”，不能作为已确认根因。verification_requests区分真实工具草案、人工导入指令与模型待审建议；没有返回参数的工具不能被归因为已校验时长/频率。
+- 最终公开报告包含 `report_version/facts` 及既有字段；知识、运行证明和 `followup_plans` 由Go附加。仅新模型协议2且存在有效facts时展示字段核验标签。历史协议1、缺失版本和本地evidence模式报告不补发新可信标签。
+- `query_business_signals`仅接收 `{service_ref:'S1'..'S8',signal:'metrics'|'logs'|'traces'|'changes'}`；`inspect_service_topology`只接收空对象。S1为根服务，完整登记邻接排序形成其余固定别名；无权服务保留内部空位而不重绑其他别名，不返回真实身份。
+- 业务窗口由绑定attempt的实际执行起止各扩展一分钟，最大15分钟。缺失、反序、过宽或异常未来时钟返回 `available:false/reason:collection_window_unknown`；不使用分析完成时间代替。执行边界可能含准备/上传，不能宣称精确采样时钟。数据源版本改变、当前撤权或来源重分析会阻止继续使用旧快照。
+- Prometheus只执行登记的聚合查询，取窗口内实际末点；Loki仅投影固定日志结构；Tempo缺span/错误数时保持未知；Drop adapter还校验服务ID、信号类型、数量、单位、时间和范围。指标仅延迟毫秒、错误比例、吞吐量；Trace/版本标识散列，原日志正文、自由属性、令牌和真实Trace ID不入模型。无数据不补零，失败源清空部分数组，截断明确标记。登记拓扑及同时段关联均不证明因果。
+
+### 动态补证状态和清理
+
+`propose_followup_collection`只能建议当前同一目标的真实可用采集器、1–60秒时长、0–999Hz频率、受TaskKind约束的options、理由和1–4个当前测量E编号。SCRIPT/BOLT_PROFILE/COMPOSITE等需独立配置的类型拒绝自动补证。模型工具返回待确认草案，不创建采集任务。
+
+`investigation_followups`记录调查、来源task/diagnosis、方案及摘要、派生task/diagnosis和状态：`proposed→queued→collecting→diagnosing→success`，另有`rejected/failed/canceled`。每根调查最多2个记录，拒绝或失败不返还分支额度；共用根调查20分钟预算。确认后复用普通任务、授权、attempt和分析链路，完成后再次诊断，不能把跨单位补证自动当作可比A/B或受控干预。
+
+调查锁使发现/确认/推进串行；来源摘要唯一约束和普通任务幂等键避免重复派发。取消、过期、根失败或撤权清理本平台已关联且由调查所有者拥有的活动任务，走原 `Repository.Cancel` 生成正常事件与Outbox并撤销诊断租约。推进失败也回收该失败分支；不取消其他所有者任务，不改已成功的采集、分析、分支或根调查事实。根调查success后仍可停止其未完成追加分支。锁序先verification，再升序来源/候选/子任务；旧租约不能写迟到成功。
+
+### 私有检查点、预算与供应商故障
+
+`contracts/agent-runtime-v1.json`的wire版本仍为1，与公开AI报告版本2独立。检查点没有新的浏览器HTTP操作：Go绑定 `scope_type=planning|diagnosis|repair`、业务ID、原输入摘要及phase/model/system/messages/tools/budget摘要；SQL保存有界可见上下文、游标、累计计数和回执，不保存隐藏思维链、capability或长效凭据。
+
+| SDK阶段            | 累计实际模型请求上限           | 工具上限                                       | 累计活动时间 |
+| ------------------ | ------------------------------ | ---------------------------------------------- | ------------ |
+| planning           | 6                              | 10次回调，每轮2个                              | 150秒        |
+| 新diagnosis协议2   | 8次普通请求＋最多1次仅格式纠错 | SDK回调最多14次，每轮2个；Go trace含E1最多15条 | 150秒        |
+| 历史diagnosis协议1 | 4次普通请求＋最多1次仅格式纠错 | SDK回调最多7次；含E1最多8条                    | 150秒        |
+| repair             | 8                              | 12次回调，每轮2个、最多2次实际补丁沙箱测试     | 420秒        |
+
+自动E1和开启知识时的自动E2在SDK运行之前生成；E2同样占Go trace总额，`agent_runtime.tool_calls`只计SDK回调，因此开启知识时剩余后续工具槽少一个。仅最后普通轮报告无效时可使用保留的纠错轮，纠错轮没有工具。非SDK legacy传输保留原4轮限制，不能因使用v2报告格式就宣称拥有8轮预算。
+
+Go在每次实际provider请求前预扣模型次数；累计活动时间以最多5000ms预付片持久化，崩溃和提前续片的未用部分不退款，离线等租约不计活动执行。24小时检查点有效期不代表可执行24小时；`elapsed_ms`仍是本Python会话墙钟，累计预算看Go账本。恢复不会通过新会话ID重置任何预算，也不恢复半个provider token流。
+
+工具先持久化pending，再执行业务，最后持久化complete；相同规范请求/调用ID可复用完整回执而不再次执行或计费。任何执行结果不明的pending使恢复拒绝 `AGENT_CHECKPOINT_AMBIGUOUS`，不是任意副作用exactly-once保证。最终Go接受的JSON按不透明字符串保存，恢复可原样返回，避免JSONB/Python重编码损坏数值词法和精度。
+
+仅429/500/502/503/504及临时网络故障可有界重试，每逻辑调用最多3次、每次实际尝试消耗原累计模型/时间额度；证书验证、协议/权限/来源/预算错误与取消不重试。退避和Retry-After最多2秒且可取消。endpoint+model进程内熔断连续5次临时失败后开路30秒，仅单恢复探针；它不跨副本共享，进程重启不重置持久预算。
+
+### 通用Python项目与独立回归
+
+管理员离线 [manifest登记](../scripts/code_projects.py)，冻结项目版本、精确镜像ID、可读/可改/冻结文件、Python语言、符号映射、输出契约和有界argv。当前适配 `manifest-python-v1/drop-python-project-v1`，不开放网页shell或任意语言上传执行；无实时workload绑定的项目只能走独立源码模式。
+
+保持三个源码工具不变，新preset的 `test_patch`另需独立 `regression_tests:[{path,content}]`，最多两个新unittest文件/合计8KiB，代码edits编码额外收紧为最多12KiB，不能覆盖冻结原测试。相同新测试先在原版实际断言失败，再在候选通过；语法/导入错误、skip或打印PASS不算复现。候选还需原回归、类型/值和可变返回隔离、六组交替CPU对照及相同冻结baseline的sham负控。纯性能优化不得伪造行为缺陷来制造红绿。
+
+新执行器协议4的 `validation` 可含 `regression_test_validation`、`original_tests_unchanged`、`negative_control`和 `patch_bundle`；旧CRM/Saber保持协议3、旧源码/镜像绑定和原收据。新增回执不反向改变旧证据解释。`patch_bundle`为 `{schema_version:1,format:'unified-diff',source_revision,content,sha256,code_files,test_files,applied_to:'isolated_snapshot',production_deployed:false}`，UTF-8 diff最多24KiB，包含代码和新增测试。前端下载前独立核对SHA；只交付可审补丁，不自动发布原业务仓库。
+
+### SQL与评测边界
+
+SQL010增加 `diagnosis_runs.report_protocol`（旧行默认1、约束1/2）、诊断/调查的 `telemetry_service_id`，以及 `investigation_followups`、`diagnostic_playbooks`、`agent_checkpoints`、`agent_tool_receipts`。回执以scope/调用ID唯一并外键绑定检查点；方法按owner/逻辑键/版本唯一，发布必须有复核人和时刻。分支最多2的并发约束由根调查行锁和服务逻辑实施，不冒充SQL已有计数CHECK。检查点、工具回执和终态提交仍先执行业务授权/attempt/lease栅栏，runtime不直接持有数据库凭据。
+
+新增 [双服务演示](../integrations/observability-demo/README.md) 是实际HTTP、SQLite与Python计算的合成业务；[通用项目](../integrations/generic-python/README.md) 是受控红绿/CPU基准；[评测](../scripts/evaluation/README.md) 的固定holdout与随机成对重复计划不是已完成模型准确率验证。人工标签须绑定实际报告/分析摘要、保留失败trial；无独立人工复核时语义准确率、误报和拒答指标保持null。上述链路分别记录证据，不能互相替代生产采集、生产根因或收益证明。

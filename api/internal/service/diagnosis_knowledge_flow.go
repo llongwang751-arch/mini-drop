@@ -11,9 +11,9 @@ import (
 )
 
 // diagnosisKnowledgeContext 只补充程序实际返回的知识观测，不接受客户端拼接的 Skill 或案例。
-// 这段上下文与 E1 一起进入本次 ReAct；知识读取也占用现有八次工具总预算。
+// 这段上下文与 E1 一起进入本次 ReAct；知识读取占用相应报告协议的轨迹总预算。
 func diagnosisKnowledgeContext(trace []DiagnosisStep) string {
-	for i := len(trace) - 1; i >= 0; i-- {
+	for i := 0; i < len(trace); i++ {
 		if trace[i].Tool == "read_diagnostic_knowledge" {
 			data, _ := json.Marshal(trace[i])
 			return "\n本次已加载的诊断方法与历史先验（不是本次测量事实）：" + string(data)

@@ -31,7 +31,7 @@ func TestPostgresAgentScopeDiagnosisAutomaticVerification(t *testing.T) {
 	ctx := context.Background()
 	s.Config = AIConfig{AgentBackend: "agentscope", Model: "imported-scope-fixture"}
 	s.Runner = importedAgentRunner(t, func(runner *AgentRunner, _ *http.Request, run importedAgentRequest) (json.RawMessage, error) {
-		if run.Phase != "diagnosis" || run.Budget.MaxToolCalls != 7 {
+		if run.Phase != "diagnosis" || run.Budget.MaxToolCalls != 14 || run.Budget.MaxModelCalls != 9 {
 			t.Fatal("wrong diagnosis boundary")
 		}
 		importedAgentCallback(t, runner, run, agentCallback{Type: "model_start", Round: 1, CallID: "s1"})
@@ -45,7 +45,8 @@ func TestPostgresAgentScopeDiagnosisAutomaticVerification(t *testing.T) {
 			tools++
 		}
 		importedAgentCallback(t, runner, run, agentCallback{Type: "model_start", Round: 3, CallID: "s3"})
-		content := `{"summary":"显式导入协议fixture，未执行真实模型。","hypotheses":[{"claim":"待现场验证的fixture假设","evidence_ids":["E1","E2"],"verification":"同目标同配置受控复测并记录业务指标"}],"limitations":["仅协议fixture"]}`
+		// 此处为新运行v2的显式控制器响应；字段数值来自上面的真实工具夹具。
+		content := `{"report_version":2,"facts":[{"id":"F1","evidence_id":"E2","path":"/top_functions/0/self_percent","operator":"eq","value":80,"unit":"percent"}],"hypotheses":[{"kind":"cpu_hotspot","fact_ids":["F1"],"evidence_ids":["E2"]}],"verification_requests":[{"origin":"tool_plan","kind":"repeat_collection","source_evidence_id":"E4"}]}`
 		_, accepted := importedAgentCallback(t, runner, run, agentCallback{Type: "finish", Round: 3, CallID: "finish", Content: content})
 		if string(accepted["accepted"]) != "true" {
 			t.Fatal(accepted)

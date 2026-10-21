@@ -22,6 +22,9 @@ func (s *Suggestions) PinDiagnosticKnowledge(ctx context.Context, tx *gorm.DB, r
 	if err != nil {
 		return err
 	}
+	if err = s.pinDiagnosticPlaybooks(ctx, tx, run, loaded); err != nil {
+		return err
+	}
 	if loaded == nil || len(loaded.Cases) == 0 {
 		return nil
 	}

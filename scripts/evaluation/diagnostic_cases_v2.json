@@ -1,0 +1,732 @@
+{
+  "schema_version": 1,
+  "dataset_id": "drop-diagnostic-facts-v2",
+  "description": "4个新增合成情境与2个未改动dev经验种子；v1案例和历史评测收据保持不变。",
+  "holdout_policy": "作者可见的预留回归分区，不是独立盲测；holdout不用于播种经验。",
+  "cases": [
+    {
+      "id": "seed-cpu-folded-dev",
+      "title": "独立 CPU 纠正案例的导入来源",
+      "split": "dev",
+      "family": "cpu_hotspot",
+      "provenance": {
+        "source": "imported_synthetic",
+        "imported": true,
+        "synthetic": true,
+        "production_data": false,
+        "scope": {
+          "project": "evaluation-fixture",
+          "runtime": "offline-fixed-profile",
+          "source_revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "task": {
+        "kind": "IMPORT_COLLAPSED",
+        "parameters": {
+          "source": "import"
+        }
+      },
+      "profile": {
+        "kind": "IMPORT_COLLAPSED",
+        "total_samples": 1000,
+        "node_count": 4,
+        "top_functions": [
+          {
+            "name": "fixture.calculate_invoice",
+            "self": 800,
+            "total": 800,
+            "self_percent": 80.0,
+            "total_percent": 80.0
+          },
+          {
+            "name": "fixture.dispatch",
+            "self": 200,
+            "total": 200,
+            "self_percent": 20.0,
+            "total_percent": 20.0
+          },
+          {
+            "name": "fixture",
+            "self": 0,
+            "total": 1000,
+            "self_percent": 0.0,
+            "total_percent": 100.0
+          }
+        ],
+        "flamegraph": {
+          "name": "all",
+          "value": 1000,
+          "self": 0,
+          "children": [
+            {
+              "name": "fixture",
+              "value": 1000,
+              "self": 0,
+              "children": [
+                {
+                  "name": "fixture.calculate_invoice",
+                  "value": 800,
+                  "self": 800,
+                  "children": []
+                },
+                {
+                  "name": "fixture.dispatch",
+                  "value": 200,
+                  "self": 200,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        "summary": {
+          "unit": "samples",
+          "source": "import"
+        }
+      },
+      "scenario_context": "直接导入固定折叠文本；平台未执行现场采样，案例标签仅为待核验线索类别，不代表已确认根因。",
+      "prior_candidates": [],
+      "ground_truth": {
+        "skill_ids": ["cpu_hotspot", "sampling_quality"],
+        "matcher_rejects": false,
+        "accepted_categories": ["cpu_hotspot"],
+        "abstention_required": false,
+        "normal_load": false,
+        "causal_root_proven": false,
+        "label_source": "synthetic_scenario_author"
+      },
+      "reproduction": {
+        "method": "real_folded_analyzer_semantic_projection_v1",
+        "collapsed_text": "fixture;fixture.calculate_invoice 800\nfixture;fixture.dispatch 200\n",
+        "projection_fields": [
+          "kind",
+          "total_samples",
+          "node_count",
+          "top_functions",
+          "flamegraph",
+          "summary.unit",
+          "summary.source"
+        ],
+        "excluded_fields": [
+          "metadata",
+          "suggestions",
+          "summary.duration_seconds",
+          "summary.frequency_hz"
+        ]
+      }
+    },
+    {
+      "id": "seed-allocation-folded-dev",
+      "title": "独立分配纠正案例的导入来源",
+      "split": "dev",
+      "family": "allocation_gc",
+      "provenance": {
+        "source": "imported_synthetic",
+        "imported": true,
+        "synthetic": true,
+        "production_data": false,
+        "scope": {
+          "project": "evaluation-fixture",
+          "runtime": "offline-fixed-profile",
+          "source_revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "task": {
+        "kind": "IMPORT_COLLAPSED",
+        "parameters": {
+          "source": "import"
+        }
+      },
+      "profile": {
+        "kind": "IMPORT_COLLAPSED",
+        "total_samples": 1000,
+        "node_count": 4,
+        "top_functions": [
+          {
+            "name": "malloc",
+            "self": 650,
+            "total": 650,
+            "self_percent": 65.0,
+            "total_percent": 65.0
+          },
+          {
+            "name": "fixture.copy_batch",
+            "self": 350,
+            "total": 350,
+            "self_percent": 35.0,
+            "total_percent": 35.0
+          },
+          {
+            "name": "fixture",
+            "self": 0,
+            "total": 1000,
+            "self_percent": 0.0,
+            "total_percent": 100.0
+          }
+        ],
+        "flamegraph": {
+          "name": "all",
+          "value": 1000,
+          "self": 0,
+          "children": [
+            {
+              "name": "fixture",
+              "value": 1000,
+              "self": 0,
+              "children": [
+                {
+                  "name": "fixture.copy_batch",
+                  "value": 350,
+                  "self": 350,
+                  "children": []
+                },
+                {
+                  "name": "malloc",
+                  "value": 650,
+                  "self": 650,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        "summary": {
+          "unit": "samples",
+          "source": "import"
+        }
+      },
+      "scenario_context": "直接导入固定折叠文本；平台未执行现场采样，案例标签仅为待核验线索类别，不代表已确认根因。",
+      "prior_candidates": [],
+      "ground_truth": {
+        "skill_ids": ["allocation_gc", "cpu_hotspot", "sampling_quality"],
+        "matcher_rejects": false,
+        "accepted_categories": ["allocation_gc"],
+        "abstention_required": false,
+        "normal_load": false,
+        "causal_root_proven": false,
+        "label_source": "synthetic_scenario_author"
+      },
+      "reproduction": {
+        "method": "real_folded_analyzer_semantic_projection_v1",
+        "collapsed_text": "fixture;malloc 650\nfixture;fixture.copy_batch 350\n",
+        "projection_fields": [
+          "kind",
+          "total_samples",
+          "node_count",
+          "top_functions",
+          "flamegraph",
+          "summary.unit",
+          "summary.source"
+        ],
+        "excluded_fields": [
+          "metadata",
+          "suggestions",
+          "summary.duration_seconds",
+          "summary.frequency_hz"
+        ]
+      }
+    },
+    {
+      "id": "live-normal-load-v2-holdout",
+      "title": "正常高负载不能仅凭热点判缺陷",
+      "split": "holdout",
+      "family": "normal_load",
+      "provenance": {
+        "source": "imported_synthetic",
+        "imported": true,
+        "synthetic": true,
+        "production_data": false,
+        "scope": {
+          "project": "evaluation-fixture",
+          "runtime": "offline-fixed-profile",
+          "source_revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "task": {
+        "kind": "IMPORT_COLLAPSED",
+        "parameters": {
+          "source": "import"
+        }
+      },
+      "profile": {
+        "kind": "IMPORT_COLLAPSED",
+        "total_samples": 1000,
+        "node_count": 4,
+        "top_functions": [
+          {
+            "name": "fixture.expected_batch",
+            "self": 900,
+            "total": 900,
+            "self_percent": 90.0,
+            "total_percent": 90.0
+          },
+          {
+            "name": "fixture.dispatch",
+            "self": 100,
+            "total": 100,
+            "self_percent": 10.0,
+            "total_percent": 10.0
+          },
+          {
+            "name": "fixture",
+            "self": 0,
+            "total": 1000,
+            "self_percent": 0.0,
+            "total_percent": 100.0
+          }
+        ],
+        "flamegraph": {
+          "name": "all",
+          "value": 1000,
+          "self": 0,
+          "children": [
+            {
+              "name": "fixture",
+              "value": 1000,
+              "self": 0,
+              "children": [
+                {
+                  "name": "fixture.dispatch",
+                  "value": 100,
+                  "self": 100,
+                  "children": []
+                },
+                {
+                  "name": "fixture.expected_batch",
+                  "value": 900,
+                  "self": 900,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        "summary": {
+          "unit": "samples",
+          "source": "import"
+        }
+      },
+      "scenario_context": "作者设定的合成负控/线索情境，不是现场事实，不可将ground_truth标签传入模型问题。",
+      "prior_candidates": [],
+      "ground_truth": {
+        "skill_ids": ["cpu_hotspot", "sampling_quality"],
+        "matcher_rejects": false,
+        "accepted_categories": ["normal_load", "insufficient_evidence"],
+        "abstention_required": false,
+        "normal_load": true,
+        "causal_root_proven": false,
+        "label_source": "synthetic_scenario_author"
+      },
+      "reproduction": {
+        "method": "real_folded_analyzer_semantic_projection_v1",
+        "collapsed_text": "fixture;fixture.expected_batch 900\nfixture;fixture.dispatch 100\n",
+        "projection_fields": [
+          "kind",
+          "total_samples",
+          "node_count",
+          "top_functions",
+          "flamegraph",
+          "summary.unit",
+          "summary.source"
+        ],
+        "excluded_fields": [
+          "metadata",
+          "suggestions",
+          "summary.duration_seconds",
+          "summary.frequency_hz"
+        ]
+      },
+      "fact_protocol_controls": {
+        "report_protocol": 2,
+        "positive_self_items": 2,
+        "manual_import_has_collection_parameters": false,
+        "forbidden_tool_plan_parameters": {
+          "duration_seconds": 60,
+          "frequency_hz": 99
+        },
+        "allocation_hypothesis_without_allocation_fact_rejected": true
+      }
+    },
+    {
+      "id": "live-insufficient-v2-holdout",
+      "title": "低权重且现场元数据未知，必须保留不足结论",
+      "split": "holdout",
+      "family": "insufficient_evidence",
+      "provenance": {
+        "source": "imported_synthetic",
+        "imported": true,
+        "synthetic": true,
+        "production_data": false,
+        "scope": {
+          "project": "evaluation-fixture",
+          "runtime": "offline-fixed-profile",
+          "source_revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "task": {
+        "kind": "IMPORT_COLLAPSED",
+        "parameters": {
+          "source": "import"
+        }
+      },
+      "profile": {
+        "kind": "IMPORT_COLLAPSED",
+        "total_samples": 3,
+        "node_count": 4,
+        "top_functions": [
+          {
+            "name": "fixture.work",
+            "self": 2,
+            "total": 2,
+            "self_percent": 66.6667,
+            "total_percent": 66.6667
+          },
+          {
+            "name": "fixture.dispatch",
+            "self": 1,
+            "total": 1,
+            "self_percent": 33.3333,
+            "total_percent": 33.3333
+          },
+          {
+            "name": "fixture",
+            "self": 0,
+            "total": 3,
+            "self_percent": 0.0,
+            "total_percent": 100.0
+          }
+        ],
+        "flamegraph": {
+          "name": "all",
+          "value": 3,
+          "self": 0,
+          "children": [
+            {
+              "name": "fixture",
+              "value": 3,
+              "self": 0,
+              "children": [
+                {
+                  "name": "fixture.dispatch",
+                  "value": 1,
+                  "self": 1,
+                  "children": []
+                },
+                {
+                  "name": "fixture.work",
+                  "value": 2,
+                  "self": 2,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        "summary": {
+          "unit": "samples",
+          "source": "import"
+        }
+      },
+      "scenario_context": "作者设定的合成负控/线索情境，不是现场事实，不可将ground_truth标签传入模型问题。",
+      "prior_candidates": [],
+      "ground_truth": {
+        "skill_ids": ["cpu_hotspot", "sampling_quality"],
+        "matcher_rejects": false,
+        "accepted_categories": ["insufficient_evidence"],
+        "abstention_required": true,
+        "normal_load": false,
+        "causal_root_proven": false,
+        "label_source": "synthetic_scenario_author"
+      },
+      "reproduction": {
+        "method": "real_folded_analyzer_semantic_projection_v1",
+        "collapsed_text": "fixture;fixture.work 2\nfixture;fixture.dispatch 1\n",
+        "projection_fields": [
+          "kind",
+          "total_samples",
+          "node_count",
+          "top_functions",
+          "flamegraph",
+          "summary.unit",
+          "summary.source"
+        ],
+        "excluded_fields": [
+          "metadata",
+          "suggestions",
+          "summary.duration_seconds",
+          "summary.frequency_hz"
+        ]
+      },
+      "fact_protocol_controls": {
+        "report_protocol": 2,
+        "positive_self_items": 2,
+        "manual_import_has_collection_parameters": false,
+        "forbidden_tool_plan_parameters": {
+          "duration_seconds": 60,
+          "frequency_hz": 99
+        },
+        "allocation_hypothesis_without_allocation_fact_rejected": false
+      }
+    },
+    {
+      "id": "live-compound-v2-holdout",
+      "title": "分配与等待复合线索需要分别核验",
+      "split": "holdout",
+      "family": "mixed_signals",
+      "provenance": {
+        "source": "imported_synthetic",
+        "imported": true,
+        "synthetic": true,
+        "production_data": false,
+        "scope": {
+          "project": "evaluation-fixture",
+          "runtime": "offline-fixed-profile",
+          "source_revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "task": {
+        "kind": "IMPORT_COLLAPSED",
+        "parameters": {
+          "source": "import"
+        }
+      },
+      "profile": {
+        "kind": "IMPORT_COLLAPSED",
+        "total_samples": 1000,
+        "node_count": 5,
+        "top_functions": [
+          {
+            "name": "malloc",
+            "self": 500,
+            "total": 500,
+            "self_percent": 50.0,
+            "total_percent": 50.0
+          },
+          {
+            "name": "futex_wait",
+            "self": 300,
+            "total": 300,
+            "self_percent": 30.0,
+            "total_percent": 30.0
+          },
+          {
+            "name": "fixture.work",
+            "self": 200,
+            "total": 200,
+            "self_percent": 20.0,
+            "total_percent": 20.0
+          },
+          {
+            "name": "fixture",
+            "self": 0,
+            "total": 1000,
+            "self_percent": 0.0,
+            "total_percent": 100.0
+          }
+        ],
+        "flamegraph": {
+          "name": "all",
+          "value": 1000,
+          "self": 0,
+          "children": [
+            {
+              "name": "fixture",
+              "value": 1000,
+              "self": 0,
+              "children": [
+                {
+                  "name": "fixture.work",
+                  "value": 200,
+                  "self": 200,
+                  "children": []
+                },
+                {
+                  "name": "futex_wait",
+                  "value": 300,
+                  "self": 300,
+                  "children": []
+                },
+                {
+                  "name": "malloc",
+                  "value": 500,
+                  "self": 500,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        "summary": {
+          "unit": "samples",
+          "source": "import"
+        }
+      },
+      "scenario_context": "作者设定的合成负控/线索情境，不是现场事实，不可将ground_truth标签传入模型问题。",
+      "prior_candidates": [],
+      "ground_truth": {
+        "skill_ids": ["allocation_gc", "lock_io", "sampling_quality"],
+        "matcher_rejects": false,
+        "accepted_categories": [
+          "mixed_signals",
+          "allocation_gc",
+          "lock_io",
+          "insufficient_evidence"
+        ],
+        "abstention_required": false,
+        "normal_load": false,
+        "causal_root_proven": false,
+        "label_source": "synthetic_scenario_author"
+      },
+      "reproduction": {
+        "method": "real_folded_analyzer_semantic_projection_v1",
+        "collapsed_text": "fixture;malloc 500\nfixture;futex_wait 300\nfixture;fixture.work 200\n",
+        "projection_fields": [
+          "kind",
+          "total_samples",
+          "node_count",
+          "top_functions",
+          "flamegraph",
+          "summary.unit",
+          "summary.source"
+        ],
+        "excluded_fields": [
+          "metadata",
+          "suggestions",
+          "summary.duration_seconds",
+          "summary.frequency_hz"
+        ]
+      },
+      "fact_protocol_controls": {
+        "report_protocol": 2,
+        "positive_self_items": 3,
+        "manual_import_has_collection_parameters": false,
+        "forbidden_tool_plan_parameters": {
+          "duration_seconds": 60,
+          "frequency_hz": 99
+        },
+        "allocation_hypothesis_without_allocation_fact_rejected": false
+      }
+    },
+    {
+      "id": "live-attribution-control-v2-holdout",
+      "title": "无分配提示的错误归因负控",
+      "split": "holdout",
+      "family": "normal_load",
+      "provenance": {
+        "source": "imported_synthetic",
+        "imported": true,
+        "synthetic": true,
+        "production_data": false,
+        "scope": {
+          "project": "evaluation-fixture",
+          "runtime": "offline-fixed-profile",
+          "source_revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "task": {
+        "kind": "IMPORT_COLLAPSED",
+        "parameters": {
+          "source": "import"
+        }
+      },
+      "profile": {
+        "kind": "IMPORT_COLLAPSED",
+        "total_samples": 1000,
+        "node_count": 4,
+        "top_functions": [
+          {
+            "name": "fixture.calculate_totals",
+            "self": 650,
+            "total": 650,
+            "self_percent": 65.0,
+            "total_percent": 65.0
+          },
+          {
+            "name": "fixture.dispatch",
+            "self": 350,
+            "total": 350,
+            "self_percent": 35.0,
+            "total_percent": 35.0
+          },
+          {
+            "name": "fixture",
+            "self": 0,
+            "total": 1000,
+            "self_percent": 0.0,
+            "total_percent": 100.0
+          }
+        ],
+        "flamegraph": {
+          "name": "all",
+          "value": 1000,
+          "self": 0,
+          "children": [
+            {
+              "name": "fixture",
+              "value": 1000,
+              "self": 0,
+              "children": [
+                {
+                  "name": "fixture.calculate_totals",
+                  "value": 650,
+                  "self": 650,
+                  "children": []
+                },
+                {
+                  "name": "fixture.dispatch",
+                  "value": 350,
+                  "self": 350,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        "summary": {
+          "unit": "samples",
+          "source": "import"
+        }
+      },
+      "scenario_context": "作者设定的合成负控/线索情境，不是现场事实，不可将ground_truth标签传入模型问题。",
+      "prior_candidates": [],
+      "ground_truth": {
+        "skill_ids": ["cpu_hotspot", "sampling_quality"],
+        "matcher_rejects": false,
+        "accepted_categories": ["normal_load", "insufficient_evidence"],
+        "abstention_required": false,
+        "normal_load": true,
+        "causal_root_proven": false,
+        "label_source": "synthetic_scenario_author"
+      },
+      "reproduction": {
+        "method": "real_folded_analyzer_semantic_projection_v1",
+        "collapsed_text": "fixture;fixture.calculate_totals 650\nfixture;fixture.dispatch 350\n",
+        "projection_fields": [
+          "kind",
+          "total_samples",
+          "node_count",
+          "top_functions",
+          "flamegraph",
+          "summary.unit",
+          "summary.source"
+        ],
+        "excluded_fields": [
+          "metadata",
+          "suggestions",
+          "summary.duration_seconds",
+          "summary.frequency_hz"
+        ]
+      },
+      "fact_protocol_controls": {
+        "report_protocol": 2,
+        "positive_self_items": 2,
+        "manual_import_has_collection_parameters": false,
+        "forbidden_tool_plan_parameters": {
+          "duration_seconds": 60,
+          "frequency_hz": 99
+        },
+        "allocation_hypothesis_without_allocation_fact_rejected": true
+      }
+    }
+  ]
+}

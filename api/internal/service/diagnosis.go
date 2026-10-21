@@ -20,32 +20,35 @@ import (
 // DiagnosisRun 与采集、分析状态独立；诊断失败不能改写已经测得的结果。
 // Trace 只保存工具观测，不保存隐藏思维链、原始性能文件或模型服务响应正文。
 type DiagnosisRun struct {
-	ID             int64           `json:"id,string"`
-	TaskID         int64           `json:"task_id,string"`
-	AttemptID      int64           `json:"attempt_id,string"`
-	AnalysisJobID  int64           `json:"analysis_job_id,string"`
-	AnalysisRun    int             `json:"analysis_run"`
-	RequestedBy    string          `json:"requested_by"`
-	Goal           string          `json:"goal"`
-	Mode           string          `json:"mode"`
-	KnowledgeMode  string          `json:"knowledge_mode"`
-	InputDigest    string          `json:"input_digest"`
-	RequestKey     string          `json:"-"`
-	Status         string          `json:"status"`
-	LeaseOwner     *string         `json:"-"`
-	LeaseExpiresAt *time.Time      `json:"-"`
-	Attempts       int             `json:"-"`
-	Trace          json.RawMessage `json:"trace"`
-	Report         json.RawMessage `json:"report"`
-	ErrorCode      *string         `json:"error_code,omitempty"`
-	CreatedAt      time.Time       `json:"created_at"`
-	UpdatedAt      time.Time       `json:"updated_at"`
+	ID                 int64           `json:"id,string"`
+	TaskID             int64           `json:"task_id,string"`
+	AttemptID          int64           `json:"attempt_id,string"`
+	AnalysisJobID      int64           `json:"analysis_job_id,string"`
+	AnalysisRun        int             `json:"analysis_run"`
+	RequestedBy        string          `json:"requested_by"`
+	Goal               string          `json:"goal"`
+	Mode               string          `json:"mode"`
+	KnowledgeMode      string          `json:"knowledge_mode"`
+	ReportProtocol     int             `json:"report_protocol"`
+	TelemetryServiceID string          `json:"telemetry_service_id,omitempty"`
+	InputDigest        string          `json:"input_digest"`
+	RequestKey         string          `json:"-"`
+	Status             string          `json:"status"`
+	LeaseOwner         *string         `json:"-"`
+	LeaseExpiresAt     *time.Time      `json:"-"`
+	Attempts           int             `json:"-"`
+	Trace              json.RawMessage `json:"trace"`
+	Report             json.RawMessage `json:"report"`
+	ErrorCode          *string         `json:"error_code,omitempty"`
+	CreatedAt          time.Time       `json:"created_at"`
+	UpdatedAt          time.Time       `json:"updated_at"`
 }
 type DiagnosisInput struct {
-	Goal          string `json:"goal"`
-	Mode          string `json:"mode"`
-	Consent       bool   `json:"consent"`
-	KnowledgeMode string `json:"knowledge_mode,omitempty"`
+	Goal               string `json:"goal"`
+	Mode               string `json:"mode"`
+	Consent            bool   `json:"consent"`
+	KnowledgeMode      string `json:"knowledge_mode,omitempty"`
+	TelemetryServiceID string `json:"telemetry_service_id,omitempty"`
 }
 
 // diagnosisInputDigest 把知识开关绑定到幂等与来源校验；旧记录的空值/off 保持原摘要，
@@ -56,6 +59,17 @@ func diagnosisInputDigest(raw json.RawMessage, mode, goal, knowledgeMode string)
 		input += "\x00knowledge:" + knowledgeMode
 	}
 	return repository.Digest(input)
+}
+
+func diagnosisBoundDigest(raw json.RawMessage, mode, goal, knowledgeMode string, protocol int, telemetryServiceID string) string {
+	digest := diagnosisInputDigest(raw, mode, goal, knowledgeMode)
+	if protocol >= 2 {
+		digest = repository.Digest(digest + "\x00report_protocol:2")
+	}
+	if telemetryServiceID != "" {
+		digest = repository.Digest(digest + "\x00telemetry:" + telemetryServiceID)
+	}
+	return digest
 }
 
 // RequestDiagnosis 在事务中锁定用户准入和来源任务，绑定当前 attempt、分析 job/run 与完整结果摘要。
@@ -113,7 +127,10 @@ func (s *Suggestions) RequestDiagnosis(ctx context.Context, u domain.User, id in
 		if err != nil {
 			return err
 		}
-		digest := diagnosisInputDigest(raw, in.Mode, in.Goal, in.KnowledgeMode)
+		if err := s.validateTelemetryService(ctx, locked, in.TelemetryServiceID, diagnosticAgentID(t)); err != nil {
+			return err
+		}
+		digest := diagnosisBoundDigest(raw, in.Mode, in.Goal, in.KnowledgeMode, 2, in.TelemetryServiceID)
 		err = tx.Where("requested_by=? AND request_key=?", u.ID, key).First(&run).Error
 		if err == nil {
 			if run.TaskID != id || run.AttemptID != attempt.ID || run.InputDigest != digest || run.AnalysisJobID != job.ID || run.AnalysisRun != job.Attempt {
@@ -131,7 +148,11 @@ func (s *Suggestions) RequestDiagnosis(ctx context.Context, u domain.User, id in
 		if count >= 3 {
 			return domain.Fail("DIAGNOSIS_BUSY", "最多同时运行3个诊断，请等待或取消已有诊断")
 		}
-		run = DiagnosisRun{TaskID: id, AttemptID: attempt.ID, AnalysisJobID: job.ID, AnalysisRun: job.Attempt, RequestedBy: u.ID, Goal: in.Goal, Mode: in.Mode, KnowledgeMode: in.KnowledgeMode, RequestKey: key, InputDigest: digest, Status: "pending", Trace: json.RawMessage("[]")}
+		run = DiagnosisRun{TaskID: id, AttemptID: attempt.ID, AnalysisJobID: job.ID, AnalysisRun: job.Attempt, RequestedBy: u.ID, Goal: in.Goal, Mode: in.Mode, KnowledgeMode: in.KnowledgeMode, ReportProtocol: 2, TelemetryServiceID: in.TelemetryServiceID, RequestKey: key, InputDigest: digest, Status: "pending", Trace: json.RawMessage("[]")}
+		// 方法发布和诊断准入均采用数据库时钟，避免不同 API 实例的本机时钟偏差改变先后关系。
+		if err := tx.Raw("SELECT clock_timestamp()").Scan(&run.CreatedAt).Error; err != nil {
+			return err
+		}
 		if err := tx.Create(&run).Error; err != nil {
 			return err
 		}
@@ -173,7 +194,7 @@ func (s *Suggestions) ValidateDiagnosisSource(ctx context.Context, run Diagnosis
 	if err != nil {
 		return err
 	}
-	if diagnosisInputDigest(raw, run.Mode, run.Goal, run.KnowledgeMode) != run.InputDigest {
+	if diagnosisBoundDigest(raw, run.Mode, run.Goal, run.KnowledgeMode, run.ReportProtocol, run.TelemetryServiceID) != run.InputDigest {
 		return domain.Fail("INPUT_CHANGED", "证据已改变")
 	}
 	return nil
@@ -210,7 +231,7 @@ func (s *Suggestions) processDiagnosis(ctx context.Context) error {
 				return err
 			}
 		}
-		return tx.Raw(`UPDATE diagnosis_runs SET status='running',attempts=attempts+1,lease_owner=?,lease_expires_at=now()+interval '180 seconds',trace='[]',report=NULL,updated_at=now() WHERE id=(SELECT id FROM diagnosis_runs WHERE (status='pending' OR (status='running' AND lease_expires_at<now())) AND attempts<3 ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1) RETURNING *`, owner).Scan(&run).Error
+		return tx.Raw(`UPDATE diagnosis_runs SET status='running',attempts=attempts+1,lease_owner=?,lease_expires_at=now()+interval '180 seconds',report=NULL,updated_at=now() WHERE id=(SELECT id FROM diagnosis_runs WHERE (status='pending' OR (status='running' AND lease_expires_at<now())) AND attempts<3 ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1) RETURNING *`, owner).Scan(&run).Error
 	})
 	if err != nil || run.ID == 0 {
 		return err
@@ -218,7 +239,12 @@ func (s *Suggestions) processDiagnosis(ctx context.Context) error {
 	work, cancel := context.WithTimeout(ctx, 150*time.Second)
 	defer cancel()
 	trace := []DiagnosisStep{}
-	report, err := s.diagnose(work, run, owner, &trace)
+	var report *DiagnosisReport
+	if len(run.Trace) > 0 && json.Unmarshal(run.Trace, &trace) != nil {
+		err = domain.Fail("INVALID_EVIDENCE", "已保存诊断轨迹无法恢复")
+	} else {
+		report, err = s.diagnose(work, run, owner, &trace)
+	}
 	// 上游超时也必须提交持久化失败状态，不能只等租约过期后再次恢复。
 	// 因此收尾使用独立且有界的 context，不继承已经取消的模型调用 context。
 	finish, stop := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
@@ -269,8 +295,15 @@ func (s *Suggestions) diagnosisFence(ctx context.Context, tx *gorm.DB, run Diagn
 	if job.ID != run.AnalysisJobID || job.Attempt != run.AnalysisRun {
 		return t, domain.Fail("STALE_ATTEMPT", "分析执行版本已改变")
 	}
-	if diagnosisInputDigest(raw, run.Mode, run.Goal, run.KnowledgeMode) != run.InputDigest {
+	if diagnosisBoundDigest(raw, run.Mode, run.Goal, run.KnowledgeMode, run.ReportProtocol, run.TelemetryServiceID) != run.InputDigest {
 		return t, domain.Fail("INPUT_CHANGED", "证据已改变")
+	}
+	if run.TelemetryServiceID != "" {
+		local := *s
+		local.Repo = r
+		if err := local.validateTelemetryService(ctx, u, run.TelemetryServiceID, diagnosticAgentID(t)); err != nil {
+			return t, domain.Fail("AUTHORIZATION_REVOKED", "关联业务信号授权已撤销")
+		}
 	}
 	var verification VerificationRun
 	if err := tx.Where("candidate_diagnosis_id=?", run.ID).Limit(1).Find(&verification).Error; err != nil {
@@ -316,12 +349,15 @@ func (s *Suggestions) finishDiagnosis(ctx context.Context, run DiagnosisRun, own
 		if workErr == nil {
 			// 提交前先按全局锁序固定本次引用的历史来源，收住模型重读后发生撤销/重分析的窗口。
 			// 领域拒绝写为诊断失败；数据库错误必须回滚，不能在已失败事务里继续写终态。
-			if err := s.PinDiagnosticKnowledge(ctx, tx, run, trace); err != nil {
-				var domainErr *domain.Error
-				if !errors.As(err, &domainErr) {
-					return err
+			for _, pin := range []func(context.Context, *gorm.DB, DiagnosisRun, []DiagnosisStep) error{s.pinDiagnosisScope, s.PinDiagnosticKnowledge, s.pinDiagnosticSignals} {
+				if err := pin(ctx, tx, run, trace); err != nil {
+					var domainErr *domain.Error
+					if !errors.As(err, &domainErr) {
+						return err
+					}
+					workErr = err
+					break
 				}
-				workErr = err
 			}
 		}
 		_, fenceErr := s.diagnosisFence(ctx, tx, run, owner)

@@ -6,6 +6,7 @@
 """
 import argparse
 import ast
+import difflib
 import hashlib
 from http.server import BaseHTTPRequestHandler
 import json
@@ -32,6 +33,141 @@ PRESET_IMPORTS = {
     'crm-brand-palette-v1': {'copy', 'math', 're', 'functools'},
     'saber-fts5-v1': {'__future__', 're', 'sqlite3', 'typing', 'functools'},
 }
+GENERIC_PRESET = 'manifest-python-v1'
+GENERIC_CONTRACT = 'drop-python-project-v1'
+GENERIC_DRIVER_ARGV = ['python', '{driver}', '--mode', '{mode}', '--source', '{source}',
+                       '--manifest', '{manifest}', '--output', '{output}', '--seed', '{seed}']
+
+
+def enrolled_path(value):
+    """登记路径使用平台无关的相对 POSIX 写法；拒绝路径穿越、隐藏凭据与 Windows 特殊路径。"""
+    require(isinstance(value, str) and 0 < len(value) <= 180 and '\\' not in value
+            and re.fullmatch(r'[A-Za-z0-9_][A-Za-z0-9_./-]*', value), 'PROJECT_PATH_INVALID')
+    parts = value.split('/')
+    require(all(part not in {'', '.', '..'} and not part.startswith('.') for part in parts)
+            and all(not part.endswith(('.pem', '.key', '.p12', '.pfx')) for part in parts), 'PROJECT_PATH_INVALID')
+    return value
+
+
+def validate_generic_manifest(manifest):
+    """新协议仅支持已实现的 Python 适配，不把 language 字段当作任意语言已受支持的承诺。
+
+    管理员离线登记构建/测试 argv；模型从不获得修改命令的字段。profile/benchmark 必须调用
+    固定驱动，避免模型补丁伪造测量或类型摘要。原测试与工作负载均属于不可修改的冻结文件。
+    """
+    require(type(manifest.get('schema_version')) is int and manifest['schema_version'] == 1 and manifest.get('language') == 'python'
+            and manifest.get('output_contract') == GENERIC_CONTRACT
+            and manifest.get('symbol_mapping') == 'python_cprofile', 'PROJECT_CONTRACT_INVALID')
+    require(isinstance(manifest.get('label'), str) and 0 < len(manifest['label']) <= 120
+            and isinstance(manifest.get('workload'), str) and 0 < len(manifest['workload']) <= 1000, 'PROJECT_DESCRIPTION_INVALID')
+    files = manifest.get('files')
+    require(isinstance(files, dict) and 1 <= len(files) <= 128, 'PROJECT_FILES_INVALID')
+    for name, digest in files.items():
+        enrolled_path(name)
+        require(isinstance(digest, str) and re.fullmatch(r'[0-9a-f]{64}', digest), 'PROJECT_FILES_INVALID')
+    for field in ('editable_files', 'readable_files', 'frozen_files'):
+        values = manifest.get(field)
+        require(isinstance(values, list) and all(isinstance(name, str) and name in files for name in values)
+                and len(values) == len(set(values)), 'PROJECT_FILES_INVALID')
+    editable = set(manifest['editable_files'])
+    frozen = set(manifest['frozen_files'])
+    require(editable and editable.isdisjoint(frozen) and editable | frozen == set(files)
+            and editable <= set(manifest['readable_files']) and all(name.endswith('.py') for name in editable), 'PROJECT_FILES_INVALID')
+    imports = manifest.get('allowed_imports')
+    require(isinstance(imports, list) and 1 <= len(imports) <= 32
+            and all(isinstance(item, str) and re.fullmatch(r'[A-Za-z][A-Za-z0-9_.]{0,79}', item)
+                    and item.split('.')[0] not in {'os', 'sys', 'subprocess', 'socket', 'pathlib', 'importlib', 'ctypes', 'pickle', 'marshal', 'builtins'} for item in imports), 'PROJECT_IMPORTS_INVALID')
+    directory = enrolled_path(manifest.get('regression_test_dir'))
+    require(directory not in files and not any(name.startswith(directory + '/') for name in files), 'PROJECT_REGRESSION_PATH_INVALID')
+    commands = manifest.get('commands')
+    require(isinstance(commands, dict) and set(commands) == {'build', 'test', 'profile', 'benchmark'}, 'PROJECT_COMMANDS_INVALID')
+    for action, command in commands.items():
+        require(isinstance(command, dict) and set(command) == {'argv', 'timeout_seconds'}, 'PROJECT_COMMANDS_INVALID')
+        argv = command['argv']
+        require(isinstance(argv, list) and 2 <= len(argv) <= 32 and argv[0] == 'python'
+                and all(isinstance(arg, str) and 0 < len(arg) <= 256 and not any(c in arg for c in '\x00\r\n') for arg in argv)
+                and sum(len(arg) for arg in argv) <= 4096
+                and type(command['timeout_seconds']) is int and 1 <= command['timeout_seconds'] <= 30, 'PROJECT_COMMANDS_INVALID')
+        if action in {'profile', 'benchmark'}:
+            expected = [action if arg == '{mode}' else arg for arg in GENERIC_DRIVER_ARGV]
+            require(argv == expected, 'PROJECT_MEASUREMENT_DRIVER_REQUIRED')
+        else:
+            require(all('{' not in arg and '}' not in arg and not arg.startswith(('/', '\\'))
+                        and not re.match(r'^[A-Za-z]:', arg) for arg in argv[1:]), 'PROJECT_COMMANDS_INVALID')
+    entrypoints = manifest.get('entrypoints')
+    require(isinstance(entrypoints, dict) and set(entrypoints) == {'profile', 'benchmark'}, 'PROJECT_ENTRYPOINT_INVALID')
+    for entry in entrypoints.values():
+        require(isinstance(entry, dict) and set(entry) == {'path', 'callable', 'calls'}
+                and entry.get('path') in frozen and entry['path'].endswith('.py')
+                and isinstance(entry.get('callable'), str) and re.fullmatch(r'[a-zA-Z][a-zA-Z0-9_]{0,63}', entry['callable'])
+                and type(entry.get('calls')) is int and 1 <= entry['calls'] <= 10000, 'PROJECT_ENTRYPOINT_INVALID')
+    gate = manifest.get('performance_gate')
+    require(isinstance(gate, dict) and set(gate) == {'minimum_median_speedup', 'minimum_improved_pairs', 'pairs', 'negative_control_max_drift'}
+            and type(gate['pairs']) is int and gate['pairs'] == 6
+            and type(gate['minimum_improved_pairs']) is int and 4 <= gate['minimum_improved_pairs'] <= 6
+            and type(gate['minimum_median_speedup']) in {int, float} and 1.05 <= gate['minimum_median_speedup'] <= 10
+            and type(gate['negative_control_max_drift']) in {int, float} and .05 <= gate['negative_control_max_drift'] <= .30, 'PROJECT_PERFORMANCE_GATE_INVALID')
+    return manifest
+
+
+def validate_regression_tests(tests, manifest):
+    """模型只能新增独立 unittest 文件；不得替换原测试、跳过检查或通过反射/外部 I/O 观察宿主。
+
+    AST 防线不是 Python 安全沙箱；真正的隔离仍由无网络、只读快照和无凭据容器提供。
+    修复前仅接受断言失败，不把导入异常、语法错误或 skipped 测试当作缺陷复现。
+    """
+    require(isinstance(tests, list) and 1 <= len(tests) <= 2
+            and len(json.dumps(tests).encode()) <= 8192, 'REGRESSION_TEST_LIMIT')
+    result = {}
+    imports = set(manifest['allowed_imports']) | {'unittest'}
+    denied = {'eval', 'exec', 'compile', '__import__', 'open', 'getattr', 'setattr', 'globals', 'locals', 'breakpoint', 'input', 'exit', 'quit', 'print', 'SkipTest', 'skip', 'skipIf', 'skipUnless', 'expectedFailure', 'mock', 'patch'}
+    for test in tests:
+        require(isinstance(test, dict) and set(test) == {'path', 'content'}, 'REGRESSION_TEST_FIELDS')
+        name, content = enrolled_path(test['path']), test['content']
+        require(name.startswith(manifest['regression_test_dir'] + '/') and '/' not in name[len(manifest['regression_test_dir']) + 1:]
+                and re.fullmatch(r'test_[A-Za-z0-9_]+\.py', name.rsplit('/', 1)[-1])
+                and name not in manifest['files'] and name not in result, 'REGRESSION_TEST_PATH')
+        require(isinstance(content, str) and 0 < len(content.encode()) <= 4096, 'REGRESSION_TEST_LIMIT')
+        try:
+            tree = ast.parse(content)
+        except SyntaxError:
+            raise Rejected('REGRESSION_TEST_SYNTAX') from None
+        assertions = 0
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                require(all(alias.name in imports for alias in node.names), 'REGRESSION_TEST_IMPORT')
+            if isinstance(node, ast.ImportFrom):
+                require(node.level == 0 and node.module in imports and all(alias.name != '*' for alias in node.names), 'REGRESSION_TEST_IMPORT')
+            if isinstance(node, ast.Name):
+                require(node.id not in denied and not node.id.startswith('__'), 'REGRESSION_TEST_REFLECTION')
+            if isinstance(node, ast.Attribute):
+                require(not node.attr.startswith('_') and node.attr not in {'mock', 'patch', 'skip', 'skipIf', 'skipUnless', 'skipTest', 'expectedFailure'}, 'REGRESSION_TEST_REFLECTION')
+                assertions += node.attr.startswith('assert')
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                require(not node.decorator_list, 'REGRESSION_TEST_DECORATOR')
+            if isinstance(node, (ast.Assign, ast.AnnAssign, ast.AugAssign)):
+                targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+                require(not any(isinstance(target, ast.Attribute) for target in targets), 'REGRESSION_TEST_MUTATION')
+            assertions += isinstance(node, ast.Assert)
+        require(assertions > 0 and any(isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith('test_') for node in ast.walk(tree)), 'REGRESSION_TEST_ASSERTION_REQUIRED')
+        result[name] = content
+    return result
+
+
+def patch_bundle(source, changed, tests, manifest):
+    """输出可审阅的标准 unified diff；交付物不含发布动作或原仓库写入能力。"""
+    def unified(before, after, old_name, new_name):
+        # difflib 不自动标识缺少末尾换行；补标准标记，保证交付物可供 git apply/PR 审阅。
+        return ''.join(line if line.endswith('\n') else line + '\n\\ No newline at end of file\n'
+                       for line in difflib.unified_diff(before, after, fromfile=old_name, tofile=new_name))
+    code = ''.join(unified((source / name).read_text(encoding='utf-8').splitlines(keepends=True), text.splitlines(keepends=True), 'a/' + name, 'b/' + name) for name, text in sorted(changed.items()))
+    test_diff = ''.join(unified([], text.splitlines(keepends=True), '/dev/null', 'b/' + name) for name, text in sorted(tests.items()))
+    content = code + test_diff
+    require(len(content.encode()) <= 24576, 'PATCH_BUNDLE_LIMIT')
+    return {'schema_version': 1, 'format': 'unified-diff', 'source_revision': manifest['source_revision'],
+            'content': content, 'sha256': hashlib.sha256(content.encode()).hexdigest(),
+            'code_files': sorted(changed), 'test_files': sorted(tests),
+            'applied_to': 'isolated_snapshot', 'production_deployed': False}
 
 
 def frozen_saber_nodes(tree):
@@ -168,8 +304,8 @@ def validate_patch(base, edits, manifest):
         # 不能通过模型工具修改。
         forbidden = {'eval', 'exec', 'compile', '__import__', 'open', 'getattr', 'setattr', 'globals', 'locals', 'breakpoint', 'input'}
         preset = manifest.get('test_preset', 'crm-brand-palette-v1')
-        require(preset in PRESET_IMPORTS, 'PROJECT_PRESET_INVALID')
-        imports = PRESET_IMPORTS[preset]
+        require(preset in PRESET_IMPORTS or preset == GENERIC_PRESET, 'PROJECT_PRESET_INVALID')
+        imports = set(manifest['allowed_imports']) if preset == GENERIC_PRESET else PRESET_IMPORTS[preset]
         if preset == 'saber-fts5-v1':
             require(name == 'internal/rag/fts5_index.py', 'PATCH_PATH_NOT_ENROLLED')
             require(frozen_saber_nodes(ast.parse(original)) == frozen_saber_nodes(tree), 'PATCH_FROZEN_SQL_CONTRACT')
@@ -204,9 +340,11 @@ class Executor:
         root = self.root / 'registry' / name
         require(root.is_dir() and not root.is_symlink() and root.resolve().is_relative_to(self.root), 'PROJECT_NOT_ENROLLED')
         path = root / 'manifest.json'
-        require(path.stat().st_uid == 0 and not path.stat().st_mode & 0o022 and path.stat().st_size <= 131072, 'PROJECT_MANIFEST_UNSAFE')
+        require(not path.is_symlink() and path.stat().st_uid == 0 and not path.stat().st_mode & 0o022 and path.stat().st_size <= 131072, 'PROJECT_MANIFEST_UNSAFE')
         manifest = json.loads(path.read_text())
-        require(manifest.get('id') == name and manifest.get('test_preset') in PRESET_IMPORTS, 'PROJECT_PRESET_INVALID')
+        require(manifest.get('id') == name and manifest.get('test_preset') in {*PRESET_IMPORTS, GENERIC_PRESET}, 'PROJECT_PRESET_INVALID')
+        if manifest['test_preset'] == GENERIC_PRESET:
+            validate_generic_manifest(manifest)
         digest = hashlib.sha256(json.dumps(manifest['files'], sort_keys=True).encode()).hexdigest()
         require(digest == manifest['source_revision'] and (revision is None or revision == digest), 'PROJECT_REVISION_MISMATCH')
         require(re.fullmatch(r'sha256:[0-9a-f]{64}', manifest['runner_image_id']), 'PROJECT_IMAGE_NOT_PINNED')
@@ -242,11 +380,15 @@ class Executor:
             return {'path': name, 'start_line': start, 'end_line': min(end, len(lines)), 'sha256': manifest['files'][name],
                     'source_revision': manifest['source_revision'], 'content': ''.join(lines[start - 1:end]), 'total_lines': len(lines)}
         if action in {'profile_business_flow', 'test_patch'}:
-            require(set(args) <= ({'edits'} if action == 'test_patch' else set()), 'EXECUTION_ARGUMENTS_INVALID')
+            generic = manifest['test_preset'] == GENERIC_PRESET
+            require(set(args) <= ({'edits', 'regression_tests'} if action == 'test_patch' and generic else {'edits'} if action == 'test_patch' else set()), 'EXECUTION_ARGUMENTS_INVALID')
             changed = validate_patch(source, args.get('edits'), manifest) if action == 'test_patch' else {}
+            tests = validate_regression_tests(args.get('regression_tests'), manifest) if action == 'test_patch' and generic else {}
+            if generic and changed:
+                require(len(json.dumps(args.get('edits')).encode()) <= 12288, 'PATCH_BYTE_LIMIT')
             require(self.slots.acquire(blocking=False), 'EXECUTOR_BUSY')
             try:
-                return self.execute(source, manifest, changed, args.get('edits', []), request.get('execution_id', ''), canceled)
+                return self.execute(source, manifest, changed, args.get('edits', []), request.get('execution_id', ''), canceled, tests)
             finally:
                 self.slots.release()
         raise Rejected('ACTION_NOT_ALLOWED')
@@ -255,6 +397,10 @@ class Executor:
         """返回已登记的项目能力；存在工作负载绑定时，再以实际容器镜像、标签和 /proc 身份核对目标。"""
         _, manifest = self.project(name)
         description = {key: manifest[key] for key in ('id', 'label', 'source_revision', 'editable_files', 'readable_files', 'test_preset', 'workload')}
+        if manifest['test_preset'] == GENERIC_PRESET:
+            description.update({key: manifest[key] for key in ('schema_version', 'language', 'output_contract', 'symbol_mapping', 'frozen_files', 'allowed_imports', 'regression_test_dir', 'performance_gate')})
+            description['regression_tests_required'] = True
+            description['supported_languages'] = ['python']
         # 运行容器与源码的绑定由运维登记，不接受模型提供的绑定关系。
         container = manifest.get('workload_container')
         if container:
@@ -275,19 +421,25 @@ class Executor:
                                               'source_revision': manifest['source_revision']}
         return description
 
-    def execute(self, source, manifest, changed, edits, execution_id='', canceled=lambda: False):
+    def execute(self, source, manifest, changed, edits, execution_id='', canceled=lambda: False, tests=None):
         # 执行前验证整个已登记快照，不能只验证模型点名的单个文件。
         """在作业私有目录复制基线与候选，并在固定、无网络、无凭据容器中测量。
 
         先验证完整登记快照，再以执行键和文件锁隔离并发；仅完整收据可命中缓存。
         上次中断产生的 result.json 必须清除，新的成功/失败结果通过临时文件替换发布，避免半成品恢复误判。
         """
+        tests = tests or {}
+        generic = manifest['test_preset'] == GENERIC_PRESET
         for name, digest in manifest['files'].items():
             require(not canceled(), 'EXECUTION_CANCELED')
             path = source / name
-            require(path.is_file() and not path.is_symlink() and path.resolve().is_relative_to(source.resolve()) and file_hash(path) == digest, 'PROJECT_SOURCE_CHANGED')
+            require(path.is_file() and not path.is_symlink() and path.resolve().is_relative_to(source.resolve())
+                    and (not generic or path.stat().st_size <= 131072)
+                    and file_hash(path) == digest, 'PROJECT_SOURCE_CHANGED')
         kind = 'test' if changed else 'profile'
-        key = execution_key(manifest, kind, edits, execution_id)
+        # 旧 preset 的作业键及收据保持不变；新协议把独立测试与完整 manifest 一起绑定。
+        key_edits = {'code_edits': edits, 'regression_tests': tests, 'manifest_sha256': hashlib.sha256(json.dumps(manifest, sort_keys=True).encode()).hexdigest()} if generic else edits
+        key = execution_key(manifest, kind, key_edits, execution_id)
         job = self.root / 'jobs' / key
         job.mkdir(mode=0o755, parents=True, exist_ok=True)
         require(not job.is_symlink() and job.resolve().parent == self.root / 'jobs', 'JOB_PATH_ESCAPE')
@@ -305,12 +457,38 @@ class Executor:
             if receipt.exists():
                 return {**json.loads(receipt.read_text()), 'cache_hit': True}
             for side in ('baseline', 'candidate') if changed else ('baseline',):
-                shutil.copytree(source, job / side, dirs_exist_ok=True)
+                # 中断恢复先清除本作业的私有副本，不能保留上次失败留下的文件或测试。
+                if generic and (job / side).exists():
+                    shutil.rmtree(job / side)
+                if generic:
+                    destination = job / side
+                    destination.mkdir(mode=0o755, exist_ok=True)
+                    for name in manifest['files']:
+                        target = destination / name
+                        target.parent.mkdir(mode=0o755, parents=True, exist_ok=True)
+                        shutil.copyfile(source / name, target)
+                        target.chmod(0o644)
+                    for directory in [destination, *(path for path in destination.rglob('*') if path.is_dir())]:
+                        directory.chmod(0o755)
+                else:
+                    shutil.copytree(source, job / side, dirs_exist_ok=True)
                 # JSON 路由回归需要静态挂载目录；此集成不会因此发布 CRM 的公共 UI。
                 if manifest['test_preset'] == 'crm-brand-palette-v1':
                     (job / side / 'crm/static').mkdir(exist_ok=True)
             for name, text in changed.items():
                 (job / 'candidate' / name).write_text(text, encoding='utf-8')
+            if generic:
+                (job / 'manifest.json').write_text(json.dumps(manifest), encoding='utf-8')
+                (job / 'manifest.json').chmod(0o644)
+                regression = job / 'regression-tests'
+                if regression.exists():
+                    shutil.rmtree(regression)
+                regression.mkdir(mode=0o755)
+                regression.chmod(0o755)
+                for name, content in tests.items():
+                    # 只挂载独立测试目录；两边读取相同文件，不能随 baseline/candidate 替换断言。
+                    (regression / name.rsplit('/', 1)[-1]).write_text(content, encoding='utf-8')
+                    (regression / name.rsplit('/', 1)[-1]).chmod(0o644)
             output = job / 'output'
             output.mkdir(mode=0o700, exist_ok=True)
             require(not output.is_symlink() and output.resolve().parent == job.resolve(), 'JOB_PATH_ESCAPE')
@@ -346,6 +524,14 @@ class Executor:
             if changed:
                 data['patch'] = edits
                 data['candidate_files'] = {name: file_hash(job / 'candidate' / name) for name in changed}
+            if generic:
+                data['executor_contract'] = 4
+                data['output_contract'] = GENERIC_CONTRACT
+                data['language'] = 'python'
+                if changed:
+                    data['regression_tests'] = [{'path': name, 'sha256': hashlib.sha256(content.encode()).hexdigest()} for name, content in sorted(tests.items())]
+                    data['patch_bundle'] = patch_bundle(source, changed, tests, manifest)
+                    require(len(json.dumps(data).encode()) <= 49152, 'SANDBOX_RESULT_OUTPUT_LIMIT')
             temporary = receipt.with_suffix('.next')
             require(not canceled(), 'EXECUTION_CANCELED')
             temporary.write_text(json.dumps(data), encoding='utf-8')

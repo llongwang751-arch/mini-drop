@@ -277,33 +277,78 @@ S["DiagnosticCase"] = obj({"id": ID, "task_id": ID, "diagnosis_id": ID, "attempt
     "status": string(enum=["active", "revoked"]), "created_at": DATE, "expires_at": DATE, "revoked_at": DATE},
     ("id", "task_id", "diagnosis_id", "attempt_id", "analysis_job_id", "analysis_run", "task_kind", "outcome", "status", "created_at", "expires_at"), closed=True)
 S["DiagnosisInput"] = obj({"goal": string(minLength=1, maxLength=600), "mode": string(enum=["evidence", "model"]), "consent": BOOL,
-    "knowledge_mode": string(enum=["off", "skills", "experience"], default="experience")},
+    "knowledge_mode": string(enum=["off", "skills", "experience"], default="experience"),
+    "telemetry_service_id": string(pattern=r"^(?:[a-zA-Z][a-zA-Z0-9_.-]{0,79})?$")},
     ("goal", "mode"), closed=True, description="Trimmed goal 1..600 Unicode characters, no control characters except LF/TAB. Model mode requires consent=true; evidence mode never calls a provider.")
 S["DiagnosisInput"]["allOf"] = [{"if": {"properties": {"mode": {"const": "model"}}, "required": ["mode"]},
     "then": {"properties": {"consent": {"const": True}}, "required": ["consent"]}}]
 S["DiagnosisPlan"] = obj({"kind": string(enum=AGENT_KINDS), "duration_seconds": integer(minimum=1, maximum=60),
     "frequency_hz": integer(minimum=0, maximum=999), "reason": string()}, ("kind", "duration_seconds", "frequency_hz", "reason"), closed=True)
-S["DiagnosisHypothesis"] = obj({"claim": string(), "evidence_ids": arr(string(pattern="^E[1-8]$"), minItems=1, maxItems=8),
-    "verification": string()}, ("claim", "evidence_ids", "verification"), closed=True)
+EVIDENCE_ID = string(pattern=r"^E(?:[1-9]|1[0-5])$")
+FACT_ID = string(pattern=r"^F[1-9][0-9]{0,2}$")
+DIAGNOSIS_TOOLS = ["read_profile_summary", "inspect_hotspots", "check_collection_quality", "inspect_call_paths", "propose_verification", "compare_profiles", "read_diagnostic_knowledge", "query_business_signals", "inspect_service_topology", "propose_followup_collection"]
+HYPOTHESIS_KINDS = ["cpu_hotspot", "allocation_gc", "lock_io", "normal_load", "insufficient_evidence", "mixed_signals", "business_latency", "downstream_dependency", "deployment_regression"]
+S["DiagnosisVerifiedFact"] = obj({"id": FACT_ID, "evidence_id": EVIDENCE_ID,
+    "tool": string(enum=[tool for tool in DIAGNOSIS_TOOLS if tool not in {"read_diagnostic_knowledge", "propose_followup_collection"}]),
+    "path": string(pattern=r"^/", maxLength=160), "operator": string(enum=["eq", "count", "count_positive_self"]),
+    "value": {"anyOf": [string(), NUMBER, BOOL]}, "unit": string(), "description": string()},
+    ("id", "evidence_id", "tool", "path", "operator", "value", "unit", "description"), closed=True, readOnly=True,
+    description="程序逐字段复算的当前观测事实；path、操作符和单位还须通过工具专属白名单。只证明该字段观测，不证明根因。数值保留Go已验收的JSON词法与精度。")
+S["DiagnosisHypothesis"] = obj({"claim": string(), "evidence_ids": arr(EVIDENCE_ID, minItems=1, maxItems=8),
+    "verification": string(), "kind": string(enum=HYPOTHESIS_KINDS), "fact_ids": arr(FACT_ID, minItems=1, maxItems=8),
+    "unverified_interpretation": string(maxLength=600)}, ("claim", "evidence_ids", "verification"), closed=True,
+    description="v2的claim/verification由程序生成；可选自由解释明确未核验，不能代替facts。旧报告没有kind/fact_ids。")
 S["AgentRuntime"] = obj({"framework": string(enum=["agentscope"]),
     "framework_version": string(enum=["2.0.10"]), "agent_class": string(enum=["agentscope.agent.Agent"]),
-    "run_id": string(format="uuid"), "model_calls": integer(minimum=0, maximum=8),
-    "tool_calls": integer(minimum=0, maximum=12), "elapsed_ms": integer(minimum=0, maximum=425000),
+    "run_id": string(format="uuid"), "model_calls": integer(minimum=0, maximum=9),
+    "tool_calls": integer(minimum=0, maximum=14), "elapsed_ms": integer(minimum=0, maximum=425000),
     "usage": {"type": "object", "maxProperties": 16, "additionalProperties": integer(minimum=0, maximum=1000000000)}},
     ("framework", "framework_version", "agent_class", "run_id", "model_calls", "tool_calls", "elapsed_ms"),
     closed=True, readOnly=True,
-    description="Server-derived execution proof, never model-authored. Planning stores it in an agent_runtime trace observation; diagnosis/source reports may include it. Absence is expected for historical or explicit legacy runs.")
+    description="程序核对的AgentScope运行证明，不由模型编写。启用检查点时model/tool/usage为持久阶段累计值，elapsed_ms只表示本次Python会话墙钟，不能当作累计调查耗时。阶段预算分别更低，诊断新协议最多9模型/14工具。历史及legacy运行可不含本字段。")
 S["DiagnosisReport"] = obj({"summary": string(), "hypotheses": arr(ref("DiagnosisHypothesis"), minItems=1, maxItems=4),
     "limitations": arr(string()), "plan": ref("DiagnosisPlan"), "engine": string(enum=["model", "evidence"]), "model": string(),
-    "agent_runtime": ref("AgentRuntime"), "knowledge": ref("DiagnosticKnowledge")},
+    "agent_runtime": ref("AgentRuntime"), "knowledge": ref("DiagnosticKnowledge"), "report_version": integer(enum=[1, 2]),
+    "facts": arr(ref("DiagnosisVerifiedFact"), minItems=1, maxItems=24), "followup_plans": arr(ref("FollowupProposal"), maxItems=2)},
     ("summary", "hypotheses", "limitations", "engine"), closed=True)
-S["DiagnosisStep"] = obj({"evidence_id": string(pattern="^E[1-8]$"), "tool": string(enum=["read_profile_summary", "inspect_hotspots", "check_collection_quality", "inspect_call_paths", "propose_verification", "compare_profiles", "read_diagnostic_knowledge"]),
+S["DiagnosisReport"]["allOf"] = [{"if": {"properties": {"report_version": {"const": 2}}, "required": ["report_version"]},
+    "then": {"required": ["facts"], "properties": {"hypotheses": arr({"allOf": [ref("DiagnosisHypothesis"), {"required": ["kind", "fact_ids"]}]}, minItems=1, maxItems=4)}}}]
+S["DiagnosisStep"] = obj({"evidence_id": EVIDENCE_ID, "tool": string(enum=DIAGNOSIS_TOOLS),
     "observation": MAP}, ("evidence_id", "tool", "observation"), closed=True)
+# 窗口来自真实采集attempt执行时钟；未知窗口省略字段，禁止用分析完成时刻或零时间伪造范围。
+S["SignalWindow"] = obj({"start": DATE, "end": DATE}, ("start", "end"), closed=True,
+    description="采集attempt真实StartedAt/FinishedAt各扩展一分钟，合计不超过15分钟。缺失、反序或时钟异常返回collection_window_unknown；不以任务创建/分析时钟替代。")
+S["TelemetryMetric"] = obj({"name": string(enum=["latency_p95_ms", "error_rate", "throughput_rps"]),
+    "value": {"type": "number", "minimum": 0, "maximum": 1e15}, "unit": string(enum=["milliseconds", "ratio", "requests_per_second"]),
+    "observed_at": DATE}, ("name", "value", "unit"), closed=True,
+    description="固定登记指标；名称与单位由程序映射核对。observed_at仅在源返回真实观测时间时出现，适配器协议要求其位于真实采集窗口。")
+S["TelemetryLog"] = obj({"timestamp": DATE, "level": string(), "event_code": string(),
+    "duration_ms": {"type": "number", "minimum": 0, "maximum": 1e15}, "status_code": integer(), "trace_ref": string()},
+    ("timestamp", "level", "event_code"), closed=True)
+S["TelemetryTrace"] = obj({"trace_ref": string(), "duration_ms": {"type": "number", "minimum": 0, "maximum": 1e15},
+    "span_count": integer(minimum=0, maximum=100000), "error_count": integer(minimum=0, maximum=100000), "started_at": DATE},
+    ("trace_ref", "duration_ms"), closed=True, description="真实Trace开始时间可选；只保留脱敏引用、时长与计数，不输出原Trace ID或属性。")
+S["TelemetryChange"] = obj({"timestamp": DATE, "change_type": string(enum=["deployment", "configuration", "feature_flag"]), "revision_ref": string()},
+    ("timestamp", "change_type", "revision_ref"), closed=True)
+S["BusinessSignalObservation"] = obj({"available": BOOL, "reason": string(), "service_ref": string(pattern=r"^S[1-8]$"),
+    "signal": string(enum=["metrics", "logs", "traces", "changes"]), "window": ref("SignalWindow"),
+    "source_kind": string(enum=["prometheus", "loki", "tempo", "drop-adapter"]), "query_digest": string(),
+    "metrics": arr(ref("TelemetryMetric"), maxItems=3), "logs": arr(ref("TelemetryLog"), maxItems=30),
+    "traces": arr(ref("TelemetryTrace"), maxItems=20), "changes": arr(ref("TelemetryChange"), maxItems=20),
+    "truncated": BOOL, "limitations": arr(string())}, ("available", "service_ref", "signal", "truncated", "limitations"), closed=True,
+    description="只读业务观测，不包含原日志、自由标签或连接配置。window采用omitzero：没有可核实时钟则省略，并返回available=false/reason=collection_window_unknown；缺数据不证明正常。")
+S["BusinessSignalObservation"]["allOf"] = [{"if": {"properties": {"reason": {"const": "collection_window_unknown"}}, "required": ["reason"]},
+    "then": {"not": {"required": ["window"]}, "properties": {"available": {"const": False}}}}]
+S["DiagnosisStep"]["allOf"] = [{"if": {"properties": {"tool": {"const": "query_business_signals"}}, "required": ["tool"]},
+    "then": {"properties": {"observation": ref("BusinessSignalObservation")}}}]
 S["DiagnosisRun"] = obj({"id": ID, "task_id": ID, "attempt_id": ID, "analysis_job_id": ID, "analysis_run": integer(minimum=0),
     "requested_by": string(), "goal": string(), "mode": string(enum=["evidence", "model"]), "knowledge_mode": string(enum=["off", "skills", "experience"]), "input_digest": string(),
-    "status": string(enum=["pending", "running", "success", "failed"]), "trace": arr(ref("DiagnosisStep"), maxItems=8),
+    "report_protocol": integer(enum=[1, 2]), "telemetry_service_id": string(pattern=r"^[a-zA-Z][a-zA-Z0-9_.-]{0,79}$"),
+    "status": string(enum=["pending", "running", "success", "failed"]), "trace": arr(ref("DiagnosisStep"), maxItems=15),
     "report": {"anyOf": [ref("DiagnosisReport"), {"type": "null"}]}, "error_code": string(), "created_at": DATE, "updated_at": DATE},
-    ("id", "task_id", "attempt_id", "analysis_job_id", "analysis_run", "requested_by", "goal", "mode", "input_digest", "status", "trace", "report", "created_at", "updated_at"))
+    ("id", "task_id", "attempt_id", "analysis_job_id", "analysis_run", "requested_by", "goal", "mode", "knowledge_mode", "report_protocol", "input_digest", "status", "trace", "report", "created_at", "updated_at"))
+S["DiagnosisRun"]["allOf"] = [{"if": {"properties": {"report_protocol": {"const": 1}}, "required": ["report_protocol"]},
+    "then": {"properties": {"trace": arr(ref("DiagnosisStep"), maxItems=8)}}}]
 S["DiagnosisCollectInput"] = obj({"confirm": {"type": "boolean", "const": True}}, ("confirm",), closed=True)
 S["ProfileDifference"] = obj({"symbol": string(), "baseline_self_percent": NUMBER, "candidate_self_percent": NUMBER, "delta_percentage_points": NUMBER})
 S["ProfileComparison"] = obj({"comparable": BOOL, "kind": string(), "unit": string(), "baseline_weight": integer(), "candidate_weight": integer(),
@@ -311,14 +356,126 @@ S["ProfileComparison"] = obj({"comparable": BOOL, "kind": string(), "unit": stri
 S["VerificationRun"] = obj({"id": ID,"diagnosis_id": ID,"baseline_task_id": ID,"candidate_task_id": ID,"requested_by": string(),
     "candidate_diagnosis_id": ID,"status": string(enum=["waiting","diagnosing","comparing","success","failed","canceled"]),
     "report": {"type":["object","null"]},"error_code": string(),"created_at": DATE,"updated_at": DATE})
-S["CollectionPlan"] = obj({"kind":string(enum=AGENT_KINDS),"duration_seconds":integer(minimum=1,maximum=60),"frequency_hz":integer(minimum=0,maximum=999),"options":MAP,"rationale":string(maxLength=600)},closed=True)
-S["InvestigationInput"] = obj({"goal":string(minLength=1,maxLength=600),"target_agent_id":string(minLength=1,maxLength=128),"parameters":ref("TaskParameters"),"consent":{"const":True,"type":"boolean"},"code_project_id":string(maxLength=64),"code_consent":BOOL},("goal","target_agent_id","parameters","consent"),closed=True)
+S["CollectionPlan"] = obj({"kind":string(enum=AGENT_KINDS),"duration_seconds":integer(minimum=1,maximum=60),"frequency_hz":integer(minimum=0,maximum=999),"options":MAP,"rationale":string(maxLength=600)}, ("kind", "duration_seconds", "frequency_hz", "rationale"), closed=True,
+    description="登记采集器的草案。options须再通过该TaskKind共享parameter_schema及实际目标能力校验；计划本身不授予采集权限。")
+S["FollowupProposal"] = obj({"plan": ref("CollectionPlan"), "evidence_ids": arr(EVIDENCE_ID, minItems=1, maxItems=4),
+    "requires_confirmation": {"type": "boolean", "const": True}}, ("plan", "evidence_ids", "requires_confirmation"), closed=True,
+    description="同一调查、同一授权目标的待审补证计划；本轮真实观测支持取证方向，不能从历史先验直接启动采集。")
+S["InvestigationFollowup"] = obj({"id": ID, "investigation_id": ID, "parent_task_id": ID, "source_diagnosis_id": ID,
+    "plan": ref("FollowupProposal"), "plan_digest": string(pattern=r"^[0-9a-f]{64}$"),
+    "status": string(enum=["proposed", "rejected", "queued", "collecting", "diagnosing", "success", "failed", "canceled"]),
+    "task_id": ID, "diagnosis_id": ID, "error_code": string(), "created_at": DATE, "updated_at": DATE},
+    ("id", "investigation_id", "parent_task_id", "source_diagnosis_id", "plan", "plan_digest", "status", "created_at", "updated_at"), closed=True)
+S["InvestigationFollowupDecision"] = obj({"confirm": {"type": "boolean", "default": False}, "reviewed": {"type": "boolean", "const": True}},
+    ("reviewed",), closed=True, description="reviewed必须为true；confirm=true表示入队，否则拒绝该计划。确认仍重验来源、目标和预算，不会在HTTP处理中直接执行采集。")
+S["TelemetryCatalogItem"] = obj({"id": string(pattern=r"^[a-zA-Z][a-zA-Z0-9_.-]{0,79}$"), "label": string(minLength=1, maxLength=120),
+    "signal_types": arr(string(enum=["metrics", "logs", "traces", "changes"]), maxItems=4)}, ("id", "label", "signal_types"), closed=True,
+    description="仅公开当前用户可操作节点的已登记服务标识、名称和信号类型；不返回连接URL、查询表达式、租户或凭据路径。")
+# 方法输入与只读目录分开，避免客户端伪造程序生成的ID、版本和匹配理由。
+PLAYBOOK_TOOL_NAMES = ["inspect_hotspots", "check_collection_quality", "inspect_call_paths", "compare_profiles", "query_business_signals", "inspect_service_topology"]
+PLAYBOOK_TEXT = string(minLength=1, maxLength=600, pattern=r"^[^\x00-\x1f\x7f-\x9f<>]+$",
+    **{"allOf": [{"not": {"pattern": r"[Hh][Tt][Tt][Pp][Ss]?://"}}, {"not": {"pattern": r"^\s*$"}}]},
+    description="有界纯文本，UTF-8最多600字节；禁止HTML、URL、控制字符、Unicode格式字符及纯空白。服务端额外检查UTF-8字节数与Unicode类别。")
+S["DiagnosticPlaybookSkillInput"] = obj({"id": string(const=""), "version": string(const=""),
+    "title": {**copy.deepcopy(PLAYBOOK_TEXT), "maxLength": 180, "description": "标题UTF-8为1至180字节。"},
+    "task_kinds": arr(string(enum=KINDS), minItems=1, maxItems=18, uniqueItems=True),
+    "required_tools": arr(string(enum=PLAYBOOK_TOOL_NAMES), minItems=1, maxItems=5, uniqueItems=True),
+    **{key: arr(copy.deepcopy(PLAYBOOK_TEXT), minItems=1, maxItems=6, uniqueItems=True) for key in ("steps", "counter_evidence", "stop_conditions", "verification")},
+    "match_reasons": arr(string(), maxItems=0)},
+    ("title", "task_kinds", "required_tools", "steps", "counter_evidence", "stop_conditions", "verification"), closed=True)
+S["DiagnosticPlaybookInput"] = obj({"logical_key": string(pattern=r"^[a-zA-Z][a-zA-Z0-9_.-]{0,79}$"),
+    "version": integer(minimum=1, maximum=10000), "group_id": NULL_STRING,
+    "project_id": string(pattern=r"^(?:[a-zA-Z][a-zA-Z0-9_.-]{0,79})?$"), "skill": ref("DiagnosticPlaybookSkillInput"),
+    "expires_days": integer(minimum=1, maximum=90)}, ("logical_key", "version", "skill", "expires_days"), closed=True,
+    description="当前可写用户创建不可变草稿；团队作用域需团队管理权限，项目作用域需平台管理员及真实登记项目。相同owner/logical_key/version仅可幂等复用相同内容和作用域，不能覆盖旧版本。")
+S["DiagnosticPlaybookReview"] = obj({"action": string(enum=["publish", "retire"]), "review_confirmed": {"type": "boolean", "const": True}},
+    ("action", "review_confirmed"), closed=True, description="平台管理员逐版本复核；模型不能自行发布，过期或退役版本不能重新发布。")
+S["DiagnosticPlaybook"] = obj({"id": ID, "owner_id": string(), "group_id": string(), "project_id": string(),
+    "logical_key": string(), "version": integer(minimum=1, maximum=10000), "skill": ref("DiagnosticSkill"),
+    "content_digest": string(pattern=r"^[0-9a-f]{64}$"), "status": string(enum=["draft", "published", "retired"]),
+    "reviewer_id": string(), "reviewed_at": DATE, "expires_at": DATE, "created_at": DATE, "updated_at": DATE},
+    ("id", "owner_id", "logical_key", "version", "skill", "content_digest", "status", "expires_at", "created_at", "updated_at"), closed=True)
+S["InvestigationInput"] = obj({"goal":string(minLength=1,maxLength=600),"target_agent_id":string(minLength=1,maxLength=128),"parameters":ref("TaskParameters"),"consent":{"const":True,"type":"boolean"},"code_project_id":string(maxLength=64),"code_consent":BOOL,
+    "telemetry_service_id": string(pattern=r"^(?:[a-zA-Z][a-zA-Z0-9_.-]{0,79})?$")},("goal","target_agent_id","parameters","consent"),closed=True)
+S["InvestigationInput"]["allOf"] = [{"if": {"properties": {"code_project_id": string(minLength=1)}, "required": ["code_project_id"]},
+    "then": {"required": ["code_consent"], "properties": {"code_consent": {"type": "boolean", "const": True}}}}]
 S["Investigation"] = obj({"id":ID,"requested_by":string(),"agent_id":string(),"goal":string(),"parameters":ref("TaskParameters"),"consent":BOOL,"input_digest":string(),
     "status":string(enum=["planning","awaiting_confirmation","queued","collecting","diagnosing","verifying","success","failed","canceled"]),"plan":{"anyOf":[ref("CollectionPlan"),{"type":"null"}]},
-    "trace":arr(MAP),"report":{"type":["object","null"]},"baseline_task_id":ID,"diagnosis_id":ID,"verification_id":ID,"code_project_id":string(),"code_source_revision":string(),"code_repair_id":ID,"error_code":string(),"created_at":DATE,"updated_at":DATE})
+    "trace":arr(MAP),"report":{"type":["object","null"]},"baseline_task_id":ID,"diagnosis_id":ID,"verification_id":ID,"code_project_id":string(),"code_source_revision":string(),"code_repair_id":ID,"error_code":string(),"created_at":DATE,"updated_at":DATE,
+    "telemetry_service_id": string(pattern=r"^[a-zA-Z][a-zA-Z0-9_.-]{0,79}$")})
 S["CodeRepairInput"] = obj({"source_revision":string(pattern="^[0-9a-f]{64}$"),"project_id":string(pattern="^[a-z0-9][a-z0-9_-]{0,63}$"),"goal":string(minLength=1,maxLength=600),"consent":{"const":True,"type":"boolean"}},("project_id","goal","consent"),closed=True)
+SHA256 = string(pattern=r"^[0-9a-f]{64}$")
+S["RepairRegressionCounts"] = obj({**{name: integer(minimum=0) for name in
+    ("tests", "failures", "errors", "skipped", "unexpected_successes", "expected_failures")}, "success": BOOL},
+    ("tests", "failures", "errors", "skipped", "unexpected_successes", "expected_failures", "success"), closed=True)
+S["RepairRegressionValidation"] = obj({"baseline_failed": BOOL, "candidate_passed": BOOL, "same_test_files": BOOL,
+    "baseline": ref("RepairRegressionCounts"), "candidate": ref("RepairRegressionCounts"),
+    "test_sha256": {"type": "object", "additionalProperties": SHA256}},
+    ("baseline_failed", "candidate_passed", "same_test_files", "baseline", "candidate", "test_sha256"), closed=True,
+    description="同一新增测试在原版本断言失败、候选版本通过；失败/错误/跳过分开计数，不把测试未运行当作通过。")
+S["RepairNegativeControl"] = obj({"kind": string(const="identical_frozen_baseline"), "ratios": arr(NUMBER, minItems=6, maxItems=6),
+    "median_ratio": NUMBER, "stable": BOOL}, ("kind", "ratios", "median_ratio", "stable"), closed=True,
+    description="相同冻结baseline的sham测量，只核验环境稳定性，不代表优化效果。")
+S["RepairPatchBundle"] = obj({"schema_version": integer(const=1), "format": string(const="unified-diff"),
+    "source_revision": SHA256, "content": string(maxLength=24576, description="统一diff，UTF-8最多24576字节。"), "sha256": SHA256,
+    "code_files": arr(string()), "test_files": arr(string()), "applied_to": string(const="isolated_snapshot"),
+    "production_deployed": {"type": "boolean", "const": False}},
+    ("schema_version", "format", "source_revision", "content", "sha256", "code_files", "test_files", "applied_to", "production_deployed"), closed=True,
+    description="程序生成的可审阅补丁交付物；只应用于隔离副本，不能当作原仓库已修改或生产已部署。")
+S["RepairBenchmarkPair"] = obj({"baseline_cpu_ns": integer(minimum=0), "candidate_cpu_ns": integer(minimum=0),
+    "baseline_ns": integer(minimum=0), "candidate_ns": integer(minimum=0), "cases": integer(minimum=0),
+    "output_sha256": SHA256, "executed_sql_queries_per_side": integer(minimum=0)},
+    ("baseline_cpu_ns", "candidate_cpu_ns", "cases", "output_sha256"), closed=True)
+S["RepairPerformanceGate"] = obj({"minimum_median_speedup": NUMBER, "minimum_improved_pairs": integer(minimum=0),
+    "pairs": integer(minimum=1), "negative_control_max_drift": NUMBER,
+    "minimum_pairs_above_1_05": integer(minimum=0), "total_alternating_pairs": integer(minimum=1)}, closed=True,
+    description="通用Python与旧CRM/Saber保留各自登记门槛，不能把受控基准阈值泛化为生产SLA。")
+S["CodeProject"] = obj({"id": string(pattern=r"^[a-z0-9][a-z0-9_-]{0,63}$"), "label": string(), "source_revision": SHA256,
+    "editable_files": arr(string()), "readable_files": arr(string()),
+    "test_preset": string(enum=["crm-brand-palette-v1", "saber-fts5-v1", "manifest-python-v1"]), "workload": string(),
+    "schema_version": integer(const=1), "language": string(const="python"), "output_contract": string(const="drop-python-project-v1"),
+    "symbol_mapping": string(const="python_cprofile"), "frozen_files": arr(string()), "allowed_imports": arr(string()),
+    "regression_test_dir": string(), "performance_gate": ref("RepairPerformanceGate"),
+    "regression_tests_required": {"type": "boolean", "const": True}, "supported_languages": arr(string(const="python"), minItems=1, maxItems=1),
+    "runtime": obj({"agent_id": string(), "pid": integer(minimum=1), "uid": integer(minimum=0), "start_time_ticks": integer(minimum=0), "source_revision": SHA256},
+        ("agent_id", "pid", "uid", "start_time_ticks", "source_revision"), closed=True)},
+    ("id", "label", "source_revision", "editable_files", "readable_files", "test_preset", "workload"), closed=True,
+    description="管理员登记的不可变源码能力目录。当前只支持Python；runtime仅在真实容器镜像、标签及进程身份核对成功时出现，不能从模型文本推断。执行argv、源码根目录和凭据不暴露给浏览器。")
+S["CodeProject"]["allOf"] = [{"if": {"properties": {"test_preset": {"const": "manifest-python-v1"}}, "required": ["test_preset"]},
+    "then": {"required": ["schema_version", "language", "output_contract", "symbol_mapping", "frozen_files", "allowed_imports", "regression_test_dir", "performance_gate", "regression_tests_required", "supported_languages"]}}]
+S["RepairSourceEdit"] = obj({"path": string(maxLength=180), "sha256": SHA256, "old": string(), "new": string()},
+    ("path", "sha256", "old", "new"), closed=True)
+S["RepairCandidateProfile"] = obj({"cpu_ns": integer(minimum=0), "elapsed_ns": integer(minimum=0), "cases": integer(minimum=0),
+    "output_sha256": SHA256, "output_type": string(), "mutable_output_isolated": BOOL, "measurement": string(),
+    "hotspots": arr(obj({"path": string(), "line": integer(minimum=1), "function": string(), "sha256": SHA256,
+        "calls": integer(minimum=0), "self_seconds": NUMBER, "total_seconds": NUMBER},
+        ("path", "line", "function", "calls", "self_seconds", "total_seconds"), closed=True), maxItems=20),
+    "symbol_mapping": string(), "profile_unit": string(), "profile_source": string(), "source_sha256": SHA256,
+    "scope": string(), "output_comparison": string(), "median_case_ns": NUMBER, "p95_case_ns": NUMBER,
+    "query_length_min": integer(minimum=0), "query_length_max": integer(minimum=0), "executed_sql_queries": integer(minimum=0),
+    "sample_results": arr(MAP)}, description="真实执行的候选聚合采样。旧preset可保留附加测量字段；不是生产原始profile。")
+S["CodeRepairValidation"] = obj({"success": BOOL, "accepted": BOOL, "error_code": string(), "functional_regression": string(),
+    "original_tests": integer(minimum=0), "frozen_contract_tests": integer(minimum=0), "output_parity_cases": integer(minimum=0),
+    "pairs": arr(ref("RepairBenchmarkPair"), maxItems=6), "median_cpu_speedup": NUMBER, "improved_pairs": integer(minimum=0, maximum=6),
+    "gate": ref("RepairPerformanceGate"), "root_cause_status": string(enum=["validated_in_controlled_python_benchmark", "validated_in_controlled_crm_benchmark", "validated_in_controlled_saber_benchmark", "not_validated"]),
+    "scope": string(), "candidate_profile": ref("RepairCandidateProfile"), "elapsed_seconds": NUMBER,
+    "job_key": string(), "source_revision": SHA256, "project_id": string(), "executor_contract": integer(enum=[3, 4]),
+    "cache_hit": BOOL, "runner_image_id": string(pattern=r"^sha256:[0-9a-f]{64}$"), "network": string(const="none"),
+    "uid": integer(const=10001), "credentials_mounted": {"type": "boolean", "const": False},
+    "patch": arr(ref("RepairSourceEdit"), maxItems=6), "candidate_files": {"type": "object", "additionalProperties": SHA256},
+    "output_contract": string(const="drop-python-project-v1"), "language": string(const="python"),
+    "regression_test_validation": ref("RepairRegressionValidation"), "original_tests_unchanged": BOOL,
+    "negative_control": ref("RepairNegativeControl"), "patch_bundle": ref("RepairPatchBundle"),
+    "regression_tests": arr(obj({"path": string(), "sha256": SHA256}, ("path", "sha256"), closed=True), maxItems=2)},
+    ("success", "accepted"), description="执行器真实test_patch结果。新增验证结构逐项定义，旧登记preset可保留附加测量字段；success与accepted仍须同时为true才可验收，不能用前端布尔值证明。")
+S["CodeRepairReport"] = obj({"summary": string(maxLength=1800), "evidence_ids": arr(string(pattern=r"^S(?:[1-9]|1[0-2])$"), minItems=1),
+    "locations": arr(obj({"path": string(), "line": integer(minimum=1), "reason": string()}, ("path", "line", "reason"), closed=True), minItems=1, maxItems=5),
+    "validation": ref("CodeRepairValidation"), "source_revision": SHA256, "source_project": string(), "engine": string(const="model"),
+    "model": string(), "patch_applied_to": string(const="isolated_snapshot"), "production_deployed": {"type": "boolean", "const": False},
+    "agent_runtime": ref("AgentRuntime")},
+    ("summary", "evidence_ids", "locations", "validation", "source_revision", "source_project", "engine", "model", "patch_applied_to", "production_deployed"), closed=True)
 S["CodeRepair"] = obj({"id":ID,"requested_by":string(),"project_id":string(),"source_revision":string(pattern="^[0-9a-f]{64}$"),"goal":string(),"input_digest":string(),
-    "status":string(enum=["pending","running","success","failed","canceled"]),"trace":arr(MAP,maxItems=12),"report":{"type":["object","null"]},"error_code":string(),"created_at":DATE,"updated_at":DATE})
+    "status":string(enum=["pending","running","success","failed","canceled"]),"trace":arr(MAP,maxItems=12),"report":{"anyOf":[ref("CodeRepairReport"),{"type":"null"}]},"error_code":string(),"created_at":DATE,"updated_at":DATE})
 S["Feedback"] = obj({"id": ID, "suggestion_id": ID, "user_id": string(), "rating": string(enum=["useful", "not_useful"]),
     "comment": string(), "created_at": DATE, "updated_at": DATE}, ("id", "suggestion_id", "user_id", "rating", "comment"))
 S["Audit"] = obj({"id": ID, "user_id": string(), "action": string(), "resource_type": string(), "resource_id": string(),
@@ -350,8 +507,9 @@ def operation(method, path, handler, summary, schema, *, tag="Tasks", body=None,
     params = []
     import re
     for name in re.findall(r"\{([^}]+)\}", path):
-        bigint = name in {"artifact_id", "share_id", "suggestion_id", "run_id"} or (
-            name == "id" and any(f"/{segment}/{{id}}" in path for segment in ("tasks", "schedules", "composites")))
+        bigint = name in {"artifact_id", "share_id", "suggestion_id", "run_id", "followup_id"} or (
+            name == "id" and any(f"/{segment}/{{id}}" in path for segment in
+                ("tasks", "schedules", "composites", "investigations", "code-repairs", "diagnostic-cases", "diagnostic-playbooks")))
         params.append({"name": name, "in": "path", "required": True, "schema": ID if bigint else string(minLength=1)})
     if method != "get" and not public:
         params.append({"$ref": "#/components/parameters/CSRFToken"})
@@ -478,7 +636,7 @@ add("post", "/tasks/{id}/suggestions/ai", "requestAI", "Request explicitly autho
     description="Task operate scope, explicit consent and successful result required. Only numeric statistics and Top20 hashed symbols sent to configured provider; no raw profile, path, PID or identity. Deduped by task/attempt/input_digest. Provider stream bounded to 30s/256KiB/256chunks and final 8KiB plain text; each persisted chunk fenced by current lease/attempt/authorization. Nonstream fallback explicitly streamed=false. Unconfigured returns 503 AI_UNAVAILABLE.")
 add("get", "/tasks/{id}/suggestions/requests", "aiRequests", "Recent persistent model request states", page(ref("AIRequest")), tag="Suggestions", description="Task read scope, latest 50; use after refresh to recover status and resume task SSE.")
 add("post", "/tasks/{id}/diagnoses", "requestDiagnosis", "Queue task-bound diagnostic Agent", ref("DiagnosisRun"), tag="Suggestions", code=202, idem=True, body=ref("DiagnosisInput"),
-    description="Task operate scope and complete successful result required. SQL006. Idempotency is per requesting user/key, changed payload conflicts. Up to3 active runs/user. Model mode sends goal and pseudonymized statistics only. At most4 tool rounds plus one format-only correction request,8 tools,150s per execution; crash recovery up to3 executions.")
+    description="当前任务操作权限和完整成功分析结果；按用户/幂等键绑定问题、来源、知识模式及可选业务服务。每用户最多3条活动诊断。新报告v2最多8次普通模型请求加1次纯格式纠错、14次工具回调，另加E1最多15条trace；旧协议保留4+1模型与7回调。启用AgentScope检查点时所有租约会话共享原150秒累计预付活跃预算和调用账本；最多3次领取不是预算翻倍，离线等待不计。来源、权限和租约变化立即拒绝恢复；未确认外部动作不能盲重放。")
 add("get", "/tasks/{id}/diagnoses", "diagnoses", "Latest20 durable diagnostic runs", page(ref("DiagnosisRun")), tag="Suggestions",
     description="Task read scope, including read shares. Historical runs retain attempt and analysis job/run binding. No credentials, hidden thoughts, raw profiles or provider bodies.")
 add("get", "/diagnostic-skills", "diagnosticSkills", "版本化诊断方法目录", page(ref("DiagnosticSkill")), tag="Suggestions",
@@ -499,9 +657,22 @@ add("get","/tasks/{id}/verifications","verifications","Automatic candidate diagn
 add("post","/investigations","requestInvestigation","Plan a capability-aware collection from natural language",ref("Investigation"),tag="Suggestions",code=202,idem=True,body=ref("InvestigationInput"),description="Operator identity, actual Agent/target authorization and consent. Immutable PID/start/UID binding. Model plans from actual catalog; review before any collection. At most 3 active investigations per user.")
 add("get","/investigations","investigations","Latest30 scoped investigations",page(ref("Investigation")),tag="Suggestions")
 add("get","/investigations/{id}","investigation","Read scoped investigation",ref("Investigation"),tag="Suggestions")
+add("get", "/diagnostic-data-sources", "diagnosticDataSources", "当前节点可用的诊断业务信号目录", page(ref("TelemetryCatalogItem")), tag="Suggestions",
+    queries=[{**query("agent_id", string(minLength=1, maxLength=100), "必须为当前用户可操作的真实登记Agent。"), "required": True}],
+    description="需要登录并逐次校验Agent操作权限。返回已登记服务的安全目录；列表page=1，未配置数据源时items为空。没有URL/查询语句/凭据的浏览器登记入口。")
+add("get", "/diagnostic-playbooks", "diagnosticPlaybooks", "列出有权限查看的有效方法版本", page(ref("DiagnosticPlaybook")), tag="Suggestions",
+    description="最新100条有效版本，按logical_key升序、version降序、id升序。本人草稿及已发布团队版本可见；平台管理员可见全部有效版本。列表可见不等于诊断可执行，运行时还重验团队、项目、TaskKind与工具边界。")
+add("post", "/diagnostic-playbooks", "createDiagnosticPlaybook", "创建不可变方法草稿", ref("DiagnosticPlaybook"), tag="Suggestions", code=201,
+    body=ref("DiagnosticPlaybookInput"), description="当前可写用户；团队方法需团队管理权，项目方法需平台管理员及已登记项目。owner/logical_key/version为内容幂等身份；同版本不同内容或作用域返回冲突，不使用Idempotency-Key替代版本。")
+add("post", "/diagnostic-playbooks/{id}/review", "reviewDiagnosticPlaybook", "明确复核后发布或退役方法版本", ref("DiagnosticPlaybook"), tag="Suggestions",
+    body=ref("DiagnosticPlaybookReview"), description="平台管理员，且review_confirmed=true。只能发布尚未过期的draft，published不能原地修改；retired不再用于后续诊断。状态变化与审计在同一事务。")
+add("get", "/investigations/{id}/followups", "investigationFollowups", "列出调查的待审及已处理补证分支", page(ref("InvestigationFollowup")), tag="Suggestions",
+    description="重新授权调查与目标；按id返回至多两个分支，不向其他调查借用来源诊断或任务。")
+add("post", "/investigations/{id}/followups/{followup_id}/decision", "decideInvestigationFollowup", "审阅后接受或拒绝补证分支", ref("InvestigationFollowup"), tag="Suggestions",
+    body=ref("InvestigationFollowupDecision"), description="当前可写且可操作该调查的用户；reviewed=true。confirm=true仅入队，来源诊断、目标身份、真实采集能力和20分钟调查预算再次校验；同决定可重放，冲突决定拒绝。模型不能自动确认或直接创建采集任务。")
 add("post","/investigations/{id}/confirm","confirmInvestigation","Confirm initial plan and bounded automatic verification",obj({"confirmed":BOOL}),tag="Suggestions",body=ref("DiagnosisCollectInput"))
 add("post","/investigations/{id}/cancel","cancelInvestigation","Cancel investigation and linked pending work",obj({"canceled":BOOL}),tag="Suggestions",body=obj(closed=True))
-add("get","/code-projects","codeProjects","Admin-only enrolled immutable source projects",obj({"projects":arr(MAP)}),tag="Suggestions",description="Platform administrators only. Unix executor registry; no arbitrary source roots, production config or Docker socket exposed to API/browser.")
+add("get","/code-projects","codeProjects","管理员登记的不可变源码项目目录",obj({"projects":arr(ref("CodeProject"))}, ("projects",), closed=True),tag="Suggestions",description="仅平台管理员。通过私有Unix执行器读取已登记版本与受限能力；通用Python采用manifest-python-v1，旧CRM/Saber preset保留原验收。浏览器不取得源码根目录、argv、Docker socket或生产配置。")
 add("post","/code-repairs","requestCodeRepair","Queue version-bound source diagnosis and isolated repair",ref("CodeRepair"),tag="Suggestions",code=202,idem=True,body=ref("CodeRepairInput"),description="Platform administrator; explicit source/model/sandbox consent. One active per user. Exact source revision, bounded tools and actual tests required; generated code only runs in a separate networkless UID10001 sandbox.")
 add("get","/code-repairs","codeRepairs","Latest20 administrator-only source runs",page(ref("CodeRepair")),tag="Suggestions")
 add("get","/code-repairs/{id}","codeRepair","Administrator-only source run",ref("CodeRepair"),tag="Suggestions")
@@ -527,7 +698,7 @@ op = operation("get", "/metrics", "prometheus", "Private Prometheus scrape", MAP
 op["responses"]["200"] = {"description": "Prometheus exposition", "content": {"text/plain": {"schema": string()}}}
 
 DOC = {"openapi": "3.1.0", "info": {"title": "Drop Diagnostics API", "version": "2.0.0",
-    "description": "Reviewed against Gin handlers, shared TaskKind schemas and SQL migrations on 2026-10-16. Local + configurable OIDC identity, group/Agent/task authorization, durable collection/analysis, Cron, composite DAG, rule/model suggestions. JSON business responses use request_id/data/error; health, metrics, redirects and SSE are exceptions. Optional OIDC/model providers remain disabled until actually configured; protocol fixtures are not proof of enterprise-provider integration. All input object fields are strict, no arbitrary shell commands, URLs or storage credentials."},
+    "description": "2026-10-21对照Gin handler、共享TaskKind与SQL迁移审阅。包括本地/OIDC身份、任务/节点授权、持久采集分析、诊断事实v2、受审方法与案例、业务信号目录、待审补证及隔离源码修复。JSON业务响应使用request_id/data/error；health/metrics/重定向/SSE例外。JSON输入闭合；工具与数据源由控制面登记，不能从模型参数取得任意URL、查询、命令或存储凭据。静态Schema与导入夹具不代表真实模型、生产或外部数据源已验收。"},
     "servers": [{"url": "/", "description": "Same-origin deployment. UTC wire timestamps; display timezone may differ."}],
     "security": [{"SessionCookie": []}], "tags": [{"name": t} for t in ["Authentication", "Overview", "Agents", "Tasks", "Groups", "Composites", "Schedules", "Suggestions", "Administration", "Operations"]],
     "paths": P, "components": {"securitySchemes": {"SessionCookie": {"type": "apiKey", "in": "cookie", "name": "drop_session"}},
@@ -539,7 +710,7 @@ DOC = {"openapi": "3.1.0", "info": {"title": "Drop Diagnostics API", "version": 
 
 def main():
     destination = ROOT / "docs/openapi.yaml"
-    destination.write_text("# Generated by api/tools/sync_openapi.py; checked against actual routes and shared schemas.\n" +
+    destination.write_text("# 由api/tools/sync_openapi.py生成，并与实际路由及共享Schema核对。\n" +
                            yaml.safe_dump(DOC, allow_unicode=True, sort_keys=False, width=110), encoding="utf-8")
     print(f"Wrote {destination.relative_to(ROOT)}: {sum(len(v) for v in P.values())} operations, {len(S)} schemas")
 

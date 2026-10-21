@@ -1,0 +1,66 @@
+{
+  "recorded_at": "2026-10-21T07:48:50.441106+00:00",
+  "stage": "local_checks_and_standalone_linux_images_not_main_deployment",
+  "go": {
+    "version": "1.26.10",
+    "postgres_all_migrations": 10,
+    "passed_including_subtests": 384,
+    "skipped": 1,
+    "skip_reason": "real DeepSeek opt-in handled separately",
+    "vet_passed": true
+  },
+  "web": {
+    "vitest_passed": 153,
+    "playwright_passed": 33,
+    "playwright_skipped": 0,
+    "final_new_ui_cases": 12,
+    "production_build_passed": true,
+    "viewports": [
+      375,
+      1440
+    ],
+    "axe_violations": 0,
+    "history_evidence_preserved": true
+  },
+  "runtime_windows": {
+    "passed": 35,
+    "linux_only_skipped": 9
+  },
+  "contracts": {
+    "task_kinds": 18,
+    "rpc_services": 4,
+    "v1_negative_control_rejected": true,
+    "actual_http_routes": 86,
+    "schemas": 123
+  },
+  "facts": {
+    "offline_route_passed": 6,
+    "offline_guard_controls_passed": 52,
+    "python_tests_passed": 24,
+    "semantic_accuracy": null
+  },
+  "generic_linux": {
+    "image": "drop-generic-python:20261021.1",
+    "passed": true,
+    "source": "repository_owned_imported_synthetic_fixture_only",
+    "real_model_calls": 0
+  },
+  "observability_linux": {
+    "image": "drop-observability-demo:20261021.1",
+    "real_http_tests_passed": 7,
+    "real_model_calls": 0
+  },
+  "limitations": [
+    "Main platform still previous release until separate deployment receipt.",
+    "Program guards, browser fixtures and synthetic benchmarks are not independent human semantic accuracy.",
+    "No C++ changes; no full C++ runner revalidation in this increment."
+  ],
+  "receipts": {
+    "facts-verification.json": "878b93a2284b4e5cefe980906babe5b7449a6c4284832e52eb30eeb4f23c9013",
+    "generic-linux-acceptance.json": "91e52cd6850b3a84a63e070d27fd8be6d5fd27a46e0191a2a3843a8c083d4041",
+    "observability-linux-acceptance.json": "9e3006c3451dae8a3a5ae86c8397265184cc826bf61eeeb5c2217b995d280226",
+    "postgres-acceptance.json": "b0c005586b620c946fd26fb09846848db73664462f057ebc9f8746ea91d58a73",
+    "postgres-source-manifest.json": "c742732bd4c004266f3e01f82ba7743e18003224a51bf9e46ff088090af09ae8",
+    "ui-verification.json": "8487452c98976d945cb24ac7e2da4b264372f28d8246918efa1eda70dffc5a65"
+  }
+}

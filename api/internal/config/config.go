@@ -55,6 +55,7 @@ var definitions = map[string]definition{
 	"AI_API_KEY":                  {secret: true},
 	"AI_MODEL":                    {},
 	"AI_AGENT_BACKEND":            {value: "legacy"},
+	"AI_OBSERVABILITY_CONFIG":     {reference: true},
 	"AGENTSCOPE_RUNNER_SOCKET":    {reference: true},
 	"AGENTSCOPE_GATEWAY_SOCKET":   {reference: true},
 	"CODE_EXECUTOR_SOCKET":        {},

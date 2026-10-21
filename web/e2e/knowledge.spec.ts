@@ -184,6 +184,10 @@ async function importedFixture(page: Page, options: Options = {}) {
       await respond([]);
       return;
     }
+    if (["/diagnostic-playbooks", "/groups"].includes(path)) {
+      await respond({ items: [], total: 0 });
+      return;
+    }
     if (path === "/diagnostic-skills") {
       if (options.delay)
         await new Promise((resolve) => setTimeout(resolve, options.delay));
@@ -401,6 +405,15 @@ for (const width of [1440, 375]) {
       fullPage: true,
     });
     await page.getByRole("tab", { name: "诊断 Skill" }).focus();
+    await page.keyboard.press("End");
+    await expect(
+      page.getByRole("tab", { name: "项目与团队方法", exact: true }),
+    ).toBeFocused();
+    await expect(
+      page.getByRole("heading", { name: "项目与团队方法库" }),
+    ).toBeVisible();
+    await page.keyboard.press("Home");
+    await expect(page.getByRole("tab", { name: "诊断 Skill" })).toBeFocused();
     await page.keyboard.press("ArrowRight");
     await expect(page.getByRole("tab", { name: "我的复核案例" })).toBeFocused();
     await expect(page.getByRole("heading", { name: "案例 #71" })).toBeVisible();

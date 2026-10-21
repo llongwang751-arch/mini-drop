@@ -1,0 +1,64 @@
+{
+  "kind": "local_structured_fact_protocol_verification",
+  "captured_at": "2026-10-21T07:18:52.642418+00:00",
+  "go": {
+    "command": "go test ./internal/service -run '^(TestDiagnosisFactsV2|TestDiagnosisFactEvaluation|TestDiagnosisReportEvidenceValidation|TestDiagnosisLastRound|TestDiagnosticEvaluation|TestDiagnosisKnowledgeRequires)' -count=1 -json",
+    "top_level_pass": 14,
+    "subtest_pass": 48,
+    "skip": 0,
+    "fail": 0,
+    "log_sha256": "67b063c05724dacc0ac495c7996d8ceceb566c29bc8caf85634930e2c6a748b9"
+  },
+  "python": {
+    "command": "python -X utf8 -m unittest discover -s scripts/evaluation -p 'test_*.py' -v",
+    "pass": 24,
+    "skip": 0
+  },
+  "offline": {
+    "model_calls": 0,
+    "metrics": {
+      "skill_routing_exact_match": {
+        "numerator": 6,
+        "denominator": 6,
+        "rate": 1.0
+      },
+      "structured_fact_guard_contract": {
+        "numerator": 52,
+        "denominator": 52,
+        "rate": 1.0
+      },
+      "root_cause_category_hit": null,
+      "required_abstention_recall": null,
+      "normal_load_false_positive_rate": null,
+      "model_tokens": null,
+      "estimated_cost": null
+    },
+    "case_count": 6
+  },
+  "format": [
+    "Ruff check + format --check passed",
+    "Prettier README/v2 cases passed",
+    "gofmt owned Go files clean",
+    "git diff --check passed"
+  ],
+  "source_sha256": {
+    "api/internal/service/diagnosis_model.go": "6ea533add1f9c3b40d54d30199d2b39b5363ce84122e970cddd663d2110d2681",
+    "api/internal/service/diagnosis_facts.go": "dd071e37c4a221366daeef26d333997ce2fbe9a23726a6a72711578b63fe22b9",
+    "api/internal/service/diagnosis_facts_test.go": "8e3ca653974813b9b2209661f40cabdae6633354f6fe1f65f98b2b9586b10a78",
+    "api/internal/service/diagnosis_model_fact_test.go": "ed31bb8b887917ead138be6e0bf45a18661113621262e959c0d511a5ea34194a",
+    "api/internal/service/diagnosis_fact_evaluation_test.go": "91390d2fac854973bc80b9376bfe18a8f3bd8416cd84fe6f10956a0035c71413",
+    "scripts/evaluation/README.md": "c9af2504b45d29163435f968f6e38b076759892d9f93259367f7db4e2f9c8d7b",
+    "scripts/evaluation/evaluate_diagnostics.py": "4d4e2b20166d36d9b964690fd1a90ddd5b394f4eac99f2095586aafd91b8f64d",
+    "scripts/evaluation/build_fixture_v2.py": "d5f30e6a7820c4d0885a48014c72356004747bdd9ba43d5ac2ac9086a0029f44",
+    "scripts/evaluation/diagnostic_cases_v2.json": "f85aa3979b5b72d22dbb66103148a90caca5c02f7fb4746eb54038c9ea96d420",
+    "scripts/evaluation/diagnostic_experiment.py": "c82e970c7cb07d8c2a36d0a6a15249b95563e0e006798ae5a3ad275ac0ac9feb",
+    "scripts/evaluation/test_diagnostic_experiment.py": "26ba4122e6399426964fabfad6e7b044c75b69965df59728ebe148df4f9bd545"
+  },
+  "limits": [
+    "No real model or production/deployment calls performed.",
+    "HTTP provider regression uses an explicit controller oracle and the actual model transport/validator.",
+    "Synthetic holdout is author-visible, not independent blinded business-fault accuracy.",
+    "Verified fields, values, units and sources do not establish hypothesis causality.",
+    "Semantic rates remain null without independent human review."
+  ]
+}

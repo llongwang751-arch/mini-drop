@@ -279,7 +279,7 @@ func (s *Suggestions) advanceVerification(ctx context.Context, tx *gorm.DB, v *V
 		if knowledgeMode == "" {
 			knowledgeMode = "off"
 		}
-		run, err := scoped.RequestDiagnosis(ctx, u, t.ID, DiagnosisInput{Goal: "复测后重新检查热点和质量，调用compare_profiles对比原采集，评估原假设是否仍受支持；区分现象复现和因果根因。", Mode: source.Mode, Consent: source.Mode == "model", KnowledgeMode: knowledgeMode}, "verification-worker", fmt.Sprintf("verification:%d:diagnosis", v.ID))
+		run, err := scoped.RequestDiagnosis(ctx, u, t.ID, DiagnosisInput{Goal: "复测后重新检查热点和质量，调用compare_profiles对比原采集，评估原假设是否仍受支持；区分现象复现和因果根因。", Mode: source.Mode, Consent: source.Mode == "model", KnowledgeMode: knowledgeMode, TelemetryServiceID: source.TelemetryServiceID}, "verification-worker", fmt.Sprintf("verification:%d:diagnosis", v.ID))
 		if err != nil {
 			return err
 		}

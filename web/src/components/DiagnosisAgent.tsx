@@ -9,6 +9,8 @@ import { api, dateTime, newIdempotencyKey } from "../api";
 import type { List, Task } from "../types";
 import { Busy, ErrorPanel } from "./ui";
 import DiagnosticKnowledge from "./DiagnosticKnowledge";
+import DiagnosticFacts from "./DiagnosticFacts";
+import DiagnosticTelemetryPicker from "./DiagnosticTelemetryPicker";
 import SaveDiagnosticCase from "./SaveDiagnosticCase";
 import { knowledgeModes } from "../diagnostic-knowledge";
 import type {
@@ -32,6 +34,8 @@ interface Diagnosis {
     engine: string;
     model?: string;
     summary: string;
+    report_version?: number;
+    facts?: unknown;
     hypotheses: {
       claim: string;
       evidence_ids: string[];
@@ -54,6 +58,10 @@ const tools: Record<string, string> = {
   check_collection_quality: "核对采集质量",
   propose_verification: "制定复测草案",
   compare_profiles: "比较复测证据",
+  read_diagnostic_knowledge: "检索诊断方法与案例",
+  inspect_service_topology: "检查服务依赖",
+  query_business_signals: "查询关联业务信号",
+  propose_followup_collection: "提出追加采集草案",
 };
 const errors: Record<string, string> = {
   AI_UPSTREAM_ERROR: "模型服务调用失败，可重建诊断或使用本地证据检查。",
@@ -86,6 +94,7 @@ export default function DiagnosisAgent({
   const [knowledgeMode, setKnowledgeMode] =
     useState<KnowledgeMode>("experience");
   const [consent, setConsent] = useState(false);
+  const [telemetryServiceID, setTelemetryServiceID] = useState("");
   const [selected, setSelected] = useState("");
   const [review, setReview] = useState(false);
   const [verificationTask, setVerificationTask] = useState<string>();
@@ -93,6 +102,15 @@ export default function DiagnosisAgent({
   const startKey = useRef<{ fingerprint: string; key: string } | undefined>(
     undefined,
   );
+  // 切换任务后重新选择信号授权，避免沿用上一个进程的数据源或确认状态。
+  useEffect(() => {
+    setTelemetryServiceID("");
+    setSelected("");
+    setReview(false);
+    setConsent(false);
+    setVerificationTask(undefined);
+    startKey.current = undefined;
+  }, [task.id, task.target_agent_id]);
   const providers = useQuery({
     queryKey: ["diagnosis-providers"],
     queryFn: ({ signal }) =>
@@ -164,6 +182,9 @@ export default function DiagnosisAgent({
         mode,
         consent: external && consent,
         knowledge_mode: knowledgeMode,
+        ...(external && telemetryServiceID
+          ? { telemetry_service_id: telemetryServiceID }
+          : {}),
       });
       if (startKey.current?.fingerprint !== fingerprint)
         startKey.current = { fingerprint, key: newIdempotencyKey() };
@@ -241,6 +262,13 @@ export default function DiagnosisAgent({
           onChange={(e) => setGoal(e.target.value)}
           aria-describedby="diagnosis-boundary"
         />
+        {task.target_agent_id && mode === "model" && !readOnly && (
+          <DiagnosticTelemetryPicker
+            agentId={task.target_agent_id}
+            value={telemetryServiceID}
+            onChange={setTelemetryServiceID}
+          />
+        )}
         <div className="diagnosis-options">
           <label htmlFor="diagnosis-mode">诊断方式</label>
           <select
@@ -399,6 +427,12 @@ export default function DiagnosisAgent({
               </div>
               <h3>诊断结论与验证</h3>
               <p>{run.report.summary}</p>
+              <DiagnosticFacts
+                reportVersion={run.report.report_version}
+                facts={run.report.facts}
+                hypotheses={run.report.hypotheses}
+                runID={run.id}
+              />
               {run.report.knowledge && (
                 <DiagnosticKnowledge knowledge={run.report.knowledge} />
               )}

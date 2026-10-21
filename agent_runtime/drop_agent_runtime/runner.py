@@ -26,9 +26,11 @@ from agentscope.agent import (
     ReActConfig,
 )
 from agentscope.credential import DeepSeekCredential
+from agentscope.event import ReplyStartEvent
 from agentscope.message import (
     TextBlock,
     ToolCallBlock,
+    ToolResultBlock,
     ToolResultState,
     UserMsg,
 )
@@ -39,9 +41,16 @@ from agentscope.tool import ToolBase, ToolChoice, ToolChunk, Toolkit
 from pydantic import ValidationError
 
 from . import AGENTSCOPE_VERSION, PROTOCOL_VERSION
+from .checkpoint import parse_checkpoint, project_state, restored_state
 from .config import Config
 from .model_transport import BoundedTransport
+from .provider_retry import (
+    RetryableProviderFailure,
+    permanent_transport_error,
+    provider_circuit,
+)
 from .wire import (
+    AcceptedJSON,
     Gateway,
     ProtocolError,
     RunDiagnostics,
@@ -104,8 +113,8 @@ for _logger_name in ("as", "openai", "httpx", "httpx2", "httpcore", "httpcore2")
 PHASES = {
     "planning": (6, 10, 150000, {"list_collectors", "propose_collection"}),
     "diagnosis": (
-        5,
-        7,
+        9,
+        14,
         150000,
         {
             "read_profile_summary",
@@ -115,6 +124,9 @@ PHASES = {
             "propose_verification",
             "compare_profiles",
             "read_diagnostic_knowledge",
+            "query_business_signals",
+            "inspect_service_topology",
+            "propose_followup_collection",
         },
     ),
     "repair": (8, 12, 420000, {"profile_business_flow", "read_source", "test_patch"}),
@@ -151,6 +163,7 @@ class RunRequest:
     messages: list[dict]
     tools: list[dict]
     budget: dict
+    checkpoint: dict | None = None
 
     @classmethod
     def parse(cls, body: Any, model: str) -> "RunRequest":
@@ -172,7 +185,7 @@ class RunRequest:
         }
         if (
             not isinstance(body, dict)
-            or set(body) != fields
+            or set(body) - {"checkpoint"} != fields
             or body["version"] != 1
             or type(body["version"]) is not int
         ):
@@ -281,8 +294,20 @@ class RunRequest:
             except jsonschema.SchemaError:
                 raise ProtocolError("AI_TOOL_REJECTED") from None
             names.add(name)
+        checkpoint = (
+            parse_checkpoint(body["checkpoint"], budget)
+            if "checkpoint" in body
+            else None
+        )
         return cls(
-            run_id, capability, phase, body["system_prompt"], messages, tools, budget
+            run_id,
+            capability,
+            phase,
+            body["system_prompt"],
+            messages,
+            tools,
+            budget,
+            checkpoint,
         )
 
 
@@ -301,6 +326,39 @@ class Session:
         self.tools: dict[str, GatewayTool] = {}
         self.cancelled = False
         self.failure: ProtocolError | None = None
+        self.sequence = 0
+        self.completed_replays = set()
+        self.resume_reply_id = None
+        self.circuit = None
+        if request.checkpoint:
+            checkpoint = request.checkpoint
+            self.sequence = checkpoint["sequence"]
+            self.model_calls = checkpoint["model_calls"]
+            self.tool_calls = checkpoint["tool_calls"]
+            self.round_tools = checkpoint["round_tools"]
+            self.format_only = checkpoint["format_only"]
+            self.usage.update(checkpoint["usage"])
+            self.completed_replays = set(checkpoint["completed_call_ids"])
+            state = checkpoint["state"]
+            if state:
+                self.seen_ids.update(state["seen_ids"])
+                if state["cursor"] == "tools" and state["context"]:
+                    self.resume_reply_id = state["context"][-1]["id"]
+        diagnostics = current_diagnostics.get()
+        if diagnostics is not None:
+            diagnostics.model_calls = self.model_calls
+            diagnostics.tool_calls = self.tool_calls
+
+    async def save_checkpoint(self, agent, **kwargs):
+        if self.request.checkpoint is None:
+            return
+        state = project_state(agent, self, **kwargs)
+        sequence = self.sequence + 1
+        await self.callback(
+            "checkpoint",
+            content=json_bytes({"sequence": sequence, "state": state}).decode(),
+        )
+        self.sequence = sequence
 
     def check_active(self) -> None:
         """在模型与工具边界检查取消或首个致命错误，阻止失败后继续产生副作用。"""
@@ -321,6 +379,7 @@ class Session:
                 "model_end": "model_end",
                 "tool": "tool_callback",
                 "finish": "finish_callback",
+                "checkpoint": "agent_reply",
             }[kind]
         )
         payload = {
@@ -381,24 +440,29 @@ class GatewayTool(ToolBase):
         if (
             call.name != self.name
             or call.id in session.seen_ids
+            and call.id not in session.completed_replays
             or not CALL_ID.fullmatch(call.id)
             or session.format_only
         ):
             raise ProtocolError("AI_TOOL_REJECTED")
-        if (
+        replay = call.id in session.completed_replays
+        if not replay and (
             session.tool_calls >= session.request.budget["max_tool_calls"]
             or session.round_tools >= session.request.budget["max_tools_per_round"]
         ):
             raise ProtocolError("AI_BUDGET_EXCEEDED")
         session.seen_ids.add(call.id)
-        session.tool_calls += 1
+        if not replay:
+            session.tool_calls += 1
         diagnostics = current_diagnostics.get()
         if diagnostics is not None:
             diagnostics.tool_calls = session.tool_calls
-        session.round_tools += 1
+        if not replay:
+            session.round_tools += 1
         response = await session.callback(
             "tool", call_id=call.id, name=self.name, arguments=kwargs
         )
+        session.completed_replays.discard(call.id)
         if response.get("terminal") is True:
             if (
                 session.request.phase != "planning"
@@ -426,6 +490,15 @@ class RuntimeMiddleware(MiddlewareBase):
     def __init__(self, session: Session) -> None:
         self.session = session
 
+    async def on_reply(self, agent, input_kwargs, next_handler):
+        async for event in next_handler():
+            if isinstance(event, ReplyStartEvent) and self.session.resume_reply_id:
+                # 公开 AgentState 与 middleware 恢复接口：在原生 acting 前沿用旧 assistant 的 ID，
+                # 让剩余调用和结果仍处于同一消息中；不伪造用户确认或工具成功。
+                agent.state.reply_context.reply_id = self.session.resume_reply_id
+                self.session.resume_reply_id = None
+            yield event
+
     async def on_compress_context(
         self, agent: Agent, input_kwargs: dict, next_handler: Any
     ) -> None:
@@ -441,29 +514,65 @@ class RuntimeMiddleware(MiddlewareBase):
         诊断阶段预留的格式纠错轮不再允许工具调用；token 用量仅记录实际供应商返回的有界整数。
         """
         session = self.session
-        session.check_active()
-        if session.model_calls >= session.request.budget["max_model_calls"]:
-            raise ProtocolError("AI_BUDGET_EXCEEDED")
-        if (
-            session.request.phase == "diagnosis"
-            and session.model_calls >= 4
-            and not session.format_only
-        ):
-            raise ProtocolError("AI_BUDGET_EXCEEDED")
-        session.model_calls += 1
-        diagnostics = current_diagnostics.get()
-        if diagnostics is not None:
-            diagnostics.model_calls = session.model_calls
-        session.round_tools = 0
-        await session.callback("model_start")
         if session.format_only:
             input_kwargs = {
                 **input_kwargs,
                 "tools": [],
                 "tool_choice": ToolChoice(mode="none"),
             }
-        set_stage("provider_request")
-        response = await next_handler(**input_kwargs)
+        for attempt in range(3):
+            session.check_active()
+            ordinary_limit = session.request.budget["max_model_calls"]
+            if session.request.phase == "diagnosis" and not session.format_only:
+                ordinary_limit -= 1
+            if session.model_calls >= ordinary_limit:
+                raise ProtocolError("AI_BUDGET_EXCEEDED")
+            session.circuit.before()
+            try:
+                await session.save_checkpoint(agent)
+                session.model_calls += 1
+                diagnostics = current_diagnostics.get()
+                if diagnostics is not None:
+                    diagnostics.model_calls = session.model_calls
+                session.round_tools = 0
+                await session.callback("model_start")
+            except BaseException:
+                # 半开探测还没有调用供应商时，检查点或租约拒绝也必须释放进程内探测锁。
+                session.circuit.abandon()
+                raise
+            set_stage("provider_request")
+            retry_after = None
+            try:
+                response = await next_handler(**input_kwargs)
+            except RetryableProviderFailure as failure:
+                retry_after = failure.retry_after
+                original_failure = ProtocolError("AI_UPSTREAM_ERROR")
+            except (
+                httpx.NetworkError,
+                httpx.TimeoutException,
+                openai.APIConnectionError,
+                openai.APITimeoutError,
+            ) as failure:
+                if permanent_transport_error(failure):
+                    session.circuit.abandon()
+                    raise
+                original_failure = failure
+            except BaseException:
+                session.circuit.abandon()
+                raise
+            else:
+                session.circuit.success()
+                break
+            # 没有返回 token 用量时只闭合这一真实请求，不伪造其 token 数；下一次请求先重新预留 Go 预算。
+            await session.callback("model_end")
+            session.circuit.failure()
+            if attempt == 2 or session.model_calls >= ordinary_limit:
+                set_stage("provider_request")
+                raise original_failure from None
+            await asyncio.sleep(
+                retry_after if retry_after is not None else min(0.1 * (2**attempt), 2.0)
+            )
+            session.check_active()
         set_stage("model_parse")
         session.check_active()
         if response.finished_reason == FinishedReason.INTERRUPTED:
@@ -525,8 +634,19 @@ class RuntimeMiddleware(MiddlewareBase):
             # 整批不进入 SDK acting，也不截取前几个执行。真实用量与 model_end 仍归本轮，
             # 被拒批次的 ID 也不能在后续轮次复用；SDK _reasoning_impl 在本钩子返回后才写上下文。
             session.seen_ids.update(batch_ids)
+            await session.save_checkpoint(agent)
             set_stage("model_parse")
             raise RejectedToolBatch()
+        await session.save_checkpoint(
+            agent,
+            cursor="tools" if calls else "finish",
+            pending_text="\n".join(
+                item.text for item in response.content if isinstance(item, TextBlock)
+            )
+            if not calls
+            else "",
+            append=response.content,
+        )
         set_stage("agent_reply")
         return response
 
@@ -552,6 +672,17 @@ class RuntimeMiddleware(MiddlewareBase):
             self.session.gateway.cancelled = True
             raise asyncio.CancelledError()
         self.session.check_active()
+        if chunks:
+            call = input_kwargs["tool_call"]
+            await self.session.save_checkpoint(
+                agent,
+                tool_result=ToolResultBlock(
+                    id=call.id,
+                    name=call.name,
+                    output=[item for chunk in chunks for item in chunk.content],
+                    state=chunks[-1].state,
+                ),
+            )
         for chunk in chunks:
             yield chunk
 
@@ -574,6 +705,7 @@ async def _run_agent(
     if installed != AGENTSCOPE_VERSION:
         raise ProtocolError("AGENT_RUNTIME_VERSION_MISMATCH")
     session = Session(request, gateway)
+    session.circuit = provider_circuit(config.endpoint, config.model)
     for definition in request.tools:
         tool = GatewayTool(definition["function"], session)
         session.tools[tool.name] = tool
@@ -604,6 +736,7 @@ async def _run_agent(
             model=model,
             toolkit=Toolkit(tools=list(session.tools.values())),
             middlewares=[RuntimeMiddleware(session)],
+            state=restored_state(request.checkpoint),
             model_config=ModelConfig(max_retries=0),
             react_config=ReActConfig(
                 max_iters=request.budget["max_model_calls"],
@@ -625,17 +758,35 @@ async def _run_agent(
             UserMsg(name="user", content=message["content"])
             for message in request.messages
         ]
+        saved_state = request.checkpoint["state"] if request.checkpoint else {}
+        if saved_state:
+            inputs = None
+        pending_text = (
+            saved_state.get("pending_text")
+            if saved_state.get("cursor") == "finish"
+            else None
+        )
         try:
             async with asyncio.timeout(request.budget["timeout_ms"] / 1000):
+                if request.checkpoint and request.checkpoint.get("accepted_json"):
+                    raise AcceptedResult(
+                        AcceptedJSON(request.checkpoint["accepted_json"].encode())
+                    )
                 while True:
                     set_stage("agent_reply")
                     try:
-                        final = await agent.reply(inputs)
+                        if pending_text is None:
+                            final = await agent.reply(inputs)
+                            if final.finished_reason != "completed":
+                                raise ProtocolError("AI_BUDGET_EXCEEDED")
+                            content = final.get_text_content()
+                        else:
+                            content, pending_text = pending_text, None
                     except RejectedToolBatch:
                         session.check_active()
                         ordinary_limit = request.budget["max_model_calls"]
                         if request.phase == "diagnosis":
-                            ordinary_limit = min(ordinary_limit, 4)
+                            ordinary_limit -= 1
                         if session.model_calls >= ordinary_limit:
                             raise ProtocolError("AI_BUDGET_EXCEEDED") from None
                         # 同一 Agent 保留之前的合法观测；超限 assistant 从未写入原生上下文，
@@ -652,9 +803,6 @@ async def _run_agent(
                         ]
                         continue
                     session.check_active()
-                    if final.finished_reason != "completed":
-                        raise ProtocolError("AI_BUDGET_EXCEEDED")
-                    content = final.get_text_content()
                     if not isinstance(content, str) or len(content.encode()) > 49152:
                         raise ProtocolError("AI_INVALID_RESPONSE")
                     response = await session.callback("finish", content=content)
@@ -668,7 +816,11 @@ async def _run_agent(
                     if session.model_calls >= request.budget["max_model_calls"]:
                         raise ProtocolError("AI_BUDGET_EXCEEDED")
                     if response.get("format_only") is True:
-                        if request.phase != "diagnosis" or session.model_calls != 4:
+                        if (
+                            request.phase != "diagnosis"
+                            or session.model_calls
+                            != request.budget["max_model_calls"] - 1
+                        ):
                             raise ProtocolError("AGENT_RUNTIME_PROTOCOL_ERROR")
                         session.format_only = True
                     feedback = (

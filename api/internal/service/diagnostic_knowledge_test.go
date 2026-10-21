@@ -132,21 +132,33 @@ func TestDiagnosticKnowledgeDescribeAndReadRespectContext(t *testing.T) {
 		clone.URL.Host = base.Host
 		return transport.RoundTrip(clone)
 	})}}}
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Millisecond)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+	done := make(chan error, 1)
+	go func() {
+		_, err := s.diagnosticRegisteredRevision(ctx, "explicit-imported-project-fixture")
+		done <- err
+	}()
+	// 等待真实HTTP到达后再取消，避免负载下30ms定时器在连接建立前就结束，误测为“取消未传播”。
+	select {
+	case <-started:
+	case <-time.After(2 * time.Second):
+		t.Fatal("阻塞 describe 夹具未收到请求")
+	}
 	began := time.Now()
-	_, err := s.diagnosticRegisteredRevision(ctx, "explicit-imported-project-fixture")
+	cancel()
+	var err error
+	select {
+	case err = <-done:
+	case <-time.After(time.Second):
+		t.Fatal("取消后describe未在有界时间结束")
+	}
 	var fault *domain.Error
 	if !errors.As(err, &fault) || fault.Code != "KNOWLEDGE_TIMEOUT" {
 		t.Fatal("未返回固定超时错误码", err)
 	}
 	if time.Since(began) > time.Second {
 		t.Fatal("describe 沿用长执行预算")
-	}
-	select {
-	case <-started:
-	case <-time.After(time.Second):
-		t.Fatal("阻塞 describe 夹具未收到请求")
 	}
 	select {
 	case <-cancelled:
@@ -351,7 +363,7 @@ func TestPostgresDiagnosticKnowledgePermissionRevokedAndSkillOnly(t *testing.T) 
 	if err != nil {
 		t.Fatal(err)
 	}
-	run.InputDigest = diagnosisInputDigest(raw, run.Mode, run.Goal, run.KnowledgeMode)
+	run.InputDigest = diagnosisBoundDigest(raw, run.Mode, run.Goal, run.KnowledgeMode, run.ReportProtocol, run.TelemetryServiceID)
 	// 真实删除本测试 schema 内的案例表，证明 skills 模式不依赖历史内容或案例表。
 	if err = db.Exec("DROP TABLE diagnostic_cases").Error; err != nil {
 		t.Fatal(err)
@@ -361,7 +373,7 @@ func TestPostgresDiagnosticKnowledgePermissionRevokedAndSkillOnly(t *testing.T) 
 		t.Fatal("Skill-only 查询了案例表", err)
 	}
 	run.KnowledgeMode = "off"
-	run.InputDigest = diagnosisInputDigest(raw, run.Mode, run.Goal, run.KnowledgeMode)
+	run.InputDigest = diagnosisBoundDigest(raw, run.Mode, run.Goal, run.KnowledgeMode, run.ReportProtocol, run.TelemetryServiceID)
 	knowledge, err = s.ReadDiagnosticKnowledge(ctx, u, run, json.RawMessage(`{}`), true)
 	if err != nil || len(knowledge.Skills) != 0 || len(knowledge.Cases) != 0 {
 		t.Fatal("off 仍提供知识", err)

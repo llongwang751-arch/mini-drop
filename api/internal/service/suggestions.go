@@ -26,12 +26,13 @@ type AIConfig struct {
 	AllowHTTP               bool
 }
 type Suggestions struct {
-	Repo   *repository.Repository
-	Tasks  *Tasks
-	Config AIConfig
-	Client *http.Client
-	Code   *CodeExecutor
-	Runner *AgentRunner
+	Repo          *repository.Repository
+	Tasks         *Tasks
+	Config        AIConfig
+	Client        *http.Client
+	Code          *CodeExecutor
+	Runner        *AgentRunner
+	Observability *ObservabilityRegistry
 }
 
 func NewSuggestions(r *repository.Repository, t *Tasks, c AIConfig) (*Suggestions, error) {

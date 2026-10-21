@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -31,6 +32,8 @@ type importedAgentRequest struct {
 	Messages     []diagnosisMessage `json:"messages"`
 	Tools        []map[string]any   `json:"tools"`
 	Budget       agentBudget        `json:"budget"`
+	// 接受真实Go控制面附带的有界快照；本mock不模拟Python状态恢复，跨进程恢复由独立SDK测试验收。
+	Checkpoint json.RawMessage `json:"checkpoint,omitempty"`
 }
 
 func importedAgentCallback(t *testing.T, runner *AgentRunner, run importedAgentRequest, call agentCallback) (int, map[string]json.RawMessage) {
@@ -58,6 +61,9 @@ func importedAgentSession(t *testing.T, phase string, invoke func(context.Contex
 	ctx, cancel := context.WithCancelCause(context.Background())
 	t.Cleanup(func() { cancel(context.Canceled) })
 	budget, _ := phaseBudget(phase)
+	if phase == "diagnosis" {
+		budget = agentBudget{5, 7, 2, 150000}
+	} // 旧 wire 请求的较低预算仍须按原上限验收。
 	definitions := diagnosisDefinitions()
 	if phase == "repair" {
 		definitions = repairDefinitions()
@@ -348,7 +354,7 @@ func TestAgentRunnerNon200UsesSafeFailureEnumWithoutProviderBody(t *testing.T) {
 }
 
 func TestAgentRuntimeFailureDiagnosticsAreFixedBoundedAndPrivate(t *testing.T) {
-	budget, _ := phaseBudget("diagnosis")
+	budget := agentBudget{5, 7, 2, 150000}
 	valid := `{"error_code":"AI_BUDGET_EXCEEDED","diagnostics":{"stage":"provider_request","exception_kind":"protocol","model_calls":5,"tool_calls":7}}`
 	err := agentRuntimeFailure(http.StatusBadRequest, []byte(valid), budget)
 	var domainError *domain.Error
@@ -369,5 +375,34 @@ func TestAgentRuntimeFailureDiagnosticsAreFixedBoundedAndPrivate(t *testing.T) {
 		if err := agentRuntimeFailure(http.StatusBadRequest, []byte(body), budget); safeAgentError(err) != "AGENT_RUNTIME_ERROR" || strings.Contains(err.Error(), "IMPORTED_PRIVATE_TOKEN") {
 			t.Fatal("invalid private diagnostics trusted")
 		}
+	}
+}
+
+func TestAgentGatewayExpandedDiagnosisReservesNinthForFormatOnly(t *testing.T) {
+	budget, _ := phaseBudget("diagnosis")
+	if budget.MaxModelCalls != 9 || budget.MaxToolCalls != 14 || budget.MaxToolsPerRound != 2 || budget.TimeoutMS != 150000 {
+		t.Fatal("新诊断预算未固定")
+	}
+	runner, run, session := importedAgentSession(t, "diagnosis", nil, func(context.Context, string) (json.RawMessage, error) {
+		return nil, domain.Fail("AI_INVALID_REPORT", "imported fixture")
+	})
+	session.budget = budget
+	for round := 1; round <= 8; round++ {
+		_, response := importedAgentCallback(t, runner, run, agentCallback{Type: "model_start", Round: round, CallID: fmt.Sprintf("expanded-%d", round)})
+		if string(response["ok"]) != "true" {
+			t.Fatal(response)
+		}
+	}
+	_, response := importedAgentCallback(t, runner, run, agentCallback{Type: "finish", Round: 8, CallID: "expanded-invalid", Content: "invalid"})
+	if string(response["format_only"]) != "true" {
+		t.Fatal(response)
+	}
+	_, response = importedAgentCallback(t, runner, run, agentCallback{Type: "model_start", Round: 9, CallID: "expanded-format"})
+	if string(response["ok"]) != "true" {
+		t.Fatal(response)
+	}
+	_, response = importedAgentCallback(t, runner, run, agentCallback{Type: "tool", Round: 9, CallID: "expanded-no-tool", Name: "inspect_hotspots", Arguments: json.RawMessage(`{}`)})
+	if string(response["fatal"]) != "true" {
+		t.Fatal("纯格式轮执行了工具")
 	}
 }

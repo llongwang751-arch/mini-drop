@@ -1,0 +1,16 @@
+# 在 AgentScope 与知识库覆盖后合并，SQL010 先独立执行并保留备份。
+# 只更新应用三容器。数据源登记由管理员在主机准备，文件中引用的令牌另行只读挂载，不能下发浏览器。
+services:
+  api:
+    image: drop-api:${AGENT_EXPANSION_RELEASE_TAG:-20261021.3}
+    environment:
+      AI_OBSERVABILITY_CONFIG: /app/config/observability.json
+    volumes:
+      - type: bind
+        source: ${AI_OBSERVABILITY_HOST_CONFIG:?set reviewed observability config path}
+        target: /app/config/observability.json
+        read_only: true
+  agent-runtime:
+    image: drop-agent-runtime:${AGENT_EXPANSION_RELEASE_TAG:-20261021.3}
+  web:
+    image: drop-web:${AGENT_EXPANSION_RELEASE_TAG:-20261021.3}

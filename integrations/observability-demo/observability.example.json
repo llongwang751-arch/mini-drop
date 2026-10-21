@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "services": [
+    {
+      "id": "gateway",
+      "label": "受控演示 · 网关",
+      "agent_id": "REPLACE_WITH_CURRENT_AGENT_ID",
+      "dependencies": ["catalog"],
+      "connectors": {
+        "metrics": {
+          "kind": "drop-adapter",
+          "base_url": "http://observability-gateway:8130",
+          "allow_http": true
+        },
+        "logs": {
+          "kind": "drop-adapter",
+          "base_url": "http://observability-gateway:8130",
+          "allow_http": true
+        },
+        "traces": {
+          "kind": "drop-adapter",
+          "base_url": "http://observability-gateway:8130",
+          "allow_http": true
+        },
+        "changes": {
+          "kind": "drop-adapter",
+          "base_url": "http://observability-gateway:8130",
+          "allow_http": true
+        }
+      }
+    },
+    {
+      "id": "catalog",
+      "label": "受控演示 · 目录服务",
+      "agent_id": "REPLACE_WITH_CURRENT_AGENT_ID",
+      "dependencies": [],
+      "connectors": {
+        "metrics": {
+          "kind": "drop-adapter",
+          "base_url": "http://observability-catalog:8131",
+          "allow_http": true
+        },
+        "logs": {
+          "kind": "drop-adapter",
+          "base_url": "http://observability-catalog:8131",
+          "allow_http": true
+        },
+        "traces": {
+          "kind": "drop-adapter",
+          "base_url": "http://observability-catalog:8131",
+          "allow_http": true
+        },
+        "changes": {
+          "kind": "drop-adapter",
+          "base_url": "http://observability-catalog:8131",
+          "allow_http": true
+        }
+      }
+    }
+  ]
+}

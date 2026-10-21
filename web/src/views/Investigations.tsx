@@ -9,6 +9,10 @@ import { api, newIdempotencyKey, dateTime } from "../api";
 import { UserContext, useCanWrite } from "../auth-context";
 import { Busy, ErrorPanel } from "../components/ui";
 import SaveDiagnosticCase from "../components/SaveDiagnosticCase";
+import InvestigationFollowups from "../components/InvestigationFollowups";
+import DiagnosticTelemetryPicker from "../components/DiagnosticTelemetryPicker";
+import InvestigationDiagnosticEvidence from "../components/InvestigationDiagnosticEvidence";
+import RepairValidationExtensions from "../components/RepairValidationExtensions";
 import type { List } from "../types";
 import "../styles/investigations.css";
 
@@ -41,9 +45,19 @@ type Investigation = {
   created_at: string;
   report?: {
     comparison?: Comparison;
-    candidate_report?: { summary: string };
+    candidate_report?: {
+      summary: string;
+      report_version?: number;
+      facts?: unknown;
+      hypotheses?: unknown;
+    };
     candidate_diagnosis_id?: string;
-    diagnosis?: { summary: string };
+    diagnosis?: {
+      summary: string;
+      report_version?: number;
+      facts?: unknown;
+      hypotheses?: unknown;
+    };
     verification_status?: string;
   };
 };
@@ -226,6 +240,7 @@ export default function Investigations() {
       "当前进程的CPU开销集中在哪里？选择合适采集器定位热点，并自动复测核对。",
     ),
     [agentID, setAgentID] = useState(""),
+    [telemetryServiceID, setTelemetryServiceID] = useState(""),
     [pid, setPID] = useState(""),
     [scope, setScope] = useState("process"),
     [containerID, setContainerID] = useState(""),
@@ -353,6 +368,9 @@ export default function Investigations() {
         target_agent_id: agentID,
         parameters,
         consent,
+        ...(telemetryServiceID
+          ? { telemetry_service_id: telemetryServiceID }
+          : {}),
         ...(linkedCode
           ? { code_project_id: projectID, code_consent: true }
           : {}),
@@ -477,6 +495,7 @@ export default function Investigations() {
                       required
                       onChange={(e) => {
                         setAgentID(e.target.value);
+                        setTelemetryServiceID("");
                         setPID("");
                       }}
                     >
@@ -537,6 +556,7 @@ export default function Investigations() {
                         className="button secondary"
                         onClick={() => {
                           setAgentID(p.runtime!.agent_id);
+                          setTelemetryServiceID("");
                           setPID(String(p.runtime!.pid));
                           setScope("process");
                           setProjectID(p.id);
@@ -558,6 +578,11 @@ export default function Investigations() {
                     复测后继续定位所选登记项目的源码，允许发送登记片段并在隔离副本自动修改、回归和性能验证
                   </label>
                 )}
+                <DiagnosticTelemetryPicker
+                  agentId={agentID}
+                  value={telemetryServiceID}
+                  onChange={setTelemetryServiceID}
+                />
                 <label className="investigation-consent">
                   <input
                     type="checkbox"
@@ -690,7 +715,15 @@ export default function Investigations() {
                 </p>
                 {run.report?.comparison && (
                   <ComparisonView value={run.report.comparison} />
-                )}{" "}
+                )}
+                <InvestigationDiagnosticEvidence
+                  baselineTaskId={run.baseline_task_id}
+                  diagnosisId={run.diagnosis_id}
+                  candidateDiagnosisId={run.report?.candidate_diagnosis_id}
+                  verificationId={run.verification_id}
+                  report={run.report?.candidate_report || run.report?.diagnosis}
+                />
+                <InvestigationFollowups investigationId={run.id} />
                 {run.report?.verification_status && (
                   <p>该采集类型需要补充完整配置后人工安排复测。</p>
                 )}
@@ -869,6 +902,9 @@ export default function Investigations() {
                         。补丁已应用到隔离副本；受控结果不能等同生产P95/P99改善。
                       </p>
                     </div>
+                    <RepairValidationExtensions
+                      validation={repair.report.validation}
+                    />
                     {repair.report.validation.patch?.map((edit, index) => (
                       <details key={`${edit.path}:${index}`}>
                         <summary>查看实际应用的补丁 · {edit.path}</summary>

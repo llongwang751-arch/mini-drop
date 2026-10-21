@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "id": "synthetic-cart-python",
+  "label": "合成购物车 · 通用 Python 接入",
+  "test_preset": "manifest-python-v1",
+  "language": "python",
+  "output_contract": "drop-python-project-v1",
+  "symbol_mapping": "python_cprofile",
+  "workload": "imported synthetic cart component; no production data or credentials",
+  "editable_files": ["business.py"],
+  "readable_files": ["business.py", "workload.py", "tests/test_original.py"],
+  "frozen_files": ["workload.py", "tests/test_original.py"],
+  "allowed_imports": ["business", "functools", "math", "re"],
+  "regression_test_dir": "drop_regression",
+  "commands": {
+    "build": {
+      "argv": [
+        "python",
+        "-c",
+        "import ast;from pathlib import Path;[ast.parse(p.read_text(encoding='utf-8')) for p in Path('.').rglob('*.py')]"
+      ],
+      "timeout_seconds": 10
+    },
+    "test": {
+      "argv": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_*.py"
+      ],
+      "timeout_seconds": 15
+    },
+    "profile": {
+      "argv": [
+        "python",
+        "{driver}",
+        "--mode",
+        "profile",
+        "--source",
+        "{source}",
+        "--manifest",
+        "{manifest}",
+        "--output",
+        "{output}",
+        "--seed",
+        "{seed}"
+      ],
+      "timeout_seconds": 20
+    },
+    "benchmark": {
+      "argv": [
+        "python",
+        "{driver}",
+        "--mode",
+        "benchmark",
+        "--source",
+        "{source}",
+        "--manifest",
+        "{manifest}",
+        "--output",
+        "{output}",
+        "--seed",
+        "{seed}"
+      ],
+      "timeout_seconds": 20
+    }
+  },
+  "entrypoints": {
+    "profile": { "path": "workload.py", "callable": "run", "calls": 40 },
+    "benchmark": { "path": "workload.py", "callable": "run", "calls": 1200 }
+  },
+  "performance_gate": {
+    "minimum_median_speedup": 1.1,
+    "minimum_improved_pairs": 5,
+    "pairs": 6,
+    "negative_control_max_drift": 0.2
+  }
+}

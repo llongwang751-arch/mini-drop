@@ -14,6 +14,9 @@ import (
 // 必要热点、质量和复测比较必须真实调用；runner 返回的 JSON 只有与 Go 保存的 accepted 结果一致才能形成报告。
 func (s *Suggestions) diagnosisAgentScope(ctx context.Context, run DiagnosisRun, owner string, first json.RawMessage, invoke func(string, json.RawMessage) (json.RawMessage, error), trace *[]DiagnosisStep) (*DiagnosisReport, error) {
 	used := map[string]bool{"read_profile_summary": true}
+	for _, step := range *trace {
+		used[step.Tool] = true
+	}
 	var initial DiagnosisStep
 	_ = json.Unmarshal(first, &initial)
 	var summary struct {
@@ -21,11 +24,15 @@ func (s *Suggestions) diagnosisAgentScope(ctx context.Context, run DiagnosisRun,
 	}
 	_ = json.Unmarshal(initial.Observation, &summary)
 	spec := agentRunSpec{
-		Phase: "diagnosis", Model: s.Config.Model, SystemPrompt: diagnosisSystem,
+		Phase: "diagnosis", Model: s.Config.Model, SystemPrompt: diagnosisSystemForProtocol(run.ReportProtocol),
 		Messages: []diagnosisMessage{{Role: "user", Content: "诊断问题：" + run.Goal + "\n已授权的初始工具证据：" + string(first) + diagnosisKnowledgeContext(*trace)}}, Tools: diagnosisDefinitions(),
 		Fence: func(work context.Context) error {
 			return s.Repo.Context(work).Transaction(func(tx *gorm.DB) error { _, err := s.diagnosisFence(work, tx, run, owner); return err })
 		},
+		Checkpoint: NewAgentCheckpointStore(s.Repo, AgentCheckpointBinding{ScopeType: "diagnosis", ScopeID: run.ID, InputDigest: run.InputDigest}, func(work context.Context, tx *gorm.DB) error {
+			_, err := s.diagnosisFence(work, tx, run, owner)
+			return err
+		}),
 		Invoke: func(_ context.Context, name string, arguments json.RawMessage) (agentToolResult, error) {
 			observation, err := invoke(name, arguments)
 			if err == nil {
@@ -37,12 +44,22 @@ func (s *Suggestions) diagnosisAgentScope(ctx context.Context, run DiagnosisRun,
 			if !used["inspect_hotspots"] || !used["check_collection_quality"] || summary.VerificationAvailable && !used["compare_profiles"] {
 				return nil, domain.Fail("AI_INSUFFICIENT_EVIDENCE", "未完成必要的热点、质量或复测检查")
 			}
-			report, err := validateDiagnosisReport(content, *trace)
+			var report *DiagnosisReport
+			var err error
+			if run.ReportProtocol >= 2 {
+				report, err = validateDiagnosisModelReportV2(content, *trace)
+			} else {
+				report, err = validateDiagnosisReport(content, *trace)
+			}
 			if err != nil {
 				return nil, err
 			}
 			return json.Marshal(report)
 		},
+	}
+	if run.ReportProtocol < 2 {
+		legacyBudget := agentBudget{5, 7, 2, 150000}
+		spec.Budget = &legacyBudget
 	}
 	result, metadata, err := s.Runner.Run(ctx, spec)
 	if err != nil {

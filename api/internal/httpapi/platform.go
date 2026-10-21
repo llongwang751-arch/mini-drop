@@ -16,6 +16,7 @@ import (
 )
 
 func (s *Server) platformRoutes(v *gin.RouterGroup) {
+	s.agentExtensionRoutes(v)
 	v.GET("/diagnostic-skills", s.diagnosticSkills)
 	v.GET("/diagnostic-cases", s.diagnosticCases)
 	v.POST("/diagnostic-cases/:id/revoke", s.revokeDiagnosticCase)

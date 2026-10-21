@@ -91,8 +91,14 @@ func validatedCodeStatus(raw json.RawMessage) (string, error) {
 		} `json:"validation"`
 	}
 	if json.Unmarshal(raw, &report) == nil && report.Validation.Accepted && report.Validation.Regression == "passed" {
+		var envelope struct {
+			Validation json.RawMessage `json:"validation"`
+		}
+		if json.Unmarshal(raw, &envelope) != nil || validateGenericRepairReceipt(envelope.Validation) != nil {
+			return "", domain.Fail("INVALID_EVIDENCE", "通用源码修复缺少真实缺陷回归或补丁交付")
+		}
 		switch report.Validation.Status {
-		case "validated_in_controlled_crm_benchmark", "validated_in_controlled_saber_benchmark":
+		case "validated_in_controlled_crm_benchmark", "validated_in_controlled_saber_benchmark", "validated_in_controlled_python_benchmark":
 			return report.Validation.Status, nil
 		}
 	}

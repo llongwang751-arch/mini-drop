@@ -19,12 +19,15 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CASES = Path(__file__).with_name("diagnostic_cases.json")
+FACT_CASES = Path(__file__).with_name("diagnostic_cases_v2.json")
 CURRENT_TOOLS = {
     "read_profile_summary",
     "inspect_hotspots",
     "check_collection_quality",
     "inspect_call_paths",
     "compare_profiles",
+    "query_business_signals",
+    "inspect_service_topology",
 }
 CATEGORIES = {
     "cpu_hotspot",
@@ -33,6 +36,10 @@ CATEGORIES = {
     "normal_load",
     "insufficient_evidence",
     "invalid_evidence",
+    "mixed_signals",
+    "business_latency",
+    "downstream_dependency",
+    "deployment_regression",
 }
 MAX_INPUT_BYTES = 8 * 1024 * 1024
 
@@ -104,7 +111,9 @@ def load_cases(path: Path = DEFAULT_CASES) -> dict[str, dict[str, Any]]:
 def manifest(cases: dict[str, dict[str, Any]]) -> dict[str, Any]:
     return {
         "schema_version": 1,
-        "dataset_id": "drop-diagnostic-boundaries-v1",
+        "dataset_id": "drop-diagnostic-facts-v2"
+        if any("fact_protocol_controls" in case for case in cases.values())
+        else "drop-diagnostic-boundaries-v1",
         "cases": [
             {
                 "case_id": case["id"],
@@ -141,6 +150,8 @@ def pooled_ratio(values: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def offline(cases: dict[str, dict[str, Any]], fixture_path: Path) -> dict[str, Any]:
+    if fixture_path.resolve() == FACT_CASES.resolve():
+        return offline_facts(cases)
     # Go 测试读取仓库固定路径，禁止 CLI 指向另一份数据却把结果标成同一套固定集。
     if fixture_path.resolve() != DEFAULT_CASES.resolve():
         raise EvaluationError("offline 只运行仓库固定集，替换数据须显式修改版本")
@@ -220,6 +231,73 @@ def offline(cases: dict[str, dict[str, Any]], fixture_path: Path) -> dict[str, A
             "耗时仅为本机纯服务路由和协议测试耗时，不可与模型端到端耗时直接比较。",
             "过期/异主早期拒绝有真实入口验证；跨项目/版本/撤权的数据库链路由独立集成测试覆盖。",
             "恶意历史用例验证仅先验引用不能过关，不保证模型解释或混合引用的语义正确。",
+        ],
+    }
+
+
+def offline_facts(cases: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    """实际执行Go的v2固定情境和结构化错误主张负控，不模拟模型推理。"""
+    with tempfile.TemporaryDirectory(prefix="drop-diagnostic-facts-") as directory:
+        receipt = Path(directory) / "facts.json"
+        completed = subprocess.run(
+            [
+                "go",
+                "test",
+                "./internal/service",
+                "-run",
+                "^TestDiagnosisFactEvaluation",
+                "-count=1",
+                "-json",
+            ],
+            cwd=ROOT / "api",
+            env=dict(os.environ, DROP_DIAGNOSTIC_FACT_EVAL_OUTPUT=str(receipt)),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=240,
+            check=False,
+        )
+        if completed.returncode or not receipt.exists():
+            raise EvaluationError(
+                f"真实Go v2事实评测未通过，退出码 {completed.returncode}；请直接运行对应go test查看错误"
+            )
+        measured = load_json(receipt)
+    observations = measured.get("observations", [])
+    if {row["case_id"] for row in observations} != set(cases):
+        raise EvaluationError("v2实际评测案例与固定集不一致")
+    return {
+        "schema_version": 1,
+        "mode": "deterministic_offline_v2",
+        "controller_oracle": True,
+        "model_calls": 0,
+        "dataset_manifest": manifest(cases),
+        "metrics": {
+            "skill_routing_exact_match": ratio(
+                [
+                    sorted(row["skill_ids"])
+                    == sorted(cases[row["case_id"]]["ground_truth"]["skill_ids"])
+                    for row in observations
+                ]
+            ),
+            "structured_fact_guard_contract": ratio(
+                [
+                    guard["expected_accepted"] == guard["actual_accepted"]
+                    for row in observations
+                    for guard in row["guards"]
+                ]
+            ),
+            "root_cause_category_hit": None,
+            "required_abstention_recall": None,
+            "normal_load_false_positive_rate": None,
+            "model_tokens": None,
+            "estimated_cost": None,
+        },
+        "observations": observations,
+        "limits": [
+            "实际运行Go匹配/工具/v2验证器；候选报告是明确的控制器负控，不是模型准确率。",
+            "程序校验字段、单位、数值和出处，不证明待验证假设的业务因果。",
+            "正常、证据不足、复合与错误归因标签是作者可见的合成情境，不是外部盲测。",
         ],
     }
 
@@ -312,12 +390,20 @@ def evaluate_live(
     runs = payload.get("runs")
     if not isinstance(runs, list) or not runs:
         raise EvaluationError("live runs 不能为空")
-    indexed: dict[tuple[str, str], dict] = {}
+    indexed: dict[tuple[str, str, str], dict] = {}
+    run_ids = set()
     rows = []
     for row in runs:
         if not isinstance(row, dict):
             raise EvaluationError("每条 run 须为对象")
         case_id, mode = row.get("case_id"), row.get("knowledge_mode")
+        replicate = str(row.get("replicate_id", "1"))
+        if (
+            not replicate.isascii()
+            or not replicate.isdigit()
+            or not 1 <= int(replicate) <= 30
+        ):
+            raise EvaluationError("replicate_id须为1至30的明确重复试验编号")
         if (
             not isinstance(case_id, str)
             or case_id not in cases
@@ -325,8 +411,8 @@ def evaluate_live(
             or mode not in {"off", on_mode}
         ):
             raise EvaluationError("未知 case 或知识模式；每次只比较 off 与指定 on 模式")
-        if (case_id, mode) in indexed:
-            raise EvaluationError("同一 case/知识模式不能有重复结果")
+        if (case_id, replicate, mode) in indexed:
+            raise EvaluationError("同一case/重复试验/知识模式不能有重复结果")
         case = cases[case_id]
         if case["ground_truth"]["matcher_rejects"]:
             raise EvaluationError(
@@ -371,6 +457,10 @@ def evaluate_live(
         for key in ("attempt_id", "analysis_job_id", "analysis_run", "id", "goal"):
             if run.get(key) is None:
                 raise EvaluationError("真实 DiagnosisRun 缺少来源轮次或运行 ID")
+        run_id = str(run["id"])
+        if run_id in run_ids:
+            raise EvaluationError("独立重复试验不能复用同一次真实诊断运行")
+        run_ids.add(run_id)
         prior_sources = row.get("experience_sources", [])
         if not isinstance(prior_sources, list):
             raise EvaluationError("experience_sources 必须是显式来源数组")
@@ -388,6 +478,17 @@ def evaluate_live(
         elapsed = number(row.get("elapsed_ms"), "elapsed_ms")
         success = run["status"] == "success"
         report = parse_embedded(run.get("report") or {}, dict, "report")
+        verified_facts = report.get("facts") or []
+        if not isinstance(verified_facts, list) or any(
+            not isinstance(fact, dict) for fact in verified_facts
+        ):
+            raise EvaluationError("报告facts须为程序附加的结构化事实数组")
+        if (
+            success
+            and run.get("report_protocol", 1) == 2
+            and (report.get("report_version") != 2 or not verified_facts)
+        ):
+            raise EvaluationError("新协议运行不能缺少v2报告与事实数组")
         trace = parse_embedded(run.get("trace") or [], list, "trace")
         runtime = report.get("agent_runtime") or {}
         if not isinstance(runtime, dict):
@@ -439,6 +540,12 @@ def evaluate_live(
                 or type(assessment.get("abstained")) is not bool
                 or type(assessment.get("actionable_defect")) is not bool
                 or not success
+                or report.get("report_version") == 2
+                and (
+                    assessment.get("source") != "human_manual_review"
+                    or assessment.get("independence_attested") is not True
+                    or assessment.get("report_sha256") != canonical_sha256(report)
+                )
             ):
                 raise EvaluationError(
                     "语义评分须有独立人工审阅、有效类别与明确布尔结论"
@@ -457,6 +564,8 @@ def evaluate_live(
             "case_sha256": canonical_sha256(case),
             "split": case["split"],
             "knowledge_mode": mode,
+            "replicate_id": replicate,
+            "run_id": run_id,
             "success": success,
             "model": report.get("model")
             if isinstance(report.get("model"), str)
@@ -469,18 +578,27 @@ def evaluate_live(
             "evidence": evidence_metrics(trace, report),
             "semantic_assessment": semantic,
             "loaded_experience_count": len(actual_priors),
+            "report_version": report.get("report_version", 1),
+            "verified_fact_count": len(verified_facts),
             "skill_routing_exact_match": sorted(s["id"] for s in actual_skills)
             == sorted(case["ground_truth"]["skill_ids"])
             if success and mode != "off"
             else None,
         }
-        indexed[case_id, mode] = {"source": run, "metrics": measured}
+        indexed[case_id, replicate, mode] = {"source": run, "metrics": measured}
         rows.append(measured)
-    case_ids = {case_id for case_id, _ in indexed}
-    for case_id in case_ids:
-        if (case_id, "off") not in indexed or (case_id, on_mode) not in indexed:
+    case_trials = {(case_id, replicate) for case_id, replicate, _ in indexed}
+    case_ids = {case_id for case_id, _ in case_trials}
+    for case_id, replicate in case_trials:
+        if (case_id, replicate, "off") not in indexed or (
+            case_id,
+            replicate,
+            on_mode,
+        ) not in indexed:
             raise EvaluationError("每个 live case 必须有完整 off/on 成对结果")
-        a, b = (indexed[case_id, mode]["source"] for mode in ("off", on_mode))
+        a, b = (
+            indexed[case_id, replicate, mode]["source"] for mode in ("off", on_mode)
+        )
         if any(
             str(a[key]) != str(b[key])
             for key in (
@@ -494,6 +612,41 @@ def evaluate_live(
             raise EvaluationError("off/on 必须使用相同任务和当前分析轮次")
         if str(a["id"]) == str(b["id"]):
             raise EvaluationError("off/on 不能复用同一次诊断运行")
+    experiment = payload.get("experiment")
+    if experiment is not None:
+        if (
+            not isinstance(experiment, dict)
+            or type(experiment.get("repetitions")) is not int
+            or not 1 <= experiment["repetitions"] <= 30
+        ):
+            raise EvaluationError("预登记experiment.repetitions须为1至30")
+        planned_cases = experiment.get("case_ids")
+        if (
+            not isinstance(planned_cases, list)
+            or any(not isinstance(case_id, str) for case_id in planned_cases)
+            or len(set(planned_cases)) != len(planned_cases)
+            or set(planned_cases) != case_ids
+        ):
+            raise EvaluationError("实跑case集合必须与预登记试验计划一致")
+        expected = {
+            (case_id, str(index))
+            for case_id in planned_cases
+            for index in range(1, experiment["repetitions"] + 1)
+        }
+        if expected != case_trials:
+            raise EvaluationError("预登记重复试验缺失或多出；不能只挑成功的重复结果")
+        if experiment.get("report_protocol") == 2 and any(
+            row["success"] and row["report_version"] != 2 for row in rows
+        ):
+            raise EvaluationError("v2预登记试验不能混入成功的旧报告")
+    for case_id in case_ids:
+        goals = {
+            entry["source"]["goal"]
+            for key, entry in indexed.items()
+            if key[0] == case_id
+        }
+        if len(goals) != 1:
+            raise EvaluationError("同一case的重复试验必须保持同一诊断问题")
     by_mode = {}
     for mode in ("off", on_mode):
         variant = [row for row in rows if row["knowledge_mode"] == mode]
@@ -518,6 +671,12 @@ def evaluate_live(
             ),
             "runs_with_loaded_experience": ratio(
                 [row["loaded_experience_count"] > 0 for row in variant]
+            ),
+            "structured_fact_report_coverage": ratio(
+                [
+                    row["report_version"] == 2 and row["verified_fact_count"] > 0
+                    for row in variant
+                ]
             ),
             "skill_routing_exact_match": ratio(
                 [
@@ -556,15 +715,22 @@ def evaluate_live(
         "schema_version": 1,
         "mode": "live_external_api_pairs",
         "source_authenticity": "declared_by_external_collector_not_cryptographically_attested",
-        "pair_count": len(case_ids),
+        "pair_count": len(case_trials),
+        "case_count": len(case_ids),
+        "experiment_plan_declared": experiment is not None,
         "by_knowledge_mode": by_mode,
-        "observations": sorted(rows, key=lambda r: (r["case_id"], r["knowledge_mode"])),
+        "observations": sorted(
+            rows,
+            key=lambda r: (r["case_id"], int(r["replicate_id"]), r["knowledge_mode"]),
+        ),
         "limits": [
             "本工具不联网；实际模型/API来源由外部采集器负责，输入JSON不是加密证明。",
             "根因类别、拒答与误报只来自显式独立人工审阅，未审阅为 null，不从文本关键词造分。",
             "证据覆盖只核对编号及当前观测来源，不保证解释语义、因果关系或模型抗注入。",
             "合成固定集与可见 holdout 的小样本不能外推生产准确率；成对模型采样也可能随机波动。",
             "没有核验定价来源，不估算模型费用；缺少 usage 时不把 token 计成零。",
+            "结构化事实报告覆盖只表示收到v2协议事实字段，不是业务根因或自由解释准确率。",
+            "预登记计划由调用方声明；同一合成情境的重复模型调用不等于新增独立业务故障样本。",
         ],
     }
 

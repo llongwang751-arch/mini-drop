@@ -20,12 +20,13 @@ import (
 )
 
 type InvestigationInput struct {
-	Goal          string            `json:"goal"`
-	AgentID       string            `json:"target_agent_id"`
-	Parameters    domain.Parameters `json:"parameters"`
-	Consent       bool              `json:"consent"`
-	CodeProjectID string            `json:"code_project_id,omitempty"`
-	CodeConsent   bool              `json:"code_consent,omitempty"`
+	Goal               string            `json:"goal"`
+	AgentID            string            `json:"target_agent_id"`
+	Parameters         domain.Parameters `json:"parameters"`
+	Consent            bool              `json:"consent"`
+	CodeProjectID      string            `json:"code_project_id,omitempty"`
+	CodeConsent        bool              `json:"code_consent,omitempty"`
+	TelemetryServiceID string            `json:"telemetry_service_id,omitempty"`
 }
 type CollectionPlan struct {
 	Kind            string         `json:"kind"`
@@ -62,6 +63,7 @@ type Investigation struct {
 	ErrorCode          *string         `json:"error_code,omitempty"`
 	CreatedAt          time.Time       `json:"created_at"`
 	UpdatedAt          time.Time       `json:"updated_at"`
+	TelemetryServiceID string          `json:"telemetry_service_id,omitempty"`
 }
 
 // RequestInvestigation 校验用户、目标、模型同意和幂等键后建立持久化规划记录。
@@ -161,7 +163,10 @@ func (s *Suggestions) RequestInvestigation(ctx context.Context, u domain.User, i
 			return domain.Fail("DIAGNOSIS_BUSY", "最多同时保留3个活跃调查")
 		}
 		params, _ := json.Marshal(probe.Parameters)
-		out = Investigation{RequestedBy: u.ID, AgentID: in.AgentID, Goal: in.Goal, Parameters: params, Consent: true, RequestKey: key, InputDigest: digest, Status: "planning", Trace: json.RawMessage(`[]`)}
+		if err := s.validateTelemetryService(ctx, locked, in.TelemetryServiceID, in.AgentID); err != nil {
+			return err
+		}
+		out = Investigation{RequestedBy: u.ID, AgentID: in.AgentID, Goal: in.Goal, Parameters: params, Consent: true, RequestKey: key, InputDigest: digest, Status: "planning", Trace: json.RawMessage(`[]`), TelemetryServiceID: in.TelemetryServiceID}
 		if binding != nil {
 			out.CodeProjectID = &binding.ID
 			out.CodeSourceRevision = &binding.Revision
@@ -175,6 +180,11 @@ func (s *Suggestions) RequestInvestigation(ctx context.Context, u domain.User, i
 }
 func (s *Suggestions) AuthorizeInvestigation(ctx context.Context, u domain.User, id int64) (Investigation, error) {
 	var out Investigation
+	current, err := s.Repo.User(ctx, u.ID)
+	if err != nil {
+		return out, err
+	}
+	u = current
 	query := s.Repo.Context(ctx).Where("id=?", id)
 	if !u.IsPlatformAdmin() {
 		query = query.Where("requested_by=?", u.ID)
@@ -188,6 +198,9 @@ func (s *Suggestions) AuthorizeInvestigation(ctx context.Context, u domain.User,
 	if _, err := s.Repo.AuthorizedAgent(ctx, u, out.AgentID, true); err != nil {
 		return out, err
 	}
+	if err := s.authorizeInvestigationSignals(ctx, u, out); err != nil {
+		return Investigation{}, err
+	}
 	return out, nil
 }
 
@@ -200,6 +213,11 @@ func (s *Suggestions) ConfirmInvestigation(ctx context.Context, u domain.User, i
 		}
 		local := *s
 		local.Repo = repository.New(tx)
+		var userErr error
+		u, userErr = local.Repo.User(ctx, u.ID)
+		if userErr != nil {
+			return userErr
+		}
 		out, err := local.AuthorizeInvestigation(ctx, u, id)
 		if err != nil {
 			return err
@@ -233,12 +251,20 @@ func (s *Suggestions) CancelInvestigation(ctx context.Context, u domain.User, id
 		}
 		local := *s
 		local.Repo = repository.New(tx)
+		var userErr error
+		u, userErr = local.Repo.User(ctx, u.ID)
+		if userErr != nil {
+			return userErr
+		}
 		out, err := local.AuthorizeInvestigation(ctx, u, id)
 		if err != nil {
 			return err
 		}
 		if !u.CanWrite() {
 			return domain.Fail("FORBIDDEN", "只读用户不能取消调查")
+		}
+		if err := local.cancelInvestigationFollowups(ctx, tx, out, "DIAGNOSIS_CANCELED", "canceled"); err != nil {
+			return err
 		}
 		if out.Status == "success" || out.Status == "failed" || out.Status == "canceled" {
 			return nil
@@ -348,6 +374,7 @@ func (s *Suggestions) RunInvestigations(ctx context.Context) {
 		case <-ticker.C:
 			_ = s.planNextInvestigation(ctx)
 			_ = s.advanceInvestigations(ctx)
+			_ = s.advanceInvestigationFollowups(ctx)
 		}
 	}
 }
@@ -368,6 +395,9 @@ func (s *Suggestions) planNextInvestigation(ctx context.Context) error {
 	u, err := s.Repo.User(work, run.RequestedBy)
 	var plan CollectionPlan
 	steps := []DiagnosisStep{}
+	if len(run.Trace) > 0 && json.Unmarshal(run.Trace, &steps) != nil {
+		err = domain.Fail("INVALID_EVIDENCE", "规划轨迹无法恢复")
+	}
 	if err == nil {
 		plan, err = s.planCollection(work, u, run, func(name string, observation any) error {
 			b, _ := json.Marshal(observation)
@@ -470,7 +500,16 @@ func (s *Suggestions) planCollection(ctx context.Context, u domain.User, run Inv
 	messages := []diagnosisMessage{{Role: "system", Content: "你是Drop性能调查规划器。根据用户问题和实际可用采集器选择现场采集计划。必须调用propose_collection提交计划。先用list_collectors核对能力；只能从返回目录选择。不可提供PID、主机、路径、shell或URL，不可改变目标。参数必须符合各采集器schema，缺失端口/模板等信息时不能捏造；可选通用采集补充证据并解释局限。时长最多60秒；先做低成本采集，复测另有最多60秒预算。rationale用中文说明为何选择和局限，不输出隐藏思维链。工具错误后修正参数重新提交，不能把错误当成功。"}, {Role: "user", Content: run.Goal + "\n已授权的目标范围与能力目录：" + string(initial)}}
 	definitions := []map[string]any{{"type": "function", "function": map[string]any{"name": "list_collectors", "description": "读取当前绑定目标实际支持的采集器与参数schema。", "parameters": map[string]any{"type": "object", "properties": map[string]any{}, "additionalProperties": false}}}, {"type": "function", "function": map[string]any{"name": "propose_collection", "description": "校验现场采集计划；成功后展示给用户确认，不执行命令。", "parameters": map[string]any{"type": "object", "additionalProperties": false, "properties": map[string]any{"kind": map[string]any{"type": "string"}, "duration_seconds": map[string]any{"type": "integer", "minimum": 1, "maximum": 60}, "frequency_hz": map[string]any{"type": "integer", "minimum": 0, "maximum": 999}, "options": map[string]any{"type": "object"}, "rationale": map[string]any{"type": "string", "maxLength": 600}}, "required": []string{"kind", "duration_seconds", "frequency_hz", "rationale"}}}}}
 	listed := false
-	evidence := 0
+	var previous []DiagnosisStep
+	if len(run.Trace) > 0 && json.Unmarshal(run.Trace, &previous) != nil {
+		return CollectionPlan{}, domain.Fail("INVALID_EVIDENCE", "规划轨迹无法恢复")
+	}
+	for _, step := range previous {
+		if step.Tool == "list_collectors" {
+			listed = true
+		}
+	}
+	evidence := len(previous)
 	invoke := func(work context.Context, name string, arguments json.RawMessage) (agentToolResult, error) {
 		if err := s.Repo.Context(work).Transaction(func(tx *gorm.DB) error { return s.planningFence(work, tx, run) }); err != nil {
 			return agentToolResult{}, err
@@ -514,6 +553,7 @@ func (s *Suggestions) planCollection(ctx context.Context, u domain.User, run Inv
 	if s.Config.AgentBackend == "agentscope" {
 		result, metadata, err := s.Runner.Run(ctx, agentRunSpec{
 			Phase: "planning", Model: s.Config.Model, SystemPrompt: messages[0].Content, Messages: messages[1:], Tools: definitions,
+			Checkpoint: NewAgentCheckpointStore(s.Repo, AgentCheckpointBinding{ScopeType: "planning", ScopeID: run.ID, InputDigest: run.InputDigest}, func(work context.Context, tx *gorm.DB) error { return s.planningFence(work, tx, run) }),
 			Fence: func(work context.Context) error {
 				return s.Repo.Context(work).Transaction(func(tx *gorm.DB) error { return s.planningFence(work, tx, run) })
 			},
@@ -665,7 +705,7 @@ func (s *Suggestions) advanceInvestigation(ctx context.Context, tx *gorm.DB, run
 		if task.CollectionStatus != "COLLECTED" || task.AnalysisStatus != "SUCCESS" {
 			return nil
 		}
-		diagnosis, err := local.RequestDiagnosis(ctx, u, task.ID, DiagnosisInput{Goal: run.Goal, Mode: "model", Consent: run.Consent}, "investigation-worker", fmt.Sprintf("investigation:%d:diagnosis", run.ID))
+		diagnosis, err := local.RequestDiagnosis(ctx, u, task.ID, DiagnosisInput{Goal: run.Goal, Mode: "model", Consent: run.Consent, TelemetryServiceID: run.TelemetryServiceID}, "investigation-worker", fmt.Sprintf("investigation:%d:diagnosis", run.ID))
 		if err != nil {
 			return err
 		}

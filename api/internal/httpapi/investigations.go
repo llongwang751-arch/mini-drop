@@ -38,8 +38,10 @@ func (s *Server) investigations(c *gin.Context) {
 	// Agent 授权被撤销后，应隐藏整条调查及其关联源码数据，不能只过滤目标列表。
 	visible := []service.Investigation{}
 	for _, r := range rows {
-		if _, err := s.Repo.AuthorizedAgent(c.Request.Context(), u, r.AgentID, true); err == nil {
-			visible = append(visible, r)
+		if s.Suggestions != nil {
+			if _, err := s.Suggestions.AuthorizeInvestigation(c.Request.Context(), u, r.ID); err == nil {
+				visible = append(visible, r)
+			}
 		}
 	}
 	s.ok(c, 200, list(visible, int64(len(visible)), 1, len(visible)))

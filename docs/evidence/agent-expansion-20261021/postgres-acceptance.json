@@ -1,0 +1,142 @@
+{
+  "passed": true,
+  "go_version": "go1.26.10",
+  "database": "fresh isolated loopback PostgreSQL17, all ten authoritative migrations",
+  "provider": "no real model calls; imported fixtures for provider and protocol tests",
+  "tests_passed_including_subtests": 384,
+  "tests_skipped_including_subtests": 1,
+  "failed_tests": [],
+  "skipped_tests": [
+    "TestPostgresDiagnosisLiveDeepSeek"
+  ],
+  "elapsed_seconds": 121.27,
+  "log_sha256": "b0cbff97c25be4388bf8da9913b98fa462f5da98c489540bdebfda5f755832f0",
+  "command": "go test -json -tags=nomsgpack -count=1 -p=1 -timeout=360s ./...",
+  "parent_timeout_seconds": 900,
+  "captured_at": "2026-10-21T07:36:19.018320+00:00",
+  "top_level_pass": 151,
+  "subtest_pass": 233,
+  "package_pass": [
+    "drop/api/internal/config",
+    "drop/api/internal/domain",
+    "drop/api/internal/httpapi",
+    "drop/api/internal/logging",
+    "drop/api/internal/repository",
+    "drop/api/internal/service",
+    "drop/api/internal/storage",
+    "drop/api/internal/telemetry"
+  ],
+  "groups": {
+    "sdk_process": {
+      "top_level_pass": 1,
+      "subtest_pass": 0,
+      "passed_test_names": [
+        "TestPostgresAgentCheckpointAcrossIndependentSDKProcesses"
+      ]
+    },
+    "http_extensions": {
+      "top_level_pass": 1,
+      "subtest_pass": 6,
+      "passed_test_names": [
+        "TestAgentExtensionHTTPMissingSessionFailsClosed/GET/api/v1/diagnostic-data-sources?agent_id=imported-agent",
+        "TestAgentExtensionHTTPMissingSessionFailsClosed/GET/api/v1/diagnostic-playbooks",
+        "TestAgentExtensionHTTPMissingSessionFailsClosed/POST/api/v1/diagnostic-playbooks",
+        "TestAgentExtensionHTTPMissingSessionFailsClosed/POST/api/v1/diagnostic-playbooks/1/review",
+        "TestAgentExtensionHTTPMissingSessionFailsClosed/GET/api/v1/investigations/1/followups",
+        "TestAgentExtensionHTTPMissingSessionFailsClosed/POST/api/v1/investigations/1/followups/1/decision",
+        "TestAgentExtensionHTTPMissingSessionFailsClosed"
+      ]
+    },
+    "http_postgres": {
+      "top_level_pass": 1,
+      "subtest_pass": 0,
+      "passed_test_names": [
+        "TestPostgresAgentExtensionHTTPRequiresReviewCSRFAndClosedInput"
+      ]
+    },
+    "followup_cancel": {
+      "top_level_pass": 5,
+      "subtest_pass": 5,
+      "passed_test_names": [
+        "TestPostgresFollowupCancelSuccessfulRootIsIdempotentAndPreservesPublicSuccess",
+        "TestPostgresFollowupCancelWorkerCleansTerminalExpiredAndRevokedRoots/failed",
+        "TestPostgresFollowupCancelWorkerCleansTerminalExpiredAndRevokedRoots/canceled",
+        "TestPostgresFollowupCancelWorkerCleansTerminalExpiredAndRevokedRoots/expired",
+        "TestPostgresFollowupCancelWorkerCleansTerminalExpiredAndRevokedRoots/agent_revoked",
+        "TestPostgresFollowupCancelWorkerCleansTerminalExpiredAndRevokedRoots/viewer_downgraded",
+        "TestPostgresFollowupCancelWorkerCleansTerminalExpiredAndRevokedRoots",
+        "TestPostgresFollowupCancelRejectsCrossOwnerTaskAtomically",
+        "TestPostgresFollowupCancelLeavesSuccessfulBranchUntouched",
+        "TestPostgresFollowupCancelVerificationLockPrecedesTasks"
+      ]
+    },
+    "playbooks": {
+      "top_level_pass": 7,
+      "subtest_pass": 5,
+      "passed_test_names": [
+        "TestPostgresDiagnosticPlaybooksVersionScopeAndPublicationCutoff/group",
+        "TestPostgresDiagnosticPlaybooksVersionScopeAndPublicationCutoff/project",
+        "TestPostgresDiagnosticPlaybooksVersionScopeAndPublicationCutoff",
+        "TestPostgresDiagnosticPlaybooksMatchingIsNotTruncatedByListPage",
+        "TestPostgresDiagnosticPlaybooksReviewRechecksRoleAfterBookLock",
+        "TestPostgresDiagnosticPlaybooksPinsMethodsWithoutCases/retire",
+        "TestPostgresDiagnosticPlaybooksPinsMethodsWithoutCases/membership",
+        "TestPostgresDiagnosticPlaybooksPinsMethodsWithoutCases/user-role",
+        "TestPostgresDiagnosticPlaybooksPinsMethodsWithoutCases",
+        "TestPostgresDiagnosticPlaybooksExpiryRecheckedAfterLockWait",
+        "TestPostgresDiagnosticPlaybooksPrivateOwnershipAndToolScope",
+        "TestPostgresDiagnosticPlaybooksPublishThenRequestUsesDatabaseClock"
+      ]
+    },
+    "facts": {
+      "top_level_pass": 8,
+      "subtest_pass": 18,
+      "passed_test_names": [
+        "TestDiagnosisFactsV2ActualToolsRenderAuthorityAndLegacyRead",
+        "TestDiagnosisFactsV2RejectsWrongValuesUnitsScopeAndMetadata/false-exclusive-hotspot-count",
+        "TestDiagnosisFactsV2RejectsWrongValuesUnitsScopeAndMetadata/wrong-percent",
+        "TestDiagnosisFactsV2RejectsWrongValuesUnitsScopeAndMetadata/wrong-unit",
+        "TestDiagnosisFactsV2RejectsWrongValuesUnitsScopeAndMetadata/borrow-field-from-other-tool",
+        "TestDiagnosisFactsV2RejectsWrongValuesUnitsScopeAndMetadata/unknown-evidence",
+        "TestDiagnosisFactsV2RejectsWrongValuesUnitsScopeAndMetadata/unrestricted-path",
+        "TestDiagnosisFactsV2RejectsWrongValuesUnitsScopeAndMetadata/duplicate-fact-id",
+        "TestDiagnosisFactsV2RejectsWrongValuesUnitsScopeAndMetadata/unknown-fact-reference",
+        "TestDiagnosisFactsV2RejectsWrongValuesUnitsScopeAndMetadata/missing-source-reference",
+        "TestDiagnosisFactsV2RejectsWrongValuesUnitsScopeAndMetadata/free-authoritative-summary",
+        "TestDiagnosisFactsV2RejectsWrongValuesUnitsScopeAndMetadata/free-authoritative-claim",
+        "TestDiagnosisFactsV2RejectsWrongValuesUnitsScopeAndMetadata/forged-runtime",
+        "TestDiagnosisFactsV2RejectsWrongValuesUnitsScopeAndMetadata/forged-knowledge",
+        "TestDiagnosisFactsV2RejectsWrongValuesUnitsScopeAndMetadata/forged-followups",
+        "TestDiagnosisFactsV2RejectsWrongValuesUnitsScopeAndMetadata/wrong-version",
+        "TestDiagnosisFactsV2RejectsWrongValuesUnitsScopeAndMetadata",
+        "TestDiagnosisFactsV2DistinguishesToolPlanAndUnverifiedProposal/tool_plan-false-attribution",
+        "TestDiagnosisFactsV2DistinguishesToolPlanAndUnverifiedProposal/tool_instruction-false-attribution",
+        "TestDiagnosisFactsV2DistinguishesToolPlanAndUnverifiedProposal/model_proposal-false-attribution",
+        "TestDiagnosisFactsV2DistinguishesToolPlanAndUnverifiedProposal",
+        "TestDiagnosisFactsV2NormalInsufficientAndWrongAttributionControls",
+        "TestDiagnosisFactsV2UnverifiedTextNeverBecomesAuthority",
+        "TestDiagnosisFactsV2TypedBusinessAndRegisteredTopology",
+        "TestDiagnosisFactsV2BoundedExactNumbersAndProtocolBudgets",
+        "TestDiagnosisFactsV2ModelTransportActuallyRejectsAndRepairs"
+      ]
+    },
+    "signal_window": {
+      "top_level_pass": 1,
+      "subtest_pass": 5,
+      "passed_test_names": [
+        "TestPostgresDiagnosticExtensionsSignalWindowAndUnavailableClearPartial/missing-start",
+        "TestPostgresDiagnosticExtensionsSignalWindowAndUnavailableClearPartial/missing-finish",
+        "TestPostgresDiagnosticExtensionsSignalWindowAndUnavailableClearPartial/reverse-clock",
+        "TestPostgresDiagnosticExtensionsSignalWindowAndUnavailableClearPartial/over-wide",
+        "TestPostgresDiagnosticExtensionsSignalWindowAndUnavailableClearPartial/future-clock",
+        "TestPostgresDiagnosticExtensionsSignalWindowAndUnavailableClearPartial"
+      ]
+    }
+  },
+  "source_manifest_sha256": "c742732bd4c004266f3e01f82ba7743e18003224a51bf9e46ff088090af09ae8",
+  "limits": [
+    "Actual AgentScope2.0.10 processes use explicit imported provider responses; no real model calls.",
+    "The single skipped live DeepSeek test was not enabled; this suite does not establish production model semantic accuracy.",
+    "PostgreSQL runs against fresh isolated schema and localhost test servers, not production."
+  ]
+}

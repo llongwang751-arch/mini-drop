@@ -187,6 +187,14 @@ func run() error {
 		return err
 	}
 	api.Suggestions = suggestions
+	observabilityFile, _ := secret("AI_OBSERVABILITY_CONFIG", "")
+	if observabilityFile != "" {
+		registry, err := service.LoadObservabilityRegistry(observabilityFile)
+		if err != nil {
+			return err
+		}
+		suggestions.Observability = registry
+	}
 	if aiBackend == "agentscope" {
 		runnerSocket, _ := secret("AGENTSCOPE_RUNNER_SOCKET", "/run/drop-ai-runner/control.sock")
 		gatewaySocket, _ := secret("AGENTSCOPE_GATEWAY_SOCKET", "/run/drop-ai-tools/control.sock")

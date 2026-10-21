@@ -38,7 +38,13 @@ func (s *Server) diagnoses(c *gin.Context) {
 		s.fail(c, err)
 		return
 	}
-	s.ok(c, 200, list(rows, int64(len(rows)), 1, len(rows)))
+	visible := []service.DiagnosisRun{}
+	for _, row := range rows {
+		if s.Suggestions != nil && s.Suggestions.AuthorizeDiagnosisSignals(c.Request.Context(), user(c), row) == nil {
+			visible = append(visible, row)
+		}
+	}
+	s.ok(c, 200, list(visible, int64(len(visible)), 1, len(visible)))
 }
 func (s *Server) cancelDiagnosis(c *gin.Context) {
 	id, ok := s.id(c, "id")

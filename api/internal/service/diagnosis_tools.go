@@ -21,9 +21,12 @@ type DiagnosisStep struct {
 	Observation json.RawMessage `json:"observation"`
 }
 type DiagnosisHypothesis struct {
-	Claim        string   `json:"claim"`
-	EvidenceIDs  []string `json:"evidence_ids"`
-	Verification string   `json:"verification"`
+	Claim                    string   `json:"claim"`
+	EvidenceIDs              []string `json:"evidence_ids"`
+	Verification             string   `json:"verification"`
+	Kind                     string   `json:"kind,omitempty"`
+	FactIDs                  []string `json:"fact_ids,omitempty"`
+	UnverifiedInterpretation string   `json:"unverified_interpretation,omitempty"`
 }
 type DiagnosisPlan struct {
 	Kind            string `json:"kind"`
@@ -32,14 +35,17 @@ type DiagnosisPlan struct {
 	Reason          string `json:"reason"`
 }
 type DiagnosisReport struct {
-	Summary      string                `json:"summary"`
-	Hypotheses   []DiagnosisHypothesis `json:"hypotheses"`
-	Limitations  []string              `json:"limitations"`
-	Plan         *DiagnosisPlan        `json:"plan,omitempty"`
-	Engine       string                `json:"engine"`
-	Model        string                `json:"model,omitempty"`
-	AgentRuntime *AgentRuntime         `json:"agent_runtime,omitempty"`
-	Knowledge    *DiagnosticKnowledge  `json:"knowledge,omitempty"`
+	ReportVersion int                     `json:"report_version,omitempty"`
+	Facts         []DiagnosisVerifiedFact `json:"facts,omitempty"`
+	FollowupPlans []FollowupProposal      `json:"followup_plans,omitempty"`
+	Summary       string                  `json:"summary"`
+	Hypotheses    []DiagnosisHypothesis   `json:"hypotheses"`
+	Limitations   []string                `json:"limitations"`
+	Plan          *DiagnosisPlan          `json:"plan,omitempty"`
+	Engine        string                  `json:"engine"`
+	Model         string                  `json:"model,omitempty"`
+	AgentRuntime  *AgentRuntime           `json:"agent_runtime,omitempty"`
+	Knowledge     *DiagnosticKnowledge    `json:"knowledge,omitempty"`
 }
 
 func diagnosisToolNames() []string {
@@ -245,11 +251,31 @@ func (s *Suggestions) diagnose(ctx context.Context, run DiagnosisRun, owner stri
 	if err != nil {
 		return nil, err
 	}
+	if run.TelemetryServiceID != "" {
+		for _, step := range *trace {
+			if step.Tool == "read_profile_summary" {
+				var metadata struct {
+					Revision string `json:"observability_revision"`
+				}
+				if s.Observability == nil || json.Unmarshal(step.Observation, &metadata) != nil || metadata.Revision != s.Observability.Digest {
+					return nil, domain.Fail("INPUT_CHANGED", "恢复时业务数据源登记版本已改变")
+				}
+			}
+		}
+	}
 	raw, err := s.Repo.Result(ctx, run.TaskID)
 	if err != nil {
 		return nil, err
 	}
 	var plan *DiagnosisPlan
+	for _, step := range *trace {
+		if step.Tool == "propose_verification" {
+			var restored DiagnosisPlan
+			if json.Unmarshal(step.Observation, &restored) == nil && restored.Kind != "" {
+				plan = &restored
+			}
+		}
+	}
 	var verification VerificationRun
 	if err := s.Repo.Context(ctx).Where("candidate_diagnosis_id=?", run.ID).Limit(1).Find(&verification).Error; err != nil {
 		return nil, err
@@ -258,13 +284,23 @@ func (s *Suggestions) diagnose(ctx context.Context, run DiagnosisRun, owner stri
 		if err := s.Repo.Context(ctx).Transaction(func(tx *gorm.DB) error { _, err := s.diagnosisFence(ctx, tx, run, owner); return err }); err != nil {
 			return nil, err
 		}
-		if len(*trace) >= 8 {
-			return nil, domain.Fail("AI_BUDGET_EXCEEDED", "最多执行8次诊断工具")
+		limit := 8
+		if run.ReportProtocol >= 2 {
+			limit = 15
+		}
+		if len(*trace) >= limit {
+			return nil, domain.Fail("AI_BUDGET_EXCEEDED", "诊断工具总数超过本协议预算")
 		}
 		var observation json.RawMessage
 		var p *DiagnosisPlan
 		var err error
-		if name == "read_diagnostic_knowledge" {
+		if name == "query_business_signals" {
+			observation, err = s.queryBusinessSignals(ctx, run, args)
+		} else if name == "inspect_service_topology" {
+			observation, err = s.inspectServiceTopology(ctx, run, args)
+		} else if name == "propose_followup_collection" {
+			observation, err = s.proposeFollowup(ctx, run, args, *trace)
+		} else if name == "read_diagnostic_knowledge" {
 			u, e := s.Repo.User(ctx, run.RequestedBy)
 			if e != nil {
 				return nil, e
@@ -306,6 +342,15 @@ func (s *Suggestions) diagnose(ctx context.Context, run DiagnosisRun, owner stri
 			var summary map[string]any
 			_ = json.Unmarshal(observation, &summary)
 			summary["verification_available"] = verification.ID > 0
+			collectors, catalogErr := s.followupCatalog(ctx, run)
+			if catalogErr != nil {
+				return nil, catalogErr
+			}
+			summary["available_followup_collectors"] = collectors
+			summary["observability_available"] = run.TelemetryServiceID != ""
+			if run.TelemetryServiceID != "" && s.Observability != nil {
+				summary["observability_revision"] = s.Observability.Digest
+			}
 			observation, _ = json.Marshal(summary)
 		}
 		if len(observation) > 16<<10 {
@@ -322,13 +367,24 @@ func (s *Suggestions) diagnose(ctx context.Context, run DiagnosisRun, owner stri
 		b, _ := json.Marshal(step)
 		return b, nil
 	}
-	first, err := invoke("read_profile_summary", json.RawMessage(`{}`))
-	if err != nil {
-		return nil, err
+	var first json.RawMessage
+	for _, step := range *trace {
+		if step.Tool == "read_profile_summary" {
+			first, _ = json.Marshal(step)
+			break
+		}
+	}
+	if len(first) == 0 {
+		first, err = invoke("read_profile_summary", json.RawMessage(`{}`))
+		if err != nil {
+			return nil, err
+		}
 	}
 	if run.KnowledgeMode == "skills" || run.KnowledgeMode == "experience" {
-		if _, err := invoke("read_diagnostic_knowledge", json.RawMessage(`{}`)); err != nil {
-			return nil, err
+		if diagnosisEvidenceID(*trace, "read_diagnostic_knowledge") == "" {
+			if _, err := invoke("read_diagnostic_knowledge", json.RawMessage(`{}`)); err != nil {
+				return nil, err
+			}
 		}
 	}
 	var report *DiagnosisReport
@@ -339,7 +395,7 @@ func (s *Suggestions) diagnose(ctx context.Context, run DiagnosisRun, owner stri
 		if s.Config.AgentBackend == "agentscope" {
 			report, err = s.diagnosisAgentScope(ctx, run, owner, first, invoke, trace)
 		} else {
-			report, err = s.diagnosisModel(ctx, run.Goal, first, invoke, trace)
+			report, err = s.diagnosisModelWithProtocol(ctx, run.Goal, first, invoke, trace, run.ReportProtocol)
 		}
 		if err != nil {
 			return nil, err
@@ -367,6 +423,7 @@ func (s *Suggestions) diagnose(ctx context.Context, run DiagnosisRun, owner stri
 		return nil, err
 	}
 	report.Plan = plan
+	report.FollowupPlans = followupProposals(*trace)
 	report.Limitations = append(report.Limitations, "模型结论为待验证假设，不代表已确认缺陷；不提供未经符号映射验证的源码行号。", "原始profile、原符号、主机、PID、路径和凭据不发送模型；问题文本会发送，请勿填入敏感信息。")
 	return report, nil
 }

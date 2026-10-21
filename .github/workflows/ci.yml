@@ -22,6 +22,8 @@ jobs:
       - run: npx playwright test --config playwright.diagnosis.config.ts
       - name: Diagnostic knowledge UI and review/revoke boundaries (imported fixtures)
         run: npx playwright test --config playwright.knowledge.config.ts
+      - name: Agent extension review, source evidence and patch download (imported fixtures)
+        run: npx playwright test --config playwright.agent-extensions.config.ts
   api:
     runs-on: ubuntu-24.04
     services:
@@ -110,6 +112,8 @@ jobs:
         run: python -m unittest discover -s ops -p test_runtime_config.py -v
       - name: Source patch context and sandbox boundary regressions
         run: python -m unittest discover -s ops -p test_code_executor.py -v
+      - name: Controlled two-service telemetry uses actual HTTP and SQLite work
+        run: python -W error::ResourceWarning -m unittest discover -s integrations/observability-demo -p test_server.py -v
       - name: Python output types must survive performance optimization
         run: python -m unittest discover -s integrations/crm-python/tests -v
       - name: Optional monitoring status cannot break real HTTP metrics

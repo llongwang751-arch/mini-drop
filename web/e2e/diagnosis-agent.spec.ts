@@ -223,7 +223,7 @@ test("diagnosis requires consent, shows evidence and confirms collection separat
   expect(axe.violations).toEqual([]);
   const evidence = path.resolve(
     import.meta.dirname,
-    "../../docs/evidence/agent-v2-20261020",
+    "../../.local/agent-extensions-20261021/ui/diagnosis-regression",
   );
   mkdirSync(evidence, { recursive: true });
   await page.screenshot({
@@ -282,7 +282,7 @@ test("mobile failure state is accessible and has no horizontal overflow", async 
   ).toBe(true);
   const evidence = path.resolve(
     import.meta.dirname,
-    "../../docs/evidence/agent-v2-20261020",
+    "../../.local/agent-extensions-20261021/ui/diagnosis-regression",
   );
   mkdirSync(evidence, { recursive: true });
   await page.screenshot({

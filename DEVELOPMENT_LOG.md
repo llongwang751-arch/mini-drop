@@ -504,3 +504,10 @@
 - 功能源码797e9ec7e581已推送master并同步服务器1555文件SHA；本机已关联origin/master，切到codex/published-tx-drop，原main/52fb787历史保留。所有原工作文件字节保持，工作区干净，未checkout/reset/clean。
 - GitHub精确push/master run39418233749于12:10 UTC核验7/7 job全成功：API race/vet/govulncheck/gofmt、Web单测/构建/审计/浏览器、Core严格构建、AgentScope Linux、契约、维护以及Analyzer原PG/S3隔离集成均通过；两处MinIO官方binary fixture实际构建成功。旧失败日志保留，旧31cb被取代的运行已取消以释放runner。
 - 最终12:09:55 UTC线上ready200、27运行容器且无OOM/unhealthy、7监控up，API12/runtime2/Web10/Agent3及原存储镜像保持。公开CI和readiness收据补入docs/evidence/github-publication-20261020，并存Release附件；收尾提交仅更新文档/JSON，使用[skip ci]避免再次构建相同功能源码，不把文档提交冒作另一轮7项执行。
+## 2026-10-21 · 八项 Agent 扩展（集成验收中）
+
+- 本地页面验收收尾：Web153单测、完整相关浏览器33/33（0skip/0flaky）、新增页面最终12场景、1440/375两宽axe零违规与无文档横向溢出、合法patch下载SHA及篡改拒绝、生产构建/格式通过。已查看新截图；补证操作需明确勾选，成功根调查仍可停止未完成分支。事实出处沿实际复测关系读取对应诊断轨迹，拒绝把候选E3链接到基线或规划E3；无权限时显示纯文本。旧截图字节已恢复，后续截图输出改到当轮私有目录。
+- 在原 AgentScope/Go 边界新增事实协议2、需审阅的动态补证分支、四类业务信号与登记一跳拓扑、通用Python manifest、个人/团队/项目方法库、持久化检查点与累计预算/重试熔断、重复评测及独立人工标签导入、生成回归测试与SHA补丁包。实现和使用边界见 [AGENT_EXPANSION](docs/AGENT_EXPANSION.md)。SQL010是兼容增量，旧协议1报告和CRM/Saber旧preset不改写。
+- 整体真PG17、Go1.26.10、全10迁移实际151顶层+233子例=384通过、0失败；唯一skip为未启用的真实DeepSeek opt-in。覆盖三独立SDK进程恢复、v2精确数值、HTTP/CSRF/审批、版本与申请时钟、撤权/过期、追加分支取消幂等和锁序。首轮旧fixture/时钟断言失败保留，修正后完整重跑；未放宽协议。Go vet实际通过。
+- Linux独立新镜像验证通用Python：真实broker创建无网络/无凭据容器，基线红/候选绿、冻结原回归、输出类型/值和6组正负CPU对照通过，中位8.6406×仅合成购物车函数。另新双服务镜像7项真实HTTP测试通过，本机两独立进程28请求验证慢SQL、CPU、错误和恢复。此阶段仅构建新命名镜像，没有切换现有27容器或修改既有业务登记快照；不算真实模型验收。
+- 固定事实集6/6方法路由、52/52防线及Python24项通过；24-trial真实API重复试验仅在准备中，未执行的准确率不填值。页面和最终发布验收进行中，服务器目前仍为上一版20261021.2/SQL9；后续实际部署、真实DeepSeek和公网结果在本节追加，不提前标记完成。
