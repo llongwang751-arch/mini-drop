@@ -1,5 +1,7 @@
 # AgentScope 与 Drop 工程边界
 
+2026-10-21新增：[诊断Skill、案例经验与固定评测](DIAGNOSTIC_KNOWLEDGE.md)。知识工具保持在现有白名单与预算内；历史只作先验，模型仍需调用当前证据工具并通过程序验收。
+
 本项目采用官方 `agentscope==2.0.10`，不是 LangChain/LangGraph，也不是给原来的单次 HTTP 模型请求换名称。实际执行对象为 `agentscope.agent.Agent`，通过 `DeepSeekChatModel`、消息历史、`Toolkit`、自定义 `ToolBase` 和 middleware 执行模型选择工具、读取观测、继续推理和提交结果的循环。当前版本详情及真实验收见[发布记录](releases/20261020-agentscope.md)。
 
 ## 一次调查如何执行

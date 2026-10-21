@@ -20,6 +20,8 @@ jobs:
         env:
           DROP_UI_PREVIEW: '1'
       - run: npx playwright test --config playwright.diagnosis.config.ts
+      - name: Diagnostic knowledge UI and review/revoke boundaries (imported fixtures)
+        run: npx playwright test --config playwright.knowledge.config.ts
   api:
     runs-on: ubuntu-24.04
     services:
@@ -91,6 +93,8 @@ jobs:
         run: python -m unittest discover -s scripts -p test_integration_packages.py -v
       - run: python scripts/check_proto_compatibility.py
       - run: python api/tools/check_http_contract.py
+      - name: Diagnostic evaluation provenance, scoring and analyzer replay (imported synthetic fixtures)
+        run: python -m unittest discover -s scripts/evaluation -p 'test_*.py' -v
   maintenance:
     runs-on: ubuntu-24.04
     steps:

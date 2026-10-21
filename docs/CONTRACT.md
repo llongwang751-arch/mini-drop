@@ -1,5 +1,7 @@
 # 实现契约 v2
 
+2026-10-21增量：SQL009增加 `diagnosis_runs.knowledge_mode` 与个人 `diagnostic_cases`。新增诊断方法目录、案例保存/查询/撤销四个HTTP操作；诊断工具增加 `read_diagnostic_knowledge`，报告可含程序生成的knowledge。模式off/skills/experience参与幂等及来源摘要，旧行off兼容原摘要。知识不授予权限、不修改采集契约或Protobuf编号；每项假设必须引用本轮测量观测。详见 [知识层说明](DIAGNOSTIC_KNOWLEDGE.md) 与OpenAPI。
+
 日期：2026-10-16。`contracts/drop.proto`、`contracts/task-kinds.json`、`db/migrations/*.sql` 为共享契约，修改先协调对应模块，保留既有 Protobuf 字段编号。本文描述当前实现接口，完整 HTTP Schema 见 [openapi.yaml](openapi.yaml)，不将预发布能力当作生产已验收结果。
 
 ## 模块和环境

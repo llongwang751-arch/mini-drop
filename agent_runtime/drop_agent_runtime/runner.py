@@ -114,6 +114,7 @@ PHASES = {
             "inspect_call_paths",
             "propose_verification",
             "compare_profiles",
+            "read_diagnostic_knowledge",
         },
     ),
     "repair": (8, 12, 420000, {"profile_business_flow", "read_source", "test_patch"}),

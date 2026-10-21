@@ -131,6 +131,7 @@ func TestPostgresHTTPAuthorizationCoversEveryTaskSurface(t *testing.T) {
 		{"diagnoses", `{"goal":"检查","mode":"evidence"}`},
 		{"diagnoses/1/cancel", `{}`},
 		{"diagnoses/1/collect", `{"confirm":true}`},
+		{"diagnoses/1/cases", `{"outcome":"reviewed_correction","human_confirmed":true,"correction_code":"insufficient_evidence"}`},
 	} {
 		if w := request("POST", fmt.Sprintf("/api/v1/tasks/%d/%s", task.ID, surface.suffix), surface.body); w.Code != 404 {
 			t.Fatal("read share entered diagnosis write surface", surface.suffix, w.Code)

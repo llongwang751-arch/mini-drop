@@ -1,0 +1,1774 @@
+{
+  "schema_version": 1,
+  "mode": "deterministic_offline",
+  "controller_oracle": true,
+  "model_calls": 0,
+  "dataset_manifest": {
+    "schema_version": 1,
+    "dataset_id": "drop-diagnostic-boundaries-v1",
+    "cases": [
+      {
+        "case_id": "cpu-loop-dev",
+        "case_sha256": "697febe595a799635e1759ad7eedfc0ba52deac3e5c8a0007806f44856eeb0c8",
+        "split": "dev",
+        "family": "cpu_hotspot",
+        "live_eligible": false
+      },
+      {
+        "case_id": "cpu-parser-holdout",
+        "case_sha256": "24040e3ae2c3560acc11849d4eade002c03edf1fcd5ea5bdd8bb7f7df052ad14",
+        "split": "holdout",
+        "family": "cpu_hotspot",
+        "live_eligible": false
+      },
+      {
+        "case_id": "allocation-gc-dev",
+        "case_sha256": "1e4aa953b2db23e91c7280ce295ad7ec0eadd9e1a4c3528ac1583164dd7e32c4",
+        "split": "dev",
+        "family": "allocation_gc",
+        "live_eligible": false
+      },
+      {
+        "case_id": "heap-retained-holdout",
+        "case_sha256": "20de5037ad8c00e3ad316b772e5541dd3e0e0802796a58b9c1175099108a68f3",
+        "split": "holdout",
+        "family": "allocation_gc",
+        "live_eligible": false
+      },
+      {
+        "case_id": "lock-wait-dev",
+        "case_sha256": "fa173cd008b69a38b5d45408a2fd4c777528d1ad9c7d9221d0922b8cd85c3609",
+        "split": "dev",
+        "family": "lock_io",
+        "live_eligible": false
+      },
+      {
+        "case_id": "io-operations-holdout",
+        "case_sha256": "8482a47c5f4a6643619988357ba1fc86779c7feeda33f3b25e9f922503876696",
+        "split": "holdout",
+        "family": "lock_io",
+        "live_eligible": false
+      },
+      {
+        "case_id": "normal-throughput-dev",
+        "case_sha256": "725b7f9915f02ee287b41e6293dd8bf62803a1d1dc783f27d1c0e712299e3e05",
+        "split": "dev",
+        "family": "normal_load",
+        "live_eligible": false
+      },
+      {
+        "case_id": "normal-eventloop-holdout",
+        "case_sha256": "9f5549dc809379259928f63bd738f3ab6a4032a9d14533fa8457d61b508542a5",
+        "split": "holdout",
+        "family": "normal_load",
+        "live_eligible": false
+      },
+      {
+        "case_id": "insufficient-zero-dev",
+        "case_sha256": "b28c8ca243906fca282572c5d533f11d7752badb39d755efac8bd4827fe705df",
+        "split": "dev",
+        "family": "insufficient_evidence",
+        "live_eligible": false
+      },
+      {
+        "case_id": "insufficient-counters-holdout",
+        "case_sha256": "7e3c245c510449287cb54b6bf661f470b1308054a9e0ebb5a9519ad959c6ad11",
+        "split": "holdout",
+        "family": "insufficient_evidence",
+        "live_eligible": false
+      },
+      {
+        "case_id": "import-unknown-unit-dev",
+        "case_sha256": "39c5f87dd73c4349fe67894af91c3226de8a1fb23928dbcb43619a21e8ce4ada",
+        "split": "dev",
+        "family": "insufficient_evidence",
+        "live_eligible": false
+      },
+      {
+        "case_id": "experience-expired-holdout",
+        "case_sha256": "1635afe48c6064965e891be937c37313e4046469c4d4626d5a5e8240d353e8f5",
+        "split": "holdout",
+        "family": "cpu_hotspot",
+        "live_eligible": false
+      },
+      {
+        "case_id": "experience-scope-mismatch-holdout",
+        "case_sha256": "6ae05385558c919b914f26c5707db5f5cea5dab3cc4d7cadc45c31a850ec39a7",
+        "split": "holdout",
+        "family": "allocation_gc",
+        "live_eligible": false
+      },
+      {
+        "case_id": "history-injection-holdout",
+        "case_sha256": "710939e646353367748ac1c2ca74accda617bcadd0e0062ce750f0c600e2b2bb",
+        "split": "holdout",
+        "family": "insufficient_evidence",
+        "live_eligible": false
+      },
+      {
+        "case_id": "mixed-signals-holdout",
+        "case_sha256": "ac8c199d58f0006108395b0166e9ac408409431c6d23aefe594d4a9d369eb46d",
+        "split": "holdout",
+        "family": "allocation_gc",
+        "live_eligible": false
+      },
+      {
+        "case_id": "invalid-kind-mismatch-dev",
+        "case_sha256": "29b09aff8c8fb57a96fec1e9dd755f450d48b7e70352b6619cbcdf9994eb4204",
+        "split": "dev",
+        "family": "invalid_evidence",
+        "live_eligible": false
+      },
+      {
+        "case_id": "invalid-percent-holdout",
+        "case_sha256": "84a383e717543b76a3b9ef7710475760854b90363ccf9143f1a3b2dcc73e0890",
+        "split": "holdout",
+        "family": "invalid_evidence",
+        "live_eligible": false
+      },
+      {
+        "case_id": "invalid-unknown-kind-dev",
+        "case_sha256": "24681763559a91596f1109cd9150d7e85ad99aea0d7ed59a01de2e4a4490ebd0",
+        "split": "dev",
+        "family": "invalid_evidence",
+        "live_eligible": false
+      },
+      {
+        "case_id": "seed-cpu-folded-dev",
+        "case_sha256": "44edac9371c79d2afb09725b27947fa70cd59e56ac39f58d0b8c6deff355d3ed",
+        "split": "dev",
+        "family": "cpu_hotspot",
+        "live_eligible": true
+      },
+      {
+        "case_id": "live-cpu-folded-holdout",
+        "case_sha256": "2f38c046488dc22f21141505500695240f238fe129c40b232c5994f73f7be5c9",
+        "split": "holdout",
+        "family": "cpu_hotspot",
+        "live_eligible": true
+      },
+      {
+        "case_id": "seed-allocation-folded-dev",
+        "case_sha256": "cd381904e4384d6368a34597b5e2c9ecf50bd793f581324f1e6a3853504a0f6f",
+        "split": "dev",
+        "family": "allocation_gc",
+        "live_eligible": true
+      },
+      {
+        "case_id": "live-allocation-folded-holdout",
+        "case_sha256": "d3eefc8cfb7cef91db19c125b4c3847862d0ac25751608fe9b20c680df3eb2fb",
+        "split": "holdout",
+        "family": "allocation_gc",
+        "live_eligible": true
+      }
+    ],
+    "limits": [
+      "固定集是作者可见的合成回归集，holdout 不等于外部盲测。",
+      "live 结果须明确绑定授权导入测试任务，不允许自动使用既有生产历史。"
+    ]
+  },
+  "metrics": {
+    "skill_routing_exact_match": {
+      "numerator": 19,
+      "denominator": 19,
+      "rate": 1.0
+    },
+    "input_accept_reject_contract": {
+      "numerator": 22,
+      "denominator": 22,
+      "rate": 1.0
+    },
+    "report_guard_contract": {
+      "numerator": 209,
+      "denominator": 209,
+      "rate": 1.0
+    },
+    "root_cause_category_hit": null,
+    "abstention_accuracy": null,
+    "normal_load_false_positive_rate": null,
+    "model_tokens": null,
+    "estimated_cost": null
+  },
+  "prior_database_scope_checks": "not_executed_by_this_offline_suite",
+  "observations": [
+    {
+      "case_id": "cpu-loop-dev",
+      "split": "dev",
+      "skill_ids": [
+        "cpu_hotspot",
+        "sampling_quality"
+      ],
+      "matcher_rejected": false,
+      "matcher_elapsed_ms": 0.559,
+      "variants": [
+        {
+          "knowledge_mode": "off",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        },
+        {
+          "knowledge_mode": "skills",
+          "elapsed_ms": 0.517,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "prior-only-is-not-current-evidence",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "current-plus-prior",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "missing-required-quality-tool",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        }
+      ],
+      "case_sha256": "697febe595a799635e1759ad7eedfc0ba52deac3e5c8a0007806f44856eeb0c8",
+      "skill_routing_scored": true
+    },
+    {
+      "case_id": "cpu-parser-holdout",
+      "split": "holdout",
+      "skill_ids": [
+        "cpu_hotspot",
+        "sampling_quality"
+      ],
+      "matcher_rejected": false,
+      "matcher_elapsed_ms": 0,
+      "variants": [
+        {
+          "knowledge_mode": "off",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        },
+        {
+          "knowledge_mode": "skills",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "prior-only-is-not-current-evidence",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "current-plus-prior",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "missing-required-quality-tool",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        }
+      ],
+      "case_sha256": "24040e3ae2c3560acc11849d4eade002c03edf1fcd5ea5bdd8bb7f7df052ad14",
+      "skill_routing_scored": true
+    },
+    {
+      "case_id": "allocation-gc-dev",
+      "split": "dev",
+      "skill_ids": [
+        "allocation_gc",
+        "cpu_hotspot",
+        "sampling_quality"
+      ],
+      "matcher_rejected": false,
+      "matcher_elapsed_ms": 0,
+      "variants": [
+        {
+          "knowledge_mode": "off",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        },
+        {
+          "knowledge_mode": "skills",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "prior-only-is-not-current-evidence",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "current-plus-prior",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "missing-required-quality-tool",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        }
+      ],
+      "case_sha256": "1e4aa953b2db23e91c7280ce295ad7ec0eadd9e1a4c3528ac1583164dd7e32c4",
+      "skill_routing_scored": true
+    },
+    {
+      "case_id": "heap-retained-holdout",
+      "split": "holdout",
+      "skill_ids": [
+        "allocation_gc",
+        "sampling_quality"
+      ],
+      "matcher_rejected": false,
+      "matcher_elapsed_ms": 0,
+      "variants": [
+        {
+          "knowledge_mode": "off",
+          "elapsed_ms": 0.543,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        },
+        {
+          "knowledge_mode": "skills",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "prior-only-is-not-current-evidence",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "current-plus-prior",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "missing-required-quality-tool",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        }
+      ],
+      "case_sha256": "20de5037ad8c00e3ad316b772e5541dd3e0e0802796a58b9c1175099108a68f3",
+      "skill_routing_scored": true
+    },
+    {
+      "case_id": "lock-wait-dev",
+      "split": "dev",
+      "skill_ids": [
+        "cpu_hotspot",
+        "lock_io",
+        "sampling_quality"
+      ],
+      "matcher_rejected": false,
+      "matcher_elapsed_ms": 0,
+      "variants": [
+        {
+          "knowledge_mode": "off",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        },
+        {
+          "knowledge_mode": "skills",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "prior-only-is-not-current-evidence",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "current-plus-prior",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "missing-required-quality-tool",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        }
+      ],
+      "case_sha256": "fa173cd008b69a38b5d45408a2fd4c777528d1ad9c7d9221d0922b8cd85c3609",
+      "skill_routing_scored": true
+    },
+    {
+      "case_id": "io-operations-holdout",
+      "split": "holdout",
+      "skill_ids": [
+        "lock_io",
+        "sampling_quality"
+      ],
+      "matcher_rejected": false,
+      "matcher_elapsed_ms": 0.663,
+      "variants": [
+        {
+          "knowledge_mode": "off",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        },
+        {
+          "knowledge_mode": "skills",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "prior-only-is-not-current-evidence",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "current-plus-prior",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "missing-required-quality-tool",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        }
+      ],
+      "case_sha256": "8482a47c5f4a6643619988357ba1fc86779c7feeda33f3b25e9f922503876696",
+      "skill_routing_scored": true
+    },
+    {
+      "case_id": "normal-throughput-dev",
+      "split": "dev",
+      "skill_ids": [
+        "cpu_hotspot",
+        "sampling_quality"
+      ],
+      "matcher_rejected": false,
+      "matcher_elapsed_ms": 0,
+      "variants": [
+        {
+          "knowledge_mode": "off",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        },
+        {
+          "knowledge_mode": "skills",
+          "elapsed_ms": 0.514,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "prior-only-is-not-current-evidence",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "current-plus-prior",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "missing-required-quality-tool",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        }
+      ],
+      "case_sha256": "725b7f9915f02ee287b41e6293dd8bf62803a1d1dc783f27d1c0e712299e3e05",
+      "skill_routing_scored": true
+    },
+    {
+      "case_id": "normal-eventloop-holdout",
+      "split": "holdout",
+      "skill_ids": [
+        "cpu_hotspot",
+        "lock_io",
+        "sampling_quality"
+      ],
+      "matcher_rejected": false,
+      "matcher_elapsed_ms": 0,
+      "variants": [
+        {
+          "knowledge_mode": "off",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        },
+        {
+          "knowledge_mode": "skills",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "prior-only-is-not-current-evidence",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "current-plus-prior",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "missing-required-quality-tool",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        }
+      ],
+      "case_sha256": "9f5549dc809379259928f63bd738f3ab6a4032a9d14533fa8457d61b508542a5",
+      "skill_routing_scored": true
+    },
+    {
+      "case_id": "insufficient-zero-dev",
+      "split": "dev",
+      "skill_ids": [
+        "sampling_quality"
+      ],
+      "matcher_rejected": false,
+      "matcher_elapsed_ms": 0.521,
+      "variants": [
+        {
+          "knowledge_mode": "off",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        },
+        {
+          "knowledge_mode": "skills",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "prior-only-is-not-current-evidence",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "current-plus-prior",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "missing-required-quality-tool",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        }
+      ],
+      "case_sha256": "b28c8ca243906fca282572c5d533f11d7752badb39d755efac8bd4827fe705df",
+      "skill_routing_scored": true
+    },
+    {
+      "case_id": "insufficient-counters-holdout",
+      "split": "holdout",
+      "skill_ids": [
+        "sampling_quality"
+      ],
+      "matcher_rejected": false,
+      "matcher_elapsed_ms": 0,
+      "variants": [
+        {
+          "knowledge_mode": "off",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        },
+        {
+          "knowledge_mode": "skills",
+          "elapsed_ms": 0.511,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "prior-only-is-not-current-evidence",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "current-plus-prior",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "missing-required-quality-tool",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        }
+      ],
+      "case_sha256": "7e3c245c510449287cb54b6bf661f470b1308054a9e0ebb5a9519ad959c6ad11",
+      "skill_routing_scored": true
+    },
+    {
+      "case_id": "import-unknown-unit-dev",
+      "split": "dev",
+      "skill_ids": [
+        "cpu_hotspot",
+        "sampling_quality"
+      ],
+      "matcher_rejected": false,
+      "matcher_elapsed_ms": 0,
+      "variants": [
+        {
+          "knowledge_mode": "off",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        },
+        {
+          "knowledge_mode": "skills",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "prior-only-is-not-current-evidence",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "current-plus-prior",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "missing-required-quality-tool",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        }
+      ],
+      "case_sha256": "39c5f87dd73c4349fe67894af91c3226de8a1fb23928dbcb43619a21e8ce4ada",
+      "skill_routing_scored": true
+    },
+    {
+      "case_id": "experience-expired-holdout",
+      "split": "holdout",
+      "skill_ids": [
+        "cpu_hotspot",
+        "sampling_quality"
+      ],
+      "matcher_rejected": false,
+      "matcher_elapsed_ms": 0.552,
+      "variants": [
+        {
+          "knowledge_mode": "off",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        },
+        {
+          "knowledge_mode": "skills",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "prior-only-is-not-current-evidence",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "current-plus-prior",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "missing-required-quality-tool",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        }
+      ],
+      "case_sha256": "1635afe48c6064965e891be937c37313e4046469c4d4626d5a5e8240d353e8f5",
+      "skill_routing_scored": true
+    },
+    {
+      "case_id": "experience-scope-mismatch-holdout",
+      "split": "holdout",
+      "skill_ids": [
+        "allocation_gc",
+        "sampling_quality"
+      ],
+      "matcher_rejected": false,
+      "matcher_elapsed_ms": 0,
+      "variants": [
+        {
+          "knowledge_mode": "off",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        },
+        {
+          "knowledge_mode": "skills",
+          "elapsed_ms": 0.521,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "prior-only-is-not-current-evidence",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "current-plus-prior",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "missing-required-quality-tool",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        }
+      ],
+      "case_sha256": "6ae05385558c919b914f26c5707db5f5cea5dab3cc4d7cadc45c31a850ec39a7",
+      "skill_routing_scored": true
+    },
+    {
+      "case_id": "history-injection-holdout",
+      "split": "holdout",
+      "skill_ids": [
+        "sampling_quality"
+      ],
+      "matcher_rejected": false,
+      "matcher_elapsed_ms": 0,
+      "variants": [
+        {
+          "knowledge_mode": "off",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        },
+        {
+          "knowledge_mode": "skills",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "prior-only-is-not-current-evidence",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "current-plus-prior",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "missing-required-quality-tool",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        }
+      ],
+      "case_sha256": "710939e646353367748ac1c2ca74accda617bcadd0e0062ce750f0c600e2b2bb",
+      "skill_routing_scored": true
+    },
+    {
+      "case_id": "mixed-signals-holdout",
+      "split": "holdout",
+      "skill_ids": [
+        "allocation_gc",
+        "lock_io",
+        "sampling_quality"
+      ],
+      "matcher_rejected": false,
+      "matcher_elapsed_ms": 0,
+      "variants": [
+        {
+          "knowledge_mode": "off",
+          "elapsed_ms": 0.512,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        },
+        {
+          "knowledge_mode": "skills",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "prior-only-is-not-current-evidence",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "current-plus-prior",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "missing-required-quality-tool",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        }
+      ],
+      "case_sha256": "ac8c199d58f0006108395b0166e9ac408409431c6d23aefe594d4a9d369eb46d",
+      "skill_routing_scored": true
+    },
+    {
+      "case_id": "invalid-kind-mismatch-dev",
+      "split": "dev",
+      "skill_ids": [],
+      "matcher_rejected": true,
+      "matcher_elapsed_ms": 0,
+      "variants": [],
+      "case_sha256": "29b09aff8c8fb57a96fec1e9dd755f450d48b7e70352b6619cbcdf9994eb4204",
+      "skill_routing_scored": false
+    },
+    {
+      "case_id": "invalid-percent-holdout",
+      "split": "holdout",
+      "skill_ids": [],
+      "matcher_rejected": true,
+      "matcher_elapsed_ms": 0,
+      "variants": [],
+      "case_sha256": "84a383e717543b76a3b9ef7710475760854b90363ccf9143f1a3b2dcc73e0890",
+      "skill_routing_scored": false
+    },
+    {
+      "case_id": "invalid-unknown-kind-dev",
+      "split": "dev",
+      "skill_ids": [],
+      "matcher_rejected": true,
+      "matcher_elapsed_ms": 0,
+      "variants": [],
+      "case_sha256": "24681763559a91596f1109cd9150d7e85ad99aea0d7ed59a01de2e4a4490ebd0",
+      "skill_routing_scored": false
+    },
+    {
+      "case_id": "seed-cpu-folded-dev",
+      "split": "dev",
+      "skill_ids": [
+        "cpu_hotspot",
+        "sampling_quality"
+      ],
+      "matcher_rejected": false,
+      "matcher_elapsed_ms": 0,
+      "variants": [
+        {
+          "knowledge_mode": "off",
+          "elapsed_ms": 0.509,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        },
+        {
+          "knowledge_mode": "skills",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "prior-only-is-not-current-evidence",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "current-plus-prior",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "missing-required-quality-tool",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        }
+      ],
+      "case_sha256": "44edac9371c79d2afb09725b27947fa70cd59e56ac39f58d0b8c6deff355d3ed",
+      "skill_routing_scored": true
+    },
+    {
+      "case_id": "live-cpu-folded-holdout",
+      "split": "holdout",
+      "skill_ids": [
+        "cpu_hotspot",
+        "sampling_quality"
+      ],
+      "matcher_rejected": false,
+      "matcher_elapsed_ms": 0,
+      "variants": [
+        {
+          "knowledge_mode": "off",
+          "elapsed_ms": 0.511,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        },
+        {
+          "knowledge_mode": "skills",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "prior-only-is-not-current-evidence",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "current-plus-prior",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "missing-required-quality-tool",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        }
+      ],
+      "case_sha256": "2f38c046488dc22f21141505500695240f238fe129c40b232c5994f73f7be5c9",
+      "skill_routing_scored": true
+    },
+    {
+      "case_id": "seed-allocation-folded-dev",
+      "split": "dev",
+      "skill_ids": [
+        "allocation_gc",
+        "cpu_hotspot",
+        "sampling_quality"
+      ],
+      "matcher_rejected": false,
+      "matcher_elapsed_ms": 0,
+      "variants": [
+        {
+          "knowledge_mode": "off",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        },
+        {
+          "knowledge_mode": "skills",
+          "elapsed_ms": 0.509,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "prior-only-is-not-current-evidence",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "current-plus-prior",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "missing-required-quality-tool",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        }
+      ],
+      "case_sha256": "cd381904e4384d6368a34597b5e2c9ecf50bd793f581324f1e6a3853504a0f6f",
+      "skill_routing_scored": true
+    },
+    {
+      "case_id": "live-allocation-folded-holdout",
+      "split": "holdout",
+      "skill_ids": [
+        "allocation_gc",
+        "cpu_hotspot",
+        "sampling_quality"
+      ],
+      "matcher_rejected": false,
+      "matcher_elapsed_ms": 0,
+      "variants": [
+        {
+          "knowledge_mode": "off",
+          "elapsed_ms": 0,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        },
+        {
+          "knowledge_mode": "skills",
+          "elapsed_ms": 0.516,
+          "guards": [
+            {
+              "name": "current-observation",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "unknown-reference",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-knowledge",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "forged-runtime",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "prior-only-is-not-current-evidence",
+              "expected_accepted": false,
+              "actual_accepted": false
+            },
+            {
+              "name": "current-plus-prior",
+              "expected_accepted": true,
+              "actual_accepted": true
+            },
+            {
+              "name": "missing-required-quality-tool",
+              "expected_accepted": false,
+              "actual_accepted": false
+            }
+          ]
+        }
+      ],
+      "case_sha256": "d3eefc8cfb7cef91db19c125b4c3847862d0ac25751608fe9b20c680df3eb2fb",
+      "skill_routing_scored": true
+    }
+  ],
+  "limits": [
+    "调用真正的服务函数，但报告由明确的控制器样例构造，不是模型效果。",
+    "off 不加载知识；不能把其 Skill 为空记为 0 分并宣称模型准确率提升。",
+    "耗时仅为本机纯服务路由和协议测试耗时，不可与模型端到端耗时直接比较。",
+    "过期/异主早期拒绝有真实入口验证；跨项目/版本/撤权的数据库链路由独立集成测试覆盖。",
+    "恶意历史用例验证仅先验引用不能过关，不保证模型解释或混合引用的语义正确。"
+  ]
+}

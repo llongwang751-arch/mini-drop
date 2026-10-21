@@ -8,6 +8,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, dateTime, newIdempotencyKey } from "../api";
 import type { List, Task } from "../types";
 import { Busy, ErrorPanel } from "./ui";
+import DiagnosticKnowledge from "./DiagnosticKnowledge";
+import SaveDiagnosticCase from "./SaveDiagnosticCase";
+import { knowledgeModes } from "../diagnostic-knowledge";
+import type {
+  DiagnosisKnowledge,
+  KnowledgeMode,
+} from "../diagnostic-knowledge";
 import "./DiagnosisAgent.css";
 
 interface Diagnosis {
@@ -31,6 +38,7 @@ interface Diagnosis {
       verification: string;
     }[];
     limitations: string[];
+    knowledge?: DiagnosisKnowledge;
     plan?: {
       kind: string;
       duration_seconds: number;
@@ -75,6 +83,8 @@ export default function DiagnosisAgent({
     "检查主要热点和采集质量，给出待验证的瓶颈假设与复测方法",
   );
   const [mode, setMode] = useState<"evidence" | "model">("model");
+  const [knowledgeMode, setKnowledgeMode] =
+    useState<KnowledgeMode>("experience");
   const [consent, setConsent] = useState(false);
   const [selected, setSelected] = useState("");
   const [review, setReview] = useState(false);
@@ -153,6 +163,7 @@ export default function DiagnosisAgent({
         goal,
         mode,
         consent: external && consent,
+        knowledge_mode: knowledgeMode,
       });
       if (startKey.current?.fingerprint !== fingerprint)
         startKey.current = { fingerprint, key: newIdempotencyKey() };
@@ -242,6 +253,21 @@ export default function DiagnosisAgent({
               AI 工具诊断{!providers.data?.ai.enabled ? "（模型未配置）" : ""}
             </option>
             <option value="evidence">本地证据检查</option>
+          </select>
+          <label htmlFor="diagnosis-knowledge-mode">知识参考</label>
+          <select
+            id="diagnosis-knowledge-mode"
+            value={knowledgeMode}
+            disabled={readOnly || start.isPending}
+            onChange={(event) =>
+              setKnowledgeMode(event.target.value as KnowledgeMode)
+            }
+          >
+            {knowledgeModes.map((item) => (
+              <option value={item.value} key={item.value}>
+                {item.label}
+              </option>
+            ))}
           </select>
           <button
             className="button primary"
@@ -373,6 +399,9 @@ export default function DiagnosisAgent({
               </div>
               <h3>诊断结论与验证</h3>
               <p>{run.report.summary}</p>
+              {run.report.knowledge && (
+                <DiagnosticKnowledge knowledge={run.report.knowledge} />
+              )}
               {run.report.hypotheses.map((h, i) => (
                 <section key={i} className="diagnosis-hypothesis">
                   <h4>待验证假设 {i + 1}</h4>
@@ -462,6 +491,13 @@ export default function DiagnosisAgent({
                     </p>
                   )}
                 </section>
+              )}
+              {!readOnly && !stale && ready && run.status === "success" && (
+                <SaveDiagnosticCase
+                  key={`${task.id}:${run.id}`}
+                  taskID={task.id}
+                  diagnosisID={run.id}
+                />
               )}
             </article>
           )}

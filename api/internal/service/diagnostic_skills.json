@@ -1,0 +1,46 @@
+[
+  {
+    "id": "cpu_hotspot",
+    "version": "1.0.0",
+    "title": "CPU 热点与调用路径核验",
+    "task_kinds": ["PERF_CPU", "JAVA_CPU", "GO_CPU", "PYTHON_CPU", "GPERF_CPU", "BOLT_PROFILE", "IMPORT_COLLAPSED"],
+    "required_tools": ["inspect_hotspots", "check_collection_quality", "inspect_call_paths"],
+    "steps": ["先确认采样单位、样本量和稳定负载，再区分 self 与包含子调用的 total 权重。", "沿实际调用路径核对热点是否集中在业务计算；将符号提示作为待核验线索。"],
+    "counter_evidence": ["单次 CPU 样本不包含请求延迟、吞吐与错误率，热点占比高不能证明性能回退。", "低样本量、采样窗口变化或负载不一致可能改变占比。"],
+    "stop_conditions": ["没有函数栈、没有正样本权重或结果被截断时，停止源码级根因推断。"],
+    "verification": ["在相同目标、负载、采集器与单位下复测；仅受控干预和功能/性能对照可支持因果结论。"]
+  },
+  {
+    "id": "allocation_gc",
+    "version": "1.0.0",
+    "title": "分配与垃圾回收线索核验",
+    "task_kinds": ["PERF_CPU", "JAVA_CPU", "GO_CPU", "PYTHON_CPU", "GO_HEAP", "JAVA_HEAP", "PYTHON_MEMORY", "GPERF_HEAP", "JEPROF_HEAP", "MEMORY_TRACE", "IMPORT_COLLAPSED"],
+    "required_tools": ["inspect_hotspots", "check_collection_quality", "inspect_call_paths"],
+    "steps": ["确认观测单位是 CPU、对象数还是字节；不同单位的占比不能直接比较。", "核对分配或 GC 符号提示及上游调用路径，再提出对象生命周期或临时对象的假设。"],
+    "counter_evidence": ["CPU 中出现 GC/分配符号不等于内存泄漏，也不能直接推断暂停时长。", "堆快照保留量与分配速率是不同观测。"],
+    "stop_conditions": ["没有对应符号提示或内存采集证据时，不宣称分配/GC 已被证实为瓶颈。"],
+    "verification": ["结合分配速率、堆与 GC 暂停指标；受控修改后同时验证语义、内存边界与性能。"]
+  },
+  {
+    "id": "lock_io",
+    "version": "1.0.0",
+    "title": "锁等待与 IO 线索核验",
+    "task_kinds": ["PERF_CPU", "JAVA_CPU", "GO_CPU", "PYTHON_CPU", "IO_TRACE", "IMPORT_COLLAPSED"],
+    "required_tools": ["inspect_hotspots", "check_collection_quality", "inspect_call_paths"],
+    "steps": ["检查锁、等待或 IO 符号提示和调用关系，明确采集器是否能够观察阻塞时间。", "区分 CPU 执行、调度与等待；仅提出有当前证据支撑的可证伪假设。"],
+    "counter_evidence": ["CPU 样本不能独立测出锁等待或网络延迟，符号名称也不能证明竞争。", "空闲等待可能属于正常事件循环。"],
+    "stop_conditions": ["缺少线程状态、等待时长或 IO 对照时，不给出已确认阻塞根因。"],
+    "verification": ["以同负载的线程/等待或 IO 指标交叉验证；采集类型改变须重新授权，Skill 不能扩大工具权限。"]
+  },
+  {
+    "id": "sampling_quality",
+    "version": "1.0.0",
+    "title": "采样质量与结论边界",
+    "task_kinds": ["PERF_CPU", "PROC_CPU", "JAVA_CPU", "GO_CPU", "GO_HEAP", "PYTHON_CPU", "PYTHON_MEMORY", "JAVA_HEAP", "IO_TRACE", "MEMORY_TRACE", "GPERF_CPU", "GPERF_HEAP", "JEPROF_HEAP", "BOLT_PROFILE", "SCRIPT", "RESOURCE_SNAPSHOT", "IMPORT_COLLAPSED", "COMPOSITE"],
+    "required_tools": ["check_collection_quality"],
+    "steps": ["核对实际样本量、测量单位、采集窗口、导入来源与函数栈可用性。", "明确尚缺的业务延迟、吞吐、错误率和采集开销；不足时优先补证据。"],
+    "counter_evidence": ["导入数据无法自动核实现场时钟、负载与丢样；短窗口或低样本量可能不具代表性。", "PROC_CPU 是进程/线程计数，不能据此推导源码热点。"],
+    "stop_conditions": ["无正权重、单位不明、来源过期或比较目标/版本不一致时，停止性能收益与根因判断。"],
+    "verification": ["保存采集条件后在稳定负载下复测；对照必须先核对相同单位与目标身份。"]
+  }
+]

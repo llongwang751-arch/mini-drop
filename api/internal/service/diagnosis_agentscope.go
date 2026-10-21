@@ -22,7 +22,7 @@ func (s *Suggestions) diagnosisAgentScope(ctx context.Context, run DiagnosisRun,
 	_ = json.Unmarshal(initial.Observation, &summary)
 	spec := agentRunSpec{
 		Phase: "diagnosis", Model: s.Config.Model, SystemPrompt: diagnosisSystem,
-		Messages: []diagnosisMessage{{Role: "user", Content: "诊断问题：" + run.Goal + "\n已授权的初始工具证据：" + string(first)}}, Tools: diagnosisDefinitions(),
+		Messages: []diagnosisMessage{{Role: "user", Content: "诊断问题：" + run.Goal + "\n已授权的初始工具证据：" + string(first) + diagnosisKnowledgeContext(*trace)}}, Tools: diagnosisDefinitions(),
 		Fence: func(work context.Context) error {
 			return s.Repo.Context(work).Transaction(func(tx *gorm.DB) error { _, err := s.diagnosisFence(work, tx, run, owner); return err })
 		},

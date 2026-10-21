@@ -2343,6 +2343,193 @@ paths:
         in: path
         required: true
         schema: *id003
+  /api/v1/diagnostic-skills:
+    get:
+      operationId: diagnosticSkills
+      summary: 版本化诊断方法目录
+      tags:
+      - Suggestions
+      description: 登录后可读，内置目录随版本发布；方法不授予额外工具或采集权限。
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/DiagnosticSkill'
+                      total:
+                        type: integer
+                        minimum: 0
+                      page:
+                        type: integer
+                        minimum: 1
+                      page_size:
+                        type: integer
+                        minimum: 0
+                    required:
+                    - items
+                    - total
+                    - page
+                    - page_size
+                  error:
+                    type: 'null'
+                required:
+                - request_id
+                - data
+                - error
+        default:
+          $ref: '#/components/responses/Error'
+  /api/v1/diagnostic-cases:
+    get:
+      operationId: diagnosticCases
+      summary: 本人复核的诊断案例
+      tags:
+      - Suggestions
+      description: 最多50条，逐条重验当前来源与操作权限。可按正整数task_id过滤；不向其他用户共享个人经验。
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/DiagnosticCase'
+                      total:
+                        type: integer
+                        minimum: 0
+                      page:
+                        type: integer
+                        minimum: 1
+                      page_size:
+                        type: integer
+                        minimum: 0
+                    required:
+                    - items
+                    - total
+                    - page
+                    - page_size
+                  error:
+                    type: 'null'
+                required:
+                - request_id
+                - data
+                - error
+        default:
+          $ref: '#/components/responses/Error'
+      parameters:
+      - name: task_id
+        in: query
+        schema: *id003
+  /api/v1/tasks/{id}/diagnoses/{run_id}/cases:
+    post:
+      operationId: createDiagnosticCase
+      summary: 复核保存有来源的诊断案例
+      tags:
+      - Suggestions
+      description: 当前任务操作权限、成功且未过期的诊断。保存与审计原子提交，幂等键绑定载荷。人工纠正和隔离修复验证分开标识；默认90天有效。
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/DiagnosticCase'
+                  error:
+                    type: 'null'
+                required:
+                - request_id
+                - data
+                - error
+        default:
+          $ref: '#/components/responses/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id003
+      - name: run_id
+        in: path
+        required: true
+        schema: *id003
+      - $ref: '#/components/parameters/CSRFToken'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiagnosticCaseInput'
+  /api/v1/diagnostic-cases/{id}/revoke:
+    post:
+      operationId: revokeDiagnosticCase
+      summary: 撤销本人经验的后续复用
+      tags:
+      - Suggestions
+      description: 本人、当前来源操作权限；撤销与审计原子提交，既有测量和报告保留。
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      revoked: *id001
+                    required:
+                    - revoked
+                  error:
+                    type: 'null'
+                required:
+                - request_id
+                - data
+                - error
+        default:
+          $ref: '#/components/responses/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - $ref: '#/components/parameters/CSRFToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              additionalProperties: false
   /api/v1/tasks/{id}/diagnoses/{run_id}/cancel:
     post:
       operationId: cancelDiagnosis
@@ -3726,7 +3913,7 @@ components:
       - properties:
           kind:
             type: string
-            enum: &id015
+            enum: &id016
             - PERF_CPU
             - PROC_CPU
             - JAVA_CPU
@@ -4485,7 +4672,7 @@ components:
       properties:
         id:
           type: string
-          enum:
+          enum: &id015
           - PERF_CPU
           - PROC_CPU
           - JAVA_CPU
@@ -5109,6 +5296,221 @@ components:
       - rating
       additionalProperties: false
       description: Comment UTF-8 byte length <=1000. Upserts the current user's feedback for this suggestion.
+    DiagnosticSkillRef:
+      type: object
+      properties:
+        id:
+          type: string
+        version:
+          type: string
+      required:
+      - id
+      - version
+      additionalProperties: false
+    DiagnosticSkill:
+      type: object
+      properties:
+        id:
+          type: string
+        version:
+          type: string
+        title:
+          type: string
+        task_kinds:
+          type: array
+          items:
+            type: string
+            enum: *id015
+        required_tools:
+          type: array
+          items:
+            type: string
+        steps:
+          type: array
+          items:
+            type: string
+        counter_evidence:
+          type: array
+          items:
+            type: string
+        stop_conditions:
+          type: array
+          items:
+            type: string
+        verification:
+          type: array
+          items:
+            type: string
+        match_reasons:
+          type: array
+          items:
+            type: string
+      required:
+      - id
+      - version
+      - title
+      - task_kinds
+      - required_tools
+      - steps
+      - counter_evidence
+      - stop_conditions
+      - verification
+      additionalProperties: false
+    DiagnosticCasePrior:
+      type: object
+      properties:
+        id: *id003
+        source_diagnosis_id: *id003
+        outcome:
+          type: string
+          enum:
+          - verified_repair
+          - reviewed_correction
+        assurance:
+          type: string
+        conclusion:
+          type: string
+        skill_refs:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiagnosticSkillRef'
+        match_reasons:
+          type: array
+          items:
+            type: string
+        prior_only:
+          type: boolean
+          const: true
+      required:
+      - id
+      - source_diagnosis_id
+      - outcome
+      - assurance
+      - conclusion
+      - skill_refs
+      - match_reasons
+      - prior_only
+      additionalProperties: false
+    DiagnosticKnowledge:
+      type: object
+      properties:
+        skills:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiagnosticSkill'
+        cases:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiagnosticCasePrior'
+          maxItems: 3
+        prior_only:
+          type: boolean
+          const: true
+        history_enabled: *id001
+      required:
+      - skills
+      - cases
+      - prior_only
+      - history_enabled
+      additionalProperties: false
+      description: 程序绑定的诊断方法与历史先验。每项假设必须同时引用本轮测量证据；历史经验不证明当前根因。
+    DiagnosticCaseInput:
+      type: object
+      properties:
+        outcome:
+          type: string
+          enum:
+          - verified_repair
+          - reviewed_correction
+        code_repair_id: *id003
+        human_confirmed:
+          type: boolean
+          const: true
+        correction_code:
+          type: string
+          enum:
+          - insufficient_evidence
+          - wrong_hotspot
+          - causality_not_established
+          - incomparable_measurements
+          - regression_detected
+      required:
+      - outcome
+      - human_confirmed
+      additionalProperties: false
+      description: 人工纠正使用固定枚举。verified_repair必须绑定同一调查的真实成功修复与当前登记版本；不接受客户端的accepted标志、自由文本或补丁。
+      allOf:
+      - if:
+          properties:
+            outcome:
+              const: reviewed_correction
+          required:
+          - outcome
+        then:
+          required:
+          - correction_code
+          not:
+            required:
+            - code_repair_id
+      - if:
+          properties:
+            outcome:
+              const: verified_repair
+          required:
+          - outcome
+        then:
+          required:
+          - code_repair_id
+          not:
+            required:
+            - correction_code
+    DiagnosticCase:
+      type: object
+      properties:
+        id: *id003
+        task_id: *id003
+        diagnosis_id: *id003
+        attempt_id: *id003
+        analysis_job_id: *id003
+        analysis_run:
+          type: integer
+          minimum: 0
+        code_repair_id: *id003
+        task_kind:
+          type: string
+          enum: *id015
+        project_id:
+          type: string
+        source_revision:
+          type: string
+        outcome:
+          type: string
+          enum:
+          - verified_repair
+          - reviewed_correction
+        correction_code:
+          type: string
+        status:
+          type: string
+          enum:
+          - active
+          - revoked
+        created_at: *id007
+        expires_at: *id007
+        revoked_at: *id007
+      required:
+      - id
+      - task_id
+      - diagnosis_id
+      - attempt_id
+      - analysis_job_id
+      - analysis_run
+      - task_kind
+      - outcome
+      - status
+      - created_at
+      - expires_at
+      additionalProperties: false
     DiagnosisInput:
       type: object
       properties:
@@ -5122,6 +5524,13 @@ components:
           - evidence
           - model
         consent: *id001
+        knowledge_mode:
+          type: string
+          enum:
+          - 'off'
+          - skills
+          - experience
+          default: experience
       required:
       - goal
       - mode
@@ -5146,7 +5555,7 @@ components:
       properties:
         kind:
           type: string
-          enum: *id015
+          enum: *id016
         duration_seconds:
           type: integer
           minimum: 1
@@ -5258,6 +5667,8 @@ components:
           type: string
         agent_runtime:
           $ref: '#/components/schemas/AgentRuntime'
+        knowledge:
+          $ref: '#/components/schemas/DiagnosticKnowledge'
       required:
       - summary
       - hypotheses
@@ -5279,6 +5690,7 @@ components:
           - inspect_call_paths
           - propose_verification
           - compare_profiles
+          - read_diagnostic_knowledge
         observation: *id002
       required:
       - evidence_id
@@ -5304,6 +5716,12 @@ components:
           enum:
           - evidence
           - model
+        knowledge_mode:
+          type: string
+          enum:
+          - 'off'
+          - skills
+          - experience
         input_digest:
           type: string
         status:
@@ -5419,7 +5837,7 @@ components:
       properties:
         kind:
           type: string
-          enum: *id015
+          enum: *id016
         duration_seconds:
           type: integer
           minimum: 1

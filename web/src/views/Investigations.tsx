@@ -4,10 +4,11 @@
  */
 import { useContext, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { api, newIdempotencyKey, dateTime } from "../api";
 import { UserContext, useCanWrite } from "../auth-context";
 import { Busy, ErrorPanel } from "../components/ui";
+import SaveDiagnosticCase from "../components/SaveDiagnosticCase";
 import type { List } from "../types";
 import "../styles/investigations.css";
 
@@ -208,11 +209,19 @@ function ComparisonView({ value }: { value: Comparison }) {
 }
 
 export default function Investigations() {
+  const [searchParams] = useSearchParams();
+  const linkedRepairID = /^[1-9]\d{0,18}$/.test(
+    searchParams.get("repair") || "",
+  )
+    ? searchParams.get("repair")!
+    : "";
   const canWrite = useCanWrite(),
     user = useContext(UserContext),
     admin = !!user && ["admin", "platform_admin"].includes(user.role),
     qc = useQueryClient();
-  const [mode, setMode] = useState<"performance" | "code">("performance"),
+  const [mode, setMode] = useState<"performance" | "code">(
+      linkedRepairID ? "code" : "performance",
+    ),
     [goal, setGoal] = useState(
       "当前进程的CPU开销集中在哪里？选择合适采集器定位热点，并自动复测核对。",
     ),
@@ -228,7 +237,7 @@ export default function Investigations() {
       "分析所选登记业务流程的CPU热点，定位真实源码行，保持输出和原测试语义，生成最小优化补丁并运行功能回归和交替性能对照。",
     ),
     [codeConsent, setCodeConsent] = useState(false),
-    [selectedRepair, setSelectedRepair] = useState("");
+    [selectedRepair, setSelectedRepair] = useState(linkedRepairID);
   const requestKey = useRef<{ fingerprint: string; key: string } | undefined>(
       undefined,
     ),
@@ -311,6 +320,13 @@ export default function Investigations() {
       : repairs.data?.items[0];
   const targetAgent = agents.data?.items.find((a) => a.id === agentID),
     processes = targetAgent?.resources?.processes || [];
+  // 只有调查中真实关联的基线诊断才能作为修复案例来源；独立修复记录不能在浏览器猜测绑定。
+  const caseSource = [run, ...(history.data?.items || [])].find(
+    (item) =>
+      item?.code_repair_id === repair?.id &&
+      item?.baseline_task_id &&
+      item?.diagnosis_id,
+  );
   const invalidate = () => {
     void qc.invalidateQueries({ queryKey: ["investigations"] });
     void qc.invalidateQueries({ queryKey: ["code-repairs"] });
@@ -862,6 +878,19 @@ export default function Investigations() {
                         <pre>{edit.new}</pre>
                       </details>
                     ))}
+                    {admin &&
+                      repair.status === "success" &&
+                      repair.report.validation.accepted &&
+                      caseSource?.baseline_task_id &&
+                      caseSource?.diagnosis_id && (
+                        <SaveDiagnosticCase
+                          key={`repair:${repair.id}:${caseSource.diagnosis_id}`}
+                          taskID={caseSource.baseline_task_id}
+                          diagnosisID={caseSource.diagnosis_id}
+                          repairID={repair.id}
+                          outcome="verified_repair"
+                        />
+                      )}
                   </>
                 )}
                 {!finalStates.has(repair.status) && (

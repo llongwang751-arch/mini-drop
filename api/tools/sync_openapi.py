@@ -249,7 +249,35 @@ S["AIRequest"] = obj({"id": ID, "task_id": ID, "attempt_id": ID, "requested_by":
     ("id", "task_id", "attempt_id", "requested_by", "input_digest", "status", "created_at", "updated_at"))
 S["FeedbackInput"] = obj({"rating": string(enum=["useful", "not_useful"]), "comment": string()}, ("rating",), closed=True,
     description="Comment UTF-8 byte length <=1000. Upserts the current user's feedback for this suggestion.")
-S["DiagnosisInput"] = obj({"goal": string(minLength=1, maxLength=600), "mode": string(enum=["evidence", "model"]), "consent": BOOL},
+S["DiagnosticSkillRef"] = obj({"id": string(), "version": string()}, ("id", "version"), closed=True)
+S["DiagnosticSkill"] = obj({"id": string(), "version": string(), "title": string(),
+    "task_kinds": arr(string(enum=KINDS)), "required_tools": arr(string()), "steps": arr(string()),
+    "counter_evidence": arr(string()), "stop_conditions": arr(string()), "verification": arr(string()),
+    "match_reasons": arr(string())}, ("id", "version", "title", "task_kinds", "required_tools", "steps", "counter_evidence", "stop_conditions", "verification"), closed=True)
+S["DiagnosticCasePrior"] = obj({"id": ID, "source_diagnosis_id": ID, "outcome": string(enum=["verified_repair", "reviewed_correction"]),
+    "assurance": string(), "conclusion": string(), "skill_refs": arr(ref("DiagnosticSkillRef")),
+    "match_reasons": arr(string()), "prior_only": {"type": "boolean", "const": True}},
+    ("id", "source_diagnosis_id", "outcome", "assurance", "conclusion", "skill_refs", "match_reasons", "prior_only"), closed=True)
+S["DiagnosticKnowledge"] = obj({"skills": arr(ref("DiagnosticSkill")), "cases": arr(ref("DiagnosticCasePrior"), maxItems=3),
+    "prior_only": {"type": "boolean", "const": True}, "history_enabled": BOOL}, ("skills", "cases", "prior_only", "history_enabled"), closed=True,
+    description="程序绑定的诊断方法与历史先验。每项假设必须同时引用本轮测量证据；历史经验不证明当前根因。")
+S["DiagnosticCaseInput"] = obj({"outcome": string(enum=["verified_repair", "reviewed_correction"]), "code_repair_id": ID,
+    "human_confirmed": {"type": "boolean", "const": True}, "correction_code": string(enum=["insufficient_evidence", "wrong_hotspot", "causality_not_established", "incomparable_measurements", "regression_detected"])},
+    ("outcome", "human_confirmed"), closed=True,
+    description="人工纠正使用固定枚举。verified_repair必须绑定同一调查的真实成功修复与当前登记版本；不接受客户端的accepted标志、自由文本或补丁。")
+S["DiagnosticCaseInput"]["allOf"] = [
+    {"if": {"properties": {"outcome": {"const": "reviewed_correction"}}, "required": ["outcome"]},
+     "then": {"required": ["correction_code"], "not": {"required": ["code_repair_id"]}}},
+    {"if": {"properties": {"outcome": {"const": "verified_repair"}}, "required": ["outcome"]},
+     "then": {"required": ["code_repair_id"], "not": {"required": ["correction_code"]}}},
+]
+S["DiagnosticCase"] = obj({"id": ID, "task_id": ID, "diagnosis_id": ID, "attempt_id": ID, "analysis_job_id": ID,
+    "analysis_run": integer(minimum=0), "code_repair_id": ID, "task_kind": string(enum=KINDS), "project_id": string(), "source_revision": string(),
+    "outcome": string(enum=["verified_repair", "reviewed_correction"]), "correction_code": string(),
+    "status": string(enum=["active", "revoked"]), "created_at": DATE, "expires_at": DATE, "revoked_at": DATE},
+    ("id", "task_id", "diagnosis_id", "attempt_id", "analysis_job_id", "analysis_run", "task_kind", "outcome", "status", "created_at", "expires_at"), closed=True)
+S["DiagnosisInput"] = obj({"goal": string(minLength=1, maxLength=600), "mode": string(enum=["evidence", "model"]), "consent": BOOL,
+    "knowledge_mode": string(enum=["off", "skills", "experience"], default="experience")},
     ("goal", "mode"), closed=True, description="Trimmed goal 1..600 Unicode characters, no control characters except LF/TAB. Model mode requires consent=true; evidence mode never calls a provider.")
 S["DiagnosisInput"]["allOf"] = [{"if": {"properties": {"mode": {"const": "model"}}, "required": ["mode"]},
     "then": {"properties": {"consent": {"const": True}}, "required": ["consent"]}}]
@@ -267,12 +295,12 @@ S["AgentRuntime"] = obj({"framework": string(enum=["agentscope"]),
     description="Server-derived execution proof, never model-authored. Planning stores it in an agent_runtime trace observation; diagnosis/source reports may include it. Absence is expected for historical or explicit legacy runs.")
 S["DiagnosisReport"] = obj({"summary": string(), "hypotheses": arr(ref("DiagnosisHypothesis"), minItems=1, maxItems=4),
     "limitations": arr(string()), "plan": ref("DiagnosisPlan"), "engine": string(enum=["model", "evidence"]), "model": string(),
-    "agent_runtime": ref("AgentRuntime")},
+    "agent_runtime": ref("AgentRuntime"), "knowledge": ref("DiagnosticKnowledge")},
     ("summary", "hypotheses", "limitations", "engine"), closed=True)
-S["DiagnosisStep"] = obj({"evidence_id": string(pattern="^E[1-8]$"), "tool": string(enum=["read_profile_summary", "inspect_hotspots", "check_collection_quality", "inspect_call_paths", "propose_verification", "compare_profiles"]),
+S["DiagnosisStep"] = obj({"evidence_id": string(pattern="^E[1-8]$"), "tool": string(enum=["read_profile_summary", "inspect_hotspots", "check_collection_quality", "inspect_call_paths", "propose_verification", "compare_profiles", "read_diagnostic_knowledge"]),
     "observation": MAP}, ("evidence_id", "tool", "observation"), closed=True)
 S["DiagnosisRun"] = obj({"id": ID, "task_id": ID, "attempt_id": ID, "analysis_job_id": ID, "analysis_run": integer(minimum=0),
-    "requested_by": string(), "goal": string(), "mode": string(enum=["evidence", "model"]), "input_digest": string(),
+    "requested_by": string(), "goal": string(), "mode": string(enum=["evidence", "model"]), "knowledge_mode": string(enum=["off", "skills", "experience"]), "input_digest": string(),
     "status": string(enum=["pending", "running", "success", "failed"]), "trace": arr(ref("DiagnosisStep"), maxItems=8),
     "report": {"anyOf": [ref("DiagnosisReport"), {"type": "null"}]}, "error_code": string(), "created_at": DATE, "updated_at": DATE},
     ("id", "task_id", "attempt_id", "analysis_job_id", "analysis_run", "requested_by", "goal", "mode", "input_digest", "status", "trace", "report", "created_at", "updated_at"))
@@ -453,6 +481,15 @@ add("post", "/tasks/{id}/diagnoses", "requestDiagnosis", "Queue task-bound diagn
     description="Task operate scope and complete successful result required. SQL006. Idempotency is per requesting user/key, changed payload conflicts. Up to3 active runs/user. Model mode sends goal and pseudonymized statistics only. At most4 tool rounds plus one format-only correction request,8 tools,150s per execution; crash recovery up to3 executions.")
 add("get", "/tasks/{id}/diagnoses", "diagnoses", "Latest20 durable diagnostic runs", page(ref("DiagnosisRun")), tag="Suggestions",
     description="Task read scope, including read shares. Historical runs retain attempt and analysis job/run binding. No credentials, hidden thoughts, raw profiles or provider bodies.")
+add("get", "/diagnostic-skills", "diagnosticSkills", "版本化诊断方法目录", page(ref("DiagnosticSkill")), tag="Suggestions",
+    description="登录后可读，内置目录随版本发布；方法不授予额外工具或采集权限。")
+add("get", "/diagnostic-cases", "diagnosticCases", "本人复核的诊断案例", page(ref("DiagnosticCase")), tag="Suggestions",
+    description="最多50条，逐条重验当前来源与操作权限。可按正整数task_id过滤；不向其他用户共享个人经验。")
+P["/api/v1/diagnostic-cases"]["get"].setdefault("parameters", []).append({"name": "task_id", "in": "query", "schema": ID})
+add("post", "/tasks/{id}/diagnoses/{run_id}/cases", "createDiagnosticCase", "复核保存有来源的诊断案例", ref("DiagnosticCase"), tag="Suggestions", code=201, idem=True,
+    body=ref("DiagnosticCaseInput"), description="当前任务操作权限、成功且未过期的诊断。保存与审计原子提交，幂等键绑定载荷。人工纠正和隔离修复验证分开标识；默认90天有效。")
+add("post", "/diagnostic-cases/{id}/revoke", "revokeDiagnosticCase", "撤销本人经验的后续复用", obj({"revoked": BOOL}, ("revoked",)), tag="Suggestions",
+    body=obj(closed=True), description="本人、当前来源操作权限；撤销与审计原子提交，既有测量和报告保留。")
 add("post", "/tasks/{id}/diagnoses/{run_id}/cancel", "cancelDiagnosis", "Cancel diagnostic writes", obj({"canceled": BOOL}, ("canceled",)), tag="Suggestions",
     description="Task operate scope. Pending/running -> failed DIAGNOSIS_CANCELED; atomic event/audit. Late worker writes are fenced. Already terminal returns409.")
 add("post", "/tasks/{id}/diagnoses/{run_id}/collect", "collectDiagnosis", "Confirm controlled follow-up collection", ref("Task"), tag="Suggestions", code=201, idem=True, body=ref("DiagnosisCollectInput"),

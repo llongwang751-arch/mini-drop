@@ -1,0 +1,46 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-21T05:26:36.212711+00:00",
+  "postgres": {
+    "passed": true,
+    "tests_passed_including_subtests": 256,
+    "skipped": [
+      "TestPostgresDiagnosisLiveDeepSeek"
+    ]
+  },
+  "web": {
+    "unit_tests_passed": 143,
+    "browser_tests_passed": 9,
+    "browser_skipped": 0,
+    "axe_scans": 5,
+    "axe_violations": 0,
+    "viewport_widths": [
+      1440,
+      375
+    ],
+    "data_source": "explicitly imported local synthetic API fixtures",
+    "production_build_passed": true,
+    "prettier_passed": true
+  },
+  "runtime_windows": {
+    "sdk": "agentscope==2.0.10",
+    "tests_passed": 25,
+    "linux_specific_skipped": 9,
+    "log_sha256": "b6df2b4be02be13612d173c53258e89d7e7a9e10a73c3d6d83b23e6576acae17",
+    "real_model_calls": 0
+  },
+  "contracts": {
+    "http_routes": 80,
+    "schemas": 97,
+    "task_kinds": 18,
+    "grpc_services": 4,
+    "v1_compatibility_negative_control_passed": true
+  },
+  "go_vet_passed": true,
+  "evaluation_python_unit_tests_passed": 16,
+  "limitations": [
+    "本地PG回归未调用真实模型；线上对照单独记录。",
+    "Windows跳过Linux Unix socket用例；Linux镜像验证单独记录。",
+    "合成评测与证据引用覆盖不等于真实根因正确率。"
+  ]
+}

@@ -160,7 +160,7 @@ func (r *Repository) Ready(ctx context.Context) error {
 	return db.PingContext(ctx)
 }
 
-const MinimumSchemaVersion = 8
+const MinimumSchemaVersion = 9
 
 // CheckSchema 确认数据库至少包含当前二进制依赖的迁移版本；缺少表或列时启动失败，比运行中出现部分写入更容易安全恢复。
 func (r *Repository) CheckSchema(ctx context.Context) error {

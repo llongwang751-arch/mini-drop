@@ -28,6 +28,7 @@ type DiagnosisRun struct {
 	RequestedBy    string          `json:"requested_by"`
 	Goal           string          `json:"goal"`
 	Mode           string          `json:"mode"`
+	KnowledgeMode  string          `json:"knowledge_mode"`
 	InputDigest    string          `json:"input_digest"`
 	RequestKey     string          `json:"-"`
 	Status         string          `json:"status"`
@@ -41,9 +42,20 @@ type DiagnosisRun struct {
 	UpdatedAt      time.Time       `json:"updated_at"`
 }
 type DiagnosisInput struct {
-	Goal    string `json:"goal"`
-	Mode    string `json:"mode"`
-	Consent bool   `json:"consent"`
+	Goal          string `json:"goal"`
+	Mode          string `json:"mode"`
+	Consent       bool   `json:"consent"`
+	KnowledgeMode string `json:"knowledge_mode,omitempty"`
+}
+
+// diagnosisInputDigest 把知识开关绑定到幂等与来源校验；旧记录的空值/off 保持原摘要，
+// 迁移不会使已经保存的报告失效。不同知识模式不能共用同一幂等请求。
+func diagnosisInputDigest(raw json.RawMessage, mode, goal, knowledgeMode string) string {
+	input := string(raw) + "\x00" + mode + "\x00" + goal
+	if knowledgeMode != "" && knowledgeMode != "off" {
+		input += "\x00knowledge:" + knowledgeMode
+	}
+	return repository.Digest(input)
 }
 
 // RequestDiagnosis 在事务中锁定用户准入和来源任务，绑定当前 attempt、分析 job/run 与完整结果摘要。
@@ -54,6 +66,12 @@ func (s *Suggestions) RequestDiagnosis(ctx context.Context, u domain.User, id in
 		return run, err
 	}
 	in.Goal = strings.TrimSpace(in.Goal)
+	if in.KnowledgeMode == "" {
+		in.KnowledgeMode = "experience"
+	}
+	if in.KnowledgeMode != "off" && in.KnowledgeMode != "skills" && in.KnowledgeMode != "experience" {
+		return run, domain.Fail("INVALID_PARAMETERS", "知识模式须为off、skills或experience")
+	}
 	if !utf8.ValidString(in.Goal) || utf8.RuneCountInString(in.Goal) < 1 || utf8.RuneCountInString(in.Goal) > 600 || strings.IndexFunc(in.Goal, func(r rune) bool { return unicode.IsControl(r) && r != '\n' && r != '\t' }) >= 0 || (in.Mode != "evidence" && in.Mode != "model") {
 		return run, domain.Fail("INVALID_PARAMETERS", "诊断问题须为1–600字，模式为evidence或model")
 	}
@@ -95,7 +113,7 @@ func (s *Suggestions) RequestDiagnosis(ctx context.Context, u domain.User, id in
 		if err != nil {
 			return err
 		}
-		digest := repository.Digest(string(raw) + "\x00" + in.Mode + "\x00" + in.Goal)
+		digest := diagnosisInputDigest(raw, in.Mode, in.Goal, in.KnowledgeMode)
 		err = tx.Where("requested_by=? AND request_key=?", u.ID, key).First(&run).Error
 		if err == nil {
 			if run.TaskID != id || run.AttemptID != attempt.ID || run.InputDigest != digest || run.AnalysisJobID != job.ID || run.AnalysisRun != job.Attempt {
@@ -113,7 +131,7 @@ func (s *Suggestions) RequestDiagnosis(ctx context.Context, u domain.User, id in
 		if count >= 3 {
 			return domain.Fail("DIAGNOSIS_BUSY", "最多同时运行3个诊断，请等待或取消已有诊断")
 		}
-		run = DiagnosisRun{TaskID: id, AttemptID: attempt.ID, AnalysisJobID: job.ID, AnalysisRun: job.Attempt, RequestedBy: u.ID, Goal: in.Goal, Mode: in.Mode, RequestKey: key, InputDigest: digest, Status: "pending", Trace: json.RawMessage("[]")}
+		run = DiagnosisRun{TaskID: id, AttemptID: attempt.ID, AnalysisJobID: job.ID, AnalysisRun: job.Attempt, RequestedBy: u.ID, Goal: in.Goal, Mode: in.Mode, KnowledgeMode: in.KnowledgeMode, RequestKey: key, InputDigest: digest, Status: "pending", Trace: json.RawMessage("[]")}
 		if err := tx.Create(&run).Error; err != nil {
 			return err
 		}
@@ -155,7 +173,7 @@ func (s *Suggestions) ValidateDiagnosisSource(ctx context.Context, run Diagnosis
 	if err != nil {
 		return err
 	}
-	if repository.Digest(string(raw)+"\x00"+run.Mode+"\x00"+run.Goal) != run.InputDigest {
+	if diagnosisInputDigest(raw, run.Mode, run.Goal, run.KnowledgeMode) != run.InputDigest {
 		return domain.Fail("INPUT_CHANGED", "证据已改变")
 	}
 	return nil
@@ -251,7 +269,7 @@ func (s *Suggestions) diagnosisFence(ctx context.Context, tx *gorm.DB, run Diagn
 	if job.ID != run.AnalysisJobID || job.Attempt != run.AnalysisRun {
 		return t, domain.Fail("STALE_ATTEMPT", "分析执行版本已改变")
 	}
-	if repository.Digest(string(raw)+"\x00"+run.Mode+"\x00"+run.Goal) != run.InputDigest {
+	if diagnosisInputDigest(raw, run.Mode, run.Goal, run.KnowledgeMode) != run.InputDigest {
 		return t, domain.Fail("INPUT_CHANGED", "证据已改变")
 	}
 	var verification VerificationRun
@@ -295,6 +313,17 @@ func (s *Suggestions) persistDiagnosisStep(ctx context.Context, run DiagnosisRun
 // finishDiagnosis 以当前来源与租约为条件提交成功或失败终态及事件；旧工作器的迟到回答不能覆盖已经取消或重新领取的运行。
 func (s *Suggestions) finishDiagnosis(ctx context.Context, run DiagnosisRun, owner string, trace []DiagnosisStep, report *DiagnosisReport, workErr error) error {
 	return s.Repo.Context(ctx).Transaction(func(tx *gorm.DB) error {
+		if workErr == nil {
+			// 提交前先按全局锁序固定本次引用的历史来源，收住模型重读后发生撤销/重分析的窗口。
+			// 领域拒绝写为诊断失败；数据库错误必须回滚，不能在已失败事务里继续写终态。
+			if err := s.PinDiagnosticKnowledge(ctx, tx, run, trace); err != nil {
+				var domainErr *domain.Error
+				if !errors.As(err, &domainErr) {
+					return err
+				}
+				workErr = err
+			}
+		}
 		_, fenceErr := s.diagnosisFence(ctx, tx, run, owner)
 		if fenceErr != nil {
 			workErr = fenceErr

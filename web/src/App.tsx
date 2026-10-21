@@ -53,6 +53,7 @@ import Settings from "./views/Settings";
 // 调查与指南按路由分包，首次进入工作台时无需下载全部教学和修复视图。
 const Guide = lazy(() => import("./views/Guide"));
 const Investigations = lazy(() => import("./views/Investigations"));
+const Knowledge = lazy(() => import("./views/Knowledge"));
 
 function DropSection() {
   const clipId = useId();
@@ -378,27 +379,29 @@ export default function App() {
         }}
       />
     );
-  const pageName = location.pathname.startsWith("/investigations")
-    ? "智能性能调查"
-    : location.pathname.startsWith("/compare")
-      ? "任务对比"
-      : location.pathname.startsWith("/groups")
-        ? "权限组"
-        : location.pathname.startsWith("/rules")
-          ? "诊断规则"
-          : location.pathname.startsWith("/agents")
-            ? "接入节点"
-            : location.pathname.startsWith("/composites")
-              ? "复合诊断"
-              : location.pathname.startsWith("/tasks")
-                ? "诊断任务"
-                : location.pathname.startsWith("/schedules")
-                  ? "计划任务"
-                  : location.pathname.startsWith("/settings")
-                    ? "工作空间设置"
-                    : location.pathname.startsWith("/guide")
-                      ? "使用指南"
-                      : "工作空间总览";
+  const pageName = location.pathname.startsWith("/knowledge")
+    ? "诊断知识"
+    : location.pathname.startsWith("/investigations")
+      ? "智能性能调查"
+      : location.pathname.startsWith("/compare")
+        ? "任务对比"
+        : location.pathname.startsWith("/groups")
+          ? "权限组"
+          : location.pathname.startsWith("/rules")
+            ? "诊断规则"
+            : location.pathname.startsWith("/agents")
+              ? "接入节点"
+              : location.pathname.startsWith("/composites")
+                ? "复合诊断"
+                : location.pathname.startsWith("/tasks")
+                  ? "诊断任务"
+                  : location.pathname.startsWith("/schedules")
+                    ? "计划任务"
+                    : location.pathname.startsWith("/settings")
+                      ? "工作空间设置"
+                      : location.pathname.startsWith("/guide")
+                        ? "使用指南"
+                        : "工作空间总览";
   const navigation = [
     { to: "/", label: "工作空间总览", icon: SquaresFour },
     { to: "/tasks", label: "诊断任务", icon: Stack },
@@ -408,6 +411,7 @@ export default function App() {
     { to: "/schedules", label: "计划任务", icon: CalendarDots },
     { to: "/groups", label: "权限组", icon: ShieldCheck },
     { to: "/rules", label: "诊断规则", icon: GearSix },
+    { to: "/knowledge", label: "诊断知识", icon: BookOpen },
   ];
   return (
     <UserContext.Provider value={auth.user}>
@@ -615,6 +619,14 @@ export default function App() {
                 <Route path="/schedules" element={<Schedules />} />
                 <Route path="/groups" element={<Groups />} />
                 <Route path="/rules" element={<Rules />} />
+                <Route
+                  path="/knowledge"
+                  element={
+                    <Suspense fallback={<Busy />}>
+                      <Knowledge />
+                    </Suspense>
+                  }
+                />
                 <Route path="/composites" element={<Composites />} />
                 <Route path="/composites/:id" element={<CompositeDetail />} />
                 <Route

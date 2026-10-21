@@ -136,6 +136,23 @@ class Provider:
 
 
 class RuntimeTests(unittest.IsolatedAsyncioTestCase):
+    async def test_diagnostic_knowledge_uses_native_sdk_and_bounded_gateway(self):
+        """新知识工具必须能通过真实SDK解析和回调，不能只在Go白名单中存在。"""
+        body = run_body(tools=[tool_definition("read_diagnostic_knowledge")])
+        result, provider, gateway = await self.execute(
+            [
+                completion(calls=[("knowledge-fixture", "read_diagnostic_knowledge", "{}")]),
+                completion('{"summary":"合成报告，知识仍需当前证据验证"}'),
+            ],
+            body=body,
+        )
+        self.assertEqual(result["runtime"]["agent_class"], "agentscope.agent.Agent")
+        self.assertEqual(result["runtime"]["tool_calls"], 1)
+        calls = [call for call in gateway.calls if call["type"] == "tool"]
+        self.assertEqual(calls[0]["name"], "read_diagnostic_knowledge")
+        self.assertEqual(calls[0]["arguments"], {})
+        self.assertEqual(len(provider.requests), 2)
+
     async def asyncSetUp(self):
         self.directory = tempfile.TemporaryDirectory()
         secret = Path(self.directory.name) / "test-only-key"

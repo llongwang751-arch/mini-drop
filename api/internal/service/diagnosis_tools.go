@@ -39,6 +39,7 @@ type DiagnosisReport struct {
 	Engine       string                `json:"engine"`
 	Model        string                `json:"model,omitempty"`
 	AgentRuntime *AgentRuntime         `json:"agent_runtime,omitempty"`
+	Knowledge    *DiagnosticKnowledge  `json:"knowledge,omitempty"`
 }
 
 func diagnosisToolNames() []string {
@@ -263,7 +264,22 @@ func (s *Suggestions) diagnose(ctx context.Context, run DiagnosisRun, owner stri
 		var observation json.RawMessage
 		var p *DiagnosisPlan
 		var err error
-		if name == "compare_profiles" {
+		if name == "read_diagnostic_knowledge" {
+			u, e := s.Repo.User(ctx, run.RequestedBy)
+			if e != nil {
+				return nil, e
+			}
+			var knowledge DiagnosticKnowledge
+			knowledge, err = s.ReadDiagnosticKnowledge(ctx, u, run, args, run.KnowledgeMode == "experience")
+			if err == nil {
+				// 重复读取不能用“新的空结果”覆盖模型已经看过的旧案例。
+				// 本次运行固定第一次加载的快照；任何漂移都要求重新诊断。
+				err = validateDiagnosticKnowledgeSnapshot(*trace, knowledge)
+			}
+			if err == nil {
+				observation, err = json.Marshal(knowledge)
+			}
+		} else if name == "compare_profiles" {
 			var empty struct{}
 			decoder := json.NewDecoder(strings.NewReader(string(args)))
 			decoder.DisallowUnknownFields()
@@ -310,6 +326,11 @@ func (s *Suggestions) diagnose(ctx context.Context, run DiagnosisRun, owner stri
 	if err != nil {
 		return nil, err
 	}
+	if run.KnowledgeMode == "skills" || run.KnowledgeMode == "experience" {
+		if _, err := invoke("read_diagnostic_knowledge", json.RawMessage(`{}`)); err != nil {
+			return nil, err
+		}
+	}
 	var report *DiagnosisReport
 	if run.Mode == "model" {
 		if !s.AgentAvailable() {
@@ -336,7 +357,14 @@ func (s *Suggestions) diagnose(ctx context.Context, run DiagnosisRun, owner stri
 				return nil, err
 			}
 		}
-		report = &DiagnosisReport{Engine: "evidence", Summary: "已完成本地证据检查。请结合热点与采集质量审阅定位线索；本模式不调用模型。", Hypotheses: []DiagnosisHypothesis{{Claim: "优先检查当前结果中self占比较高的叶函数及total占比较高的调用路径。", EvidenceIDs: []string{"E1", "E2"}, Verification: "在热点视图核对原符号及调用关系，再按相同负载复测，禁止把样本权重当作请求延迟。"}, {Claim: "当前证据不能独立证明业务瓶颈或修复收益。", EvidenceIDs: []string{"E3"}, Verification: "补齐业务P95/P99、吞吐、错误率、负载与采集开销；对照采集后使用结果对比。"}}, Limitations: []string{"本地规则检查，无模型推理、无因果验证。"}}
+		report = &DiagnosisReport{Engine: "evidence", Summary: "已完成本地证据检查。请结合热点与采集质量审阅定位线索；本模式不调用模型。", Hypotheses: []DiagnosisHypothesis{{Claim: "优先检查当前结果中self占比较高的叶函数及total占比较高的调用路径。", EvidenceIDs: []string{diagnosisEvidenceID(*trace, "read_profile_summary"), diagnosisEvidenceID(*trace, "inspect_hotspots")}, Verification: "在热点视图核对原符号及调用关系，再按相同负载复测，禁止把样本权重当作请求延迟。"}, {Claim: "当前证据不能独立证明业务瓶颈或修复收益。", EvidenceIDs: []string{diagnosisEvidenceID(*trace, "check_collection_quality")}, Verification: "补齐业务P95/P99、吞吐、错误率、负载与采集开销；对照采集后使用结果对比。"}}, Limitations: []string{"本地规则检查，无模型推理、无因果验证。"}}
+	}
+	if err := validateDiagnosticSkillUse(*trace); err != nil {
+		return nil, err
+	}
+	report.Knowledge, err = s.validateLoadedDiagnosticKnowledge(ctx, run, *trace)
+	if err != nil {
+		return nil, err
 	}
 	report.Plan = plan
 	report.Limitations = append(report.Limitations, "模型结论为待验证假设，不代表已确认缺陷；不提供未经符号映射验证的源码行号。", "原始profile、原符号、主机、PID、路径和凭据不发送模型；问题文本会发送，请勿填入敏感信息。")

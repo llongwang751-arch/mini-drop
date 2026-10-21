@@ -274,7 +274,8 @@ func diagnosisFixture(t *testing.T) (*gorm.DB, *Suggestions, domain.User, domain
 }
 func requestDiagnosisFixture(t *testing.T, s *Suggestions, u domain.User, task domain.Task, mode, key string) DiagnosisRun {
 	t.Helper()
-	r, err := s.RequestDiagnosis(context.Background(), u, task.ID, DiagnosisInput{Goal: "检查热点与证据质量", Mode: mode, Consent: true}, "fixture", key)
+	// 旧生命周期/模型协议夹具固定为不加载知识；知识层的真实接入由独立回归覆盖。
+	r, err := s.RequestDiagnosis(context.Background(), u, task.ID, DiagnosisInput{Goal: "检查热点与证据质量", Mode: mode, Consent: true, KnowledgeMode: "off"}, "fixture", key)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -163,7 +163,7 @@ func (s *Server) fail(c *gin.Context, err error) {
 		status = 404
 	case "ARTIFACT_EXPIRED":
 		status = 410
-	case "INVALID_STATE", "IDEMPOTENCY_CONFLICT", "RESULT_NOT_READY", "USER_EXISTS", "STALE_ATTEMPT", "DIAGNOSIS_NOT_ACTIVE":
+	case "INVALID_STATE", "IDEMPOTENCY_CONFLICT", "RESULT_NOT_READY", "USER_EXISTS", "STALE_ATTEMPT", "DIAGNOSIS_NOT_ACTIVE", "KNOWLEDGE_CHANGED":
 		status = 409
 	case "RATE_LIMITED", "QUOTA_EXCEEDED", "DIAGNOSIS_BUSY":
 		status = 429
@@ -172,6 +172,9 @@ func (s *Server) fail(c *gin.Context, err error) {
 		de.Retryable = true
 	case "INTERNAL_ERROR":
 		status = 500
+	case "KNOWLEDGE_TIMEOUT":
+		status = 504
+		de.Retryable = true
 	}
 	c.AbortWithStatusJSON(status, gin.H{"request_id": c.GetString("request_id"), "data": nil, "error": de})
 }

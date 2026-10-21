@@ -2,6 +2,7 @@
 
 | 目的 | 文档 |
 | --- | --- |
+| 诊断方法、个人经验与固定评测 | [诊断知识层](DIAGNOSTIC_KNOWLEDGE.md) · [评测运行说明](../scripts/evaluation/README.md) |
 | 按源码学习与准备讲解 | [中文注释阅读路线](CODE_READING_GUIDE.md)：普通采集、AgentScope循环、复测与隔离修复 |
 | 理解当前实现 | [项目上下文](PROJECT_CONTEXT.md)、[权威契约](CONTRACT.md)、[HTTP OpenAPI](openapi.yaml) |
 | 开发与运行 | [本地开发](LOCAL_DEVELOPMENT.md)、[运维手册](RUNBOOK.md) |

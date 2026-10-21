@@ -59,7 +59,7 @@ func phaseBudget(phase string) (agentBudget, bool) {
 func phaseTools(phase string) map[string]bool {
 	names := map[string][]string{
 		"planning":  {"list_collectors", "propose_collection"},
-		"diagnosis": {"read_profile_summary", "inspect_hotspots", "check_collection_quality", "inspect_call_paths", "propose_verification", "compare_profiles"},
+		"diagnosis": {"read_profile_summary", "inspect_hotspots", "check_collection_quality", "inspect_call_paths", "propose_verification", "compare_profiles", "read_diagnostic_knowledge"},
 		"repair":    {"profile_business_flow", "read_source", "test_patch"},
 	}
 	allowed := map[string]bool{}

@@ -92,8 +92,9 @@ def main():
                    "Schedule": "Schedule", "Audit": "Audit", "Group": "Group", "CompositeRun": "CompositeRun",
                    "CompositeNode": "CompositeNode", "CreateComposite": "CreateComposite", "CompositeNodeInput": "CompositeNodeInput"}
     domain = "\n".join(file.read_text(encoding="utf-8") for file in (ROOT / "api/internal/domain").glob("*.go") if not file.name.endswith("_test.go"))
-    public_dtos.update({name: name for name in ("DiagnosisRun", "DiagnosisInput", "DiagnosisStep", "DiagnosisPlan", "DiagnosisHypothesis", "DiagnosisReport", "AgentRuntime", "VerificationRun", "ProfileComparison", "ProfileDifference", "Investigation", "InvestigationInput", "CollectionPlan", "CodeRepair", "CodeRepairInput")})
+    public_dtos.update({name: name for name in ("DiagnosisRun", "DiagnosisInput", "DiagnosisStep", "DiagnosisPlan", "DiagnosisHypothesis", "DiagnosisReport", "AgentRuntime", "VerificationRun", "ProfileComparison", "ProfileDifference", "Investigation", "InvestigationInput", "CollectionPlan", "CodeRepair", "CodeRepairInput", "DiagnosticSkill", "DiagnosticSkillRef", "DiagnosticCasePrior", "DiagnosticKnowledge", "DiagnosticCaseInput", "DiagnosticCase")})
     domain += "\n" + "\n".join(file.read_text(encoding="utf-8") for file in (ROOT / "api/internal/service").glob("diagnosis*.go") if not file.name.endswith("_test.go"))
+    domain += "\n" + "\n".join(file.read_text(encoding="utf-8") for file in (ROOT / "api/internal/service").glob("diagnostic_knowledge*.go") if not file.name.endswith("_test.go"))
     domain += "\n" + "\n".join((ROOT/"api/internal/service"/name).read_text(encoding="utf-8") for name in ("investigation.go","code_repair.go","agent_runtime.go"))
     for go_name, schema_name in public_dtos.items():
         body = re.search(r"type " + go_name + r" struct \{(.*?)\n\}", domain, re.S).group(1)
@@ -122,6 +123,12 @@ def main():
     valid("DiagnosisInput", {"goal": "", "mode": "model", "consent": True}, False)
     valid("DiagnosisInput", {"goal": "fixture", "mode": "model", "consent": False}, False)
     valid("DiagnosisInput", {"goal": "fixture", "mode": "model", "command": "sh"}, False)
+    valid("DiagnosisInput", {"goal": "fixture", "mode": "evidence", "knowledge_mode": "experience"})
+    valid("DiagnosisInput", {"goal": "fixture", "mode": "evidence", "knowledge_mode": "self_training"}, False)
+    valid("DiagnosticCaseInput", {"outcome": "reviewed_correction", "human_confirmed": True, "correction_code": "insufficient_evidence"})
+    valid("DiagnosticCaseInput", {"outcome": "verified_repair", "human_confirmed": True, "code_repair_id": "1"})
+    valid("DiagnosticCaseInput", {"outcome": "reviewed_correction", "human_confirmed": True}, False)
+    valid("DiagnosticCaseInput", {"outcome": "verified_repair", "human_confirmed": True, "code_repair_id": "1", "accepted": True}, False)
     valid("DiagnosisCollectInput", {"confirm": True})
     valid("DiagnosisCollectInput", {"confirm": False}, False)
     runtime_fixture = {"framework": "agentscope", "framework_version": "2.0.10", "agent_class": "agentscope.agent.Agent",

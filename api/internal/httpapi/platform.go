@@ -16,6 +16,10 @@ import (
 )
 
 func (s *Server) platformRoutes(v *gin.RouterGroup) {
+	v.GET("/diagnostic-skills", s.diagnosticSkills)
+	v.GET("/diagnostic-cases", s.diagnosticCases)
+	v.POST("/diagnostic-cases/:id/revoke", s.revokeDiagnosticCase)
+	v.POST("/tasks/:id/diagnoses/:run_id/cases", s.createDiagnosticCase)
 	v.GET("/code-projects", s.codeProjects)
 	v.POST("/code-repairs", s.requestCodeRepair)
 	v.GET("/code-repairs", s.codeRepairs)
