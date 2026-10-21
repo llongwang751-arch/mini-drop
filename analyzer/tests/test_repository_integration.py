@@ -22,8 +22,10 @@ import psycopg
 from drop_analyzer.config import Config
 from drop_analyzer.errors import AnalysisError, LeaseLost
 from drop_analyzer.folded import analyze_folded
+from drop_analyzer.isolate import analyze_isolated
 from drop_analyzer.partial import build_partial
 from drop_analyzer.repository import Repository
+from drop_analyzer.pyspy_raw import trusted_pyspy_source
 from drop_analyzer.result import make_result
 from drop_analyzer.storage import ObjectStore
 from drop_analyzer.worker import process_job
@@ -115,6 +117,116 @@ class RepositoryIntegrationTests(unittest.TestCase):
         first_job = self.a.claim()
         self.assertEqual(first_job.id, first)
         self.assertIsNone(self.b.claim())
+
+    def test_pyspy_attempt_metadata_survives_repository_and_real_child_context(self):
+        """缩减导入夹具走真实 PostgreSQL JOIN→JSON 请求→解码子进程。
+
+        `attempt` 同时是表内整数列；PostgreSQL 会优先把同名表别名解析为该列，
+        因而不能用 `to_jsonb(attempt)` 取整行元数据。此例保留这种数据库歧义的
+        负控，并确认只信任当前 attempt，不回退制品自报或导入参数。
+        """
+        raw = (
+            Path(__file__).parent / "fixtures/pyspy-empty-stack-reduced.folded"
+        ).read_bytes()
+        task_id, attempt_id, _ = self.seed()
+        runner = {"schema_version": 1, "kind": "PYTHON_CPU", "runner": "py-spy"}
+        with self.connect() as connection:
+            connection.execute(
+                "UPDATE tasks SET kind='PYTHON_CPU',params='{}' WHERE id=%s", (task_id,)
+            )
+            connection.execute(
+                "UPDATE analysis_jobs SET pipeline='python_cpu_v1' WHERE task_id=%s",
+                (task_id,),
+            )
+            connection.execute(
+                "UPDATE task_attempts SET runner_metadata=%s::jsonb WHERE id=%s",
+                (json.dumps(runner), attempt_id),
+            )
+            connection.execute(
+                """INSERT INTO artifacts(task_id,attempt_id,kind,name,object_key,size,sha256,content_type,format,metadata)
+                VALUES(%s,%s,'RAW','explicit-imported-reduced.folded','raw/imported-reduced',%s,%s,'text/plain','folded','{}')""",
+                (task_id, attempt_id, len(raw), hashlib.sha256(raw).hexdigest()),
+            )
+            original_query = connection.execute(
+                "SELECT to_jsonb(attempt)->'runner_metadata' AS value FROM task_attempts attempt WHERE id=%s",
+                (attempt_id,),
+            ).fetchone()
+            self.assertIsNone(original_query["value"])
+
+        job = self.a.claim()
+        self.assertEqual(job.task_id, task_id)
+        for scenario in (
+            "current_attempt", "artifact_metadata_spoof", "imported_parameters"
+        ):
+            with (
+                self.subTest(scenario=scenario),
+                tempfile.TemporaryDirectory() as root,
+            ):
+                expected = scenario == "current_attempt"
+                with self.connect() as connection:
+                    connection.execute(
+                        "UPDATE task_attempts SET runner_metadata=%s::jsonb WHERE id=%s",
+                        (
+                            json.dumps(
+                                {} if scenario == "artifact_metadata_spoof" else runner
+                            ),
+                            attempt_id,
+                        ),
+                    )
+                    connection.execute(
+                        "UPDATE artifacts SET metadata=%s::jsonb WHERE task_id=%s AND kind='RAW'",
+                        (
+                            json.dumps(
+                                runner if scenario == "artifact_metadata_spoof" else {}
+                            ),
+                            task_id,
+                        ),
+                    )
+                artifact = self.a.input_artifact(job)
+                if expected:
+                    self.assertEqual(artifact["runner_metadata"], runner)
+                path = Path(root) / "explicit-imported-reduced.folded"
+                path.write_bytes(raw)
+                context = {
+                    "pipeline": job.pipeline,
+                    "kind": job.kind,
+                    "format": artifact["format"],
+                    "artifact": artifact,
+                    "inputs": [artifact],
+                    "params": {"source": "import"}
+                    if scenario == "imported_parameters"
+                    else job.params,
+                    "raw_path": str(path),
+                    "work_dir": root,
+                    "limits": {
+                        "address_space_bytes": 512 * 1024**2,
+                        "cpu_seconds": 5,
+                        "wall_seconds": 10,
+                        "output_bytes": 8 * 1024**2,
+                        "temp_bytes": 32 * 1024**2,
+                        "min_free_bytes": 1024**2,
+                    },
+                }
+                serialized = json.loads(
+                    json.dumps(context, ensure_ascii=False, default=str)
+                )
+                self.assertEqual(trusted_pyspy_source(serialized), expected)
+                if not expected:
+                    with self.assertRaises(AnalysisError) as failure:
+                        analyze_isolated(context, check_lease=lambda: None)
+                    self.assertEqual(failure.exception.code, "INVALID_INPUT")
+                    continue
+                isolated = analyze_isolated(context, check_lease=lambda: None)
+                parsed = isolated["parsed"]
+                self.assertEqual(parsed["metadata"]["sample_count"], 380)
+                self.assertEqual(
+                    parsed["sections"]["sampling_quality"]["unresolved_sample_weight"], 1
+                )
+                request = json.loads(
+                    (Path(root) / "analysis-request.json").read_text(encoding="utf-8")
+                )
+                self.assertEqual(request["artifact"]["runner_metadata"], runner)
+                self.assertEqual(path.read_bytes(), raw)
 
     def test_small_and_high_memory_workers_claim_only_their_queue(self):
         heavy_task, _, heavy_job = self.seed()

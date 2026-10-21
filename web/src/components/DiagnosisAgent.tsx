@@ -323,7 +323,7 @@ export default function DiagnosisAgent({
           </label>
         )}
         <p id="diagnosis-boundary" className="section-note">
-          工具限定当前任务，最多4轮工具交互、8次工具；必要时额外1次报告纠错，总计最多150秒。原始文件与原符号留在平台。复测需单独确认。
+          工具限定当前任务，在服务端设定的模型、工具和时间预算内执行；格式纠错轮不运行工具。原始文件与原符号留在平台。复测需单独确认。
         </p>
         {readOnly && (
           <p className="section-note">

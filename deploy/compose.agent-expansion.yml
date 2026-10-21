@@ -1,5 +1,5 @@
 # 在 AgentScope 与知识库覆盖后合并，SQL010 先独立执行并保留备份。
-# 各服务分别固定版本；本次采样质量适配只替换 API、Analyzer。
+# 各服务分别固定版本；本次来源查询与预算文案修复只替换 Analyzer、Web。
 # 数据源登记由管理员在主机准备，文件中引用的令牌另行只读挂载，不能下发浏览器。
 services:
   api:
@@ -14,6 +14,6 @@ services:
   agent-runtime:
     image: drop-agent-runtime:${AGENT_EXPANSION_RUNTIME_TAG:-20261021.4}
   web:
-    image: drop-web:${AGENT_EXPANSION_WEB_TAG:-20261021.5}
+    image: drop-web:${AGENT_EXPANSION_WEB_TAG:-20261021.6}
   analyzer:
-    image: drop-analyzer:${AGENT_EXPANSION_ANALYZER_TAG:-20261021.1}
+    image: drop-analyzer:${AGENT_EXPANSION_ANALYZER_TAG:-20261021.2}

@@ -1,0 +1,54 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-21T10:31:14.861098+00:00",
+  "origin": "https://82.157.81.79",
+  "source_commit": "4f35e9bf2d0ef9b66992aa37ac72ca2ed398ac1c",
+  "source_sha256": "26ded77f1b23b7d73188957c945b779e82b7ebdea0cf4e794207534de0c2fca5",
+  "archive_sha256": "d4fd535e35f4cb1b5fb655ae4519698f3c5fc02a1b11a9331060ffe27f504f06",
+  "runtime": {
+    "/txdrop-analyzer-1": {
+      "id": "2b17c50459c43752781263df078eef76d933809a390e230974e883ad6bfd1816",
+      "image": "drop-analyzer:20261021.1",
+      "image_id": "sha256:e9ac6d55e151c7fa42d8cc531cc67bd820305e1dee969eb9e00e6387cbb5d51d",
+      "volumes": []
+    },
+    "/txdrop-api-1": {
+      "id": "a0d0b31ed0cc92cadf2bd553912ca266104f50a3c434ed223def018104115fc0",
+      "image": "drop-api:20261021.8",
+      "image_id": "sha256:0f287555ef519843d509abe2eebbbacd2eeab310ec802236118a5f4291fac48a",
+      "volumes": [
+        "txdrop_ai_runner_socket",
+        "txdrop_ai_tool_socket"
+      ]
+    }
+  },
+  "runtime_count": 29,
+  "schema_version": 10,
+  "sql_migrations_performed": 0,
+  "only_api_and_analyzer_containers_replaced": true,
+  "other_27_container_ids_images_volumes_preserved": true,
+  "analyzer_version": "0.2.4",
+  "linux_analyzer_parser_tests_passed": 20,
+  "linux_analyzer_parser_tests_skipped": 0,
+  "all_registered_source_snapshots_and_broker_pid_preserved": true,
+  "data_volumes_and_previous_named_images_preserved": true,
+  "linux_sdk_image": "drop-agent-runtime:20261021.4",
+  "linux_sdk_tests_passed": 56,
+  "linux_sdk_tests_skipped": 0,
+  "readiness_http": 200,
+  "prometheus_up": 7,
+  "monitor_readiness_observations": [
+    {
+      "attempt": 1,
+      "targets": 7,
+      "up": 6
+    },
+    {
+      "attempt": 2,
+      "targets": 7,
+      "up": 7
+    }
+  ],
+  "prior_attempt_monitor_check_rolled_back": true,
+  "immutable_candidate_images_and_passed_linux_tests_reused": true
+}

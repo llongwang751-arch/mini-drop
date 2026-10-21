@@ -506,6 +506,8 @@
 - 最终12:09:55 UTC线上ready200、27运行容器且无OOM/unhealthy、7监控up，API12/runtime2/Web10/Agent3及原存储镜像保持。公开CI和readiness收据补入docs/evidence/github-publication-20261020，并存Release附件；收尾提交仅更新文档/JSON，使用[skip ci]避免再次构建相同功能源码，不把文档提交冒作另一轮7项执行。
 ## 2026-10-21 · 八项 Agent 扩展（已部署，真实场景验收中）
 
+- API8/Analyzer0.2.4实际Linux56 SDK和20解析通过；首次监控抓取未刷新触发回滚，核对29健康/7up后用同不可变镜像重发并等抓取6/7→7/7，未改卷。真实task102重分析run2仍失败，定位为Repository原SQL别名attempt与整数列同名，to_jsonb解析成整数使可信runner_metadata成为NULL；离线parser正例此前未覆盖该真实存储边界。改名collection_attempt，保留来源gate；Analyzer0.2.5实际隔离PG→JSON→child正负控和原20解析合计21通过/0skip。Web6仅更正旧预算文案，Prettier/build/既有7浏览器通过，API8/runtime4保持。Analyzer2/Web6待发布与原run3恢复/新现场闭环。
+
 - API7同四输入/同24顺序的新命名空间debug复测完成24/24（off、experience各12/12），原API5的4/24及20失败完全保留。此批已见调试数据，不是独立盲测；人工语义标签与准确率、费用仍为空，不能据此证明经验提升。两个观察端点的29容器身份完全一致，不冒称连续审计。见evaluation24-api7-debug-retest。
 - 新现场调查17/task102在诊断前暴露py-spy实际文件的整条空栈：1508字节、380总权重，其中1未知；原通用parser严格拒绝。新增仅可信当前attempt py-spy/PYTHON_CPU来源的适配，用明确未知占位保留全部权重、记录固定质量计数，通用collapsed、伪装导入、坏权重/控制符仍拒。Analyzer0.2.4的20相邻单测0skip与原真实文件离线replay通过；原文件/失败状态未改。Go新增质量来源/单位/计数及未知热点防线，232项广回归0skip和全APIvet通过。API8/Analyzer20261021.1候选待Linux与真实恢复/新闭环验收。
 

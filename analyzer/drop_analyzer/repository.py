@@ -188,9 +188,11 @@ class Repository:
 
     def input_artifact(self, job: Job) -> dict:
         with self._connect() as connection:
+            # 别名不能叫 attempt：同名整数列会优先解析，使 to_jsonb 取到标量而丢失采集来源。
+            # 使用独立整行别名，仍只读取当前任务/attempt 的元数据，不回退制品自报字段。
             artifact = connection.execute(
-                """SELECT artifact.*,to_jsonb(attempt)->'runner_metadata' AS runner_metadata
-                FROM artifacts artifact JOIN task_attempts attempt ON attempt.id=artifact.attempt_id
+                """SELECT artifact.*,to_jsonb(collection_attempt)->'runner_metadata' AS runner_metadata
+                FROM artifacts artifact JOIN task_attempts collection_attempt ON collection_attempt.id=artifact.attempt_id
                 WHERE artifact.task_id=%s AND artifact.attempt_id=%s
                 AND artifact.kind='RAW' AND artifact.status='ready' ORDER BY artifact.id DESC LIMIT 1""",
                 (job.task_id, job.attempt_id),
