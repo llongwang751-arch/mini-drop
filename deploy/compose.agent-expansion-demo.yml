@@ -13,7 +13,9 @@ x-observability-demo: &observability-demo
   init: true
   read_only: true
   cap_drop: [ALL]
-  security_opt: [no-new-privileges:true]
+  # 采集目标沿用既有受控peer角色；默认docker-default会拒绝Agent读取/proc/PID/exe。
+  # 此配置只赋予该合成业务作为授权采集目标的可见性，不增加容器capability。
+  security_opt: [no-new-privileges:true, apparmor=drop-diagnostic-target]
   tmpfs: ["/tmp:size=32m,mode=1777,nosuid,nodev,noexec"]
   mem_limit: 192m
   memswap_limit: 192m
