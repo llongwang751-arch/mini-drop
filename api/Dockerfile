@@ -1,4 +1,4 @@
-FROM golang:1.26.9-alpine AS build
+FROM golang:1.26.10-alpine AS build
 ARG GOPROXY=https://goproxy.cn,direct
 ENV GOPROXY=${GOPROXY}
 ENV GOMAXPROCS=2 GOMEMLIMIT=512MiB GOFLAGS=-p=1
@@ -8,6 +8,7 @@ RUN go mod download
 COPY contracts/drop.proto /src/contracts/drop.proto
 COPY contracts/task-kinds.json /src/contracts/task-kinds.json
 COPY contracts/fixtures/ /src/contracts/fixtures/
+COPY scripts/evaluation/diagnostic_cases.json /src/scripts/evaluation/diagnostic_cases.json
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && apk add --no-cache protobuf && go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.12 && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
 COPY api/ ./
 RUN protoc --proto_path=/src/contracts --go_out=. --go_opt=module=drop/api --go-grpc_out=. --go-grpc_opt=module=drop/api /src/contracts/drop.proto

@@ -2,7 +2,7 @@ module drop/benchmarks
 
 go 1.26.0
 
-toolchain go1.26.9
+toolchain go1.26.10
 
 require (
 	drop/api v0.0.0

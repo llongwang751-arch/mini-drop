@@ -132,9 +132,18 @@ class AcceptedResult(BaseException):
         self.result = result
 
 
+class RejectedToolBatch(BaseException):
+    """仅表示整批工具数量超限且没有执行；不携带供应商正文、参数或异常文本。
+
+    在 SDK 把该批次写入 assistant 上下文之前中止本轮，由外层在原模型预算内反馈重选。
+    使用独立控制异常，避免 SDK 将它转换成工具错误或重试而产生未配对的调用记录。
+    """
+
+
 @dataclass(frozen=True)
 class RunRequest:
     """Go 下发的单阶段运行请求；预算与工具定义均为本轮快照，不由模型自行扩充。"""
+
     run_id: str
     capability: str
     phase: str
@@ -279,6 +288,7 @@ class RunRequest:
 
 class Session:
     """保存一次运行的计数、工具调用去重、取消及错误状态，不承担跨请求的持久化业务状态。"""
+
     def __init__(self, request: RunRequest, gateway: Gateway) -> None:
         self.request = request
         self.gateway = gateway
@@ -340,6 +350,7 @@ class Session:
 
 class GatewayTool(ToolBase):
     """AgentScope 工具适配器：只转交 Go 已下发的名称与 Schema，本地不实现采集或任意执行。"""
+
     is_concurrency_safe = False
     is_read_only = True
 
@@ -411,6 +422,7 @@ class GatewayTool(ToolBase):
 
 class RuntimeMiddleware(MiddlewareBase):
     """在 SDK 的模型/acting 边界插入平台预算、严格参数校验和取消传播，不自行替代 ReAct 决策。"""
+
     def __init__(self, session: Session) -> None:
         self.session = session
 
@@ -459,9 +471,7 @@ class RuntimeMiddleware(MiddlewareBase):
         if not response.is_last:
             raise ProtocolError("AI_INVALID_RESPONSE")
         calls = [item for item in response.content if isinstance(item, ToolCallBlock)]
-        if (session.format_only and calls) or len(calls) > session.request.budget[
-            "max_tools_per_round"
-        ]:
+        if session.format_only and calls:
             raise ProtocolError("AI_BUDGET_EXCEEDED")
         batch_ids = set()
         for call in calls:
@@ -510,6 +520,13 @@ class RuntimeMiddleware(MiddlewareBase):
                     raise ProtocolError("AI_INVALID_RESPONSE")
                 session.usage[key] += count
         await session.callback("model_end", **({"usage": usage} if usage else {}))
+        if len(calls) > session.request.budget["max_tools_per_round"]:
+            # 参数、名称和 ID 已完整通过硬校验；只对纯数量超限反馈重选。
+            # 整批不进入 SDK acting，也不截取前几个执行。真实用量与 model_end 仍归本轮，
+            # 被拒批次的 ID 也不能在后续轮次复用；SDK _reasoning_impl 在本钩子返回后才写上下文。
+            session.seen_ids.update(batch_ids)
+            set_stage("model_parse")
+            raise RejectedToolBatch()
         set_stage("agent_reply")
         return response
 
@@ -612,7 +629,28 @@ async def _run_agent(
             async with asyncio.timeout(request.budget["timeout_ms"] / 1000):
                 while True:
                     set_stage("agent_reply")
-                    final = await agent.reply(inputs)
+                    try:
+                        final = await agent.reply(inputs)
+                    except RejectedToolBatch:
+                        session.check_active()
+                        ordinary_limit = request.budget["max_model_calls"]
+                        if request.phase == "diagnosis":
+                            ordinary_limit = min(ordinary_limit, 4)
+                        if session.model_calls >= ordinary_limit:
+                            raise ProtocolError("AI_BUDGET_EXCEEDED") from None
+                        # 同一 Agent 保留之前的合法观测；超限 assistant 从未写入原生上下文，
+                        # 因而无需伪造工具结果来补齐 call ID，也不会将原始失败批次转发模型。
+                        inputs = [
+                            UserMsg(
+                                name="gateway",
+                                content=(
+                                    "上一轮工具批次数量超限，未执行其中任何工具。"
+                                    f"请每轮最多{request.budget['max_tools_per_round']}个工具，"
+                                    "按优先级重新选择；上一轮已计入本次模型调用预算。"
+                                ),
+                            )
+                        ]
+                        continue
                     session.check_active()
                     if final.finished_reason != "completed":
                         raise ProtocolError("AI_BUDGET_EXCEEDED")

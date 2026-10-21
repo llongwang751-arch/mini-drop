@@ -152,6 +152,7 @@
     "diagnosis": {
       "tools": ["read_profile_summary", "inspect_hotspots", "check_collection_quality", "inspect_call_paths", "propose_verification", "compare_profiles", "read_diagnostic_knowledge"],
       "knowledge": "可选知识先验由Go绑定，自动E2与模型工具合计最多8条trace；Skill必需工具和当前测量引用由Go验收，撤销及来源变化在终态事务再次校验。",
+      "oversized_tool_batch": "仅对通过名称/参数/ID校验的数量超限批次整批不执行；记录真实usage和model_end，并在原4次普通模型预算内反馈重选。禁止截取前两个执行；格式纠错轮仍禁止工具。",
       "max_model_calls": 5,
       "regular_model_calls": 4,
       "max_tool_calls": 7,

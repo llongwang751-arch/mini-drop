@@ -1,0 +1,44 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-21T05:30:23.972005+00:00",
+  "origin": "https://82.157.81.79",
+  "source_commit": "84cd44ba5ddfc7231978dc4720059e49ad6278d4",
+  "source_sha256": "dcb7aef8d058b9841236b0eb3b58e7bd1552b4ee55f71dee2c1e1fa9fe0d1796",
+  "archive_sha256": "8d5a13de751648a01c10ad8d2a01958a09ad5a89b9435041e75ccf06ebbcd82a",
+  "runtime": {
+    "/txdrop-api-1": {
+      "id": "d0d6caf23276330060ec2c22faf98b6788cb66d458a96cd818e2aaa5f347a38a",
+      "image_id": "sha256:9dcc6f7ad1b21a455b72fbfff3501f20f07e695a816f0653c07740f0daea2fb4",
+      "image": "drop-api:20261021.1",
+      "volumes": [
+        "txdrop_ai_runner_socket",
+        "txdrop_ai_tool_socket"
+      ]
+    },
+    "/txdrop-web-1": {
+      "id": "6ebdac95c0d9a44eb3fde855f1e607ad8be379e260226b4d6e75032b42bfc275",
+      "image_id": "sha256:8f2f41143e917039a9c886b7d42fae1663223cace90fd45c16c06c74770f5082",
+      "image": "drop-web:20261021.2",
+      "volumes": []
+    },
+    "/txdrop-agent-runtime-1": {
+      "id": "41c66e74f9e9d5cfe95ec10d4bce16ef17e73c9b469a1ea1b23b3f571193caef",
+      "image_id": "sha256:8b819ce81e1996dad89214fbbd7eedd0e60313f4d318c31f9ab3c25e34760064",
+      "image": "drop-agent-runtime:20261021.1",
+      "volumes": [
+        "txdrop_ai_runner_socket",
+        "txdrop_ai_tool_socket"
+      ]
+    }
+  },
+  "only_three_application_containers_replaced": true,
+  "other_24_container_ids_and_images_preserved": true,
+  "data_volumes_and_previous_named_images_preserved": true,
+  "code_executor_source_preserved": true,
+  "schema_version": 9,
+  "pre_migration_backup_saved_on_server": true,
+  "linux_sdk_tests_passed": 34,
+  "linux_sdk_tests_skipped": 0,
+  "readiness_http": 200,
+  "prometheus_up": 7
+}

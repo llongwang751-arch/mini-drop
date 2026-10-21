@@ -141,7 +141,9 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
         body = run_body(tools=[tool_definition("read_diagnostic_knowledge")])
         result, provider, gateway = await self.execute(
             [
-                completion(calls=[("knowledge-fixture", "read_diagnostic_knowledge", "{}")]),
+                completion(
+                    calls=[("knowledge-fixture", "read_diagnostic_knowledge", "{}")]
+                ),
                 completion('{"summary":"合成报告，知识仍需当前证据验证"}'),
             ],
             body=body,
@@ -339,6 +341,206 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
         ]
         with self.assertRaisesRegex(ProtocolError, "AI_BUDGET_EXCEEDED"):
             await self.execute(responses)
+
+    async def test_oversized_batch_reselects_within_four_calls_without_orphan_history(
+        self,
+    ):
+        """真实 SDK 在写入 assistant 上下文前拒绝整批，再用原预算完成合法两工具、单工具与报告。"""
+        body = run_body(
+            tools=[
+                tool_definition("inspect_hotspots"),
+                tool_definition("check_collection_quality"),
+                tool_definition("inspect_call_paths"),
+            ]
+        )
+        rejected = [
+            ("discarded-hotspot", "inspect_hotspots", "{}"),
+            ("discarded-quality", "check_collection_quality", "{}"),
+            ("discarded-path", "inspect_call_paths", "{}"),
+        ]
+        result, provider, gateway = await self.execute(
+            [
+                completion("fixture-discarded-provider-text", calls=rejected),
+                completion(
+                    calls=[
+                        ("accepted-hotspot", "inspect_hotspots", "{}"),
+                        ("accepted-quality", "check_collection_quality", "{}"),
+                    ]
+                ),
+                completion(calls=[("accepted-path", "inspect_call_paths", "{}")]),
+                completion('{"summary":"candidate"}'),
+            ],
+            body=body,
+        )
+        self.assertEqual(
+            (result["runtime"]["model_calls"], result["runtime"]["tool_calls"]), (4, 3)
+        )
+        self.assertEqual(
+            result["runtime"]["usage"], {"input_tokens": 40, "output_tokens": 20}
+        )
+        self.assertEqual(len(provider.requests), 4)
+        tools = [call for call in gateway.calls if call["type"] == "tool"]
+        self.assertEqual(
+            [call["call_id"] for call in tools],
+            ["accepted-hotspot", "accepted-quality", "accepted-path"],
+        )
+        self.assertEqual([call["round"] for call in tools], [2, 2, 3])
+        ends = [call for call in gateway.calls if call["type"] == "model_end"]
+        self.assertEqual([call["round"] for call in ends], [1, 2, 3, 4])
+        self.assertTrue(
+            all(
+                call["usage"] == {"input_tokens": 10, "output_tokens": 5}
+                for call in ends
+            )
+        )
+        history = json.dumps(provider.requests, ensure_ascii=False)
+        self.assertNotIn("discarded-", history)
+        self.assertIn("未执行其中任何工具", history)
+        self.assertIn("上一轮已计入本次模型调用预算", history)
+        for request in provider.requests:
+            pending = set()
+            for message in request["messages"]:
+                calls = message.get("tool_calls", [])
+                self.assertLessEqual(len(calls), 2)
+                pending.update(call["id"] for call in calls)
+                if message["role"] == "tool":
+                    self.assertIn(message["tool_call_id"], pending)
+                    pending.remove(message["tool_call_id"])
+            self.assertFalse(pending, "供应商请求包含缺少工具结果的 assistant 调用")
+
+    async def test_continuous_oversized_batches_stop_at_four_models_and_zero_tools(
+        self,
+    ):
+        """超批次仍消耗真实模型轮次与用量，不能借重选进入第五个普通诊断轮。"""
+        gateway = FixtureGateway()
+        provider = Provider(
+            [
+                completion(
+                    calls=[
+                        (f"batch-{round_number}-{i}", "inspect_hotspots", "{}")
+                        for i in range(3)
+                    ]
+                )
+                for round_number in range(4)
+            ]
+        )
+        with self.assertRaises(SafeRuntimeFailure) as caught:
+            await run_agent(
+                RunRequest.parse(run_body(), self.config.model),
+                self.config,
+                gateway,
+                transport=httpx.MockTransport(provider),
+            )
+        self.assertEqual(caught.exception.code, "AI_BUDGET_EXCEEDED")
+        self.assertEqual(caught.exception.diagnostics["model_calls"], 4)
+        self.assertEqual(caught.exception.diagnostics["tool_calls"], 0)
+        self.assertEqual(len(provider.requests), 4)
+        self.assertEqual(
+            [call["type"] for call in gateway.calls], ["model_start", "model_end"] * 4
+        )
+        ends = [call for call in gateway.calls if call["type"] == "model_end"]
+        self.assertEqual([call["round"] for call in ends], [1, 2, 3, 4])
+        self.assertEqual(sum(call["usage"]["input_tokens"] for call in ends), 40)
+        self.assertEqual(sum(call["usage"]["output_tokens"] for call in ends), 20)
+
+    async def test_oversized_batch_keeps_format_only_and_invalid_calls_fatal(self):
+        """纯格式轮、越权/Schema/重复 ID 及网关租约拒绝均不能降格成数量反馈。"""
+        gateway = FixtureGateway(
+            lambda payload: (
+                {
+                    "ok": False,
+                    "fatal": False,
+                    "accepted": False,
+                    "format_only": True,
+                    "feedback": "Fix JSON only.",
+                }
+                if payload["type"] == "finish"
+                else None
+            )
+        )
+        provider = Provider(
+            [
+                completion(calls=[(f"valid-{i}", "inspect_hotspots", "{}")])
+                for i in range(3)
+            ]
+            + [
+                completion("invalid"),
+                completion(
+                    calls=[(f"format-{i}", "inspect_hotspots", "{}") for i in range(3)]
+                ),
+            ]
+        )
+        with self.assertRaisesRegex(ProtocolError, "AI_BUDGET_EXCEEDED"):
+            await run_agent(
+                RunRequest.parse(run_body(), self.config.model),
+                self.config,
+                gateway,
+                transport=httpx.MockTransport(provider),
+            )
+        self.assertEqual(len(provider.requests), 5)
+        self.assertEqual(provider.requests[-1].get("tool_choice"), "none")
+        self.assertNotIn("tools", provider.requests[-1])
+        self.assertEqual(
+            len([call for call in gateway.calls if call["type"] == "tool"]), 3
+        )
+        self.assertEqual(
+            len([call for call in gateway.calls if call["type"] == "model_end"]), 4
+        )
+        batches = {
+            "unknown_tool": [
+                ("bad-1", "inspect_hotspots", "{}"),
+                ("bad-2", "Bash", "{}"),
+                ("bad-3", "inspect_hotspots", "{}"),
+            ],
+            "invalid_schema": [
+                ("bad-1", "inspect_hotspots", "{}"),
+                ("bad-2", "inspect_hotspots", '{"task_id":1}'),
+                ("bad-3", "inspect_hotspots", "{}"),
+            ],
+            "duplicate_id": [
+                ("same-id", "inspect_hotspots", "{}"),
+                ("same-id", "inspect_hotspots", "{}"),
+                ("bad-3", "inspect_hotspots", "{}"),
+            ],
+        }
+        for name, batch in batches.items():
+            with self.subTest(name=name):
+                gateway = FixtureGateway()
+                provider = Provider([completion(calls=batch)])
+                with self.assertRaisesRegex(ProtocolError, "AI_TOOL_REJECTED"):
+                    await run_agent(
+                        RunRequest.parse(run_body(), self.config.model),
+                        self.config,
+                        gateway,
+                        transport=httpx.MockTransport(provider),
+                    )
+                self.assertEqual(len(provider.requests), 1)
+                self.assertEqual(
+                    [call["type"] for call in gateway.calls], ["model_start"]
+                )
+        gateway = FixtureGateway(
+            lambda payload: (
+                {"ok": False, "fatal": True, "error_code": "STALE_LEASE"}
+                if payload["type"] == "model_end"
+                else None
+            )
+        )
+        provider = Provider(
+            [
+                completion(
+                    calls=[(f"lease-{i}", "inspect_hotspots", "{}") for i in range(3)]
+                )
+            ]
+        )
+        with self.assertRaisesRegex(ProtocolError, "STALE_LEASE"):
+            await run_agent(
+                RunRequest.parse(run_body(), self.config.model),
+                self.config,
+                gateway,
+                transport=httpx.MockTransport(provider),
+            )
+        self.assertEqual(len(provider.requests), 1)
+        self.assertFalse(any(call["type"] == "tool" for call in gateway.calls))
 
     async def test_duplicate_call_id_is_never_executed_twice(self):
         gateway = FixtureGateway()

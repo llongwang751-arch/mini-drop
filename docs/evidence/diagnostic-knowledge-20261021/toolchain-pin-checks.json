@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-21T05:33:11.924533+00:00",
+  "vulnerability": {
+    "id": "GO-2026-6809",
+    "aliases": [
+      "CVE-2026-111943"
+    ],
+    "package": "crypto/x509",
+    "symbol": "Certificate.Verify",
+    "fixed_go_1_26": "1.26.10"
+  },
+  "official_sources": [
+    {
+      "url": "https://vuln.go.dev/ID/GO-2026-6809.json",
+      "local_file": "GO-2026-6809.json",
+      "sha256": "67d1ae42283683c4fe26081cb174da0b945370d846ebafce11bedd14c1b99151"
+    },
+    {
+      "url": "https://go.dev/doc/devel/release",
+      "local_file": "go-release-history.html",
+      "sha256": "d9a4b0ebb8eed5e50b092d5360d811b6dd89a21cb2518f5953bcc12f744d8968",
+      "release_date": "2026-10-19"
+    }
+  ],
+  "checks": {
+    "official_fixed_version": true,
+    "official_release_date": true,
+    "yaml_parse": true,
+    "ci_toolchain_pin": true,
+    "knowledge_ui_ci_step_preserved": true,
+    "diagnostic_evaluation_ci_step_preserved": true,
+    "go_mod_toolchain_pins": true,
+    "api_docker_toolchain_pin": true,
+    "container_go_test_fixture_copy": true,
+    "old_version_absent_from_changed_files": true,
+    "git_diff_check": true
+  },
+  "changed_file_sha256": {
+    "api/go.mod": "251545e50428dc62866c50aad43db2c9cc9dddff6f5ab572cc7a04022bae35e1",
+    "api/Dockerfile": "9452d741accbcf31bb2381669dd66c5dd1f7fbe30ecbb58a80de910a45af8f0d",
+    "api/Dockerfile.runtime": "c63dd21ee14fb4057f22fa9d1dcc0956def473edb756321cb675ac8d7952e4d7",
+    "api/Dockerfile.diagnosis": "5069173fdf9defbe0f4fc0e7214e890be91f1c4b6b29f0f334faec9525601bcd",
+    "scripts/benchmarks/go.mod": "1c9cf4b635250492192fb0ea2aeab0ff61a7ebad64fe90ee428f5e4553a61afc",
+    ".github/workflows/ci.yml": "96a9352501c5477e967bf533a1538cce68d41261980d105c462dc9036b4b3e4c"
+  },
+  "scope": "Only toolchain/build/CI version alignment plus required test fixture COPY; no product logic, historical documentation or evidence changes.",
+  "not_run": [
+    "go build",
+    "go test",
+    "govulncheck",
+    "docker build",
+    "deployment"
+  ],
+  "limitations": [
+    "Static pin and official-source verification only; successful rebuild and security scan remain the parent agent responsibility."
+  ]
+}

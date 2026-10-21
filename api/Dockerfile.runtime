@@ -1,4 +1,4 @@
-# 面向资源受限运行宿主的制品发布入口；先用Go1.26.9执行以下固定构建：
+# 面向资源受限运行宿主的制品发布入口；先用Go1.26.10执行以下固定构建：
 # CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -tags=nomsgpack -ldflags="-s -w" -o drop-api.bin ./cmd/drop-api
 FROM alpine:3.21.3
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && apk upgrade --no-cache && apk add --no-cache ca-certificates tzdata && addgroup -S drop && adduser -S drop -G drop

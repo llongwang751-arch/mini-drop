@@ -1,0 +1,14 @@
+{
+  "scope": "Real authenticated production browser GET validation of /knowledge after release-owner deployment confirmation",
+  "origin": "https://82.157.81.79",
+  "case_data_provenance": "Two controlled imported synthetic case records seeded by the release owner; the browser did not create or revoke them",
+  "widths": [1440, 375],
+  "product_source_changes": false,
+  "product_mutations": false,
+  "diagnosis_or_model_execution": false,
+  "screenshots": "Knowledge content only; account sidebar excluded. Public case screenshot masks source values, case headings, and source links; unmasked screenshots remain in the private parent directory.",
+  "axe_boundary": "Four scans have zero violations. Desktop scans each retain one aria-prohibited-attr incomplete on the pre-existing .workspace-switch div; mobile scans have zero incomplete. This is not a claim of complete automated accessibility certification.",
+  "asset_boundary": "All eight JS/CSS resources actually loaded during Guide-to-Knowledge navigation, plus index.html, were fetched via production GET and SHA-256 matched to local web/dist.",
+  "script_timing_correction": "One supplemental run initially evaluated keyboard tab state before React query navigation committed. The script now waits up to 10 seconds for the same selected-tab and focused-tab condition, and the complete final run passed. The intermediate receipt remains private.",
+  "auth_boundary": "One explicit login POST per run; storageState remained in memory, with no persisted cookies, tokens, trace, HAR, response bodies or account screenshots. Browser product requests were restricted to same-origin GET/HEAD."
+}
