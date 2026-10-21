@@ -8,7 +8,7 @@
 
 ## 全量实现与验收状态
 
-当前平台已部署至 **[https://82.157.81.79](https://82.157.81.79)**，API 为 **20261021.5**，AgentScope runtime / Web 为 **20261021.4**，官方 AgentScope SDK **2.0.10**、SQL **10**、**29** 个运行容器；Agent 与 Helper 保持版本3。新增八项诊断扩展和两个实时遥测演示服务，规划、诊断和源码修复使用真实 AgentScope ReAct，Go 保留权限、状态与验收。详见[扩展实现与边界](docs/AGENT_EXPANSION.md)、[实际部署](docs/evidence/agent-expansion-20261021/deployment-r5.json)与[面试步骤](docs/INTERVIEW_DEMO.md)。旧120.24.187.205属于历史部署。
+当前平台已部署至 **[https://82.157.81.79](https://82.157.81.79)**，API 为 **20261021.7**，AgentScope runtime 为 **20261021.4**，Web 为 **20261021.5**，官方 AgentScope SDK **2.0.10**、SQL **10**、**29** 个运行容器；Agent 与 Helper 保持版本3。新增八项诊断扩展和两个实时遥测演示服务，规划、诊断和源码修复使用真实 AgentScope ReAct，Go 保留权限、状态与验收。详见[扩展实现与边界](docs/AGENT_EXPANSION.md)、[实际部署](docs/evidence/agent-expansion-20261021/deployment-r7.json)与[面试步骤](docs/INTERVIEW_DEMO.md)。旧120.24.187.205属于历史部署。
 
 原 CRM/Saber 演示和16类 Runner/20个真实任务、BOLT、malloc证据保留。上一轮 Saber 调查11共76.4秒，修复9通过原2+冻结6测试、384例和6组fresh对照，CPU中位1.5587倍，仅限受控查询基准。本轮将这份既有结果登记为案例3，关联任务86/诊断29，没有重新执行该基准。历史见[AgentScope发布](docs/releases/20261020-agentscope.md)、[AgentScope接入](docs/AGENTSCOPE_INTEGRATION.md)与[Saber范围](docs/SABER_INTEGRATION.md)。
 

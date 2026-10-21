@@ -18,6 +18,7 @@ from .pipeline import decode_input
 from .pprof import analyze_pprof
 from .progress import write_stage
 from .perf import analyze_perf_script, analyze_perf_data
+from .pyspy_raw import analyze_pyspy_raw, trusted_pyspy_source
 
 
 @dataclass(frozen=True)
@@ -77,7 +78,11 @@ class Pipeline:
                 artifact["size"],
                 Limits(),
             )
-            parsed = analyze_folded(decoded)
+            parsed = (
+                analyze_pyspy_raw(decoded)
+                if trusted_pyspy_source(context)
+                else analyze_folded(decoded)
+            )
         elif fmt == "perf_script":
             metadata = context["artifact"].get("runner_metadata") or context[
                 "artifact"

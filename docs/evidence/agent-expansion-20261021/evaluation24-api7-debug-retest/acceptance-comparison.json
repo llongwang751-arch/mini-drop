@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "metric": "server_validated_report_acceptance",
+  "not_semantic_accuracy": true,
+  "independent_unseen_holdout": false,
+  "causal_effect_established": false,
+  "baseline_source_commit": "f7db0af4be950687a55233337a09d8cd8ff89885",
+  "retest_source_commit": "dad306693cf20bb0496b33bd44d2bc13a9325f60",
+  "same_dataset_sha256": "f85aa3979b5b72d22dbb66103148a90caca5c02f7fb4746eb54038c9ea96d420",
+  "same_24_trial_order": true,
+  "baseline_results_preserved": true,
+  "comparisons": [
+    {
+      "group": "all",
+      "api5": {
+        "numerator": 4,
+        "denominator": 24,
+        "rate": 0.16666666666666666
+      },
+      "api7_debug_retest": {
+        "numerator": 24,
+        "denominator": 24,
+        "rate": 1.0
+      }
+    },
+    {
+      "group": "off",
+      "api5": {
+        "numerator": 2,
+        "denominator": 12,
+        "rate": 0.16666666666666666
+      },
+      "api7_debug_retest": {
+        "numerator": 12,
+        "denominator": 12,
+        "rate": 1.0
+      }
+    },
+    {
+      "group": "experience",
+      "api5": {
+        "numerator": 2,
+        "denominator": 12,
+        "rate": 0.16666666666666666
+      },
+      "api7_debug_retest": {
+        "numerator": 12,
+        "denominator": 12,
+        "rate": 1.0
+      }
+    }
+  ],
+  "semantic_accuracy": {
+    "api5": null,
+    "api7_debug_retest": null
+  },
+  "human_review_count": {
+    "api5": 0,
+    "api7_debug_retest": 0
+  },
+  "per_case": [
+    {
+      "case_id": "live-normal-load-v2-holdout",
+      "api5": {
+        "numerator": 0,
+        "denominator": 6,
+        "rate": 0.0
+      },
+      "api7_debug_retest": {
+        "numerator": 6,
+        "denominator": 6,
+        "rate": 1.0
+      }
+    },
+    {
+      "case_id": "live-insufficient-v2-holdout",
+      "api5": {
+        "numerator": 0,
+        "denominator": 6,
+        "rate": 0.0
+      },
+      "api7_debug_retest": {
+        "numerator": 6,
+        "denominator": 6,
+        "rate": 1.0
+      }
+    },
+    {
+      "case_id": "live-compound-v2-holdout",
+      "api5": {
+        "numerator": 4,
+        "denominator": 6,
+        "rate": 0.6666666666666666
+      },
+      "api7_debug_retest": {
+        "numerator": 6,
+        "denominator": 6,
+        "rate": 1.0
+      }
+    },
+    {
+      "case_id": "live-attribution-control-v2-holdout",
+      "api5": {
+        "numerator": 0,
+        "denominator": 6,
+        "rate": 0.0
+      },
+      "api7_debug_retest": {
+        "numerator": 6,
+        "denominator": 6,
+        "rate": 1.0
+      }
+    }
+  ],
+  "limits": [
+    "此批是已见案例的debug/retest，输入和顺序保持相同；不是新增未见holdout或独立盲测。",
+    "程序接受率仅说明报告通过结构化核验，不证明模型根因分类、业务因果或自由解释正确。",
+    "没有独立人工标注，所有语义分数保持null；不能把Agent审阅填成人工评审。",
+    "全部24终态均保留；独立幂等空间、新任务和新runID，不覆盖API5失败。",
+    "编号覆盖和结构化事实只基于接受的报告；失败报告缺失usage时总体tokens保持null。",
+    "同一合成案例3次重复不是3个独立业务故障；共享演示服务器耗时不是隔离性能基准。",
+    "开发者已经查看API5失败并据此修复，因此后测变化只能作为调试回归效果，不证明未见案例泛化能力或经验模块的因果增益。"
+  ]
+}

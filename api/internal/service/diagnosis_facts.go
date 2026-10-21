@@ -66,6 +66,7 @@ type diagnosisModelReportV2 struct {
 const diagnosisFactReportInstructions = `最终回复必须是report_version=2的纯JSON，只允许下列顶层字段：report_version、facts、hypotheses、verification_requests。不要输出自由summary、claim、verification、limitations、plan、facts核验标签、runtime或knowledge；权威描述由程序生成。
 facts为1至24项，通常只选3至8项与问题和假设直接相关的事实，不要为了填满24项而加入无关字段。每项只含{id,evidence_id,path,operator,value,unit}；id为F1等唯一编号。evidence_id必须是实际返回的当前观测E编号，历史知识不能作事实来源。path使用下面列出的有限JSON Pointer，数组下标从0开始。value必须与该来源的实际值完全一致；不能换单位、跨E编号借字段或补默认值。operator只有eq、count、count_positive_self，后两者仅在明确列出的数组使用；node_count等已返回数字是标量，必须eq，不能count。
 可用字段：read_profile_summary的/total_weight(单位取E1.measurement_unit)、/node_count(count)、/kind(category)、/measurement_unit(unit)、/verification_available(boolean)；inspect_hotspots的/top_functions/0/self_percent与total_percent(percent)、rank(rank)、symbol_hint(category)，索引最多9；/top_functions可用count_positive_self，unit=count，只代表已返回Top表正self项目数，不代表整个树唯一叶帧。check_collection_quality的/duration_seconds(seconds)、/frequency_hz(hertz)、/kind(category)，/issues与/unknowns可count(count)。
+check_collection_quality实际返回sampling_quality时，可eq引用/sampling_quality/normalized(boolean)、unresolved_stack_lines(count)、placeholder_count(count)、unresolved_sample_weight(samples)、total_sample_weight(samples)。路径均带/sampling_quality/前缀。未知栈或帧占位符只表示无法解析，权重没有删除；不能把它当业务函数或源码位置，normalized=false也不能证明没有其他丢样。
 inspect_call_paths的/available、/tree_truncated、/occurrences_truncated、/truncated为boolean；/matched_occurrences与/examined_nodes为count；/occurrences/0/self_weight与inclusive_weight沿用观测单位，callees_truncated与ancestors_truncated为boolean；/occurrences/0/top_callees与ancestors可count(count)，索引最多4。propose_verification只可引用实际返回的/duration_seconds(seconds)、/frequency_hz(hertz)、/kind(category)、/requires_manual_import(boolean)、/requires_manual_configuration(boolean)，没有返回就不能填值。
 compare_profiles的/comparable(boolean)、/unit(unit)、/baseline_weight与/candidate_weight(沿用观测单位)、/outcome与/root_cause_status(category)；/differences/0/baseline_self_percent与candidate_self_percent(percent)、delta_percentage_points(percentage_points)，索引最多9。
 仅RESOURCE_SNAPSHOT的read_profile_summary实际返回resources时可引用：/resources/sample_count(count)，/resources/peaks/cpu_percent(percent，多核可超过100)、rss_bytes(bytes)、vms_bytes(bytes)、threads(count)、fd_count(count)、memory_used_bytes(bytes)、memory_total_bytes(bytes)。这些路径均为eq；缺失/null峰值不能补0。资源峰值不是时间加权平均或函数热点，memory_*主机口径不能冒充进程RSS；total_weight=0与空函数栈不代表资源采集失败。引用真实资源事实后，不能仅凭一个峰值断言资源瓶颈，应结合负载与基线；无法满足某类假设前提时使用insufficient_evidence。
@@ -451,7 +452,14 @@ func diagnosisAllowedFact(tool, path, operator, measurementUnit string) (unit, l
 			"/resources/peaks/memory_used_bytes":  {"bytes", "主机可见已用内存峰值（不是进程RSS）"},
 			"/resources/peaks/memory_total_bytes": {"bytes", "主机可见总内存值（不是进程RSS）"},
 		},
-		"check_collection_quality": {"/kind": {"category", "采集类型"}, "/duration_seconds": {"seconds", "工具记录的采集时长（0 表示未记录或不适用）"}, "/frequency_hz": {"hertz", "工具记录的频率（0 表示未记录或不适用）"}},
+		"check_collection_quality": {
+			"/kind": {"category", "采集类型"}, "/duration_seconds": {"seconds", "工具记录的采集时长（0 表示未记录或不适用）"}, "/frequency_hz": {"hertz", "工具记录的频率（0 表示未记录或不适用）"},
+			"/sampling_quality/normalized":               {"boolean", "py-spy已对无法解析的栈或帧使用未知占位符"},
+			"/sampling_quality/unresolved_stack_lines":   {"count", "含无法解析栈或帧的原始栈条数"},
+			"/sampling_quality/placeholder_count":        {"count", "显式未知帧占位符数量"},
+			"/sampling_quality/unresolved_sample_weight": {"samples", "包含未知栈或帧且已保留的样本权重"},
+			"/sampling_quality/total_sample_weight":      {"samples", "适配后保留的总样本权重"},
+		},
 		"inspect_call_paths":       {"/available": {"boolean", "调用路径可用状态"}, "/tree_truncated": {"boolean", "树遍历是否截断"}, "/occurrences_truncated": {"boolean", "出现位置是否省略"}, "/truncated": {"boolean", "调用上下文是否截断"}, "/matched_occurrences": {"count", "已遍历树中的匹配位置数"}, "/examined_nodes": {"count", "已遍历节点数"}},
 		"propose_verification":     {"/duration_seconds": {"seconds", "工具实际返回的复测时长"}, "/frequency_hz": {"hertz", "工具实际返回的复测频率"}, "/kind": {"category", "工具实际返回的复测类型"}, "/requires_manual_import": {"boolean", "工具要求人工导入"}, "/requires_manual_configuration": {"boolean", "工具要求人工配置"}},
 		"compare_profiles":         {"/comparable": {"boolean", "程序判定的可比状态"}, "/unit": {"unit", "对照单位"}, "/baseline_weight": {measurementUnit, "基线权重"}, "/candidate_weight": {measurementUnit, "候选权重"}, "/root_cause_status": {"category", "程序记录的因果验证状态"}, "/outcome": {"category", "程序记录的对照状态"}},
@@ -1061,6 +1069,10 @@ func validateDiagnosisModelReportV2(content string, trace []DiagnosisStep) (*Dia
 			facts = append(facts, fact)
 		}
 		if invalidReference || dependsOnInvalidFact {
+			continue
+		}
+		if hypothesis.Kind == "cpu_hotspot" && !diagnosisResolvedHotspotEvidence(facts, steps) {
+			validationErrors = append(validationErrors, diagnosisFeedbackAt(diagnosisFeedbackError("hypothesis_cpu_evidence_missing", "fact_ids", DiagnosisStep{}), "hypotheses", index))
 			continue
 		}
 		claim, err := diagnosisV2HypothesisText(hypothesis.Kind, facts)

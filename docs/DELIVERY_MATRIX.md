@@ -2,11 +2,13 @@
 
 ## 八项 Agent 扩展（2026-10-21，已部署，真实场景验收中）
 
+API7独立调试复测24/24报告通过，原API5的4/24原样保留；同输入/同顺序，off与experience各12/12。第二批属于已见调试，不是语义准确率或经验收益证明，独立人工评审仍为空。见 [两批完整对比](evidence/agent-expansion-20261021/evaluation24-api7-debug-retest/acceptance-comparison.json)。现场task102另发现上游空栈格式，API8/Analyzer0.2.4候选已保权重并补质量标记，232项Go与20项解析回归通过，等待实际Linux发布和恢复验收。
+
 API5固定24轮实际仅4/24报告通过，off/experience各2/12，20个失败全部保留；这不是语义准确率，人工标签仍为空。见 [逐次结果](evidence/agent-expansion-20261021/evaluation24/trial-receipt.json)与[评分输出](evidence/agent-expansion-20261021/evaluation24/evaluation-live.json)。API6/Web5候选针对真实失败补资源事实、假设纠错及窄屏布局，128项Go定向回归、全API vet、部署5项和Web7项通过，待新闭环及独立debug_retest，不覆盖原实验。
 
 API20261021.5候选增加报告专用安全纠错提示，66项Go定向回归、全API vet及SDK新增3项通过；原错误来源仍拒绝，预算保持，尚待真实模型复验。收据见 [安全反馈回归](evidence/agent-expansion-20261021/report-feedback-go.json)。
 
-当前修正版本API/runtime/Web20261021.4、SQL10，Linux SDK50/50、0skip，29运行健康/7监控up；仅应用三容器替换，其余26及broker PID/登记快照保持。Web公网双宽10视图、严格CSP、长diff方向键、真实补丁下载和32静态文件/index SHA通过。见 [21.4部署](evidence/agent-expansion-20261021/deployment-r4.json)、[公网实际检查](evidence/agent-expansion-20261021/public-r4/summary.json)。跨信号调查14已真实采集/查询并生成补证草案，但最终报告的复测来源混淆被拒，尚不能称完整补证闭环；修正安全反馈后继续验收。
+当前API20261021.7/runtime20261021.4/Web20261021.5、SQL10：Linux SDK56/56、0skip，29运行健康/7监控up；本次只更新API，其余28身份/镜像/卷和broker/登记快照保持。176项广Go回归、全APIvet通过；Web5公网两宽24事实组件边界、E锚点、键盘、axe及32静态/index SHA通过。见 [当前部署](evidence/agent-expansion-20261021/deployment-r7.json)、[真实公网事实页](evidence/agent-expansion-20261021/public-facts-api6-web5/summary.json)。此前21.4的布局检查没有覆盖实际TaskDetail长事实，375裁剪失败与Web5修复证据分别保存；多处模型错误的预算失败也保留，真实补证闭环继续验收。
 
 已部署功能670da84：API/runtime/Web20261021.3、SDK2.0.10、SQL10，29运行健康、7监控up、HTTPS readiness200；Linux SDK44/44通过。应用三容器替换、其余24身份/镜像不变，新增双服务遥测；旧卷/命名镜像、CRM/Saber完整登记快照保持。真实DeepSeek通用Python修复10已在32.36秒完成，新增回归红绿/原回归/正负对照通过，8.2122×仅合成购物车函数，不代表生产延迟。见 [部署](evidence/agent-expansion-20261021/deployment.json)与[真实模型修复](evidence/agent-expansion-20261021/live-generic-acceptance.json)。跨信号、追加补证和24次真实重复试验正在验收。
 

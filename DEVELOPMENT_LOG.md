@@ -506,6 +506,9 @@
 - 最终12:09:55 UTC线上ready200、27运行容器且无OOM/unhealthy、7监控up，API12/runtime2/Web10/Agent3及原存储镜像保持。公开CI和readiness收据补入docs/evidence/github-publication-20261020，并存Release附件；收尾提交仅更新文档/JSON，使用[skip ci]避免再次构建相同功能源码，不把文档提交冒作另一轮7项执行。
 ## 2026-10-21 · 八项 Agent 扩展（已部署，真实场景验收中）
 
+- API7同四输入/同24顺序的新命名空间debug复测完成24/24（off、experience各12/12），原API5的4/24及20失败完全保留。此批已见调试数据，不是独立盲测；人工语义标签与准确率、费用仍为空，不能据此证明经验提升。两个观察端点的29容器身份完全一致，不冒称连续审计。见evaluation24-api7-debug-retest。
+- 新现场调查17/task102在诊断前暴露py-spy实际文件的整条空栈：1508字节、380总权重，其中1未知；原通用parser严格拒绝。新增仅可信当前attempt py-spy/PYTHON_CPU来源的适配，用明确未知占位保留全部权重、记录固定质量计数，通用collapsed、伪装导入、坏权重/控制符仍拒。Analyzer0.2.4的20相邻单测0skip与原真实文件离线replay通过；原文件/失败状态未改。Go新增质量来源/单位/计数及未知热点防线，232项广回归0skip和全APIvet通过。API8/Analyzer20261021.1候选待Linux与真实恢复/新闭环验收。
+
 - API6/Web5已部署，29运行健康、7监控up、原27容器和全部卷/登记/broker保持；56项SDK中的原53项已在runtime4 Linux镜像通过，新增3项随后本机通过待新Linux执行。Web5公网两宽实际24事实、E锚点、键盘、axe和32静态/index SHA通过，旧窄屏失败截图单独保存。新调查16/task101/诊断66因四个独立报告错误逐个修正耗尽预算，原失败保留，未启动API6的24轮复测。
 - API7候选汇总至多6项/3500UTF8字节的固定安全反馈，按facts/verification/hypotheses轮转，任一错误仍拒整份，不采纳部分报告；原SDK4096界限及模型/工具预算不变。176项广Go回归0skip、全APIvet、格式检查通过；SDK56项本机47通过/9平台skip。实际66缩减fixture证明部分修复仍拒、全部修正才通过；独立源码审查无阻塞。待API7部署、真实闭环和新调试复测。
 

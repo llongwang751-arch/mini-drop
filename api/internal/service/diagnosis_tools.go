@@ -171,12 +171,20 @@ func diagnosisTool(name string, args json.RawMessage, raw json.RawMessage, task 
 		b, e := diagnosisCallPaths(raw, profile.Top[rank-1].Name)
 		return b, nil, e
 	case "inspect_hotspots":
+		quality, err := diagnosisSamplingQuality(raw, task, profile.TotalSamples)
+		if err != nil {
+			return nil, nil, err
+		}
 		top := []map[string]any{}
 		for i, f := range profile.Top {
 			if i >= 10 {
 				break
 			}
-			top = append(top, map[string]any{"rank": i + 1, "symbol": "symbol_" + repository.Digest(f.Name)[:12], "symbol_hint": diagnosisSymbolHint(f.Name), "self_percent": f.SelfPercent, "total_percent": f.TotalPercent})
+			row := map[string]any{"rank": i + 1, "symbol": "symbol_" + repository.Digest(f.Name)[:12], "symbol_hint": diagnosisSymbolHint(f.Name), "self_percent": f.SelfPercent, "total_percent": f.TotalPercent}
+			if quality != nil && (f.Name == "[py-spy unresolved stack]" || f.Name == "[py-spy unresolved frame]") {
+				row["unresolved"] = true
+			}
+			top = append(top, row)
 		}
 		return marshal(map[string]any{"top_functions": top, "hint_source": "local_symbol_heuristic_v1", "interpretation": "self为叶帧权重，total为包含子调用权重；symbol_hint为本地符号词形分类，仅作线索，不能证明锁等待或根因。比例不证明请求延迟或因果。原符号仅保留在授权结果页面。"})
 	case "check_collection_quality":
@@ -200,7 +208,18 @@ func diagnosisTool(name string, args json.RawMessage, raw json.RawMessage, task 
 		if p.Source == "import" || task.Kind == "IMPORT_COLLAPSED" {
 			issues = append(issues, "离线导入数据：无法核实现场负载、采集时钟和丢样")
 		}
-		return marshal(map[string]any{"kind": task.Kind, "duration_seconds": p.DurationSeconds, "frequency_hz": p.FrequencyHz, "issues": issues, "unknowns": []string{"未关联业务请求延迟、吞吐和错误率", "单次快照不能证明性能回退或修复收益", "未采集源码、符号地址映射及丢样率，不输出文件行号"}})
+		quality, err := diagnosisSamplingQuality(raw, task, profile.TotalSamples)
+		if err != nil {
+			return nil, nil, err
+		}
+		if quality != nil && quality["normalized"] == true {
+			issues = append(issues, "py-spy包含无法解析的栈或帧，已用明确未知占位符保留全部样本权重；占位符不是业务函数，不能用于源码定位或证明根因")
+		}
+		observation := map[string]any{"kind": task.Kind, "duration_seconds": p.DurationSeconds, "frequency_hz": p.FrequencyHz, "issues": issues, "unknowns": []string{"未关联业务请求延迟、吞吐和错误率", "单次快照不能证明性能回退或修复收益", "未采集源码、符号地址映射及丢样率，不输出文件行号"}}
+		if quality != nil {
+			observation["sampling_quality"] = quality
+		}
+		return marshal(observation)
 	case "propose_verification":
 		if params.Kind != "" && params.Kind != task.Kind {
 			return nil, nil, domain.Fail("AI_TOOL_REJECTED", "复测采集类型不能跨越当前任务")

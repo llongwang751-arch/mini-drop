@@ -1,0 +1,42 @@
+{
+  "scope": "offline_imported_fixtures_not_live_model",
+  "sources": {
+    "api/internal/service/diagnosis_facts.go": "0e19b6b2091610ecfcd174c7a224c232f10d55b121876872c3d3bdc5e85ac6b9",
+    "api/internal/service/diagnosis_tools.go": "4f637c71bab0caa959f35b5b470acaf12963aa97edcd6efa1600ba08d48a36b1",
+    "api/internal/service/diagnosis_sampling_quality.go": "8f335518f4753ba30ffe64d670970dbb9fa53a7877dc30ace6c6f6237217402c",
+    "api/internal/service/diagnosis_sampling_quality_test.go": "8032a29b3ba8d36d5f1584370f310deaf0f95c7cc69a879a9b8cb65fcc7852c9"
+  },
+  "checks": [
+    {
+      "name": "targeted-go",
+      "command": [
+        "go",
+        "test",
+        "-tags=nomsgpack",
+        "./internal/service",
+        "-run",
+        "^(TestDiagnosis|TestAgentGateway|TestAgentRunner|TestAgentRuntime|TestAgentToolSchemas)",
+        "-count=1",
+        "-json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 12.137,
+      "pass": 232,
+      "top_level_pass": 56,
+      "skip": 0,
+      "failed_tests": []
+    },
+    {
+      "name": "vet",
+      "command": [
+        "go",
+        "vet",
+        "-tags=nomsgpack",
+        "-p=1",
+        "./..."
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.89
+    }
+  ]
+}
