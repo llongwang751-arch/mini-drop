@@ -5,6 +5,7 @@ export default defineConfig({
   ...base,
   testMatch: [
     "agent-extensions.spec.ts",
+    "task-diagnostic-facts.spec.ts",
     "knowledge.spec.ts",
     "diagnosis-agent.spec.ts",
     "investigations.spec.ts",

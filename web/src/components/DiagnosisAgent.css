@@ -48,9 +48,15 @@
   height: 20px;
 }
 .diagnosis-results {
+  /* grid 默认按表格的最小内容宽度定列；把横向滚动留在表格内部，避免窄屏整份报告被裁剪。 */
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   margin-top: 28px;
   border-top: 1px solid var(--border);
   padding-top: 24px;
+}
+.diagnosis-results > * {
+  min-width: 0;
 }
 .diagnosis-trace {
   padding-left: 24px;

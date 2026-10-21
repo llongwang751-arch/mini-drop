@@ -2,6 +2,8 @@
 
 ## 八项 Agent 扩展（2026-10-21，已部署，真实场景验收中）
 
+API5固定24轮实际仅4/24报告通过，off/experience各2/12，20个失败全部保留；这不是语义准确率，人工标签仍为空。见 [逐次结果](evidence/agent-expansion-20261021/evaluation24/trial-receipt.json)与[评分输出](evidence/agent-expansion-20261021/evaluation24/evaluation-live.json)。API6/Web5候选针对真实失败补资源事实、假设纠错及窄屏布局，128项Go定向回归、全API vet、部署5项和Web7项通过，待新闭环及独立debug_retest，不覆盖原实验。
+
 API20261021.5候选增加报告专用安全纠错提示，66项Go定向回归、全API vet及SDK新增3项通过；原错误来源仍拒绝，预算保持，尚待真实模型复验。收据见 [安全反馈回归](evidence/agent-expansion-20261021/report-feedback-go.json)。
 
 当前修正版本API/runtime/Web20261021.4、SQL10，Linux SDK50/50、0skip，29运行健康/7监控up；仅应用三容器替换，其余26及broker PID/登记快照保持。Web公网双宽10视图、严格CSP、长diff方向键、真实补丁下载和32静态文件/index SHA通过。见 [21.4部署](evidence/agent-expansion-20261021/deployment-r4.json)、[公网实际检查](evidence/agent-expansion-20261021/public-r4/summary.json)。跨信号调查14已真实采集/查询并生成补证草案，但最终报告的复测来源混淆被拒，尚不能称完整补证闭环；修正安全反馈后继续验收。

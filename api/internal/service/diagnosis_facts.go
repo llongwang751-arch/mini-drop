@@ -64,12 +64,13 @@ type diagnosisModelReportV2 struct {
 }
 
 const diagnosisFactReportInstructions = `最终回复必须是report_version=2的纯JSON，只允许下列顶层字段：report_version、facts、hypotheses、verification_requests。不要输出自由summary、claim、verification、limitations、plan、facts核验标签、runtime或knowledge；权威描述由程序生成。
-facts为1至24项，每项只含{id,evidence_id,path,operator,value,unit}；id为F1等唯一编号。evidence_id必须是实际返回的当前观测E编号，历史知识不能作事实来源。path使用下面列出的有限JSON Pointer，数组下标从0开始。value必须与该来源的实际值完全一致；不能换单位、跨E编号借字段或补默认值。operator只有eq、count、count_positive_self，后两者仅在明确列出的数组使用。
+facts为1至24项，通常只选3至8项与问题和假设直接相关的事实，不要为了填满24项而加入无关字段。每项只含{id,evidence_id,path,operator,value,unit}；id为F1等唯一编号。evidence_id必须是实际返回的当前观测E编号，历史知识不能作事实来源。path使用下面列出的有限JSON Pointer，数组下标从0开始。value必须与该来源的实际值完全一致；不能换单位、跨E编号借字段或补默认值。operator只有eq、count、count_positive_self，后两者仅在明确列出的数组使用；node_count等已返回数字是标量，必须eq，不能count。
 可用字段：read_profile_summary的/total_weight(单位取E1.measurement_unit)、/node_count(count)、/kind(category)、/measurement_unit(unit)、/verification_available(boolean)；inspect_hotspots的/top_functions/0/self_percent与total_percent(percent)、rank(rank)、symbol_hint(category)，索引最多9；/top_functions可用count_positive_self，unit=count，只代表已返回Top表正self项目数，不代表整个树唯一叶帧。check_collection_quality的/duration_seconds(seconds)、/frequency_hz(hertz)、/kind(category)，/issues与/unknowns可count(count)。
 inspect_call_paths的/available、/tree_truncated、/occurrences_truncated、/truncated为boolean；/matched_occurrences与/examined_nodes为count；/occurrences/0/self_weight与inclusive_weight沿用观测单位，callees_truncated与ancestors_truncated为boolean；/occurrences/0/top_callees与ancestors可count(count)，索引最多4。propose_verification只可引用实际返回的/duration_seconds(seconds)、/frequency_hz(hertz)、/kind(category)、/requires_manual_import(boolean)、/requires_manual_configuration(boolean)，没有返回就不能填值。
 compare_profiles的/comparable(boolean)、/unit(unit)、/baseline_weight与/candidate_weight(沿用观测单位)、/outcome与/root_cause_status(category)；/differences/0/baseline_self_percent与candidate_self_percent(percent)、delta_percentage_points(percentage_points)，索引最多9。
+仅RESOURCE_SNAPSHOT的read_profile_summary实际返回resources时可引用：/resources/sample_count(count)，/resources/peaks/cpu_percent(percent，多核可超过100)、rss_bytes(bytes)、vms_bytes(bytes)、threads(count)、fd_count(count)、memory_used_bytes(bytes)、memory_total_bytes(bytes)。这些路径均为eq；缺失/null峰值不能补0。资源峰值不是时间加权平均或函数热点，memory_*主机口径不能冒充进程RSS；total_weight=0与空函数栈不代表资源采集失败。引用真实资源事实后，不能仅凭一个峰值断言资源瓶颈，应结合负载与基线；无法满足某类假设前提时使用insufficient_evidence。
 业务工具只可引用固定结构：query_business_signals的/available(boolean)，/metrics/0/value按name映射单位（latency_p95_ms→milliseconds、error_rate→ratio、throughput_rps→requests_per_second，实际row.unit必须相同）；/metrics/0/name(category)、/metrics/0/unit(unit)；/logs/0/duration_ms(milliseconds)、status_code(status_code)；/traces/0/duration_ms(milliseconds)、span_count与error_count(count)，以上索引最多9。query_business_signals的/changes/0/timestamp(timestamp，RFC3339时间)、/changes/0/change_type(category，仅deployment/configuration/feature_flag)可eq；inspect_service_topology的/nodes、/edges可count(count)，/causality_proven(boolean)只描述程序标记；登记依赖关系不是故障因果。不能把自由日志正文、任意标签或变更描述用作已核验事实。
-hypotheses为1至4项，每项只含kind、fact_ids、evidence_ids及可选unverified_interpretation。kind只允许cpu_hotspot、allocation_gc、lock_io、normal_load、insufficient_evidence、mixed_signals、business_latency、downstream_dependency、deployment_regression；这些是待验证方向，不能自报根因确认。fact_ids引用本报告已核验事实，每项1至8个；evidence_ids须包含这些事实来源，每项1至8个。allocation_gc须引用allocation/garbage_collection提示或内存采集kind事实；lock_io须引用等待/IO提示或IO_TRACE kind；mixed_signals须引用两类提示；cpu_hotspot须引用正self占比或正self计数；business_latency须引用实际业务时长事实；downstream_dependency须引用正的登记edges计数；deployment_regression须引用固定change_type事实。unverified_interpretation如填写最多600字节，是明确未核验的模型解释，不会作为权威事实。不要在其中泄露敏感信息。
+hypotheses为1至4项，只保留有事实支持的方向，无需填满4项。每项只含kind、fact_ids、evidence_ids及可选unverified_interpretation。kind只允许cpu_hotspot、allocation_gc、lock_io、normal_load、insufficient_evidence、mixed_signals、business_latency、downstream_dependency、deployment_regression；这些是待验证方向，不能自报根因确认。fact_ids引用本报告已核验事实，每项1至8个；evidence_ids须包含这些事实来源，每项1至8个。allocation_gc须引用allocation/garbage_collection提示或内存采集kind事实；lock_io须引用等待/IO提示或IO_TRACE kind；mixed_signals须在所引用事实中包含allocation/GC、lock/IO、业务毫秒时长、change_type这四类提示中的至少两类，CPU占比、质量、未知项和拓扑本身不算这四类提示；cpu_hotspot须引用inspect_hotspots正self占比或正self计数，资源cpu_percent不替代函数热点；business_latency须引用实际业务时长事实；downstream_dependency须引用正的登记edges计数；deployment_regression须引用实际query_business_signals固定change_type事实，空changes或拓扑不支持它。没有对应证据时移除该方向或使用insufficient_evidence，不要用mixed_signals汇总任意字段。unverified_interpretation如填写最多600字节，是明确未核验的模型解释，不会作为权威事实。不要在其中泄露敏感信息。
 verification_requests为1至3项，只允许origin、kind、source_evidence_id、duration_seconds、frequency_hz。origin=tool_plan时kind=repeat_collection，source_evidence_id必须指向真正返回时长和频率的propose_verification；提供参数时必须逐项等于该工具返回。origin=tool_instruction时只允许kind=manual_import和source_evidence_id，且工具确实requires_manual_import=true，不得加时长频率。origin=model_proposal时禁止source_evidence_id；kind可repeat_collection、collect_memory、collect_wait_io、inspect_source、correlate_business_signals、controlled_intervention、manual_import，时长可选1至60秒、频率可选0至999Hz，仅为待审建议，不称作工具已生成或校验的计划。
 示例值只示意结构，必须替换成实际观测：{"report_version":2,"facts":[{"id":"F1","evidence_id":"E1","path":"/measurement_unit","operator":"eq","value":"samples","unit":"unit"}],"hypotheses":[{"kind":"insufficient_evidence","fact_ids":["F1"],"evidence_ids":["E1"]}],"verification_requests":[{"origin":"model_proposal","kind":"correlate_business_signals"}]}。不带Markdown或额外字段。`
 
@@ -116,28 +117,40 @@ func (e *diagnosisReportValidationError) safeDiagnosisReportFeedback() diagnosis
 }
 
 var diagnosisFeedbackRepairs = map[string]string{
-	"fact_id_invalid":                       "facts.id须为F1等唯一有效编号。",
-	"fact_id_duplicate":                     "为每条facts分配唯一编号，并同步hypotheses.fact_ids。",
-	"fact_source_not_found":                 "只能引用实际trace返回的当前观测E编号，不能补造来源。",
-	"fact_operator_invalid":                 "operator只允许eq、count或count_positive_self，并遵守对应路径白名单。",
-	"fact_path_not_allowed":                 "该工具的path/operator组合不在白名单；按系统协议选择已返回的固定字段，或移除此事实并同步假设引用。",
-	"fact_path_missing":                     "实际观测没有该字段；不能补默认值，可移除此事实并同步假设引用。",
-	"fact_unit_mismatch":                    "使用expected_unit标明的原观测单位，不能换算或给不同来源套用单位。",
-	"fact_value_mismatch":                   "value必须逐项等于实际观测或程序聚合结果，不能使用近似或推测值。",
-	"fact_observation_invalid":              "来源结构、标量或范围不满足事实协议；不要补造缺失值，改用其他有效观测。",
-	"fact_observation_unavailable":          "available=false的业务源不允许引用其数值；可保留/available=false事实或使用其他有效来源。",
-	"fact_measurement_not_comparable":       "对照未证明同口径，不能给两侧权重套用同一单位。",
-	"verification_parameters_out_of_bounds": "时长只允许1至60秒、频率只允许0至999Hz；工具计划参数还必须逐项等于实际返回。",
-	"verification_source_not_found":         "source_evidence_id只能指向trace中实际返回的propose_verification编号。",
-	"verification_source_tool_mismatch":     "改为origin=model_proposal并删除source_evidence_id，或在普通轮内调用真正propose_verification后引用其返回；不得增加权限或预算",
-	"verification_source_invalid":           "来源观测没有合法的复测计划结构，不能用默认值补成已校验计划。",
-	"verification_instruction_mismatch":     "tool_instruction仅允许实际requires_manual_import=true的manual_import，且不接受时长或频率。",
-	"verification_plan_unavailable":         "tool_plan仅允许propose_verification真实返回的repeat_collection草案，人工导入/独立配置不能冒充可执行计划。",
-	"verification_plan_parameters_missing":  "来源没有返回完整合法的时长/频率，不能补默认值；改为model_proposal并删除source_evidence_id，或引用真正可用的复测草案。",
-	"verification_parameter_mismatch":       "工具计划的时长/频率必须与所引用propose_verification实际返回逐项相等；自行建议须改为model_proposal并删除source_evidence_id。",
-	"model_proposal_source_forbidden":       "origin=model_proposal时必须删除source_evidence_id，不把模型建议归因给任何工具。",
-	"verification_kind_invalid":             "仅使用系统协议列出的kind，不得自造执行动作。",
-	"verification_origin_invalid":           "origin只允许tool_plan、tool_instruction或model_proposal。",
+	"fact_id_invalid":                        "facts.id须为F1等唯一有效编号。",
+	"fact_id_duplicate":                      "为每条facts分配唯一编号，并同步hypotheses.fact_ids。",
+	"fact_source_not_found":                  "只能引用实际trace返回的当前观测E编号，不能补造来源。",
+	"fact_operator_invalid":                  "operator只允许eq、count或count_positive_self，并遵守对应路径白名单。",
+	"fact_path_not_allowed":                  "该工具的path/operator组合不在白名单；按系统协议选择已返回的固定字段，或移除此事实并同步假设引用。",
+	"fact_scalar_operator_invalid":           "该路径返回标量，operator必须是eq；count与count_positive_self只能用于协议明确允许的数组。",
+	"fact_path_missing":                      "实际观测没有该字段；不能补默认值，可移除此事实并同步假设引用。",
+	"fact_unit_mismatch":                     "使用expected_unit标明的原观测单位，不能换算或给不同来源套用单位。",
+	"fact_value_mismatch":                    "value必须逐项等于实际观测或程序聚合结果，不能使用近似或推测值。",
+	"fact_observation_invalid":               "来源结构、标量或范围不满足事实协议；不要补造缺失值，改用其他有效观测。",
+	"fact_observation_unavailable":           "available=false的业务源不允许引用其数值；可保留/available=false事实或使用其他有效来源。",
+	"fact_measurement_not_comparable":        "对照未证明同口径，不能给两侧权重套用同一单位。",
+	"verification_parameters_out_of_bounds":  "时长只允许1至60秒、频率只允许0至999Hz；工具计划参数还必须逐项等于实际返回。",
+	"verification_source_not_found":          "source_evidence_id只能指向trace中实际返回的propose_verification编号。",
+	"verification_source_tool_mismatch":      "改为origin=model_proposal并删除source_evidence_id，或在普通轮内调用真正propose_verification后引用其返回；不得增加权限或预算",
+	"verification_source_invalid":            "来源观测没有合法的复测计划结构，不能用默认值补成已校验计划。",
+	"verification_instruction_mismatch":      "tool_instruction仅允许实际requires_manual_import=true的manual_import，且不接受时长或频率。",
+	"verification_plan_unavailable":          "tool_plan仅允许propose_verification真实返回的repeat_collection草案，人工导入/独立配置不能冒充可执行计划。",
+	"verification_plan_parameters_missing":   "来源没有返回完整合法的时长/频率，不能补默认值；改为model_proposal并删除source_evidence_id，或引用真正可用的复测草案。",
+	"verification_parameter_mismatch":        "工具计划的时长/频率必须与所引用propose_verification实际返回逐项相等；自行建议须改为model_proposal并删除source_evidence_id。",
+	"model_proposal_source_forbidden":        "origin=model_proposal时必须删除source_evidence_id，不把模型建议归因给任何工具。",
+	"verification_kind_invalid":              "仅使用系统协议列出的kind，不得自造执行动作。",
+	"verification_origin_invalid":            "origin只允许tool_plan、tool_instruction或model_proposal。",
+	"hypothesis_shape_invalid":               "fact_ids与evidence_ids分别须有1至8项，解释须遵守长度与敏感信息限制；不能用空引用补成假设。",
+	"hypothesis_evidence_invalid":            "evidence_ids只能包含当前trace真实且互不重复的E编号，不能补造观测。",
+	"hypothesis_fact_reference_invalid":      "fact_ids只能包含本报告已核验且互不重复的事实，并在evidence_ids中包含每条事实的真实来源。",
+	"hypothesis_kind_invalid":                "只使用系统协议列出的假设kind；证据不足时可使用insufficient_evidence，不能自造根因类型。",
+	"hypothesis_allocation_evidence_missing": "allocation_gc需要本假设引用实际allocation/garbage_collection提示或内存采集kind事实；没有时移除此假设或改为insufficient_evidence。",
+	"hypothesis_lock_evidence_missing":       "lock_io需要本假设引用实际等待/IO提示或IO_TRACE kind事实；不能用纯热点数值替代。没有时移除或改为insufficient_evidence。",
+	"hypothesis_mixed_evidence_missing":      "mixed_signals需要本假设引用至少两类实际提示；多个同类字段不是不同信号类别。没有时移除或改为insufficient_evidence。",
+	"hypothesis_cpu_evidence_missing":        "cpu_hotspot需要本假设引用inspect_hotspots中正self占比或正self计数；不能用总权重、资源CPU百分比或拓扑替代。",
+	"hypothesis_latency_evidence_missing":    "business_latency需要本假设引用实际业务毫秒时长事实；不能用CPU采集时长或登记拓扑替代。",
+	"hypothesis_dependency_evidence_missing": "downstream_dependency需要本假设引用登记拓扑中正的edges计数；依赖方向仍不是故障因果。",
+	"hypothesis_change_evidence_missing":     "deployment_regression必须引用query_business_signals实际返回的change_type事实；空changes、拓扑nodes/edges或时间重合均不能替代。无变更事实时移除该假设或改为insufficient_evidence。",
 }
 
 func diagnosisFeedbackKnownTool(tool string) bool {
@@ -157,10 +170,14 @@ func (f diagnosisReportFeedback) safeJSON() (string, bool) {
 		if *f.Index < 0 || *f.Index >= 3 {
 			return "", false
 		}
+	} else if f.Section == "hypotheses" {
+		if *f.Index < 0 || *f.Index >= 4 {
+			return "", false
+		}
 	} else {
 		return "", false
 	}
-	if !slices.Contains([]string{"id", "evidence_id", "path", "operator", "unit", "value", "origin", "kind", "source_evidence_id", "duration_seconds", "frequency_hz"}, f.Field) {
+	if !slices.Contains([]string{"id", "evidence_id", "path", "operator", "unit", "value", "origin", "kind", "source_evidence_id", "duration_seconds", "frequency_hz", "fact_ids", "evidence_ids", "unverified_interpretation"}, f.Field) {
 		return "", false
 	}
 	if f.EvidenceID != "" && !diagnosisEvidenceNumber.MatchString(f.EvidenceID) {
@@ -337,6 +354,14 @@ func diagnosisAllowedFact(tool, path, operator, measurementUnit string) (unit, l
 		"read_profile_summary": {
 			"/total_weight": {measurementUnit, "本次观测总权重"}, "/node_count": {"count", "本次树节点数"},
 			"/kind": {"category", "观测类型"}, "/measurement_unit": {"unit", "观测单位"}, "/verification_available": {"boolean", "复测比较可用状态"},
+			"/resources/sample_count":             {"count", "本次资源观测样本数"},
+			"/resources/peaks/cpu_percent":        {"percent", "资源观测CPU峰值（多核可超过100%，不是时间加权均值）"},
+			"/resources/peaks/rss_bytes":          {"bytes", "资源观测RSS峰值"},
+			"/resources/peaks/vms_bytes":          {"bytes", "资源观测虚拟内存峰值"},
+			"/resources/peaks/threads":            {"count", "资源观测线程数峰值"},
+			"/resources/peaks/fd_count":           {"count", "资源观测文件描述符数峰值"},
+			"/resources/peaks/memory_used_bytes":  {"bytes", "主机可见已用内存峰值（不是进程RSS）"},
+			"/resources/peaks/memory_total_bytes": {"bytes", "主机可见总内存值（不是进程RSS）"},
 		},
 		"check_collection_quality": {"/kind": {"category", "采集类型"}, "/duration_seconds": {"seconds", "工具记录的采集时长（0 表示未记录或不适用）"}, "/frequency_hz": {"hertz", "工具记录的频率（0 表示未记录或不适用）"}},
 		"inspect_call_paths":       {"/available": {"boolean", "调用路径可用状态"}, "/tree_truncated": {"boolean", "树遍历是否截断"}, "/occurrences_truncated": {"boolean", "出现位置是否省略"}, "/truncated": {"boolean", "调用上下文是否截断"}, "/matched_occurrences": {"count", "已遍历树中的匹配位置数"}, "/examined_nodes": {"count", "已遍历节点数"}},
@@ -454,6 +479,9 @@ func diagnosisResolveFact(request diagnosisFactRequest, step DiagnosisStep, meas
 	}
 	unit, label, allowed := diagnosisAllowedFact(step.Tool, request.Path, request.Operator, measurementUnit)
 	if !allowed {
+		if _, _, scalarAllowed := diagnosisAllowedFact(step.Tool, request.Path, "eq", measurementUnit); scalarAllowed && request.Operator != "eq" {
+			return bad("fact_scalar_operator_invalid", "operator")
+		}
 		return bad("fact_path_not_allowed", "path")
 	}
 	body, err := diagnosisDecodeObject(step.Observation)
@@ -520,7 +548,12 @@ func diagnosisResolveFact(request diagnosisFactRequest, step DiagnosisStep, meas
 		}
 		value = json.Number(strconv.Itoa(count))
 	}
-	if !diagnosisFactScalarType(value, unit) {
+	validScalar := diagnosisFactScalarType(value, unit)
+	if step.Tool == "read_profile_summary" && strings.HasPrefix(request.Path, "/resources/") {
+		// 资源CPU是多核计数口径，独立有界验证；不放宽函数self/total占比的0至100约束。
+		validScalar = body["kind"] == "RESOURCE_SNAPSHOT" && diagnosisResourceFactScalar(body, request.Path, value)
+	}
+	if !validScalar {
 		return bad("fact_observation_invalid", "value")
 	}
 	if !diagnosisSameScalar(value, request.Value) {
@@ -657,6 +690,9 @@ func diagnosisV2Summary(trace []DiagnosisStep) (string, []string, error) {
 	if !validWeight || weight.Sign() < 0 || !validKind || len(kind) > 64 || !regexp.MustCompile(`^[A-Z_0-9]+$`).MatchString(kind) {
 		return "", nil, invalidDiagnosisFact()
 	}
+	if kind == "RESOURCE_SNAPSHOT" {
+		return diagnosisResourceV2Summary(summary)
+	}
 	positive := 0
 	parts := []string{}
 	for index, row := range hotspots {
@@ -702,11 +738,54 @@ func diagnosisV2Summary(trace []DiagnosisStep) (string, []string, error) {
 	return text, limitations, nil
 }
 
+// 资源计数与调用栈使用不同口径。没有函数权重不等于没有采样，峰值也不等于持续压力或根因。
+func diagnosisResourceV2Summary(summary map[string]any) (string, []string, error) {
+	limitations := []string{
+		"程序核验只保证资源字段、数值、单位和出处与当前聚合一致，不证明因果或自由模型解释。",
+		"资源快照没有函数调用栈；CPU与内存峰值不是时间加权平均，不能直接认定瓶颈或优化收益。",
+		"资源作用域与负载基线需独立核对；主机可见memory字段不等同目标进程RSS，多核CPU百分比可超过100%。",
+	}
+	resources, exists := summary["resources"].(map[string]any)
+	if !exists {
+		limitations = append(limitations, "当前报告没有可用的资源聚合；不能把空热点表或零函数权重解释为CPU空闲。")
+		return "本次为资源快照，当前工具未返回可引用的资源聚合；函数权重和空热点表不用于判断资源状态。", limitations, nil
+	}
+	count := resources["sample_count"]
+	if !diagnosisResourceFactScalar(summary, "/resources/sample_count", count) {
+		return "", nil, invalidDiagnosisFact()
+	}
+	countJSON, _ := json.Marshal(count)
+	parts := []string{}
+	peaks, _ := resources["peaks"].(map[string]any)
+	for _, field := range []struct{ key, label, unit string }{
+		{"cpu_percent", "CPU峰值", "%"}, {"rss_bytes", "RSS峰值", "bytes"},
+		{"vms_bytes", "虚拟内存峰值", "bytes"}, {"threads", "线程数峰值", "count"},
+		{"fd_count", "文件描述符数峰值", "count"},
+		{"memory_used_bytes", "主机可见已用内存峰值", "bytes"},
+		{"memory_total_bytes", "主机可见总内存值", "bytes"},
+	} {
+		value, exists := peaks[field.key]
+		if !exists {
+			continue
+		}
+		if !diagnosisResourceFactScalar(summary, "/resources/peaks/"+field.key, value) {
+			return "", nil, invalidDiagnosisFact()
+		}
+		encoded, _ := json.Marshal(value)
+		parts = append(parts, field.label+"="+string(encoded)+field.unit)
+	}
+	text := "本次资源快照包含" + string(countJSON) + "个实际样本"
+	if len(parts) > 0 {
+		text += "；" + strings.Join(parts, "，")
+	}
+	return text + "。这些是窗口内资源聚合，尚未证明资源瓶颈或业务根因。", limitations, nil
+}
+
 func diagnosisV2HypothesisText(kind string, facts []DiagnosisVerifiedFact) (string, error) {
 	templates := map[string]string{"cpu_hotspot": "热点权重分布需要结合负载与调用路径核验，当前尚不能认定业务瓶颈。", "allocation_gc": "当前存在内存或分配相关线索；对象生命周期、分配速率及GC影响仍需独立观测。", "lock_io": "当前存在等待或IO相关线索；锁竞争、阻塞时长及因果仍待交叉验证。", "normal_load": "当前证据尚不能把热点认定为缺陷，应与正常负载基线核对。", "insufficient_evidence": "当前观测不足以确认性能缺陷或根因，应先补充可比证据。", "mixed_signals": "当前存在多类线索；应分别核验，不能将多个相关信号直接合并成已确认根因。", "business_latency": "当前业务时长观测可供核验；单次指标或时间重合不足以确认异常原因，需要基线、负载与窗口对照。", "downstream_dependency": "登记依赖提供下游调查方向，尚未证明下游导致当前症状；需要跨服务同窗口观测核验。", "deployment_regression": "当前已返回变更事件，可作为调查方向；时间重合不能确认变更导致回退，需要受控对照与功能验证。"}
 	text, ok := templates[kind]
 	if !ok {
-		return "", invalidDiagnosisFact()
+		return "", diagnosisFeedbackError("hypothesis_kind_invalid", "kind", DiagnosisStep{})
 	}
 	hints := map[string]bool{}
 	memoryKind := false
@@ -760,8 +839,26 @@ func diagnosisV2HypothesisText(kind string, facts []DiagnosisVerifiedFact) (stri
 			}
 		}
 	}
-	if kind == "allocation_gc" && !memoryKind && !hints["allocation_gc"] || kind == "lock_io" && !hints["lock_io"] || kind == "mixed_signals" && len(hints) < 2 || kind == "cpu_hotspot" && !positive || kind == "business_latency" && !latency || kind == "downstream_dependency" && !dependency || kind == "deployment_regression" && !change {
-		return "", invalidDiagnosisFact()
+	// 每条假设仅由它实际引用的事实支持。反馈解释固定前提，不替模型补事实、不降级错误为成功。
+	missing := ""
+	switch {
+	case kind == "allocation_gc" && !memoryKind && !hints["allocation_gc"]:
+		missing = "allocation"
+	case kind == "lock_io" && !hints["lock_io"]:
+		missing = "lock"
+	case kind == "mixed_signals" && len(hints) < 2:
+		missing = "mixed"
+	case kind == "cpu_hotspot" && !positive:
+		missing = "cpu"
+	case kind == "business_latency" && !latency:
+		missing = "latency"
+	case kind == "downstream_dependency" && !dependency:
+		missing = "dependency"
+	case kind == "deployment_regression" && !change:
+		missing = "change"
+	}
+	if missing != "" {
+		return "", diagnosisFeedbackError("hypothesis_"+missing+"_evidence_missing", "fact_ids", DiagnosisStep{})
 	}
 	ids := []string{}
 	for _, fact := range facts {
@@ -819,30 +916,30 @@ func validateDiagnosisModelReportV2(content string, trace []DiagnosisStep) (*Dia
 		}
 		verification = append(verification, text)
 	}
-	for _, hypothesis := range submitted.Hypotheses {
+	for index, hypothesis := range submitted.Hypotheses {
 		if len(hypothesis.FactIDs) < 1 || len(hypothesis.FactIDs) > 8 || len(hypothesis.EvidenceIDs) < 1 || len(hypothesis.EvidenceIDs) > 8 || !diagnosisSafeInterpretation(hypothesis.UnverifiedInterpretation) {
-			return nil, invalidDiagnosisFact()
+			return nil, diagnosisFeedbackAt(diagnosisFeedbackError("hypothesis_shape_invalid", "fact_ids", DiagnosisStep{}), "hypotheses", index)
 		}
 		facts := []DiagnosisVerifiedFact{}
 		used := map[string]bool{}
 		usedFacts := map[string]bool{}
 		for _, id := range hypothesis.EvidenceIDs {
 			if _, exists := steps[id]; !exists || used[id] {
-				return nil, invalidDiagnosisFact()
+				return nil, diagnosisFeedbackAt(diagnosisFeedbackError("hypothesis_evidence_invalid", "evidence_ids", DiagnosisStep{}), "hypotheses", index)
 			}
 			used[id] = true
 		}
 		for _, id := range hypothesis.FactIDs {
 			fact, exists := indexed[id]
 			if !exists || !used[fact.EvidenceID] || usedFacts[id] {
-				return nil, invalidDiagnosisFact()
+				return nil, diagnosisFeedbackAt(diagnosisFeedbackError("hypothesis_fact_reference_invalid", "fact_ids", DiagnosisStep{}), "hypotheses", index)
 			}
 			usedFacts[id] = true
 			facts = append(facts, fact)
 		}
 		claim, err := diagnosisV2HypothesisText(hypothesis.Kind, facts)
 		if err != nil {
-			return nil, err
+			return nil, diagnosisFeedbackAt(err, "hypotheses", index)
 		}
 		report.Hypotheses = append(report.Hypotheses, DiagnosisHypothesis{Kind: hypothesis.Kind, Claim: claim, FactIDs: hypothesis.FactIDs, EvidenceIDs: hypothesis.EvidenceIDs, Verification: strings.Join(verification, "\n"), UnverifiedInterpretation: hypothesis.UnverifiedInterpretation})
 	}

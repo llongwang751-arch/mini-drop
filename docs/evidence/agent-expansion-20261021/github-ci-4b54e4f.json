@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "recorded_at": "2026-10-21T08:52:16.562788+00:00",
+  "recorded_at": "2026-10-21T09:15:00.094939+00:00",
   "repository": "llongwang751-arch/mini-drop",
   "commit_sha": "4b54e4f37df4c87d20a636ed71f910c7dac55e36",
   "event_filter": "push",
@@ -12,10 +12,10 @@
       "event": "push",
       "head_sha": "4b54e4f37df4c87d20a636ed71f910c7dac55e36",
       "head_branch": "master",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "created_at": "2026-10-21T08:27:03Z",
-      "updated_at": "2026-10-21T08:27:12Z",
+      "updated_at": "2026-10-21T08:53:44Z",
       "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/39569350538",
       "run_attempt": 1,
       "path": ".github/workflows/ci.yml",
@@ -307,10 +307,10 @@
         {
           "id": 119119343828,
           "name": "analyzer",
-          "status": "in_progress",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "success",
           "started_at": "2026-10-21T08:27:06Z",
-          "completed_at": null,
+          "completed_at": "2026-10-21T08:53:43Z",
           "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/39569350538/job/119119343828",
           "steps": [
             {
@@ -334,20 +334,26 @@
             {
               "number": 4,
               "name": "Run docker build -t drop-analyzer:build -f analyzer/Dockerfile .",
-              "status": "in_progress",
-              "conclusion": null
+              "status": "completed",
+              "conclusion": "success"
             },
             {
               "number": 5,
               "name": "Run sh analyzer/scripts/run-isolated-integration.sh",
-              "status": "pending",
-              "conclusion": null
+              "status": "completed",
+              "conclusion": "success"
             },
             {
               "number": 10,
               "name": "Post Run actions/checkout@v4",
-              "status": "pending",
-              "conclusion": null
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 11,
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
             }
           ]
         },
@@ -764,10 +770,57 @@
           ]
         }
       ]
+    },
+    {
+      "recorded_at": "2026-10-21T09:15:00.094939+00:00",
+      "runs": [
+        {
+          "id": 39569350538,
+          "status": "completed",
+          "conclusion": "success",
+          "jobs": [
+            {
+              "name": "contracts",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "api",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "agent-runtime",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "core",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "analyzer",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "web",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "maintenance",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
     }
   ],
-  "all_runs_terminal": false,
-  "all_runs_successful": false,
+  "all_runs_terminal": true,
+  "all_runs_successful": true,
   "workflow_triggered_or_retried": false,
   "credential_values_logged": false,
   "log_redirects_fetched_without_authorization_header": true

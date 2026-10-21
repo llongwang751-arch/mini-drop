@@ -146,6 +146,16 @@ func diagnosisTool(name string, args json.RawMessage, raw json.RawMessage, task 
 		if task.Kind == "PROC_CPU" {
 			summary["stack_scope"] = "process_and_thread_counters_only_no_function_stacks"
 		}
+		if task.Kind == "RESOURCE_SNAPSHOT" {
+			resources, err := diagnosisResourceProjection(raw, task)
+			if err != nil {
+				return nil, nil, err
+			}
+			summary["stack_scope"] = "resource_counters_only_no_function_stacks"
+			if resources != nil {
+				summary["resources"] = resources
+			}
+		}
 		return marshal(summary)
 	case "inspect_call_paths":
 		rank := params.Rank
@@ -178,8 +188,11 @@ func diagnosisTool(name string, args json.RawMessage, raw json.RawMessage, task 
 		if task.Kind == "PROC_CPU" {
 			issues = append(issues, "procfs仅提供进程/线程CPU tick，不提供函数调用栈；不能用线程名定位源码函数")
 		}
-		if profile.TotalSamples <= 0 {
+		if profile.TotalSamples <= 0 && task.Kind != "RESOURCE_SNAPSHOT" {
 			issues = append(issues, "没有正采样权重，无法支持热点判断")
+		}
+		if task.Kind == "RESOURCE_SNAPSHOT" {
+			issues = append(issues, "资源快照不产生函数调用栈；请引用实际resources聚合计数和峰值，零profile权重不能用来判定资源压力或采集失败")
 		}
 		if p.DurationSeconds > 0 && p.DurationSeconds < 10 {
 			issues = append(issues, "采集窗口短于10秒，需在稳定负载下复测")

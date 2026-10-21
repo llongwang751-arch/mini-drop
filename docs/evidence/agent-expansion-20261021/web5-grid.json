@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-21T09:27:56.356848+00:00",
+  "status": "LOCAL_PASSED_PENDING_WEB_20261021_5",
+  "problem": "真实TaskDetail v2长Facts在375下区域宽690被祖先裁剪，document宽度检查误判",
+  "fix": "diagnosis-results grid使用minmax(0,1fr)并允许子项min-width0；横向滚动留在具名可聚焦表格区域",
+  "files": {
+    "web/src/components/DiagnosisAgent.css": "dbf1803a8101039de89f572dc024e0a7c28fc03a6f352cdf4addb47d2302346a",
+    "web/e2e/task-diagnostic-facts.spec.ts": "f903785fceeccbda306107d5ce7df2080d02274ab9bfd6cb581a625597db08e4",
+    "web/playwright.agent-extensions.config.ts": "ef51757825ed725d7c7224f4627b196973a4b1b77a2807b6038a2e432b81b281"
+  },
+  "checks": [
+    {
+      "command": "npm run build",
+      "passed": true
+    },
+    {
+      "command": "npx playwright test e2e/task-diagnostic-facts.spec.ts e2e/diagnosis-agent.spec.ts --config playwright.agent-extensions.config.ts --reporter=list --output=../.local/agent-expansion-20261021/web5-grid",
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 13.1
+    },
+    {
+      "command": "npm exec -- prettier --check src/components/DiagnosisAgent.css e2e/task-diagnostic-facts.spec.ts playwright.agent-extensions.config.ts",
+      "passed": true
+    },
+    {
+      "command": "git diff --check -- web/src/components/DiagnosisAgent.css web/e2e/task-diagnostic-facts.spec.ts web/playwright.agent-extensions.config.ts",
+      "passed": true
+    }
+  ],
+  "regressions": [
+    "实际TaskDetail路由24条v2 Facts",
+    "1440/375 Facts边界同时包含于panel与viewport",
+    "375表格内部可聚焦并能用左右键实际滚动",
+    "实际nginx strict self CSP下0字体错误",
+    "真实锚点点击、axe0、页面错误0",
+    "原5项诊断交互回归继续通过"
+  ],
+  "screenshots": [
+    {
+      "path": ".local/agent-expansion-20261021/web5-grid/task-diagnostic-facts-impo-15535-within-their-panel-at-375px/long-task-facts-375.png",
+      "sha256": "69d2f3c0e71a3db6f28504f6bd29d0469d8b880805232c7bd1a80d4ba22ead76",
+      "dimensions": [
+        305,
+        3243
+      ],
+      "viewed": true
+    },
+    {
+      "path": ".local/agent-expansion-20261021/web5-grid/task-diagnostic-facts-impo-75fc1-ithin-their-panel-at-1440px/long-task-facts-1440.png",
+      "sha256": "48406f5f4f0df6d4049e328ca4d8783e9faba18a038f001a49976bbc10ea99d3",
+      "dimensions": [
+        1074,
+        2572
+      ],
+      "viewed": true
+    }
+  ],
+  "prior_public_failure": ".local/agent-expansion-20261021/public/facts-2026-10-21T09-18-04-302Z/summary.json",
+  "prior_public_failure_status": "FAILED_MOBILE_COMPONENT_BOUNDS",
+  "old_screenshots_preserved": true,
+  "api_or_runtime_changed": false,
+  "production_deployed": false,
+  "real_model_called": false,
+  "viewport375_component_screenshot_width": 305
+}
