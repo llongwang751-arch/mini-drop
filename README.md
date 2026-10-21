@@ -6,14 +6,19 @@
 
 ## 全量实现与验收状态
 
-当前平台已部署至 **[https://82.157.81.79](https://82.157.81.79)**，API12 / AgentScope runtime2（SDK2.0.10）/ Web20261021.1 / Agent与Helper3，27运行容器、schema8。规划、诊断和源码修复使用真实AgentScope ReAct，Go保留权限、状态与验收。新Saber网页调查11共76.4秒、修复9通过原2+冻结6测试/384例/6组fresh对照，CPU中位1.5587倍（仅受控查询基准）。原16类Runner/20真实任务及BOLT、malloc证据保留。详见[本轮发布](docs/releases/20261020-agentscope.md)、[AgentScope接入](docs/AGENTSCOPE_INTEGRATION.md)、[面试步骤](docs/INTERVIEW_DEMO.md)与[接入范围](docs/SABER_INTEGRATION.md)。旧120.24.187.205属于历史部署。
+当前平台已部署至 **[https://82.157.81.79](https://82.157.81.79)**，API / AgentScope runtime / Web 均为 **20261021.2**，官方 AgentScope SDK **2.0.10**、SQL **9**、**27** 个运行容器；Agent 与 Helper 保持版本3。规划、诊断和源码修复使用真实 AgentScope ReAct，Go 保留权限、状态与验收。详见[本轮诊断知识发布](docs/releases/20261021-diagnostic-knowledge.md)、[知识层说明](docs/DIAGNOSTIC_KNOWLEDGE.md)与[面试步骤](docs/INTERVIEW_DEMO.md)。旧120.24.187.205属于历史部署。
+
+原 CRM/Saber 演示和16类 Runner/20个真实任务、BOLT、malloc证据保留。上一轮 Saber 调查11共76.4秒，修复9通过原2+冻结6测试、384例和6组fresh对照，CPU中位1.5587倍，仅限受控查询基准。本轮将这份既有结果登记为案例3，关联任务86/诊断29，没有重新执行该基准。历史见[AgentScope发布](docs/releases/20261020-agentscope.md)、[AgentScope接入](docs/AGENTSCOPE_INTEGRATION.md)与[Saber范围](docs/SABER_INTEGRATION.md)。
 
 - 18 类任务契约、16 类 Agent Runner 与通用导入；Java/Go/Python/native 堆和 CPU、BPF I/O/内存、资源、受控脚本及 BOLT。工具、目标权限和内核能力按真实探测展示。
 - mTLS 注册与版本协商；PID/UID/starttime/namespace 校验、宿主与容器目标策略；持久化双状态机、attempt/lease fencing、事务事件与 Outbox、取消重试及恢复。
 - 独立分析进程与资源预算、原生格式解析、堆对象图/支配树/引用路径、类型专属结果、制品 SHA/大小校验；100,000 节点火焰树边界及 Worker 可视化。
 - 资源组与共享权限、本地账户、Cron/IANA 时区、最多16节点复合DAG、版本化规则与反馈。企业登录和异地备份展示保持移除。DeepSeek Agent新增持久化调查、能力感知计划、自动复测比较、真实源码SHA/行号、隔离补丁及功能/性能对照，见[实现与演示说明](docs/DIAGNOSIS_AGENT_V2.md)。
 - 浅色精密仪表台、动态参数表单、SSE、结果证据、节点工具元数据、响应式和键盘操作。
+- 诊断知识：4份 `v1.0.0` Skill（CPU热点、分配/GC、锁/IO、采样质量），本人90天有效、可撤销的案例检索；`off` / `skills` / `experience` 三种模式及固定合成评测。方法和经验只作先验，不能替代当前证据；入口为[诊断知识](https://82.157.81.79/knowledge)。
 - 最小权限数据库身份与审计追加权限；对象保留及完整性维护；监控告警/追踪、证书轮换、备份恢复、Kubernetes 与供应链发布流程。
+
+本轮完成四次真实 DeepSeek 诊断运行：任务90的诊断34/35、任务91的诊断36/37，分别对照 `off` 与 `experience`；启用经验的35/37各命中案例1/2。输入是明确标注的合成导入数据，不是实时 CPU/分配采集，也没有执行复测。引用校验通过不保证解释正确：诊断37误称“唯一叶帧”，实际有70%/30%两个正权重叶帧；诊断35还将60秒/99Hz归因于未返回这些参数的E7。详见[Agent语义复审](docs/evidence/diagnostic-knowledge-20261021/agent-review.json)。这属于 `agent_review`，不是独立人工准确率；[真实调用评测](docs/evidence/diagnostic-knowledge-20261021/evaluation-live.json)的根因类别、拒答与误报等语义指标保持 `NULL`，不能据两组样例声称经验提升准确率。
 
 已完成与待验收证据逐项见 [交付范围矩阵](docs/DELIVERY_MATRIX.md)，过程见 [开发日志](DEVELOPMENT_LOG.md)。不能把实现列表理解为所有环境验收均已通过。
 
@@ -21,18 +26,18 @@
 
 ## 工程结构
 
-| 目录 | 职责 |
-|---|---|
-| contracts | 单一 Proto / TaskKind 真源 |
-| core | C++ Server、Agent、安全进程执行、受控负载及测试 |
-| api | Go 身份、权限、REST/SSE、调度及测试 |
-| analyzer | Python 解析、分析、租约、对象存储及黄金样本 |
+| 目录          | 职责                                                   |
+| ------------- | ------------------------------------------------------ |
+| contracts     | 单一 Proto / TaskKind 真源                             |
+| core          | C++ Server、Agent、安全进程执行、受控负载及测试        |
+| api           | Go 身份、权限、REST/SSE、调度及测试                    |
+| analyzer      | Python 解析、分析、租约、对象存储及黄金样本            |
 | agent_runtime | 官方 AgentScope ReAct、DeepSeek 模型适配及私有工具回调 |
-| web | React 界面、独立 API Client、可视化、浏览器测试 |
-| db/migrations | PostgreSQL schema |
-| deploy | Compose、证书/Secret 初始化与运维脚本 |
-| ops | 对象生命周期、完整性维护、监控状态与告警审计 |
-| docs | 协议、部署、验收与范围说明 |
+| web           | React 界面、独立 API Client、可视化、浏览器测试        |
+| db/migrations | PostgreSQL schema                                      |
+| deploy        | Compose、证书/Secret 初始化与运维脚本                  |
+| ops           | 对象生命周期、完整性维护、监控状态与告警审计           |
+| docs          | 协议、部署、验收与范围说明                             |
 
 GitHub 当前工程以 tx-drop 为准；旧项目文件由新的完整快照替换，旧提交仍可回退。[项目上下文](docs/PROJECT_CONTEXT.md) · [文档索引](docs/README.md) · [发布方式与公开范围](docs/GITHUB_PUBLICATION.md)。
 

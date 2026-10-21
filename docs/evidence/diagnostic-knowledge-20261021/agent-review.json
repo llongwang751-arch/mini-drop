@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "assessment_type": "agent_review",
+  "reviewer": "Codex agent",
+  "human_manual_review": false,
+  "semantic_score_assigned": false,
+  "production_or_model_requests_during_review": 0,
+  "scope": {
+    "run_ids": ["34", "35", "36", "37"],
+    "source": "已完成的实际 API 成对结果、对应导入合成分析结果及工具观测的只读副本",
+    "case_count": 2,
+    "pair_count": 2,
+    "data_provenance": "imported_synthetic",
+    "holdout_status": "作者可见的预留回归分区，不是外部盲测",
+    "method": "Agent 逐项核对报告文字、数值、调用树和工具返回；不以模型自行评判替代独立人工语义标注。",
+    "redaction": "只保留运行编号、排名、权重、工具及证据编号；不复制原符号、符号哈希、问题正文或报告全文。"
+  },
+  "observed_program_boundaries": [
+    {
+      "boundary": "实际运行完成",
+      "observation": "四个已捕获的诊断运行均为 success，并附有实际模型运行元数据。",
+      "limit": "success 代表程序接受该报告，不能证明报告中的每句话都与观测一致。"
+    },
+    {
+      "boundary": "知识开关和经验读取",
+      "observation": "off 的运行 34、36 没有加载 Skill 或案例；experience 的运行 35、37 分别附加案例 1、2 以及对应方法。",
+      "limit": "这证明本次经验接入发生，不证明经验提高了根因判断正确性。"
+    },
+    {
+      "boundary": "当前观测与先验分开",
+      "observation": "这四份报告的假设均引用当前观测，已捕获的证据编号均存在；经验作为单独知识工具观测附加。",
+      "limit": "有当前证据引用仍可能误读数值或加入工具未返回的细节；下列问题已经展示这种边界。"
+    },
+    {
+      "boundary": "要求的方法工具已实际调用",
+      "observation": "两份 experience 运行的 trace 均包含热点、采样质量和调用路径工具，案例与方法不是模型自报。",
+      "limit": "执行了检查步骤不等于文本解释正确，也不等于已经执行复测。"
+    },
+    {
+      "boundary": "导入数据来源与单位",
+      "observation": "两组分析结果均为 IMPORT_COLLAPSED，来源 import、单位 samples，总权重 1000、4 个树节点；原始分析的时长和频率为空，质量工具以 0 表示未记录或不适用。",
+      "limit": "这些权重没有证明真实 CPU 时间、分配字节、请求耗时或现场采集条件。"
+    }
+  ],
+  "findings": [
+    {
+      "id": "AR-01",
+      "run_ids": ["37"],
+      "severity": "error",
+      "category": "observation_contradiction",
+      "location": "summary",
+      "statement_under_review": "将排名 1 称为唯一叶帧热点，并概括为权重集中在单一叶帧。",
+      "short_excerpts": [
+        {
+          "run_id": "37",
+          "excerpt": "是唯一叶帧热点",
+          "context": "摘要描述排名 1 后使用该排他措辞，同段又写明排名 2 占 30%。"
+        },
+        {
+          "run_id": "37",
+          "excerpt": "该快照中权重集中在单一叶帧",
+          "context": "摘要将其称为当前证据支持的描述性结论。"
+        }
+      ],
+      "evidence": {
+        "rank_1_self_weight": 700,
+        "rank_1_self_percent": 70,
+        "rank_2_self_weight": 300,
+        "rank_2_self_percent": 30,
+        "positive_weight_leaf_count": 2,
+        "current_trace_references": ["E3", "E5", "E6"]
+      },
+      "assessment": "唯一叶帧的排他表述明显错误。实际树有两个正权重叶帧；E6 的父帧观测也列出 700 与 300 两条子权重。报告同段及后续假设承认排名 2 的 30%，因此摘要还存在内部不一致。",
+      "suggested_wording": "排名 1 是主要叶帧，占 70%；排名 2 也是叶帧，占 30%。"
+    },
+    {
+      "id": "AR-02",
+      "run_ids": ["34", "35", "36"],
+      "severity": "caution",
+      "category": "tool_attribution_requires_clarification",
+      "location": "hypotheses[].verification",
+      "statement_under_review": "复测草案中 60 秒、99 Hz 的来源和校验状态是否被清楚区分。",
+      "short_excerpts": [
+        {
+          "run_id": "34",
+          "excerpt": "按复测草案（60 秒、99 Hz，需人工导入，受 TaskKind 契约校验）",
+          "context": "该假设引用 E1、E3、E7，但没有直接写成 E7 返回了这些数值。",
+          "interpretation": "草案出处有歧义；若是模型自行建议的待审配置，数值本身不构成错误。"
+        },
+        {
+          "run_id": "35",
+          "excerpt": "按 E7 草案（60 秒、99 Hz，仍受 TaskKind 契约校验）",
+          "context": "E7 是 requires_manual_import 的一般复导入提示，没有时长、频率或采集计划。",
+          "interpretation": "明确把参数与 E7 草案相连，存在不受工具返回支持的来源归因；仍受校验不等于已通过校验。"
+        },
+        {
+          "run_id": "36",
+          "excerpt": "按复测草案（时长60秒、频率99Hz，仍受 TaskKind 契约校验，需人工导入，不自动执行）",
+          "context": "该假设引用 E1、E3、E7，同时明确不自动执行。",
+          "interpretation": "草案出处有歧义；不能仅凭建议参数就判定模型谎称程序已返回或验收。"
+        }
+      ],
+      "evidence": {
+        "current_trace_reference": "E7",
+        "tool": "propose_verification",
+        "requires_manual_import": true,
+        "returned_duration_seconds": null,
+        "returned_frequency_hz": null,
+        "returned_collection_plan": false
+      },
+      "assessment": "实际 E7 只返回重新导入对照文件的一般建议，没有这两个参数或可执行采集计划。导入分支也没有生成并校验这样的采集草案。运行 35 明确称 E7 草案，来源归因不受该观测支持；运行 34、36 仅标记草案出处歧义，不将其一概判为工具事实错误。模型自行提出 60 秒、99 Hz 的待验证建议可以成立，且仍受契约校验不能误读成已经通过校验。",
+      "suggested_wording": "工具仅要求人工导入可比对照数据；若另选采集时长或频率，应单独选择合适采集器并审阅配置。"
+    },
+    {
+      "id": "AR-03",
+      "run_ids": ["35"],
+      "severity": "caution",
+      "category": "statistical_overinterpretation",
+      "location": "limitations",
+      "statement_under_review": "以总权重 1000、4 个节点和每热点一个出现位置概括为样本量小。",
+      "evidence": {
+        "total_weight": 1000,
+        "tree_nodes": 4,
+        "occurrences_per_selected_hotspot": 1,
+        "independent_observation_count_verified": false,
+        "current_trace_references": ["E1", "E5", "E6"]
+      },
+      "assessment": "树节点数和符号在聚合树中的出现位置数属于结构复杂度，不能当作独立统计观测数量。代表性未知的提醒合理，但仅凭这些数值断定样本量小，缺少明确阈值与独立性依据。",
+      "suggested_wording": "本次聚合树结构简单，现场采集过程与观测独立性未知，无法据此判断代表性。"
+    },
+    {
+      "id": "AR-04",
+      "run_ids": ["37"],
+      "severity": "caution",
+      "category": "measurement_semantics_overreach",
+      "location": "hypotheses[0].claim and hypotheses[1]",
+      "statement_under_review": "将叶帧 self 权重解释为函数自身执行，并称当前数据为 CPU 类样本。",
+      "evidence": {
+        "analysis_kind": "IMPORT_COLLAPSED",
+        "source": "import",
+        "unit": "samples",
+        "cpu_sampling_origin_verified": false,
+        "allocation_hint_is_lexical_only": true
+      },
+      "assessment": "当前结果能证明导入树把权重记在相应叶帧的 self 上，不能独立证明这些权重来自实际 CPU 执行。分配提示也只是本地词形启发式。报告同时保留了未证明根因和内存压力的限制，因此这里是测量语义措辞过强，而非已经宣称发现内存泄漏。",
+      "suggested_wording": "导入树把 70% 权重记在排名 1 叶帧的 self 上；实际采样类型及其物理含义仍需核实。"
+    },
+    {
+      "id": "AR-05",
+      "run_ids": ["34"],
+      "severity": "caution",
+      "category": "unsupported_user_action",
+      "location": "hypotheses[1].verification",
+      "statement_under_review": "建议复测时提高调用路径工具的 nodes 或 occurrences 上限。",
+      "evidence": {
+        "tool": "inspect_call_paths",
+        "observed_node_limit": 4096,
+        "observed_occurrence_limit": 5,
+        "client_parameters_for_these_limits": false,
+        "current_trace_references": ["E5", "E6"]
+      },
+      "assessment": "现有工具入口只允许热点排名等既定参数，节点与出现位置预算是服务端边界，用户无法按这段文字直接调高。当前树没有发生截断，也没有本次必须扩大预算的证据。",
+      "suggested_wording": "本次未截断；若其他数据确有截断，应按现有工具能力补采集，服务端预算调整需要独立工程审阅。"
+    }
+  ],
+  "per_run_qualitative_notes": [
+    {
+      "run_id": "34",
+      "knowledge_mode": "off",
+      "supported_description": "82% 与 18% 的两个叶帧分布、共同祖先和未截断描述与结果一致；明确拒绝把导入权重当作延迟或已确认根因。",
+      "finding_ids": ["AR-02", "AR-05"]
+    },
+    {
+      "run_id": "35",
+      "knowledge_mode": "experience",
+      "supported_description": "两个叶帧的数值和结构描述一致，明确把历史纠正作为先验，并指出重复采样稳定不等于因果确认。",
+      "finding_ids": ["AR-02", "AR-03"]
+    },
+    {
+      "run_id": "36",
+      "knowledge_mode": "off",
+      "supported_description": "70% 与 30% 的叶帧分布描述一致，分配提示被限定为线索，明确没有进行复测、无法判断收益。",
+      "finding_ids": ["AR-02"]
+    },
+    {
+      "run_id": "37",
+      "knowledge_mode": "experience",
+      "supported_description": "70%/30% 的具体数值及未做复测的限制被保留；但摘要的排他措辞与同一报告中的另一叶帧相矛盾。其 30–60 秒建议是模型另行提出的待验证建议，没有归因于 E7，不因此记为工具事实错误。",
+      "finding_ids": ["AR-01", "AR-04"]
+    }
+  ],
+  "conclusion": {
+    "program_boundary_evidence": "本次固定导入样例展示了真实模型调用、知识开关、案例加载、必需工具执行及当前观测引用边界。",
+    "semantic_guarantee": "这些程序边界没有保证摘要和假设语义完全正确；排名 1 唯一叶帧是已观察到的明确反例，部分复测参数还需要清楚区分模型建议与工具返回。",
+    "experience_effectiveness": "经验确已加载；仅两个可见合成情境、各一次 off/on 运行，不能据此认定经验提升或降低诊断准确率。",
+    "not_established": [
+      "真实业务根因、源码语义或修复收益",
+      "现场 CPU、内存、GC 或请求耗时的测量事实",
+      "模型在恶意历史下的完整抗注入能力",
+      "独立人工认可的类别命中、拒答或误报指标",
+      "外部盲测或生产准确率"
+    ],
+    "semantic_metrics_policy": "本文件是 agent_review，不是 human manual_review；现有语义评分保持 null，不增写任何 assessment 分数。"
+  },
+  "accepted_output_preservation": {
+    "evaluation_file": "docs/evidence/diagnostic-knowledge-20261021/evaluation-live.json",
+    "sha256_before_review": "2048f39fbe22fa5e72b2addb83f3c42aa650aee016188af7fc0bdc4293d7c887",
+    "modified": false
+  }
+}

@@ -4,7 +4,11 @@
 
 实现四类版本化方法、按当前测量匹配、本人案例保存/检索/撤销、知识模式对照和知识页；人工纠正与真实隔离修复资格分开。来源、当前权限、轮次/分析、项目版本、有效期和终态并发栅栏已覆盖；案例不包含自由历史指令，历史引用不能单独支撑本轮假设。外部源码登记版本与PG不具备跨系统原子性，当前也没有向量检索、跨团队共享或模型自主学习。见[实现说明](DIAGNOSTIC_KNOWLEDGE.md)。
 
-本地实跑：Go1.26.10全API真实隔离PG256通过/真实模型1项跳过，Go vet；Web143单测、知识UI9场景/5次axe零违规及build/Prettier；SDK28通过/9项Linux跳过；HTTP80/97、共享18/4与V1负控；固定22例及评分器16项。Skill路由19/19、输入22/22、报告防线209/209不能称为模型准确率。见[本地证据](evidence/diagnostic-knowledge-20261021/local-checks.json)。首次SQL9与知识页已上线、公网两宽验证通过；真实模型首轮超批失败已保留，原预算内反馈重选及Go安全补丁正继续部署复验。
+实际验收：Go1.26.10全API真实隔离PG256通过/真实模型1项跳过，Go vet；Web143单测、知识UI9场景/5次axe零违规及build/Prettier；SDK在Windows28通过/9项Linux跳过，最终Linux镜像37/37、0skip；HTTP80/97、共享18/4与V1负控；固定22例及评分器16项。Skill路由19/19、输入22/22、报告防线209/209不能称为模型准确率。见[本地证据](evidence/diagnostic-knowledge-20261021/local-checks.json)与[真实PG](evidence/diagnostic-knowledge-20261021/postgres-acceptance.json)。
+
+**已上线**：API/runtime/Web20261021.2、SDK2.0.10、SQL9，27运行健康、7监控up、readiness200。原预算内超批反馈重选及Go1.26.10安全补丁已部署；首轮真实模型失败保留。两组固定合成导入的off/experience共4次真实DeepSeek调用均完成，启用时2/2加载对应开发种子；既有Saber受控修复回执另通过真实保存/来源核验，不代表新基准。见[部署](evidence/diagnostic-knowledge-20261021/deployment.json)、[真实调用](evidence/diagnostic-knowledge-20261021/live-acceptance.json)、[修复案例](evidence/diagnostic-knowledge-20261021/verified-case.json)、[最终健康](evidence/diagnostic-knowledge-20261021/final-health.json)与[发布说明](releases/20261021-diagnostic-knowledge.md)。
+
+模型解释仍有已观察到的错误：#37称“唯一叶帧热点”与70%/30%两叶帧矛盾，#35部分复测参数的工具归因未受支持。定性[Agent复审](evidence/diagnostic-knowledge-20261021/agent-review.json)不冒充独立人工标注；[语义准确率仍为空](evidence/diagnostic-knowledge-20261021/evaluation-live.json)，两组可见输入不能证明经验提高准确率。公网两宽无横向溢出/页面异常、四次axe零违规，保留桌面既有workspace-switch标签的1类incomplete。GitHub精确功能提交387144a已观测6个job成功，Analyzer仍运行，以[CI快照](evidence/diagnostic-knowledge-20261021/github-ci.json)为准。
 
 ## 中文注释与阅读路线（2026-10-21）
 
@@ -34,7 +38,7 @@ CI原fixture opt-in已显式启用，本机完整默认preview实际48/48通过�
 
 **最终功能提交797e9ec7e581验收完成**：[push/master CI run39418233749](https://github.com/llongwang751-arch/mini-drop/actions/runs/39418233749) **7/7全部通过**，包含两个官方MinIO fixture构建、原Analyzer/Ops真实PG/S3集成、API race/静态及漏洞检查、Core、Web、SDK与契约。服务器1555源码已绑定；最终ready200/27容器健康/7监控up。[CI收据](evidence/github-publication-20261020/github-ci-797e9ec.json) · [最终健康](evidence/github-publication-20261020/final-readiness-797e9ec.json)。后续收尾提交仅文档/JSON，跳过重复CI；上述7项对应明确功能提交，不扩大为最终镜像统一安全扫描或长期稳定性验收。
 
-更新：2026-10-20。最新为API12 / AgentScope runtime2（SDK2.0.10）/ Web20261021.1 / AgentHelper3 / SQL8，27运行容器、7监控up；调查11/修复9完整网页76.4秒通过，原2+冻结6、384例、6/6对照、CPU1.5587倍。Go117、SDK33、双UID互通8、executor12及Compose5/28负控通过。详见[AgentScope发布](releases/20261020-agentscope.md)与[接入](AGENTSCOPE_INTEGRATION.md)。后面的API10表格保留为采集器组合的历史验收。
+历史AgentScope基线（2026-10-20）：当时为API12 / AgentScope runtime2（SDK2.0.10）/ Web20261021.1 / AgentHelper3 / SQL8，27运行容器、7监控up；调查11/修复9完整网页76.4秒通过，原2+冻结6、384例、6/6对照、CPU1.5587倍。Go117、SDK33、双UID互通8、executor12及Compose5/28负控通过。详见[AgentScope发布](releases/20261020-agentscope.md)与[接入](AGENTSCOPE_INTEGRATION.md)。后面的API10表格保留为采集器组合的历史验收；当前版本见文首诊断知识模块。
 
 历史组合部署：[https://82.157.81.79](https://82.157.81.79)，API10 / Web10 / Agent与Helper3 / SQL8，26运行容器、7监控目标up。用户点名的BOLT和malloc已通过；Saber真实FTS5组件已接入并完成最终网页全流程。详见[本次发布](releases/20261020-saber-collectors.md)。
 
