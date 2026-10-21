@@ -24,7 +24,7 @@ DeepSeek 首轮曾提出超出每轮两个工具的批次，诊断33在执行前
 | 公网浏览器                        | 1440/375真实认证GET检查，无横溢/页面脚本异常，8 JS/CSS和index与发布产物SHA一致；四次axe零违规，保留桌面既有控件标签的1类incomplete |
 | Go漏洞检查                        | 可达漏洞0项；保留1项未调用require模块提示，不等于整个供应链零漏洞                                                                  |
 
-证据：[本地检查](../evidence/diagnostic-knowledge-20261021/local-checks.json)、[真实PG](../evidence/diagnostic-knowledge-20261021/postgres-acceptance.json)、[离线评测](../evidence/diagnostic-knowledge-20261021/evaluation-offline.json)、[公网](../evidence/diagnostic-knowledge-20261021/production/summary.json)、[安全扫描](../evidence/diagnostic-knowledge-20261021/security-scan.json)。GitHub 精确功能提交的[CI快照](../evidence/diagnostic-knowledge-20261021/github-ci.json)已观测6个job成功、Analyzer仍运行，不预写整套成功。
+证据：[本地检查](../evidence/diagnostic-knowledge-20261021/local-checks.json)、[真实PG](../evidence/diagnostic-knowledge-20261021/postgres-acceptance.json)、[离线评测](../evidence/diagnostic-knowledge-20261021/evaluation-offline.json)、[公网](../evidence/diagnostic-knowledge-20261021/production/summary.json)、[安全扫描](../evidence/diagnostic-knowledge-20261021/security-scan.json)。GitHub 精确功能提交387144a的[CI收据](../evidence/diagnostic-knowledge-20261021/github-ci.json)最终7/7全部通过，包括Analyzer和维护真实PG/S3集成，实际观测时间2026-10-21 06:05 UTC。[Actions运行](https://github.com/llongwang751-arch/mini-drop/actions/runs/39551510896)对应明确功能提交，后续文档收尾没有重复触发构建。
 
 ## 真实模型对照与已知问题
 

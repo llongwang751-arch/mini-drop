@@ -8,7 +8,7 @@
 
 **已上线**：API/runtime/Web20261021.2、SDK2.0.10、SQL9，27运行健康、7监控up、readiness200。原预算内超批反馈重选及Go1.26.10安全补丁已部署；首轮真实模型失败保留。两组固定合成导入的off/experience共4次真实DeepSeek调用均完成，启用时2/2加载对应开发种子；既有Saber受控修复回执另通过真实保存/来源核验，不代表新基准。见[部署](evidence/diagnostic-knowledge-20261021/deployment.json)、[真实调用](evidence/diagnostic-knowledge-20261021/live-acceptance.json)、[修复案例](evidence/diagnostic-knowledge-20261021/verified-case.json)、[最终健康](evidence/diagnostic-knowledge-20261021/final-health.json)与[发布说明](releases/20261021-diagnostic-knowledge.md)。
 
-模型解释仍有已观察到的错误：#37称“唯一叶帧热点”与70%/30%两叶帧矛盾，#35部分复测参数的工具归因未受支持。定性[Agent复审](evidence/diagnostic-knowledge-20261021/agent-review.json)不冒充独立人工标注；[语义准确率仍为空](evidence/diagnostic-knowledge-20261021/evaluation-live.json)，两组可见输入不能证明经验提高准确率。公网两宽无横向溢出/页面异常、四次axe零违规，保留桌面既有workspace-switch标签的1类incomplete。GitHub精确功能提交387144a已观测6个job成功，Analyzer仍运行，以[CI快照](evidence/diagnostic-knowledge-20261021/github-ci.json)为准。
+模型解释仍有已观察到的错误：#37称“唯一叶帧热点”与70%/30%两叶帧矛盾，#35部分复测参数的工具归因未受支持。定性[Agent复审](evidence/diagnostic-knowledge-20261021/agent-review.json)不冒充独立人工标注；[语义准确率仍为空](evidence/diagnostic-knowledge-20261021/evaluation-live.json)，两组可见输入不能证明经验提高准确率。公网两宽无横向溢出/页面异常、四次axe零违规，保留桌面既有workspace-switch标签的1类incomplete。GitHub精确功能提交387144a的push/master CI最终7/7全部通过，包含Analyzer/维护真实PG/S3集成，见[CI收据](evidence/diagnostic-knowledge-20261021/github-ci.json)。
 
 ## 中文注释与阅读路线（2026-10-21）
 
