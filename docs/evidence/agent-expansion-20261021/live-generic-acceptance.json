@@ -1,0 +1,47 @@
+{
+  "passed": true,
+  "started_at": "2026-10-21T07:55:19.164004+00:00",
+  "source": "actual public API + DeepSeek + AgentScope + Linux isolated Python manifest fixture",
+  "original_business_repository_deployed": false,
+  "repair_id": "10",
+  "status": "success",
+  "error_code": null,
+  "elapsed_seconds": 32.361,
+  "completed_at": "2026-10-21T07:55:52.172956+00:00",
+  "baseline_failed": true,
+  "candidate_passed": true,
+  "frozen_regression": "passed",
+  "negative_control_stable": true,
+  "median_cpu_speedup": 8.212153900716086,
+  "improved_pairs": 6,
+  "source_revision": "ad45ee04d8e472fdcbf0997893246c52a4d2a5368bf44f854e7b391817246d7e",
+  "patch_sha256": "c527bc8a5af7d06537488e9c56a1ec216896c6589ac3b077af6cb3feccce89bf",
+  "code_files": [
+    "business.py"
+  ],
+  "test_files": [
+    "drop_regression/test_sku_whitespace.py"
+  ],
+  "root_cause_status": "validated_in_controlled_python_benchmark",
+  "agent_runtime": {
+    "usage": {
+      "input_tokens": 12837,
+      "output_tokens": 1309
+    },
+    "run_id": "2d493d03-9b80-42a3-bdc1-0fce2cda3957",
+    "framework": "agentscope",
+    "elapsed_ms": 30413,
+    "tool_calls": 5,
+    "agent_class": "agentscope.agent.Agent",
+    "model_calls": 4,
+    "framework_version": "2.0.10"
+  },
+  "scope": "controlled synthetic cart function only; no production latency claim",
+  "tools": [
+    "profile_business_flow",
+    "read_source",
+    "read_source",
+    "read_source",
+    "test_patch"
+  ]
+}

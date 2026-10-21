@@ -268,18 +268,26 @@ class AgentScopeDeploymentTests(unittest.TestCase):
                 ))
                 self.assertIn("INIT_SOCKET_SUPPLEMENTARY_GROUP_INVALID", boundary_errors(self.baseline, candidate))
 
-    def test_manifest_phase_limits_preserve_shared_budgets_and_fifth_call_restriction(self):
+    def test_manifest_phase_limits_preserve_shared_budgets_and_final_format_restriction(self):
         manifest = json.loads((ROOT / "contracts/agent-runtime-v1.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["version"], 1)
         self.assertEqual(manifest["run"]["runtime_values"], {"framework": "agentscope", "framework_version": "2.0.10", "agent_class": "agentscope.agent.Agent"})
-        maxima = {"planning": (6, 10, 150000), "diagnosis": (5, 7, 150000), "repair": (8, 12, 420000)}
+        maxima = {"planning": (6, 10, 150000), "diagnosis": (9, 14, 150000), "repair": (8, 12, 420000)}
         self.assertEqual(set(manifest["phases"]), set(maxima))
         for phase, (models, tools, timeout) in maxima.items():
             budget = manifest["phases"][phase]
             self.assertEqual((budget["max_model_calls"], budget["max_tool_calls"], budget["timeout_ms"]), (models, tools, timeout))
             self.assertEqual(budget["max_tools_per_round"], 2)
-        self.assertEqual(manifest["phases"]["diagnosis"]["regular_model_calls"], 4)
-        self.assertIn("no tools", manifest["phases"]["diagnosis"]["format_retry"])
+        diagnosis = manifest["phases"]["diagnosis"]
+        # 新请求有八轮普通模型预算，最后一轮必须由前一轮失败的 finish 换取。
+        # 格式轮随请求上限计算；历史 4+1 请求的 SDK 回归仍单独验证，恢复不能升额。
+        self.assertEqual(diagnosis["regular_model_calls"], 8)
+        self.assertEqual(diagnosis["regular_model_calls"], diagnosis["max_model_calls"] - 1)
+        self.assertIn("Only the final requested model round", diagnosis["format_retry"])
+        self.assertIn("round max_model_calls-1", diagnosis["format_retry"])
+        self.assertIn("no tools", diagnosis["format_retry"])
+        self.assertIn("older 4+1 requests remain valid within their lower budgets", diagnosis["format_retry"])
+        self.assertIn("lower historical budget is never silently raised on recovery", diagnosis["compatibility"])
         self.assertEqual(manifest["phases"]["repair"]["max_sandbox_tests"], 2)
         self.assertLessEqual(manifest["run"]["request_max_bytes"], 262144)
         self.assertLessEqual(manifest["callback"]["request_max_bytes"], 65536)
