@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "scope": "api9_followup_resource_measurement_and_duplicate_collector_regression",
+  "source_commit": "8fab193ce62f5bcf0d2d1296aab66526f7d41e18",
+  "passed": true,
+  "postgres": {
+    "engine": "isolated loopback PostgreSQL17",
+    "authoritative_migrations": 10,
+    "go_version": "go1.26.10",
+    "top_level_tests_passed": 9,
+    "postgres_backed_top_level_tests_passed": 7,
+    "tests_passed_including_subtests": 29,
+    "tests_skipped": 0,
+    "tests_failed": 0,
+    "elapsed_seconds": 19.35,
+    "raw_log_sha256": "c62864b21c0fadfbe115a48488a0454c8ef0965ba8f637ccd9932801f0d56a68",
+    "scope_note": "Suite includes actual PostgreSQL lifecycle tests plus imported unit/source-negative controls; not all29 items independently open a database."
+  },
+  "vet": {
+    "command": "go vet -tags=nomsgpack -p=1 ./...",
+    "exit_code": 0,
+    "actual_check_executed": true
+  },
+  "gofmt": "passed",
+  "diff_check": "passed",
+  "source_sha256_scope": {
+    "api/internal/service/investigation_followups.go": {
+      "committed_blob_sha256": "da275af76f3be019335e37f4287f43f78c883518324644466a710605e54c1091",
+      "tested_working_tree_sha256": "da275af76f3be019335e37f4287f43f78c883518324644466a710605e54c1091",
+      "working_tree_matches_committed_bytes": true
+    },
+    "api/internal/service/diagnosis_extensions.go": {
+      "committed_blob_sha256": "ac64c694dff9551807847a6df1f9a778a67f1b7c19ccb9612158601abdf957d1",
+      "tested_working_tree_sha256": "ac64c694dff9551807847a6df1f9a778a67f1b7c19ccb9612158601abdf957d1",
+      "working_tree_matches_committed_bytes": true
+    },
+    "api/internal/service/investigation_followup_measurement_test.go": {
+      "committed_blob_sha256": "22e26420eb2d62e2e68d4b6c69217ad7ce2ca40a73d64072454da3182f16cfbb",
+      "tested_working_tree_sha256": "22e26420eb2d62e2e68d4b6c69217ad7ce2ca40a73d64072454da3182f16cfbb",
+      "working_tree_matches_committed_bytes": true
+    },
+    "api/internal/service/diagnosis_resources.go": {
+      "committed_blob_sha256": "4283aa500c2f76784f02cd39f897628578bddaf9fb31d6cb1b4e84d6107bae71",
+      "tested_working_tree_sha256": "4283aa500c2f76784f02cd39f897628578bddaf9fb31d6cb1b4e84d6107bae71",
+      "working_tree_matches_committed_bytes": true
+    },
+    "api/internal/service/diagnosis_resources_test.go": {
+      "committed_blob_sha256": "65596a7efeb0205d9411ee500b9954563784bb24860a68a2c0fe1a31558665df",
+      "tested_working_tree_sha256": "65596a7efeb0205d9411ee500b9954563784bb24860a68a2c0fe1a31558665df",
+      "working_tree_matches_committed_bytes": true
+    },
+    "api/internal/service/diagnosis_sampling_quality_test.go": {
+      "committed_blob_sha256": "8032a29b3ba8d36d5f1584370f310deaf0f95c7cc69a879a9b8cb65fcc7852c9",
+      "tested_working_tree_sha256": "8032a29b3ba8d36d5f1584370f310deaf0f95c7cc69a879a9b8cb65fcc7852c9",
+      "working_tree_matches_committed_bytes": true
+    }
+  },
+  "verified_behaviour": [
+    "RESOURCE read_profile_summary is measurement evidence only with fixed resource source, complete unit map, positive sample_count and at least one valid peak; every returned peak must pass diagnosisResourceFactScalar.",
+    "Ordinary CPU/bare summary, malformed resource data, knowledge and topology cannot use the new summary exception.",
+    "Current kind is read from the authorized repository task; summary-resource kind mismatch is rejected.",
+    "Same current collector retains capability/target/plan/budget checks, returns current_collector_already_observed without plan or requires_confirmation, and creates no staged followup or task.",
+    "Other collector proposal stays pending confirmation; actual PostgreSQL staging remains idempotent. Existing cancellation, authorization and two-branch root budgets remain enforced."
+  ],
+  "independent_review": {
+    "reviewer_type": "assistant_agent",
+    "reviewer": "guide_design_audit",
+    "method": "read_only_source_review",
+    "blocking_findings": 0,
+    "human_manual_review": false
+  },
+  "deployment_controller_review": {
+    "controller": "r10 API9only deployment",
+    "script_sha256": "9ed0554aa95cf91d3f5baf52aa3f29bd725833774784efcafed3982be9ab99c7",
+    "method": "read_only_static_review_not_deployment_execution",
+    "api_only": true,
+    "expected_container_count": 29,
+    "other_28_ids_images_and_volumes_asserted_preserved": true,
+    "old_api8_named_image_asserted_preserved": true,
+    "no_volume_removal_or_image_prune": true,
+    "no_active_guard": "analysis_jobs/diagnoses/repairs/investigations/verifications/followups plus tasks collection CREATED,QUEUED,DELIVERED,RUNNING,UPLOADING",
+    "guard_review_correction": "Review found direct collection tasks could precede analysis_jobs. Root added read-only task-status count assertion; no cancellation/deletion was introduced.",
+    "readiness_deadline_seconds": 30,
+    "readiness_http_timeout_seconds": 3,
+    "monitor_attempt_limit": 12,
+    "monitor_http_timeout_seconds": 10,
+    "monitor_sleep_seconds": 3,
+    "rollback_restores_previous_source_and_api_configuration": true
+  },
+  "live_model_calls": 0,
+  "production_requests_by_this_verification": 0,
+  "semantic_accuracy": null,
+  "limits": [
+    "Imported/synthetic protocol fixtures do not demonstrate live workload success or semantic diagnosis accuracy.",
+    "Deployment script review is static and does not replace the separate actual deployment/health receipt.",
+    "Independent agent review is not independent human manual evaluation. API7 fixed24 results are not a rerun of API9."
+  ]
+}

@@ -1,0 +1,827 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-21T11:07:50.712117+00:00",
+  "repository": "llongwang751-arch/mini-drop",
+  "commit_sha": "4f35e9bf2d0ef9b66992aa37ac72ca2ed398ac1c",
+  "event_filter": "push",
+  "branch_filter": "master",
+  "actions": [
+    {
+      "id": 39584242242,
+      "name": "quality",
+      "event": "push",
+      "head_sha": "4f35e9bf2d0ef9b66992aa37ac72ca2ed398ac1c",
+      "head_branch": "master",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-21T10:23:31Z",
+      "updated_at": "2026-10-21T10:38:03Z",
+      "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/39584242242",
+      "run_attempt": 1,
+      "path": ".github/workflows/ci.yml",
+      "jobs": [
+        {
+          "id": 119169071789,
+          "name": "core",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-21T10:23:33Z",
+          "completed_at": "2026-10-21T10:26:32Z",
+          "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/39584242242/job/119169071789",
+          "steps": [
+            {
+              "number": 1,
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 2,
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 3,
+              "name": "Run docker build --target build -t drop-core-test -f core/Dockerfile .",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 6,
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 7,
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 119169072224,
+          "name": "web",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-21T10:23:33Z",
+          "completed_at": "2026-10-21T10:27:01Z",
+          "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/39584242242/job/119169072224",
+          "steps": [
+            {
+              "number": 1,
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 2,
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 3,
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 4,
+              "name": "Run npm ci",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 5,
+              "name": "Run npm test",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 6,
+              "name": "Run npm run build",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 7,
+              "name": "Run npm audit --audit-level=high",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 8,
+              "name": "Run npm exec -- prettier --check src",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 9,
+              "name": "Run npx playwright install --with-deps chromium",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 10,
+              "name": "Run npx playwright test --config playwright.preview.config.ts",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 11,
+              "name": "Run npx playwright test --config playwright.diagnosis.config.ts",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 12,
+              "name": "Diagnostic knowledge UI and review/revoke boundaries (imported fixtures)",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 13,
+              "name": "Agent extension review, source evidence and patch download (imported fixtures)",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 25,
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 26,
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 27,
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 119169072251,
+          "name": "analyzer",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-21T10:23:33Z",
+          "completed_at": "2026-10-21T10:38:02Z",
+          "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/39584242242/job/119169072251",
+          "steps": [
+            {
+              "number": 1,
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 2,
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 3,
+              "name": "Build pinned MinIO fixture from official release binary",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 4,
+              "name": "Run docker build -t drop-analyzer:build -f analyzer/Dockerfile .",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 5,
+              "name": "Run sh analyzer/scripts/run-isolated-integration.sh",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 10,
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 11,
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 119169072295,
+          "name": "agent-runtime",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-21T10:23:33Z",
+          "completed_at": "2026-10-21T10:24:00Z",
+          "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/39584242242/job/119169072295",
+          "steps": [
+            {
+              "number": 1,
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 2,
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 3,
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 4,
+              "name": "Run python -m pip install --only-binary=:all: --require-hashes -r agent_runtime/requirements.lock",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 5,
+              "name": "Run python -m pip check",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 6,
+              "name": "Native AgentScope ReAct and Linux Unix-socket regressions (imported fixtures)",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 11,
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 12,
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 13,
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 119169072320,
+          "name": "maintenance",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-21T10:23:34Z",
+          "completed_at": "2026-10-21T10:25:32Z",
+          "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/39584242242/job/119169072320",
+          "steps": [
+            {
+              "number": 1,
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 2,
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 3,
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 4,
+              "name": "Run docker/setup-compose-action@v2.0.0",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 5,
+              "name": "Run docker compose version",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 6,
+              "name": "Run pip install --require-hashes -r ops/requirements.lock",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 7,
+              "name": "Run pip install PyYAML==6.0.3",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 8,
+              "name": "Ops native configuration and bounded logging",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 9,
+              "name": "Source patch context and sandbox boundary regressions",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 10,
+              "name": "Controlled two-service telemetry uses actual HTTP and SQLite work",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 11,
+              "name": "Python output types must survive performance optimization",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 12,
+              "name": "Optional monitoring status cannot break real HTTP metrics",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 13,
+              "name": "Owned helper cleanup recovery",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 14,
+              "name": "Stage validation safety boundaries",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 15,
+              "name": "Run python -m unittest discover -s ops -p test_isolated_runner.py",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 16,
+              "name": "Run python -m unittest discover -s analyzer/scripts -p test_integration_runner.py",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 17,
+              "name": "Run python -m unittest discover -s deploy/tests -p test_backup_metadata.py",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 18,
+              "name": "Run python -m unittest discover -s deploy/tests -p test_s3_encryption_probe.py",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 19,
+              "name": "Run python -m unittest discover -s deploy/tests -p test_capture_release_evidence.py",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 20,
+              "name": "Run python -m unittest discover -s deploy/tests -p test_helper_deployment.py",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 21,
+              "name": "AgentScope complete Compose merge and hostile overlay boundaries (imported fixtures)",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 22,
+              "name": "Telemetry demo complete Compose merge, AppArmor peer and target isolation (imported config values)",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 23,
+              "name": "Helper spool provisioning boundaries (fake mount commands)",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 24,
+              "name": "Build pinned MinIO fixture from official release binary",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 25,
+              "name": "Run docker build -t drop-ops:ci -f ops/Dockerfile .",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 26,
+              "name": "Run OPS_TEST_IMAGE=drop-ops:ci bash ops/run-isolated-integration.sh",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 27,
+              "name": "Run python scripts/render_kubernetes.py && git diff --exit-code -- deploy/kubernetes",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 28,
+              "name": "Run docker run --rm -v \"$PWD/deploy/observability:/etc/prometheus:ro\" --entrypoint promtool prom/prometheus:v3.15.0 check config /etc/prometheus/prometheus.yml",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 29,
+              "name": "Run docker run --rm -v \"$PWD/deploy/observability:/etc/prometheus:ro\" --entrypoint promtool prom/prometheus:v3.15.0 test rules /etc/prometheus/alerts.test.yml",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 56,
+              "name": "Post Run docker/setup-compose-action@v2.0.0",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 57,
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 58,
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 59,
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 119169072323,
+          "name": "api",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-21T10:23:34Z",
+          "completed_at": "2026-10-21T10:25:45Z",
+          "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/39584242242/job/119169072323",
+          "steps": [
+            {
+              "number": 1,
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 2,
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 3,
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 4,
+              "name": "Run actions/setup-go@v5",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 5,
+              "name": "Run go test -race ./...",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 6,
+              "name": "Run go vet ./...",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 7,
+              "name": "Run go run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 8,
+              "name": "Run test -z \"$(gofmt -l .)\"",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 14,
+              "name": "Post Run actions/setup-go@v5",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 15,
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 16,
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 17,
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 119169072394,
+          "name": "contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-21T10:23:34Z",
+          "completed_at": "2026-10-21T10:24:07Z",
+          "html_url": "https://github.com/llongwang751-arch/mini-drop/actions/runs/39584242242/job/119169072394",
+          "steps": [
+            {
+              "number": 1,
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 2,
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 3,
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 4,
+              "name": "Run python -m pip install --only-binary=:all: --require-hashes -r agent_runtime/requirements.lock",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 5,
+              "name": "Run python -m pip check",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 6,
+              "name": "Run python scripts/check_contracts.py",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 7,
+              "name": "Run python -m unittest discover -s scripts -p test_dev.py -v",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 8,
+              "name": "Portable external source packaging (imported synthetic repositories)",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 9,
+              "name": "Run python scripts/check_proto_compatibility.py",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 10,
+              "name": "Run python api/tools/check_http_contract.py",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 11,
+              "name": "Diagnostic evaluation provenance, scoring and analyzer replay (imported synthetic fixtures)",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 21,
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 22,
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "number": 23,
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "recorded_at": "2026-10-21T10:24:42.026513+00:00",
+      "runs": [
+        {
+          "id": 39584242242,
+          "status": "in_progress",
+          "conclusion": null,
+          "jobs": [
+            {
+              "name": "core",
+              "status": "in_progress",
+              "conclusion": null
+            },
+            {
+              "name": "web",
+              "status": "in_progress",
+              "conclusion": null
+            },
+            {
+              "name": "analyzer",
+              "status": "in_progress",
+              "conclusion": null
+            },
+            {
+              "name": "agent-runtime",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "maintenance",
+              "status": "in_progress",
+              "conclusion": null
+            },
+            {
+              "name": "api",
+              "status": "in_progress",
+              "conclusion": null
+            },
+            {
+              "name": "contracts",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "recorded_at": "2026-10-21T10:48:50.700756+00:00",
+      "runs": [
+        {
+          "id": 39584242242,
+          "status": "completed",
+          "conclusion": "success",
+          "jobs": [
+            {
+              "name": "core",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "web",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "analyzer",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "agent-runtime",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "maintenance",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "api",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "contracts",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "recorded_at": "2026-10-21T11:07:50.712117+00:00",
+      "runs": [
+        {
+          "id": 39584242242,
+          "status": "completed",
+          "conclusion": "success",
+          "jobs": [
+            {
+              "name": "core",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "web",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "analyzer",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "agent-runtime",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "maintenance",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "api",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "contracts",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "all_runs_terminal": true,
+  "all_runs_successful": true,
+  "workflow_triggered_or_retried": false,
+  "credential_values_logged": false,
+  "log_redirects_fetched_without_authorization_header": true
+}

@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "recorded_at": "2026-10-21T11:19:09.942505+00:00",
+  "method": "read_only_final_runtime_health",
+  "source_commit": "8fab193ce62f5bcf0d2d1296aab66526f7d41e18",
+  "deployment_receipt": "deployment-r10.json",
+  "container_count": 29,
+  "all_running": true,
+  "all_configured_health_checks_healthy": true,
+  "no_oom": true,
+  "api_identity_matches_r10": true,
+  "application_images": {
+    "/txdrop-api-1": "drop-api:20261021.9",
+    "/txdrop-analyzer-1": "drop-analyzer:20261021.2",
+    "/txdrop-web-1": "drop-web:20261021.6",
+    "/txdrop-agent-runtime-1": "drop-agent-runtime:20261021.4"
+  },
+  "https_readiness": {
+    "status": 200,
+    "tls_verified": true,
+    "redirects_allowed": false
+  },
+  "monitor_targets": 7,
+  "monitor_up": 7,
+  "activity_counts": {
+    "schema_version": 10,
+    "collection": 0,
+    "analysis_tasks": 0,
+    "analysis_jobs": 0,
+    "diagnoses": 0,
+    "repairs": 0,
+    "investigations": 0,
+    "verifications": 0,
+    "followups": 0,
+    "followups_proposed": 0,
+    "pending_imports_not_active": 0,
+    "investigations_awaiting_confirmation_not_active": 0
+  },
+  "all_executing_work_zero": true,
+  "proposed_followup_branches_zero": true,
+  "frozen_projects": [
+    {
+      "project_id": "crm-python",
+      "manifest_sha256": "4502bef09b8f1ec0fef224edb7d02fe8fc17077181baba93c3dc57d7039c822e",
+      "files_verified": 408,
+      "source_hashes_match_manifest": true,
+      "known_baseline_manifest_matches": true,
+      "generic_frozen_files_match_release_commit": null
+    },
+    {
+      "project_id": "saber-python",
+      "manifest_sha256": "868cd740f1a3bee09c5769d93516b4ac7a043fe0218c9b9fa7677406360b182e",
+      "files_verified": 2,
+      "source_hashes_match_manifest": true,
+      "known_baseline_manifest_matches": true,
+      "generic_frozen_files_match_release_commit": null
+    },
+    {
+      "project_id": "synthetic-cart-python",
+      "manifest_sha256": "a8cc52046afdb213304ec8f73b2fa9c19777393e24383648a071781ba461498d",
+      "files_verified": 3,
+      "source_hashes_match_manifest": true,
+      "known_baseline_manifest_matches": null,
+      "generic_frozen_files_match_release_commit": true
+    }
+  ],
+  "broker": {
+    "active_running": true,
+    "current_pid_positive": true,
+    "code_matches_release_commit": true,
+    "source_sha256": "c8831c5a4b9caca51a8d369b2e2283cb5b889f023cc17dc8100776f00cedec21",
+    "started_before_r10_receipt": true,
+    "r10_asserted_pid_preserved_at_deploy": true,
+    "numeric_pid_matches_r10": null
+  },
+  "mutations_performed": false,
+  "login_requests": 0,
+  "model_calls": 0,
+  "limits": [
+    "This is a final point-in-time read-only health check, not a continuous uptime or semantic correctness guarantee.",
+    "r10 persisted a successful registry/broker preservation assertion but no baseline PID number or full three-project manifest set. No missing numeric comparison is fabricated.",
+    "Current manifests verify every frozen file; CRM/Saber additionally match prior saved manifest hashes, and generic editable/frozen inputs match the release commit.",
+    "Pending imports and investigation proposals awaiting user confirmation are reported separately from executing work; proposed followup branches are required to be zero.",
+    "API7 fixed24 acceptance evidence remains the API7 debug/retest result; it is not an API9 rerun."
+  ]
+}

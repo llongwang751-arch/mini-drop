@@ -1,0 +1,465 @@
+{
+  "schema_version": 1,
+  "accepted": true,
+  "acceptance_scope": "live_controlled_cross_service_collection_signals_followup_rediagnosis",
+  "provenance": "synthetic_controlled_live_http_and_real_platform_sampling_model",
+  "run_id": "attempt-20261021T110846Z",
+  "started_at": "2026-10-21T11:08:47.719301+00:00",
+  "finished_at": "2026-10-21T11:10:22.678604+00:00",
+  "versions": {
+    "api": "20261021.9",
+    "runtime": "20261021.4",
+    "web": "20261021.6",
+    "analyzer": "0.2.5",
+    "analyzer_image": "drop-analyzer:20261021.2",
+    "sql": 10,
+    "source_commit": "8fab193",
+    "source_manifest_sha256": "cd52eadbc5bfdf5ba4833e8c214fd894f1d8845788caa98bc63e743b31904eb1"
+  },
+  "ids": {
+    "investigation_id": "19",
+    "baseline_task_id": "109",
+    "baseline_diagnosis_id": "93",
+    "followup_id": "3",
+    "followup_task_id": "110",
+    "followup_diagnosis_id": "94"
+  },
+  "goal": {
+    "utf8_sha256": "b8acf415651f261db0ad4bff72070f1747d23335d683d1fed22d3fc1c1043962",
+    "characters": 437,
+    "unchanged_from_prior_attempts": true
+  },
+  "initial_collection": {
+    "kind": "PYTHON_CPU",
+    "duration_seconds": 8,
+    "frequency_hz": 49,
+    "source": "live_collector",
+    "collection_status": "COLLECTED",
+    "analysis_status": "SUCCESS"
+  },
+  "root_diagnosis": {
+    "status": "success",
+    "report_version": 2,
+    "fact_count": 19,
+    "runtime": {
+      "framework": "agentscope",
+      "framework_version": "2.0.10",
+      "agent_class": "agentscope.agent.Agent",
+      "model_calls": 7,
+      "tool_calls": 10,
+      "elapsed_ms": 17142,
+      "usage": {
+        "input_tokens": 67002,
+        "output_tokens": 3175
+      }
+    },
+    "actual_signal_queries": [
+      {
+        "service_ref": "S1",
+        "signal": "metrics",
+        "available": true,
+        "reason": null
+      },
+      {
+        "service_ref": "S1",
+        "signal": "logs",
+        "available": true,
+        "reason": null
+      },
+      {
+        "service_ref": "S1",
+        "signal": "traces",
+        "available": true,
+        "reason": null
+      },
+      {
+        "service_ref": "S1",
+        "signal": "changes",
+        "available": true,
+        "reason": "no_matching_data"
+      },
+      {
+        "service_ref": "S2",
+        "signal": "metrics",
+        "available": true,
+        "reason": null
+      }
+    ],
+    "required_fact_coverage": {
+      "metric": true,
+      "sql_log": true,
+      "topology": true
+    },
+    "checked_fact_references": [
+      {
+        "id": "F11",
+        "evidence_id": "E6",
+        "tool": "query_business_signals",
+        "path": "/metrics/0/value",
+        "operator": "eq",
+        "unit": "milliseconds",
+        "value": 1234.856673,
+        "service_ref": "S1"
+      },
+      {
+        "id": "F13",
+        "evidence_id": "E7",
+        "tool": "query_business_signals",
+        "path": "/logs/0/duration_ms",
+        "operator": "eq",
+        "unit": "milliseconds",
+        "value": 990.663748,
+        "service_ref": "S1"
+      },
+      {
+        "id": "F14",
+        "evidence_id": "E7",
+        "tool": "query_business_signals",
+        "path": "/logs/0/status_code",
+        "operator": "eq",
+        "unit": "status_code",
+        "value": 200,
+        "service_ref": "S1"
+      },
+      {
+        "id": "F17",
+        "evidence_id": "E10",
+        "tool": "inspect_service_topology",
+        "path": "/edges",
+        "operator": "count",
+        "unit": "count",
+        "value": 1
+      },
+      {
+        "id": "F19",
+        "evidence_id": "E11",
+        "tool": "query_business_signals",
+        "path": "/metrics/0/value",
+        "operator": "eq",
+        "unit": "milliseconds",
+        "value": 1213.430365,
+        "service_ref": "S2"
+      }
+    ],
+    "tool_trace": [
+      {
+        "evidence_id": "E1",
+        "tool": "read_profile_summary"
+      },
+      {
+        "evidence_id": "E2",
+        "tool": "read_diagnostic_knowledge"
+      },
+      {
+        "evidence_id": "E3",
+        "tool": "inspect_hotspots"
+      },
+      {
+        "evidence_id": "E4",
+        "tool": "check_collection_quality"
+      },
+      {
+        "evidence_id": "E5",
+        "tool": "inspect_call_paths"
+      },
+      {
+        "evidence_id": "E6",
+        "tool": "query_business_signals"
+      },
+      {
+        "evidence_id": "E7",
+        "tool": "query_business_signals"
+      },
+      {
+        "evidence_id": "E8",
+        "tool": "query_business_signals"
+      },
+      {
+        "evidence_id": "E9",
+        "tool": "query_business_signals"
+      },
+      {
+        "evidence_id": "E10",
+        "tool": "inspect_service_topology"
+      },
+      {
+        "evidence_id": "E11",
+        "tool": "query_business_signals"
+      },
+      {
+        "evidence_id": "E12",
+        "tool": "propose_followup_collection"
+      }
+    ]
+  },
+  "followup": {
+    "status": "success",
+    "kind": "RESOURCE_SNAPSHOT",
+    "duration_seconds": 5,
+    "frequency_hz": 2,
+    "explicit_confirmation_required_and_observed": true,
+    "confirmation_actor": "assistant_acceptance_driver_using_authorized_admin_api",
+    "independent_human_click_observed": false,
+    "plan_digest": "3c8634ff74855f693cc0b92ae9f096e04d888be78e5d34c56f385fcdd1e7d018",
+    "plan_evidence_ids": ["E3", "E4", "E6", "E7"],
+    "collection_status": "COLLECTED",
+    "analysis_status": "SUCCESS",
+    "diagnosis_status": "success",
+    "report_version": 2,
+    "fact_count": 12,
+    "runtime": {
+      "framework": "agentscope",
+      "framework_version": "2.0.10",
+      "agent_class": "agentscope.agent.Agent",
+      "model_calls": 7,
+      "tool_calls": 9,
+      "elapsed_ms": 14952,
+      "usage": {
+        "input_tokens": 56733,
+        "output_tokens": 2348
+      }
+    },
+    "resources_e1": {
+      "schema_version": 1,
+      "source": "analyzer_resource_aggregate_v1",
+      "sample_count": 10,
+      "scope": "process",
+      "units": {
+        "threads": "count",
+        "fd_count": "count",
+        "rss_bytes": "bytes",
+        "vms_bytes": "bytes",
+        "cpu_percent": "percent",
+        "sample_count": "count",
+        "memory_used_bytes": "bytes",
+        "memory_total_bytes": "bytes"
+      },
+      "peaks": {
+        "threads": 2,
+        "fd_count": 6,
+        "rss_bytes": 26636288,
+        "vms_bytes": 184205312,
+        "cpu_percent": 55.94793507541057
+      }
+    },
+    "resource_facts_checked": [
+      {
+        "fact_id": "F2",
+        "evidence_id": "E1",
+        "path": "/resources/peaks/cpu_percent",
+        "value": 55.94793507541057,
+        "unit": "percent"
+      },
+      {
+        "fact_id": "F3",
+        "evidence_id": "E1",
+        "path": "/resources/sample_count",
+        "value": 10,
+        "unit": "count"
+      }
+    ],
+    "summary_mentions_real_resource_samples": true,
+    "summary_treats_empty_stack_as_no_observation": false,
+    "summary_utf8_sha256": "aa7a37f8eae0cb49a9ee9942776475ea7136528e6b1cdd137406babc0923b630",
+    "tool_trace": [
+      {
+        "evidence_id": "E1",
+        "tool": "read_profile_summary"
+      },
+      {
+        "evidence_id": "E2",
+        "tool": "read_diagnostic_knowledge"
+      },
+      {
+        "evidence_id": "E3",
+        "tool": "inspect_hotspots"
+      },
+      {
+        "evidence_id": "E4",
+        "tool": "check_collection_quality"
+      },
+      {
+        "evidence_id": "E5",
+        "tool": "query_business_signals"
+      },
+      {
+        "evidence_id": "E6",
+        "tool": "inspect_service_topology"
+      },
+      {
+        "evidence_id": "E7",
+        "tool": "query_business_signals"
+      },
+      {
+        "evidence_id": "E8",
+        "tool": "query_business_signals"
+      },
+      {
+        "evidence_id": "E9",
+        "tool": "query_business_signals"
+      },
+      {
+        "evidence_id": "E10",
+        "tool": "query_business_signals"
+      },
+      {
+        "evidence_id": "E11",
+        "tool": "propose_followup_collection"
+      }
+    ]
+  },
+  "planning_runtime": {
+    "framework": "agentscope",
+    "framework_version": "2.0.10",
+    "agent_class": "agentscope.agent.Agent",
+    "model_calls": 2,
+    "tool_calls": 2,
+    "elapsed_ms": 3245,
+    "usage": {
+      "input_tokens": 23416,
+      "output_tokens": 303
+    }
+  },
+  "confirmation_audit_events": [
+    {
+      "action": "investigation.confirm",
+      "resource_type": "investigation",
+      "resource_id": "19",
+      "created_at": "2026-10-21T11:08:55.967486+00:00"
+    },
+    {
+      "action": "investigation.followup_decision",
+      "resource_type": "investigation",
+      "resource_id": "19",
+      "created_at": "2026-10-21T11:09:29.86228+00:00"
+    }
+  ],
+  "http_confirmations": [
+    {
+      "state": "initial_collection_confirmed",
+      "at": "2026-10-21T11:08:55.972561+00:00",
+      "kind": "PYTHON_CPU",
+      "duration_seconds": 8
+    },
+    {
+      "state": "separate_followup_confirmed",
+      "at": "2026-10-21T11:09:29.865600+00:00",
+      "followup_id": "3",
+      "kind": "RESOURCE_SNAPSHOT"
+    }
+  ],
+  "load": {
+    "stopped_in_finally": true,
+    "normal_after_stop_saved": true,
+    "actual_request_count": 110,
+    "segments": [
+      {
+        "index": 1,
+        "scenario": "normal",
+        "requests": 12,
+        "start": "2026-10-21T11:08:49.682351Z",
+        "end": "2026-10-21T11:08:49.795290Z",
+        "status_codes": [200],
+        "elapsed_seconds": 0.523,
+        "sha256": "cdaef5f6f1d80022eb643e048056dc0d3d7505f0286383e92df8bffee97ffb04",
+        "server_observed_duration_ms": {
+          "min": 1.200936,
+          "median": 1.795016,
+          "max": 4.598224
+        }
+      },
+      {
+        "index": 2,
+        "scenario": "slow_query",
+        "requests": 30,
+        "start": "2026-10-21T11:08:50.047832Z",
+        "end": "2026-10-21T11:09:20.288254Z",
+        "status_codes": [200],
+        "elapsed_seconds": 30.485,
+        "sha256": "a12e65af97e70f253af9674c1edd7dac3665ffd95789f624f1620a095dfc8035",
+        "server_observed_duration_ms": {
+          "min": 842.533369,
+          "median": 960.761018,
+          "max": 1238.553897
+        }
+      },
+      {
+        "index": 3,
+        "scenario": "slow_query",
+        "requests": 30,
+        "start": "2026-10-21T11:09:20.761957Z",
+        "end": "2026-10-21T11:09:51.417467Z",
+        "status_codes": [200],
+        "elapsed_seconds": 31.239,
+        "sha256": "c88742d129d8d456a7cfd958c6c2478dfc004172e1ac4b76d7c316a8f0aed84d",
+        "server_observed_duration_ms": {
+          "min": 823.085493,
+          "median": 967.1263715,
+          "max": 1282.838528
+        }
+      },
+      {
+        "index": 4,
+        "scenario": "slow_query",
+        "requests": 30,
+        "start": "2026-10-21T11:09:51.791449Z",
+        "end": "2026-10-21T11:10:21.865238Z",
+        "status_codes": [200],
+        "elapsed_seconds": 30.335,
+        "sha256": "aadbed414f60e252e9f9c91ad34942adf2d1484352f0c19679a155ecb8ea6be6",
+        "server_observed_duration_ms": {
+          "min": 800.138414,
+          "median": 968.171227,
+          "max": 1239.037952
+        }
+      },
+      {
+        "index": 5,
+        "scenario": "normal",
+        "requests": 8,
+        "start": "2026-10-21T11:10:22.285323Z",
+        "end": "2026-10-21T11:10:22.576879Z",
+        "status_codes": [200],
+        "elapsed_seconds": 0.623,
+        "sha256": "b747ca73b215ea37cef1e4fc65eaaba05e1edb7c99801c51f2094b72ad0116f2",
+        "server_observed_duration_ms": {
+          "min": 1.350888,
+          "median": 3.4510804999999998,
+          "max": 11.0897
+        }
+      }
+    ],
+    "is_performance_benchmark": false
+  },
+  "cleanup": {
+    "normal_api_cancel_for_remaining_active_work": true,
+    "root_status_preserved": "success",
+    "followup_status_preserved": "success",
+    "current_investigation_proposed_branches": 0
+  },
+  "direct_database_mutations": false,
+  "reports_fabricated": false,
+  "credentials_cookies_presigned_urls_raw_profiles_included": false,
+  "root_cause_confirmed": false,
+  "comparable_repeat_measurement": false,
+  "semantic_accuracy": null,
+  "boundaries": [
+    "两服务为受控合成业务；平台确实进行了HTTP请求、Python CPU采集、业务遥测查询及资源补证，不是离线导入。",
+    "RESOURCE峰值与Python CPU采样的单位和窗口不同；追加采集只补充观测，不是可比性能复测。",
+    "事实值、单位与出处通过程序核验；不等于模型解释准确率、生产根因确认或修复收益。",
+    "最后normal对照仅证明真实业务请求恢复到正常场景，不能作为受控性能收益benchmark。",
+    "所有旧失败保留，未把失败run改成成功；task102是正常HTTP重分析的新run3，原run1/2归档保留。"
+  ],
+  "prior_failures": {
+    "count": 7,
+    "all_retained": true,
+    "full_progress": "live-business-progress.json",
+    "original_early_proof_unchanged": "live-business-first-attempts.json",
+    "analysis_recovery": "analysis-recovery-102.json"
+  },
+  "runtime_counts": {
+    "model_calls": 16,
+    "tool_calls": 21,
+    "includes": ["planning", "root_diagnosis", "resource_followup_diagnosis"]
+  }
+}

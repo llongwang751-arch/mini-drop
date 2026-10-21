@@ -1,0 +1,656 @@
+{
+  "schema_version": 1,
+  "acceptance_complete": true,
+  "direct_database_mutations": false,
+  "reports_fabricated": false,
+  "real_model_calls_observed": true,
+  "runs": [
+    {
+      "run_id": "attempt-20261021T075802Z",
+      "passed": false,
+      "provenance": "synthetic_controlled_live_http_and_real_platform_sampling_model",
+      "started_at": "2026-10-21T07:58:03.489467+00:00",
+      "finished_at": "2026-10-21T07:58:36.291294+00:00",
+      "ids": {
+        "investigation_id": "12",
+        "baseline_task_id": "92"
+      },
+      "error_code": "INITIAL_INVESTIGATION_FAILED",
+      "actual_collection_error_code": "TARGET_VALIDATION_FAILED",
+      "load_stopped": true,
+      "remaining_active_work_cleanup_requested": true,
+      "measured_request_count": 43,
+      "failure_before_diagnosis": true
+    },
+    {
+      "run_id": "attempt-20261021T080709Z",
+      "passed": false,
+      "provenance": "synthetic_controlled_live_http_and_real_platform_sampling_model",
+      "started_at": "2026-10-21T08:07:11.202099+00:00",
+      "finished_at": "2026-10-21T08:07:43.522453+00:00",
+      "ids": {
+        "investigation_id": "13",
+        "baseline_task_id": "93",
+        "baseline_diagnosis_id": "38"
+      },
+      "error_code": "LIVE_MODEL_DIAGNOSIS_FAILED",
+      "actual_collection_error_code": null,
+      "load_stopped": true,
+      "remaining_active_work_cleanup_requested": true,
+      "measured_request_count": 42,
+      "diagnosis": {
+        "id": "38",
+        "task_id": "93",
+        "attempt_id": "94",
+        "analysis_job_id": "85",
+        "status": "failed",
+        "error_code": "AI_TOOL_REJECTED",
+        "report_protocol": 2,
+        "created_at": "2026-10-21T08:07:33.388027Z",
+        "updated_at": "2026-10-21T08:07:41.994775Z"
+      },
+      "valid_trace": [
+        {
+          "evidence_id": "E1",
+          "tool": "read_profile_summary"
+        },
+        {
+          "evidence_id": "E2",
+          "tool": "read_diagnostic_knowledge"
+        },
+        {
+          "evidence_id": "E3",
+          "tool": "inspect_hotspots"
+        },
+        {
+          "evidence_id": "E4",
+          "tool": "check_collection_quality"
+        },
+        {
+          "evidence_id": "E5",
+          "tool": "inspect_call_paths"
+        },
+        {
+          "evidence_id": "E6",
+          "tool": "query_business_signals",
+          "service_ref": "S1",
+          "signal": "metrics",
+          "available": true,
+          "reason": null,
+          "returned_count": 3
+        },
+        {
+          "evidence_id": "E7",
+          "tool": "query_business_signals",
+          "service_ref": "S1",
+          "signal": "logs",
+          "available": true,
+          "reason": null,
+          "returned_count": 30
+        },
+        {
+          "evidence_id": "E8",
+          "tool": "query_business_signals",
+          "service_ref": "S1",
+          "signal": "traces",
+          "available": true,
+          "reason": null,
+          "returned_count": 20
+        },
+        {
+          "evidence_id": "E9",
+          "tool": "query_business_signals",
+          "service_ref": "S1",
+          "signal": "changes",
+          "available": true,
+          "reason": "no_matching_data",
+          "returned_count": 0
+        },
+        {
+          "evidence_id": "E10",
+          "tool": "inspect_service_topology",
+          "available": true,
+          "edge_count": 1,
+          "node_count": 2,
+          "causality_proven": false
+        }
+      ],
+      "forensic_finding": {
+        "checkpoint_cursor": "model",
+        "reserved_model_calls": 5,
+        "completed_tool_receipts": 8,
+        "pending_tool_receipts": 0,
+        "last_saved_batch": [
+          "query_business_signals:S1:changes",
+          "inspect_service_topology"
+        ],
+        "rejected_tool_name": null,
+        "rejected_arguments": null,
+        "exact_rejection_reason": null,
+        "limitation": "Rejected provider batch did not reach SDK checkpoint or Go tool receipt; the failed name/arguments cannot be reconstructed from these records. Do not infer a Go evidence-allowlist failure."
+      }
+    },
+    {
+      "run_id": "attempt-20261021T084944Z",
+      "passed": false,
+      "provenance": "synthetic_controlled_live_http_and_real_platform_sampling_model",
+      "started_at": "2026-10-21T08:49:46.031463+00:00",
+      "finished_at": "2026-10-21T08:50:50.333369+00:00",
+      "ids": {
+        "investigation_id": "14",
+        "baseline_task_id": "94",
+        "baseline_diagnosis_id": "39"
+      },
+      "error_code": "LIVE_MODEL_DIAGNOSIS_FAILED",
+      "actual_collection_error_code": null,
+      "load_stopped": true,
+      "remaining_active_work_cleanup_requested": true,
+      "measured_request_count": 73,
+      "goal_sha256": "b8acf415651f261db0ad4bff72070f1747d23335d683d1fed22d3fc1c1043962",
+      "diagnosis": {
+        "id": "39",
+        "task_id": "94",
+        "attempt_id": "95",
+        "analysis_job_id": "86",
+        "status": "failed",
+        "error_code": "AI_BUDGET_EXCEEDED",
+        "report_protocol": 2,
+        "created_at": "2026-10-21T08:50:07.185163Z",
+        "updated_at": "2026-10-21T08:50:36.600574Z"
+      },
+      "valid_trace": [
+        {
+          "evidence_id": "E1",
+          "tool": "read_profile_summary"
+        },
+        {
+          "evidence_id": "E2",
+          "tool": "read_diagnostic_knowledge"
+        },
+        {
+          "evidence_id": "E3",
+          "tool": "inspect_hotspots"
+        },
+        {
+          "evidence_id": "E4",
+          "tool": "check_collection_quality"
+        },
+        {
+          "evidence_id": "E5",
+          "tool": "inspect_call_paths"
+        },
+        {
+          "evidence_id": "E6",
+          "tool": "query_business_signals",
+          "service_ref": "S1",
+          "signal": "metrics",
+          "available": true,
+          "reason": null,
+          "returned_count": 3
+        },
+        {
+          "evidence_id": "E7",
+          "tool": "query_business_signals",
+          "service_ref": "S1",
+          "signal": "logs",
+          "available": true,
+          "reason": null,
+          "returned_count": 30
+        },
+        {
+          "evidence_id": "E8",
+          "tool": "query_business_signals",
+          "service_ref": "S1",
+          "signal": "traces",
+          "available": true,
+          "reason": null,
+          "returned_count": 20
+        },
+        {
+          "evidence_id": "E9",
+          "tool": "query_business_signals",
+          "service_ref": "S1",
+          "signal": "changes",
+          "available": true,
+          "reason": "no_matching_data",
+          "returned_count": 0
+        },
+        {
+          "evidence_id": "E10",
+          "tool": "inspect_service_topology",
+          "available": true,
+          "edge_count": 1,
+          "node_count": 2,
+          "causality_proven": false
+        },
+        {
+          "evidence_id": "E11",
+          "tool": "query_business_signals",
+          "service_ref": "S2",
+          "signal": "metrics",
+          "available": true,
+          "reason": null,
+          "returned_count": 3
+        },
+        {
+          "evidence_id": "E12",
+          "tool": "propose_followup_collection",
+          "observed_kind": "RESOURCE_SNAPSHOT",
+          "duration_seconds": 5,
+          "frequency_hz": 2
+        }
+      ],
+      "forensic_finding": {
+        "checkpoint_cursor": "finish",
+        "format_only": true,
+        "reserved_model_calls": 9,
+        "completed_tool_receipts": 10,
+        "pending_tool_receipts": 0,
+        "ended_rounds": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        "final_response_attempts": 4,
+        "proposed_fact_count": 24,
+        "proposed_facts_accepted": false,
+        "invalid_verification_request": {
+          "origin": "tool_plan",
+          "kind": "repeat_collection",
+          "source_evidence_id": "E12",
+          "duration_seconds": 5,
+          "frequency_hz": 2
+        },
+        "source_evidence_actual_tool": "propose_followup_collection",
+        "source_evidence_required_tool": "propose_verification",
+        "error": "Final report repeatedly classified the followup proposal as a tool_plan verification request, which violates the existing origin/source contract; generic report feedback did not identify this field and the unchanged request exhausted the original model budget.",
+        "followup_rows_staged": 0,
+        "followup_confirmed": false,
+        "followup_executed": false
+      }
+    },
+    {
+      "run_id": "attempt-20261021T091639Z",
+      "passed": false,
+      "provenance": "synthetic_controlled_live_http_and_real_platform_sampling_model",
+      "started_at": "2026-10-21T09:16:40.631979+00:00",
+      "finished_at": "2026-10-21T09:18:15.084651+00:00",
+      "ids": {
+        "investigation_id": "15",
+        "baseline_task_id": "95",
+        "baseline_diagnosis_id": "40",
+        "followup_id": "1",
+        "followup_task_id": "96",
+        "followup_diagnosis_id": "41"
+      },
+      "error_code": "REAL_FOLLOWUP_FAILED",
+      "actual_collection_error_code": null,
+      "load_stopped": true,
+      "remaining_active_work_cleanup_requested": true,
+      "goal_sha256": "b8acf415651f261db0ad4bff72070f1747d23335d683d1fed22d3fc1c1043962",
+      "measured_request_count": 102,
+      "diagnosis": {
+        "id": "40",
+        "task_id": "95",
+        "attempt_id": "96",
+        "analysis_job_id": "87",
+        "status": "success",
+        "error_code": null,
+        "report_protocol": 2,
+        "created_at": "2026-10-21T09:16:59.772658Z",
+        "updated_at": "2026-10-21T09:17:20.879418Z"
+      },
+      "accepted_root_report": {
+        "report_version": 2,
+        "fact_count": 24,
+        "actual_four_signal_topology_neighbor_observations": true,
+        "actual_sql_latency_topology_fact_references_checked": true,
+        "root_cause_confirmed": false,
+        "runtime": {
+          "usage": {
+            "input_tokens": 81198,
+            "output_tokens": 3756
+          },
+          "run_id": "64139c83-4ff3-4461-a081-4cde380a8083",
+          "framework": "agentscope",
+          "elapsed_ms": 20629,
+          "tool_calls": 10,
+          "agent_class": "agentscope.agent.Agent",
+          "model_calls": 9,
+          "framework_version": "2.0.10"
+        }
+      },
+      "followup": {
+        "id": "1",
+        "separately_confirmed": true,
+        "task_id": "96",
+        "kind": "RESOURCE_SNAPSHOT",
+        "collection_status": "COLLECTED",
+        "analysis_status": "SUCCESS",
+        "diagnosis_id": "41",
+        "diagnosis_status": "failed",
+        "diagnosis_error_code": "AI_BUDGET_EXCEEDED",
+        "status": "failed",
+        "actual_resource_samples": 10,
+        "model_calls": 9,
+        "tool_calls": 9,
+        "checkpoint_cursor": "finish",
+        "pending_receipts": 0,
+        "failure_reasons": [
+          "Scalar /node_count was initially requested with count instead of eq; safe feedback correctly rejected it.",
+          "After removing that fact, the final deployment_regression hypothesis cited only topology and no observed change_type fact; generic rejection then exhausted the original budget."
+        ],
+        "resource_evidence_gap": "Actual analyzer result has resource peaks/samples, while the agent observation currently only exposes an empty bytes profile and no resource aggregate fact paths."
+      }
+    },
+    {
+      "run_id": "attempt-20261021T094146Z",
+      "passed": false,
+      "provenance": "synthetic_controlled_live_http_and_real_platform_sampling_model",
+      "started_at": "2026-10-21T09:41:47.709986+00:00",
+      "finished_at": "2026-10-21T09:42:51.425988+00:00",
+      "ids": {
+        "investigation_id": "16",
+        "baseline_task_id": "101",
+        "baseline_diagnosis_id": "66"
+      },
+      "error_code": "LIVE_MODEL_DIAGNOSIS_FAILED",
+      "actual_collection_error_code": null,
+      "load_stopped": true,
+      "remaining_active_work_cleanup_requested": true,
+      "goal_sha256": "b8acf415651f261db0ad4bff72070f1747d23335d683d1fed22d3fc1c1043962",
+      "measured_request_count": 73,
+      "diagnosis": {
+        "id": "66",
+        "task_id": "101",
+        "attempt_id": "102",
+        "analysis_job_id": "93",
+        "status": "failed",
+        "error_code": "AI_BUDGET_EXCEEDED",
+        "report_protocol": 2,
+        "created_at": "2026-10-21T09:42:11.00366Z",
+        "updated_at": "2026-10-21T09:42:34.212126Z"
+      },
+      "valid_trace": [
+        {
+          "evidence_id": "E1",
+          "tool": "read_profile_summary"
+        },
+        {
+          "evidence_id": "E2",
+          "tool": "read_diagnostic_knowledge"
+        },
+        {
+          "evidence_id": "E3",
+          "tool": "inspect_hotspots"
+        },
+        {
+          "evidence_id": "E4",
+          "tool": "check_collection_quality"
+        },
+        {
+          "evidence_id": "E5",
+          "tool": "inspect_call_paths"
+        },
+        {
+          "evidence_id": "E6",
+          "tool": "query_business_signals"
+        },
+        {
+          "evidence_id": "E7",
+          "tool": "query_business_signals"
+        },
+        {
+          "evidence_id": "E8",
+          "tool": "query_business_signals"
+        },
+        {
+          "evidence_id": "E9",
+          "tool": "query_business_signals"
+        },
+        {
+          "evidence_id": "E10",
+          "tool": "inspect_service_topology"
+        },
+        {
+          "evidence_id": "E11",
+          "tool": "query_business_signals"
+        },
+        {
+          "evidence_id": "E12",
+          "tool": "propose_followup_collection"
+        }
+      ],
+      "forensic_finding": {
+        "checkpoint_cursor": "finish",
+        "model_calls": 9,
+        "tool_calls": 10,
+        "pending_receipts": 0,
+        "usage": {
+          "input_tokens": 89600,
+          "output_tokens": 4330
+        },
+        "actual_schema_recovery": {
+          "tool": "propose_followup_collection",
+          "validator": "maxItems",
+          "field": "evidence_ids",
+          "batch_not_executed_before_correction": true,
+          "corrected_tool_observed_as": "E12"
+        },
+        "report_correction_sequence": [
+          {
+            "invalid_fact_source": "E5",
+            "invalid_path": "/ancestors_truncated",
+            "actual_tool": "inspect_call_paths",
+            "later_corrected_to": "/tree_truncated"
+          },
+          {
+            "invalid_fact_source": "E12",
+            "invalid_paths": ["/duration_seconds", "/frequency_hz"],
+            "actual_tool": "propose_followup_collection",
+            "later_removed": true
+          },
+          {
+            "invalid_verification_source": "E12",
+            "invalid_origin": "tool_plan",
+            "actual_tool": "propose_followup_collection",
+            "required_tool": "propose_verification",
+            "still_invalid_in_final_candidate": true
+          }
+        ],
+        "resource_projection_exercised": false,
+        "followup_staged": false,
+        "complete_acceptance": false
+      }
+    },
+    {
+      "run_id": "attempt-20261021T095755Z",
+      "passed": false,
+      "provenance": "synthetic_controlled_live_http_and_real_platform_sampling_model",
+      "started_at": "2026-10-21T09:57:56.425786+00:00",
+      "finished_at": "2026-10-21T09:58:29.871853+00:00",
+      "ids": {
+        "investigation_id": "17",
+        "baseline_task_id": "102"
+      },
+      "error_code": "INITIAL_INVESTIGATION_FAILED",
+      "actual_collection_error_code": "INVALID_INPUT",
+      "load_stopped": true,
+      "remaining_active_work_cleanup_requested": true,
+      "measured_request_count": 43,
+      "failure_before_diagnosis": true,
+      "actual_collection_status": "COLLECTED",
+      "actual_analysis_status": "FAILED",
+      "actual_analysis_error_code": "INVALID_INPUT",
+      "safe_parser_error": "Invalid stack frame at line 2",
+      "artifact_shape": {
+        "artifact_id": "657",
+        "bytes": 1508,
+        "sha256": "0409d211ea3676b007dcbdc539128ecf1d8f370da18bd26d743f7aeae8766dc9",
+        "utf8_valid": true,
+        "nonempty_lines": 5,
+        "positive_sample_lines": 5,
+        "total_positive_weight": 380,
+        "invalid_frames": [
+          {
+            "line": 2,
+            "frame_index": 0,
+            "empty_after_strip": true,
+            "control_codepoints": [],
+            "frame_utf8_bytes": 0
+          }
+        ],
+        "zero_or_invalid_weight_lines": [],
+        "raw_profile_printed": false,
+        "presigned_url_persisted": false,
+        "invalid_frame_affected_weight": 1,
+        "remaining_nonempty_frames_on_line": 0,
+        "positive_sample_weight_preserved_by_explicit_unknown_frame_adapter": 380
+      },
+      "model_called_for_diagnosis": false
+    },
+    {
+      "run_id": "attempt-20261021T104751Z",
+      "passed": false,
+      "provenance": "synthetic_controlled_live_http_and_real_platform_sampling_model",
+      "started_at": "2026-10-21T10:47:53.312009+00:00",
+      "finished_at": "2026-10-21T10:48:56.899492+00:00",
+      "ids": {
+        "investigation_id": "18",
+        "baseline_task_id": "107",
+        "baseline_diagnosis_id": "91",
+        "followup_id": "2",
+        "followup_task_id": "108",
+        "followup_diagnosis_id": "92"
+      },
+      "error_code": "REAL_FOLLOWUP_FAILED",
+      "load_stopped": true,
+      "remaining_active_work_cleanup_requested": true,
+      "measured_request_count": 72,
+      "root_diagnosis_accepted": true,
+      "root_report_version": 2,
+      "root_fact_count": 16,
+      "root_fact_sources": {
+        "metric": true,
+        "sql_log": true,
+        "topology": true
+      },
+      "resource_child_collection_status": "COLLECTED",
+      "resource_child_analysis_status": "SUCCESS",
+      "resource_sample_count": 10,
+      "resource_aggregate_reached_model": true,
+      "resource_child_diagnosis_error_code": "AI_TOOL_REJECTED",
+      "go_tool_semantic_rejection": {
+        "tool": "propose_followup_collection",
+        "fixed_reason": "evidence_source_not_permitted",
+        "rejected_evidence_ref": "E1",
+        "actual_source_tool": "read_profile_summary",
+        "executed": false,
+        "trace_observation_created": false
+      },
+      "checkpoint": {
+        "model_calls": 5,
+        "tool_calls": 9,
+        "round_tools": 1,
+        "cursor": "tools",
+        "receipt_count": 9,
+        "pending_count": 1
+      },
+      "root_cause_confirmed": false,
+      "comparable_repeat_measurement": false,
+      "complete_followup_success": false
+    },
+    {
+      "run_id": "attempt-20261021T110846Z",
+      "passed": true,
+      "ids": {
+        "investigation_id": "19",
+        "baseline_task_id": "109",
+        "baseline_diagnosis_id": "93",
+        "followup_id": "3",
+        "followup_task_id": "110",
+        "followup_diagnosis_id": "94"
+      },
+      "started_at": "2026-10-21T11:08:47.719301+00:00",
+      "finished_at": "2026-10-21T11:10:22.678604+00:00",
+      "measured_request_count": 110,
+      "load_stopped": true,
+      "normal_after_stop_requests": 8,
+      "root_diagnosis_status": "success",
+      "root_report_version": 2,
+      "resource_child_collection_status": "COLLECTED",
+      "resource_child_analysis_status": "SUCCESS",
+      "resource_child_diagnosis_status": "success",
+      "resource_sample_count": 10,
+      "complete_followup_success": true,
+      "goal_sha256": "b8acf415651f261db0ad4bff72070f1747d23335d683d1fed22d3fc1c1043962",
+      "root_cause_confirmed": false,
+      "comparable_repeat_measurement": false,
+      "semantic_accuracy": null,
+      "final_proof": "live-business-acceptance.json"
+    }
+  ],
+  "boundaries": [
+    "Controlled synthetic business receives actual HTTP requests; this is not a production workload benchmark.",
+    "Attempt 1 failed before diagnosis because the demo AppArmor peer role was missing; root deployed the role fix before attempt 2.",
+    "Attempt 2 completed actual Python CPU sampling and valid cross-signal observations but did not produce a final fact report or followup proposal.",
+    "The unpersisted rejected provider batch is not recoverable from checkpoint; further exact-cause work requires a bounded engineering diagnostic.",
+    "No accuracy, causality, repair, followup or acceptance success is claimed.",
+    "Attempt 3 completed actual one-hop metrics and a validated followup-tool observation but failed final report source validation; no followup row was staged or confirmed, and no accepted v2 facts exist yet.",
+    "Attempt 4 accepted a real v2 root report with SQL, metrics and topology facts, then separately confirmed and actually collected/analyzed RESOURCE_SNAPSHOT. Its followup diagnosis failed, so the complete loop is not yet accepted.",
+    "Attempt 5 actually recovered a known-tool schema error within the unchanged budget, but three independent final-report mistakes were corrected serially and the final tool_plan source mismatch exhausted that budget. The newly deployed resource projection was not reached; no resource-loop success is claimed.",
+    "Attempt 6 failed in strict analysis of an actual py-spy raw profile: collection succeeded and all five lines had positive sample weights (380 total), but one unresolved leading empty frame was rejected. No diagnosis/model or resource child ran. This does not test the API7 batch fix."
+  ],
+  "analysis_recoveries": [
+    {
+      "run_id": "reanalyze102-20261021T103212Z",
+      "passed": false,
+      "task_id": "102",
+      "attempt_id": "103",
+      "analysis_job_id": "94",
+      "previous_analysis_run": 1,
+      "input_artifact_id": "657",
+      "input_digest": "0409d211ea3676b007dcbdc539128ecf1d8f370da18bd26d743f7aeae8766dc9",
+      "started_at": "2026-10-21T10:32:14.565021+00:00",
+      "finished_at": "2026-10-21T10:32:18.660406+00:00",
+      "collection_status": "COLLECTED",
+      "analysis_status": "FAILED",
+      "old_failed_run_preserved": true,
+      "direct_database_mutations": false,
+      "model_calls": 0,
+      "new_collection": false,
+      "new_analysis_run": 2,
+      "analyzer_version": "0.2.4",
+      "actual_error_code": "INVALID_INPUT",
+      "fixed_error_message": "Invalid stack frame at line 2",
+      "cause": "postgresql_row_alias_attempt_collides_with_integer_attempt_column",
+      "gate_runner_metadata_was_null": true,
+      "metadata_was_object": true,
+      "original_raw_unchanged": true
+    },
+    {
+      "schema_version": 1,
+      "run_id": "reanalyze102-20261021T104731Z",
+      "passed": true,
+      "task_id": "102",
+      "attempt_id": "103",
+      "analysis_job_id": "94",
+      "previous_analysis_run": 2,
+      "input_artifact_id": "657",
+      "input_digest": "0409d211ea3676b007dcbdc539128ecf1d8f370da18bd26d743f7aeae8766dc9",
+      "provenance": "real_existing_pyspy_raw_via_normal_http_reanalysis",
+      "direct_database_mutations": false,
+      "model_calls": 0,
+      "new_collection": false,
+      "started_at": "2026-10-21T10:47:32.004844+00:00",
+      "collection_status": "COLLECTED",
+      "analysis_status": "SUCCESS",
+      "old_failed_run_preserved": true,
+      "new_analysis_run": 3,
+      "analyzer_version": "0.2.5",
+      "total_sample_weight": 380,
+      "unresolved_sample_weight": 1,
+      "unresolved_stack_lines": 1,
+      "original_raw_unchanged": true,
+      "same_analysis_job_new_run": true,
+      "placeholder_is_business_hotspot": false,
+      "finished_at": "2026-10-21T10:47:35.080477+00:00"
+    }
+  ]
+}

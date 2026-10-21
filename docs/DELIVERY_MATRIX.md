@@ -1,19 +1,21 @@
 # 全量交付与验收矩阵
 
-## 八项 Agent 扩展（2026-10-21，已部署，实景收尾）
+## 八项 Agent 扩展（2026-10-21，已上线并通过实景闭环）
 
-当前 API20261021.8、AgentScope runtime20261021.4、Web20261021.6、Analyzer20261021.2（0.2.5）、SDK2.0.10、SQL10。29运行健康、7监控up；最后仅替换Analyzer/Web，其他27身份、镜像、卷及broker/三项目登记快照保持。见[当前部署](evidence/agent-expansion-20261021/deployment-r9.json)与[实现及边界](AGENT_EXPANSION.md)。
+当前 API20261021.9、AgentScope runtime20261021.4、Web20261021.6、Analyzer20261021.2（0.2.5）、SDK2.0.10、SQL10。29运行健康、7监控up；最后仅替换API，其他28身份、镜像、卷及broker/三项目登记快照保持。见[当前部署](evidence/agent-expansion-20261021/deployment-r10.json)与[实现及边界](AGENT_EXPANSION.md)。
 
 实际验证分开记录：早期整体真实PG392通过/1真实模型opt-in跳过；Go增量232通过/0skip、全APIvet通过；API9资源补证候选另完成真实隔离PG17回归29通过/0skip及全APIvet。Linux SDK56/56、解析器20/20，新增真实PG→worker JSON→child及20相邻解析共21/21。Web153单测、原相关33浏览器及新7浏览器回归通过；Web6公网32静态/index/14字体SHA、两宽事实、键盘、axe均通过。次数对应各自来源版本，不把早期全量检查说成每次增量都重跑。
 
-真实模型修复10完成通用Python源码定位、代码/新增测试补丁、基线失败/候选通过、冻结回归、输出类型和值及6组性能正负对照。32.36秒、中位8.2122×仅为合成购物车函数，不代表生产延迟。见[真实修复](evidence/agent-expansion-20261021/live-generic-acceptance.json)。原task102通过正常HTTP重新分析，在原job新run3中成功解析380权重/未知1，run1/2失败归档及原文件SHA保持；见[真实恢复](evidence/agent-expansion-20261021/analysis-recovery-102.json)。调查18根诊断91通过，资源子诊断92仍失败，补证完整闭环继续验收，未用根成功替代子流程。
+真实模型修复10完成通用Python源码定位、代码/新增测试补丁、基线失败/候选通过、冻结回归、输出类型和值及6组性能正负对照。32.36秒、中位8.2122×仅为合成购物车函数，不代表生产延迟。见[真实修复](evidence/agent-expansion-20261021/live-generic-acceptance.json)。原task102通过正常HTTP重新分析，在原job新run3中成功解析380权重/未知1，run1/2失败归档及原文件SHA保持；见[真实恢复](evidence/agent-expansion-20261021/analysis-recovery-102.json)。
+
+API9的真实双服务调查19已完成：Python CPU任务109/诊断93成功，实际查询四类业务信号，取得本轮SQL日志、时长与一跳拓扑；changes明确返回窗口内无匹配变更，不填充变更记录。明确确认followup3后，RESOURCE任务110采集及分析成功，子诊断94成功，实际10个资源样本、E1资源事实的值/单位和程序摘要校验通过。调查18的子诊断92等历史失败保持原样；补证不能跨单位作为可比复测，也没有据此宣称根因确认。见[真实业务闭环](evidence/agent-expansion-20261021/live-business-acceptance.json)。
 
 固定评估先后保留两批：API5的4/24和API7调试复测24/24（off/experience均12/12）。第二批已见调试数据、同输入/同顺序且全新run，不是独立盲测；不填独立人工语义准确率，不据此证明经验收益。见[完整对比](evidence/agent-expansion-20261021/evaluation24-api7-debug-retest/acceptance-comparison.json)。
 
 | 模块 | 交付及实际证据 | 验收边界 |
 | --- | --- | --- |
 | 结构化事实 | 协议2精确路径、值、单位、E来源，程序描述与有界多错误反馈 | 不保证自由解释或因果正确 |
-| 动态补证 | 最多2分支/20分钟、明确确认、普通采集/分析/再次诊断、取消回收 | 完整新现场闭环仍在收尾，不跨单位冒充复测 |
+| 动态补证 | 调查19→明确确认followup3→资源任务110→诊断94成功；最多2分支/20分钟 | 异类补证不作为可比复测，根因确认另需受控干预 |
 | 跨服务信号 | 固定metrics/logs/traces/changes与一跳登记拓扑；真实HTTP/SQLite信号 | 登记关系不是根因，多跳RCA未验收 |
 | 通用项目接入 | 管理员Python manifest/固定镜像/冻结源码，实际项目修复10 | 不是任意语言或任意上传执行 |
 | 方法与经验库 | 个人/团队/项目版本、审阅发布/退役/有效期、授权及PG竞态回归 | 共享审阅方法，个人案例不自动跨团队共享 |
@@ -22,6 +24,10 @@
 | 回归及补丁包 | 新增独立测试红绿、原回归与正负性能对照、SHA绑定diff下载 | 隔离快照验证，不自动发布业务仓库 |
 
 历史失败、SQL来源别名修复、未知栈处理、两次发布保护回滚及各版收据保存在[开发日志](../DEVELOPMENT_LOG.md)和本轮证据目录；不改写旧报告或截图为成功。
+
+最终[公网两宽页面复核](evidence/agent-expansion-20261021/public-api9-root19-resource110/summary.json)以实际新任务109/110检查10项并查看8张截图，证据分别绑定诊断93/94；没有重跑采集或模型。最新API9提交[CI观测](evidence/agent-expansion-20261021/github-ci-8fab193.json)为6项通过、Analyzer仍在运行（11:18:10 UTC），不是全绿；前版21aa30d/4f35e9b已各7/7通过。
+
+最终[只读健康检查](evidence/agent-expansion-20261021/final-health.json)于11:19:09 UTC通过：29运行、配置的healthcheck均健康、无OOM，7监控up、严格TLS readiness200；活动采集/分析/诊断/修复/调查/验证/补证与待确认补证均为0。三个登记项目冻结文件校验通过，执行器运行且源码对应发布，演示负载已停止。
 
 ## 诊断Skill、个人经验与固定评测（2026-10-21）
 
