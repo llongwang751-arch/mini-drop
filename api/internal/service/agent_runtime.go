@@ -421,7 +421,11 @@ func (s *agentSession) callback(call agentCallback) map[string]any {
 		if err != nil {
 			response := agentFailure(safeAgentError(err), false)
 			// 只接受专用类型产生并重新核验的安全反馈；绝不把err.Error/domain.Message或上游内容回填给模型。
-			if provider, ok := err.(diagnosisReportFeedbackProvider); ok {
+			if provider, ok := err.(diagnosisReportBatchFeedbackProvider); ok {
+				if feedback, valid := provider.safeDiagnosisReportBatchFeedback().safeJSON(); valid {
+					response["feedback"] = feedback
+				}
+			} else if provider, ok := err.(diagnosisReportFeedbackProvider); ok {
 				if feedback, valid := provider.safeDiagnosisReportFeedback().safeJSON(); valid {
 					response["feedback"] = feedback
 				}

@@ -95,6 +95,94 @@ type diagnosisReportFeedbackProvider interface {
 	safeDiagnosisReportFeedback() diagnosisReportFeedback
 }
 
+// 批量反馈与旧单条反馈使用不同接口，运行时只能读取经过白名单重新核验的结构。
+// 3500字节为现有SDK的4096字节上限预留余量；只保留完整JSON项，绝不裁切字符串。
+type diagnosisReportBatchFeedbackProvider interface {
+	safeDiagnosisReportBatchFeedback() diagnosisReportBatchFeedback
+}
+
+const diagnosisReportBatchMaxBytes = 3500
+const diagnosisReportBatchMaxItems = 6
+
+type diagnosisReportBatchFeedback struct{ Errors []diagnosisReportFeedback }
+
+type diagnosisReportBatchValidationError struct{ feedback diagnosisReportBatchFeedback }
+
+func (e *diagnosisReportBatchValidationError) Error() string {
+	return "AI_INVALID_REPORT: 结构化报告存在多项未通过核验的主张"
+}
+func (e *diagnosisReportBatchValidationError) Unwrap() error { return invalidDiagnosisFact() }
+func (e *diagnosisReportBatchValidationError) safeDiagnosisReportBatchFeedback() diagnosisReportBatchFeedback {
+	return e.feedback
+}
+
+// 保留包内旧单条读取方式；真正的运行时优先发送有界批量结构。
+func (e *diagnosisReportBatchValidationError) safeDiagnosisReportFeedback() diagnosisReportFeedback {
+	if len(e.feedback.Errors) == 0 {
+		return diagnosisReportFeedback{}
+	}
+	return e.feedback.Errors[0]
+}
+
+func (b diagnosisReportBatchFeedback) safeJSON() (string, bool) {
+	if len(b.Errors) < 2 || len(b.Errors) > 31 {
+		return "", false
+	}
+	groups := map[string][]json.RawMessage{"facts": {}, "verification_requests": {}, "hypotheses": {}}
+	for _, item := range b.Errors {
+		raw, valid := item.safeJSON()
+		if !valid {
+			return "", false // 任一项失去安全来源时整批回退通用错误，不回显部分未验内容。
+		}
+		groups[item.Section] = append(groups[item.Section], json.RawMessage(raw))
+	}
+	envelope := struct {
+		Reason    string            `json:"reason"`
+		Errors    []json.RawMessage `json:"errors"`
+		Truncated bool              `json:"truncated"`
+		Repair    string            `json:"repair"`
+	}{Reason: "report_validation_failed", Errors: []json.RawMessage{}, Truncated: true, Repair: "整份报告未通过核验。请一次修正本批所有错误，并同步事实与假设引用；未列出的字段不代表已通过。不得增加权限、工具或模型预算。"}
+	// 各分区轮转，先让事实、复测建议和假设的首个独立错误都有机会出现，避免24项facts耗尽提示空间。
+	for position := 0; position < 24 && len(envelope.Errors) < diagnosisReportBatchMaxItems; position++ {
+		for _, section := range []string{"facts", "verification_requests", "hypotheses"} {
+			if position >= len(groups[section]) || len(envelope.Errors) == diagnosisReportBatchMaxItems {
+				continue
+			}
+			envelope.Errors = append(envelope.Errors, groups[section][position])
+			envelope.Truncated = len(envelope.Errors) < len(b.Errors)
+			raw, err := json.Marshal(envelope)
+			if err != nil || len(raw) > diagnosisReportBatchMaxBytes {
+				envelope.Errors = envelope.Errors[:len(envelope.Errors)-1]
+			}
+		}
+	}
+	envelope.Truncated = len(envelope.Errors) < len(b.Errors)
+	raw, err := json.Marshal(envelope)
+	return string(raw), err == nil && len(envelope.Errors) > 0 && len(raw) <= diagnosisReportBatchMaxBytes
+}
+
+func diagnosisReportErrors(errors []error) error {
+	if len(errors) == 0 {
+		return nil
+	}
+	if len(errors) == 1 {
+		return errors[0]
+	}
+	feedback := diagnosisReportBatchFeedback{}
+	for _, err := range errors {
+		provider, ok := err.(diagnosisReportFeedbackProvider)
+		if !ok {
+			return invalidDiagnosisFact()
+		}
+		item := provider.safeDiagnosisReportFeedback()
+		if _, valid := item.safeJSON(); !valid {
+			return invalidDiagnosisFact()
+		}
+		feedback.Errors = append(feedback.Errors, item)
+	}
+	return &diagnosisReportBatchValidationError{feedback: feedback}
+}
+
 type diagnosisReportFeedback struct {
 	Reason       string `json:"reason"`
 	Section      string `json:"section"`
@@ -890,20 +978,36 @@ func validateDiagnosisModelReportV2(content string, trace []DiagnosisStep) (*Dia
 	unit := diagnosisMeasurementUnit(trace)
 	report := &DiagnosisReport{ReportVersion: 2, Facts: []DiagnosisVerifiedFact{}, Hypotheses: []DiagnosisHypothesis{}}
 	indexed := map[string]DiagnosisVerifiedFact{}
+	declaredFacts := map[string]bool{}
+	invalidFacts := map[string]bool{}
+	validationErrors := []error{}
+	record := func(err error, section string, index int) {
+		validationErrors = append(validationErrors, diagnosisFeedbackAt(err, section, index))
+	}
 	for index, request := range submitted.Facts {
 		if !diagnosisFactID.MatchString(request.ID) {
-			return nil, diagnosisFeedbackAt(diagnosisFeedbackError("fact_id_invalid", "id", DiagnosisStep{}), "facts", index)
+			invalidFacts[request.ID] = true
+			record(diagnosisFeedbackError("fact_id_invalid", "id", DiagnosisStep{}), "facts", index)
+			continue
 		}
-		if _, exists := indexed[request.ID]; exists {
-			return nil, diagnosisFeedbackAt(diagnosisFeedbackError("fact_id_duplicate", "id", DiagnosisStep{}), "facts", index)
+		if declaredFacts[request.ID] {
+			invalidFacts[request.ID] = true
+			delete(indexed, request.ID)
+			record(diagnosisFeedbackError("fact_id_duplicate", "id", DiagnosisStep{}), "facts", index)
+			continue
 		}
+		declaredFacts[request.ID] = true
 		step, exists := steps[request.EvidenceID]
 		if !exists {
-			return nil, diagnosisFeedbackAt(diagnosisFeedbackError("fact_source_not_found", "evidence_id", DiagnosisStep{}), "facts", index)
+			invalidFacts[request.ID] = true
+			record(diagnosisFeedbackError("fact_source_not_found", "evidence_id", DiagnosisStep{}), "facts", index)
+			continue
 		}
 		fact, err := diagnosisResolveFact(request, step, unit)
 		if err != nil {
-			return nil, diagnosisFeedbackAt(err, "facts", index)
+			invalidFacts[request.ID] = true
+			record(err, "facts", index)
+			continue
 		}
 		indexed[fact.ID] = fact
 		report.Facts = append(report.Facts, fact)
@@ -912,36 +1016,62 @@ func validateDiagnosisModelReportV2(content string, trace []DiagnosisStep) (*Dia
 	for index, request := range submitted.VerificationRequests {
 		text, err := diagnosisVerificationText(request, steps)
 		if err != nil {
-			return nil, diagnosisFeedbackAt(err, "verification_requests", index)
+			record(err, "verification_requests", index)
+			continue
 		}
 		verification = append(verification, text)
 	}
 	for index, hypothesis := range submitted.Hypotheses {
 		if len(hypothesis.FactIDs) < 1 || len(hypothesis.FactIDs) > 8 || len(hypothesis.EvidenceIDs) < 1 || len(hypothesis.EvidenceIDs) > 8 || !diagnosisSafeInterpretation(hypothesis.UnverifiedInterpretation) {
-			return nil, diagnosisFeedbackAt(diagnosisFeedbackError("hypothesis_shape_invalid", "fact_ids", DiagnosisStep{}), "hypotheses", index)
+			record(diagnosisFeedbackError("hypothesis_shape_invalid", "fact_ids", DiagnosisStep{}), "hypotheses", index)
+			continue
 		}
 		facts := []DiagnosisVerifiedFact{}
 		used := map[string]bool{}
 		usedFacts := map[string]bool{}
+		invalidEvidence := false
 		for _, id := range hypothesis.EvidenceIDs {
 			if _, exists := steps[id]; !exists || used[id] {
-				return nil, diagnosisFeedbackAt(diagnosisFeedbackError("hypothesis_evidence_invalid", "evidence_ids", DiagnosisStep{}), "hypotheses", index)
+				record(diagnosisFeedbackError("hypothesis_evidence_invalid", "evidence_ids", DiagnosisStep{}), "hypotheses", index)
+				invalidEvidence = true
+				break
 			}
 			used[id] = true
 		}
+		if invalidEvidence {
+			continue
+		}
+		invalidReference, dependsOnInvalidFact := false, false
 		for _, id := range hypothesis.FactIDs {
+			// 无效事实已经有自己的定位，不能再用缺失的部分事实推导出“该假设无证据”的级联错误。
+			// 报告仍整体拒绝；修正事实后，本假设必须重新通过完整来源及类别前提核验。
+			if invalidFacts[id] {
+				dependsOnInvalidFact = true
+				continue
+			}
 			fact, exists := indexed[id]
 			if !exists || !used[fact.EvidenceID] || usedFacts[id] {
-				return nil, diagnosisFeedbackAt(diagnosisFeedbackError("hypothesis_fact_reference_invalid", "fact_ids", DiagnosisStep{}), "hypotheses", index)
+				if !invalidReference {
+					record(diagnosisFeedbackError("hypothesis_fact_reference_invalid", "fact_ids", DiagnosisStep{}), "hypotheses", index)
+				}
+				invalidReference = true
+				continue
 			}
 			usedFacts[id] = true
 			facts = append(facts, fact)
 		}
+		if invalidReference || dependsOnInvalidFact {
+			continue
+		}
 		claim, err := diagnosisV2HypothesisText(hypothesis.Kind, facts)
 		if err != nil {
-			return nil, diagnosisFeedbackAt(err, "hypotheses", index)
+			record(err, "hypotheses", index)
+			continue
 		}
 		report.Hypotheses = append(report.Hypotheses, DiagnosisHypothesis{Kind: hypothesis.Kind, Claim: claim, FactIDs: hypothesis.FactIDs, EvidenceIDs: hypothesis.EvidenceIDs, Verification: strings.Join(verification, "\n"), UnverifiedInterpretation: hypothesis.UnverifiedInterpretation})
+	}
+	if err := diagnosisReportErrors(validationErrors); err != nil {
+		return nil, err // 一处错误也不能返回局部报告或由程序代替模型修改内容。
 	}
 	report.Summary, report.Limitations, err = diagnosisV2Summary(trace)
 	if err != nil {

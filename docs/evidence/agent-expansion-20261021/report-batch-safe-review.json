@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-10-21T09:51:23.796691+00:00",
+  "method": "independent_read_only_source_review_no_rebuild_no_model_no_production",
+  "source_sha256": {
+    "api/internal/service/diagnosis_facts.go": "613af666af34d6ce040c565b5e922c78f0ea517d733eb5c2422e0a40b800d7fe",
+    "api/internal/service/agent_runtime.go": "4e0392256aec32b2c13a00ef381e99938bbc8e1bbc4da1ab75047c569a18d18a",
+    "api/internal/service/diagnosis_resources.go": "4283aa500c2f76784f02cd39f897628578bddaf9fb31d6cb1b4e84d6107bae71"
+  },
+  "substantive_findings": [],
+  "checks": [
+    {
+      "scope": "whole_report_rejection",
+      "result": "Any recorded fact, verification or hypothesis error returns nil report. Skipped dependent hypotheses can only be reached after a recorded invalid-fact error; no partial report can be accepted."
+    },
+    {
+      "scope": "source_binding",
+      "result": "Fact resolution and verification still bind to exact trace evidence and known tool types. Followup proposals remain ineligible as tool_plan verification sources or measurement facts."
+    },
+    {
+      "scope": "privacy",
+      "result": "Every single feedback is revalidated against fixed reasons/sections/field names/tool/unit enums. No candidate value, arbitrary path, report text, observation body, domain.Message or err.Error is echoed. One unsafe item falls back to generic failure."
+    },
+    {
+      "scope": "bounded_fair_feedback",
+      "result": "Original input maxima remain 24 facts, 4 hypotheses and 3 verification requests. Feedback collects at most one error per entry, rotates the three sections, serializes complete JSON items only, caps at 6 items and 3500 UTF8 bytes, and marks truncation. SDK 4096 limit unchanged."
+    },
+    {
+      "scope": "runtime_budget_checkpoint",
+      "result": "Finish still accepts only an error-free valid result; failure persists nil accepted result. Final-format gating and original model/tool budgets are unchanged."
+    },
+    {
+      "scope": "numeric_units",
+      "result": "Ordinary hotspot percent remains 0..100. The only wider CPU range requires RESOURCE_SNAPSHOT read_profile_summary /resources fixed path plus the strict resource provenance/schema/units/count helper."
+    }
+  ],
+  "limits": [
+    "Read-only review only; meaningful unit/SDK regressions belong to the implementing agents and release verification.",
+    "No claim that bounded feedback guarantees model compliance, semantic correctness, causality or final live acceptance."
+  ]
+}

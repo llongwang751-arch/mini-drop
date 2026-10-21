@@ -229,7 +229,9 @@ token-level framework continuation is not a contract.
 模型最终输入对象只接受 `{report_version:2,facts,hypotheses,verification_requests}`：facts为1–24项，hypotheses为1–4项，verification_requests为1–3项。模型不能填写summary、可信标签、engine、knowledge或agent_runtime。
 
 - 事实输入为 `{id,evidence_id,path,operator,value,unit}`。E编号必须属于当前实际工具返回；path仅允许预定义JSON Pointer，operator仅 `eq/count/count_positive_self`。Go按精确数值、标量、单位和来源核对，再生成 `description`。`count_positive_self`只计算已返回Top表中的正self项目，不证明完整树的唯一叶帧。
+- RESOURCE_SNAPSHOT的E1增量只投影分析器实际聚合：`resources.schema_version=1`、固定source、sample_count、scope、七种可用peaks及固定units；不包含raw samples、PID或dmesg。事实只允许`/resources/sample_count`及七个峰值的eq路径，缺失不补零，样本数1–3600、计数/字节整数不超过2^53−1。资源CPU多核百分比独立限制0–100000，不放宽函数热点的0–100。程序使用资源摘要，不把零函数权重等同没有资源观测；峰值与主机可见内存不证明持续压力、整容器用量或根因。
 - 假设输入为 `{kind,fact_ids,evidence_ids,unverified_interpretation?}`，按类别核验最低事实条件。Go生成公开 `claim/verification/summary/limitations`；可选自由解释始终单列“未经事实核验”，不能作为已确认根因。verification_requests区分真实工具草案、人工导入指令与模型待审建议；没有返回参数的工具不能被归因为已校验时长/频率。
+- 报告拒绝反馈仅由服务包内专用类型生成，序列化前重新核对reason、分区、索引、字段、工具名与单位白名单；不会回显通用错误详情、任意path/value或未知引用。假设前提、事实引用和标量误用count均可明确定位；不自动改写错误报告、不添加工具/模型预算，格式轮仍禁止工具。
 - 最终公开报告包含 `report_version/facts` 及既有字段；知识、运行证明和 `followup_plans` 由Go附加。仅新模型协议2且存在有效facts时展示字段核验标签。历史协议1、缺失版本和本地evidence模式报告不补发新可信标签。
 - `query_business_signals`仅接收 `{service_ref:'S1'..'S8',signal:'metrics'|'logs'|'traces'|'changes'}`；`inspect_service_topology`只接收空对象。S1为根服务，完整登记邻接排序形成其余固定别名；无权服务保留内部空位而不重绑其他别名，不返回真实身份。
 - 业务窗口由绑定attempt的实际执行起止各扩展一分钟，最大15分钟。缺失、反序、过宽或异常未来时钟返回 `available:false/reason:collection_window_unknown`；不使用分析完成时间代替。执行边界可能含准备/上传，不能宣称精确采样时钟。数据源版本改变、当前撤权或来源重分析会阻止继续使用旧快照。
