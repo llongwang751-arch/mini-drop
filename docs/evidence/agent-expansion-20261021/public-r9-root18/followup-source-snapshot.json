@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-21T10:50:26.895Z",
+  "origin": "https://82.157.81.79",
+  "investigation_id": "18",
+  "expected_source_commit": "21aa30d81d1dc47e09ff222b6973c97acb05c06d",
+  "status": "PASSED_READ_ONLY_API_BINDINGS",
+  "product_mutations_executed": false,
+  "model_called": false,
+  "tls_verified": true,
+  "auth_material_persisted": false,
+  "blocked_requests": 0,
+  "followups": [
+    {
+      "proposal_evidence_id": "E12",
+      "proposal_matched_trace": true,
+      "evidence_ids": [
+        "E3",
+        "E4",
+        "E5",
+        "E7"
+      ],
+      "duration_seconds": 5,
+      "frequency_hz": 2,
+      "id": "2",
+      "status": "failed",
+      "parent_task_id": "107",
+      "source_diagnosis_id": "91",
+      "task_id": "108",
+      "diagnosis_id": "92",
+      "error_code": "DIAGNOSIS_FAILED",
+      "collection_kind": "RESOURCE_SNAPSHOT",
+      "task_kind": "RESOURCE_SNAPSHOT",
+      "collection_status": "COLLECTED",
+      "analysis_status": "SUCCESS",
+      "diagnosis_status": "failed",
+      "diagnosis_error_code": "AI_TOOL_REJECTED",
+      "trace_steps": 10
+    }
+  ],
+  "checks": [],
+  "parent_status": "success",
+  "source_trace_steps": 12,
+  "resource_child_success": false,
+  "deployment": {
+    "api": "20261021.8",
+    "web": "20261021.6",
+    "runtime": "20261021.4",
+    "analyzer": "0.2.5",
+    "release_bundle_source_commit": "21aa30d81d1dc47e09ff222b6973c97acb05c06d"
+  },
+  "sample_scope": "只读计划来源与当时状态快照：根91成功，RESOURCE补证task108采集和分析成功，但子诊断92 AI_TOOL_REJECTED失败，整体补证闭环未通过。",
+  "publication": {
+    "redacted": true,
+    "contains_auth_or_user_goal": false,
+    "original_private_summary_sha256": "0fe7dd64b8f1be5fdb6159b18fc21aea022eec4dd57aa6e788378cf1bcd4d8b7"
+  }
+}

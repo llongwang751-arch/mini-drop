@@ -1,9 +1,9 @@
 # 在 AgentScope 与知识库覆盖后合并，SQL010 先独立执行并保留备份。
-# 各服务分别固定版本；本次来源查询与预算文案修复只替换 Analyzer、Web。
+# 各服务分别固定版本；本次资源补证来源修复只替换 API。
 # 数据源登记由管理员在主机准备，文件中引用的令牌另行只读挂载，不能下发浏览器。
 services:
   api:
-    image: drop-api:${AGENT_EXPANSION_API_TAG:-20261021.8}
+    image: drop-api:${AGENT_EXPANSION_API_TAG:-20261021.9}
     environment:
       AI_OBSERVABILITY_CONFIG: /app/config/observability.json
     volumes:

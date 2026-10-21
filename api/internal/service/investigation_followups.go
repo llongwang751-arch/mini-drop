@@ -83,6 +83,33 @@ func (s *Suggestions) followupCatalog(ctx context.Context, run DiagnosisRun) ([]
 	return items, nil
 }
 
+// 资源采集没有函数热点，真实测量位于程序生成的summary.resources。
+// 只有同一资源摘要的固定来源、单位、正采样数与全部实际峰值都有效时，才能把该E编号用作补证依据。
+// 普通CPU摘要、空resources、知识和登记拓扑均不能借此成为测量证据。
+func followupResourceMeasurement(step DiagnosisStep) bool {
+	if step.Tool != "read_profile_summary" {
+		return false
+	}
+	body, err := diagnosisDecodeObject(step.Observation)
+	if err != nil || body["kind"] != "RESOURCE_SNAPSHOT" {
+		return false
+	}
+	resources, ok := body["resources"].(map[string]any)
+	if !ok {
+		return false
+	}
+	peaks, ok := resources["peaks"].(map[string]any)
+	if !ok || len(peaks) == 0 || len(peaks) > len(diagnosisResourceFields) {
+		return false
+	}
+	for name, value := range peaks {
+		if !diagnosisResourceFactScalar(body, "/resources/peaks/"+name, value) {
+			return false
+		}
+	}
+	return true
+}
+
 func (s *Suggestions) proposeFollowup(ctx context.Context, run DiagnosisRun, args json.RawMessage, trace []DiagnosisStep) (json.RawMessage, error) {
 	var in struct {
 		CollectionPlan
@@ -93,7 +120,7 @@ func (s *Suggestions) proposeFollowup(ctx context.Context, run DiagnosisRun, arg
 	}
 	for _, id := range in.EvidenceIDs {
 		if !slices.ContainsFunc(trace, func(step DiagnosisStep) bool {
-			return step.EvidenceID == id && slices.Contains([]string{"inspect_hotspots", "inspect_call_paths", "check_collection_quality", "query_business_signals"}, step.Tool)
+			return step.EvidenceID == id && (slices.Contains([]string{"inspect_hotspots", "inspect_call_paths", "check_collection_quality", "query_business_signals"}, step.Tool) || followupResourceMeasurement(step))
 		}) {
 			return nil, domain.Fail("AI_TOOL_REJECTED", "追加采集必须引用本轮实际观测")
 		}
@@ -122,8 +149,20 @@ func (s *Suggestions) proposeFollowup(ctx context.Context, run DiagnosisRun, arg
 	if err != nil {
 		return nil, err
 	}
+	current, err := s.Repo.Task(ctx, u, run.TaskID)
+	if err != nil {
+		return nil, err
+	}
+	for _, step := range trace {
+		if slices.Contains(in.EvidenceIDs, step.EvidenceID) && step.Tool == "read_profile_summary" && current.Kind != "RESOURCE_SNAPSHOT" {
+			return nil, domain.Fail("AI_TOOL_REJECTED", "资源测量摘要必须与当前任务采集类型一致")
+		}
+	}
 	if _, err = s.validateCollectionPlan(ctx, u, i, in.CollectionPlan); err != nil {
 		return json.Marshal(map[string]any{"available": true, "validated": false, "error_code": safeAgentError(err), "next": "按实际采集能力和参数修正草案；缺少端口或工具配置时说明需要配置，不猜测。"})
+	}
+	if in.Kind == current.Kind {
+		return json.Marshal(map[string]any{"available": true, "validated": false, "reason": "current_collector_already_observed", "next": "当前采集器已有观测；同类复采请调用propose_verification提出受控复测，其他信号才使用补证采集。"})
 	}
 	return json.Marshal(FollowupProposal{Plan: in.CollectionPlan, EvidenceIDs: in.EvidenceIDs, RequiresConfirmation: true})
 }

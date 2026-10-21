@@ -16,7 +16,7 @@ func diagnosisExtensionDefinitions() []map[string]any {
 			"signal":      map[string]any{"type": "string", "enum": []string{"metrics", "logs", "traces", "changes"}},
 		}, []string{"service_ref", "signal"}),
 		tool("inspect_service_topology", "读取当前服务与获授权的一跳上下游登记关系，仅用于选择取证方向。拓扑不证明故障传播或因果。", map[string]any{}, nil),
-		tool("propose_followup_collection", "根据当前观测提出同一已授权目标的追加采集计划，支持改选实际采集器；需要用户另行确认。evidence_ids只能引用inspect_hotspots、inspect_call_paths、check_collection_quality或query_business_signals返回的本轮E编号，不引用拓扑、知识或其他计划。最多两个补证分支，不能自动执行或改变目标。", map[string]any{
+		tool("propose_followup_collection", "根据当前观测提出同一已授权目标的其他采集器计划，需要用户另行确认。evidence_ids引用inspect_hotspots、inspect_call_paths、check_collection_quality、query_business_signals的本轮E编号；RESOURCE_SNAPSHOT还可引用含有效实际resources峰值的read_profile_summary，普通摘要不算测量。不引用拓扑、知识或其他计划。重复当前采集器返回已观测且不生成计划；同类复采用propose_verification。最多两个补证分支，不能自动执行或改变目标。", map[string]any{
 			"kind":             map[string]any{"type": "string", "maxLength": 40},
 			"duration_seconds": map[string]any{"type": "integer", "minimum": 1, "maximum": 60},
 			"frequency_hz":     map[string]any{"type": "integer", "minimum": 0, "maximum": 999},
