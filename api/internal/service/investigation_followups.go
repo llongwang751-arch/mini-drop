@@ -150,8 +150,13 @@ func (s *Suggestions) ListInvestigationFollowups(ctx context.Context, u domain.U
 	err := s.Repo.Context(ctx).Where("investigation_id=?", id).Order("id").Limit(2).Find(&items).Error
 	if err == nil {
 		visible := []InvestigationFollowup{}
-		for _, item := range items { var source DiagnosisRun; if s.Repo.Context(ctx).Where("id=?",item.SourceDiagnosisID).First(&source).Error==nil && s.AuthorizeDiagnosisSignals(ctx,u,source)==nil {visible=append(visible,item)} }
-		items=visible
+		for _, item := range items {
+			var source DiagnosisRun
+			if s.Repo.Context(ctx).Where("id=?", item.SourceDiagnosisID).First(&source).Error == nil && s.AuthorizeDiagnosisSignals(ctx, u, source) == nil {
+				visible = append(visible, item)
+			}
+		}
+		items = visible
 	}
 	return items, err
 }

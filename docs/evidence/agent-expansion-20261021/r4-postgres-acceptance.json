@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "go_version": "go1.26.10",
+  "database": "fresh isolated loopback PostgreSQL17, all ten authoritative migrations",
+  "provider": "no real model calls; imported fixtures for provider and protocol tests",
+  "tests_passed_including_subtests": 392,
+  "tests_skipped_including_subtests": 1,
+  "failed_tests": [],
+  "skipped_tests": [
+    "TestPostgresDiagnosisLiveDeepSeek"
+  ],
+  "elapsed_seconds": 220.44,
+  "log_sha256": "91b019bca880524247a80c54c098c7fc342bfd34e3b2dd32d934c352aa5094ed",
+  "top_level_pass": 154,
+  "subtest_pass": 238,
+  "captured_at": "2026-10-21T08:24:03.083437+00:00",
+  "command": "go test -json -tags=nomsgpack -count=1 -p=1 -timeout=360s ./...",
+  "source_manifest_sha256": "13dc37444ab261331d2036ec0d2d9c67992144391077d9522c0e109329b87023",
+  "special_tests": {
+    "TestPostgresAgentCheckpointAcrossIndependentSDKProcesses": "pass",
+    "TestPostgresVerificationSignalsEveryCopiedSourceRequiresCurrentAuthorization": "pass",
+    "TestPostgresVerificationSignalsNilSuggestionsFailsClosedAndKeepsLegacy": "pass",
+    "TestPostgresVerificationSignalsRejectsMismatchedSourceAndKeepsTaskWriteChecks": "pass"
+  },
+  "limits": [
+    "The SDK processes run real AgentScope2.0.10 with explicit mock provider responses, not DeepSeek calls.",
+    "Single skipped test is unconfigured real DeepSeek live test.",
+    "Database is isolated PostgreSQL17/schema and all ten migrations; no production database."
+  ]
+}

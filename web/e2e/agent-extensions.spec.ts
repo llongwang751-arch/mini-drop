@@ -3,7 +3,7 @@
  * UI验收不证明后端授权、真实因果、沙箱性能或生产发布；这些边界由各自服务集成测试验证。
  */
 import { createHash } from "node:crypto";
-import { writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
@@ -85,6 +85,7 @@ async function importedFixture(
     decisionError?: boolean;
     sourcesError?: boolean;
     badSHA?: boolean;
+    longDiff?: boolean;
     candidate?: boolean;
     traceDenied?: boolean;
   } = {},
@@ -432,6 +433,22 @@ async function importedFixture(
       return;
     }
     if (path === "/code-repairs" || path === "/code-repairs/91") {
+      // 长补丁触发真实的纵向滚动边界，不能只用几行 diff 验收键盘可达性。
+      const content = options.longDiff
+        ? diff +
+          Array.from(
+            { length: 70 },
+            (_, i) => `+# imported synthetic review line ${i}\n`,
+          ).join("")
+        : diff;
+      const receipt = {
+        ...validation,
+        patch_bundle: {
+          ...validation.patch_bundle,
+          content,
+          sha256: createHash("sha256").update(content).digest("hex"),
+        },
+      };
       const repair = {
         id: "91",
         project_id: "synthetic-python",
@@ -446,13 +463,13 @@ async function importedFixture(
           locations: [],
           validation: options.badSHA
             ? {
-                ...validation,
+                ...receipt,
                 patch_bundle: {
-                  ...validation.patch_bundle,
+                  ...receipt.patch_bundle,
                   sha256: "b".repeat(64),
                 },
               }
-            : validation,
+            : receipt,
         },
       };
       await respond(path.endsWith("/91") ? repair : list([repair]));
@@ -685,6 +702,73 @@ for (const width of [1440, 375]) {
     expect(journal.errors).toEqual([]);
   });
 }
+
+test("imported pages load fonts under the actual self-only production CSP", async ({
+  page,
+}) => {
+  const journal = await importedFixture(page);
+  const config = await readFile("nginx.conf", "utf8");
+  const policy = config.match(
+    /add_header Content-Security-Policy "([^"]+)" always;/,
+  )?.[1];
+  expect(policy).toContain("font-src 'self';");
+  const cspErrors: string[] = [];
+  const fontRequests: string[] = [];
+  page.on("console", (message) => {
+    if (
+      message.type() === "error" &&
+      /Content Security Policy|Content-Security-Policy/.test(message.text())
+    )
+      cspErrors.push(message.text());
+  });
+  page.on("request", (request) => {
+    if (request.resourceType() === "font") fontRequests.push(request.url());
+  });
+  // 直接复用部署的 CSP 响应头；导入的 API 仍由既有路由夹具处理。
+  await page.route("**/*", async (route) => {
+    if (
+      route.request().isNavigationRequest() &&
+      route.request().resourceType() === "document"
+    ) {
+      const response = await route.fetch();
+      await route.fulfill({
+        response,
+        headers: { ...response.headers(), "Content-Security-Policy": policy! },
+      });
+    } else await route.fallback();
+  });
+  for (const target of [
+    "/knowledge?tab=playbooks",
+    "/investigations?repair=91",
+  ]) {
+    await page.goto(target);
+    await page
+      .getByRole("heading", {
+        name: target.startsWith("/knowledge")
+          ? "项目与团队方法库"
+          : "智能性能调查",
+        exact: true,
+      })
+      .waitFor();
+    await page.evaluate(() => document.fonts.ready);
+    expect(
+      await page.evaluate(
+        () =>
+          [...document.fonts].filter((font) => font.status === "error").length,
+      ),
+    ).toBe(0);
+  }
+  expect(cspErrors).toEqual([]);
+  expect(fontRequests.length).toBeGreaterThan(0);
+  expect(
+    fontRequests.every(
+      (url) => new URL(url).origin === "http://127.0.0.1:4195",
+    ),
+  ).toBe(true);
+  expect(journal.writes).toEqual([]);
+  expect(journal.unexpected).toEqual([]);
+  expect(journal.errors).toEqual([]);
+});
 test("imported denied telemetry and substituted patch fail visibly", async ({
   page,
 }) => {
@@ -775,6 +859,43 @@ for (const traceDenied of [false, true]) {
     expect(journal.reads).toContain("/tasks/201/verifications");
     expect(journal.reads).toContain("/tasks/202/diagnoses");
     expect(journal.reads).not.toContain("/tasks/201/diagnoses");
+    expect(journal.unexpected).toEqual([]);
+    expect(journal.errors).toEqual([]);
+  });
+}
+
+for (const width of [1440, 375]) {
+  test(`imported long patch is keyboard scrollable at ${width}px`, async ({
+    page,
+  }, info) => {
+    const journal = await importedFixture(page, { longDiff: true });
+    await page.setViewportSize({ width, height: 1000 });
+    await page.goto("/investigations?repair=91");
+    const delivery = page.getByRole("region", {
+      name: "缺陷回归与补丁交付",
+      exact: true,
+    });
+    await delivery
+      .getByText("审阅代码与新增测试 diff", { exact: true })
+      .click();
+    const patch = delivery.getByRole("region", {
+      name: "代码与新增测试补丁",
+      exact: true,
+    });
+    await patch.focus();
+    await expect(patch).toBeFocused();
+    expect(
+      await patch.evaluate((node) => node.scrollHeight > node.clientHeight),
+    ).toBe(true);
+    await page.keyboard.press("ArrowDown");
+    await expect
+      .poll(() => patch.evaluate((node) => node.scrollTop))
+      .toBeGreaterThan(0);
+    await layoutAndAxe(page);
+    await delivery.screenshot({
+      path: info.outputPath(`long-patch-${width}.png`),
+    });
+    expect(journal.writes).toEqual([]);
     expect(journal.unexpected).toEqual([]);
     expect(journal.errors).toEqual([]);
   });

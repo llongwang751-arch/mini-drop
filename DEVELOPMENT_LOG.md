@@ -506,6 +506,9 @@
 - 最终12:09:55 UTC线上ready200、27运行容器且无OOM/unhealthy、7监控up，API12/runtime2/Web10/Agent3及原存储镜像保持。公开CI和readiness收据补入docs/evidence/github-publication-20261020，并存Release附件；收尾提交仅更新文档/JSON，使用[skip ci]避免再次构建相同功能源码，不把文档提交冒作另一轮7项执行。
 ## 2026-10-21 · 八项 Agent 扩展（已部署，真实场景验收中）
 
+- 21.3公网/真实场景暴露的问题未隐藏：首个新增遥测目标任务92被默认AppArmor角色阻止读/proc/PID/exe，补充既有受控peer角色后仅重建两个新demo，其余27身份/镜像/卷保持，下一任务93实际采集分析成功。诊断38取得真实指标、SQL日志、Trace及登记拓扑后，第5轮provider输出在SDK工具预校验失败；被拒参数当时未持久化，不能事后猜具体字段或宣称final facts成功。
+- 准备21.4修复：仅诊断阶段对通过硬名称/ID/严格JSON边界的Schema参数错误整批不执行并反馈已知字段，原预算内重选；失败原文/未知值不入检查点，不产生测量事实。SDK50项在Windows41通过/9 Linux专用skip，完整API真PG第三轮392通过/1真实模型skip，三独立SDK进程含本版源码；Go vet通过。复测报告列表复制出口补齐基线/候选业务信号授权，真实PG18项通过，nil配置关闭含信号记录并兼容旧无信号记录。
+- Web21.4候选修复真实长diff键盘焦点及内联字体与严格CSP冲突：具名可聚焦region，Vite小字体输出同源woff2；不放宽CSP。focused6场景、实际严格CSP头、两宽方向键与build通过。AppArmor部署5顶层及29项负控通过；CI旧预算/格式问题修正。以上候选尚待新镜像Linux测试及切换，随后继续真实跨信号与24-trial验收。
 - 功能670da84已推GitHub并实际上线82.157.81.79：API/runtime/Web20261021.3、SQL10、SDK2.0.10，Linux镜像SDK44/44、0skip通过；只替换应用三容器，其他24身份/镜像保持，新增2受控遥测服务。29运行健康、7监控up、HTTPS readiness200。迁移前PG备份、旧命名镜像/数据卷及CRM/Saber所有manifest和冻结源码哈希保留；broker升级后新增generic登记，未发布原业务源码。
 - 新通用Python项目真实DeepSeek/AgentScope修复10在32.36秒完成：4模型/5工具，新增test_sku_whitespace.py真实基线断言失败/候选通过、原回归/类型和值/6组CPU与负控通过，6/6改善，中位8.2122×仅合成购物车函数。补丁SHA、测试名和来源版本见本轮live-generic-acceptance.json。首次验收client把projects误读为items的失败保留，尚未创建修复；修正client后原输入实际执行成功。
 - GitHub首版maintenance因部署测试残留旧5/7预算断言失败；仅更新测试为9/14及最终格式轮规则，同时保留历史低预算兼容边界。实际部署配置测试5/5、SDK四项旧新预算/恢复回归通过；主运行源码不因此改变，远端CI重验另记，不提前称全绿。

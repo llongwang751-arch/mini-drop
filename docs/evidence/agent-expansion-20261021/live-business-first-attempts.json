@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "acceptance_complete": false,
+  "direct_database_mutations": false,
+  "reports_fabricated": false,
+  "real_model_calls_observed": true,
+  "runs": [
+    {
+      "run_id": "attempt-20261021T075802Z",
+      "passed": false,
+      "provenance": "synthetic_controlled_live_http_and_real_platform_sampling_model",
+      "started_at": "2026-10-21T07:58:03.489467+00:00",
+      "finished_at": "2026-10-21T07:58:36.291294+00:00",
+      "ids": {
+        "investigation_id": "12",
+        "baseline_task_id": "92"
+      },
+      "error_code": "INITIAL_INVESTIGATION_FAILED",
+      "actual_collection_error_code": null,
+      "load_stopped": true,
+      "remaining_active_work_cleanup_requested": true,
+      "measured_request_count": 43
+    },
+    {
+      "run_id": "attempt-20261021T080709Z",
+      "passed": false,
+      "provenance": "synthetic_controlled_live_http_and_real_platform_sampling_model",
+      "started_at": "2026-10-21T08:07:11.202099+00:00",
+      "finished_at": "2026-10-21T08:07:43.522453+00:00",
+      "ids": {
+        "investigation_id": "13",
+        "baseline_task_id": "93",
+        "baseline_diagnosis_id": "38"
+      },
+      "error_code": "LIVE_MODEL_DIAGNOSIS_FAILED",
+      "actual_collection_error_code": null,
+      "load_stopped": true,
+      "remaining_active_work_cleanup_requested": true,
+      "measured_request_count": 42,
+      "diagnosis": {
+        "id": "38",
+        "task_id": "93",
+        "attempt_id": "94",
+        "analysis_job_id": "85",
+        "status": "failed",
+        "error_code": "AI_TOOL_REJECTED",
+        "report_protocol": 2,
+        "created_at": "2026-10-21T08:07:33.388027Z",
+        "updated_at": "2026-10-21T08:07:41.994775Z"
+      },
+      "valid_trace": [
+        {
+          "evidence_id": "E1",
+          "tool": "read_profile_summary"
+        },
+        {
+          "evidence_id": "E2",
+          "tool": "read_diagnostic_knowledge"
+        },
+        {
+          "evidence_id": "E3",
+          "tool": "inspect_hotspots"
+        },
+        {
+          "evidence_id": "E4",
+          "tool": "check_collection_quality"
+        },
+        {
+          "evidence_id": "E5",
+          "tool": "inspect_call_paths"
+        },
+        {
+          "evidence_id": "E6",
+          "tool": "query_business_signals"
+        },
+        {
+          "evidence_id": "E7",
+          "tool": "query_business_signals"
+        },
+        {
+          "evidence_id": "E8",
+          "tool": "query_business_signals"
+        },
+        {
+          "evidence_id": "E9",
+          "tool": "query_business_signals"
+        },
+        {
+          "evidence_id": "E10",
+          "tool": "inspect_service_topology"
+        }
+      ],
+      "forensic_finding": {
+        "checkpoint_cursor": "model",
+        "reserved_model_calls": 5,
+        "completed_tool_receipts": 8,
+        "pending_tool_receipts": 0,
+        "last_saved_batch": [
+          "query_business_signals:S1:changes",
+          "inspect_service_topology"
+        ],
+        "rejected_tool_name": null,
+        "rejected_arguments": null,
+        "exact_rejection_reason": null,
+        "limitation": "Rejected provider batch did not reach SDK checkpoint or Go tool receipt; the failed name/arguments cannot be reconstructed from these records. Do not infer a Go evidence-allowlist failure."
+      }
+    }
+  ],
+  "boundaries": [
+    "Controlled synthetic business receives actual HTTP requests; this is not a production workload benchmark.",
+    "Attempt 1 failed before diagnosis because the demo AppArmor peer role was missing; root deployed the role fix before attempt 2.",
+    "Attempt 2 completed actual Python CPU sampling and valid cross-signal observations but did not produce a final fact report or followup proposal.",
+    "The unpersisted rejected provider batch is not recoverable from checkpoint; further exact-cause work requires a bounded engineering diagnostic.",
+    "No accuracy, causality, repair, followup or acceptance success is claimed."
+  ]
+}

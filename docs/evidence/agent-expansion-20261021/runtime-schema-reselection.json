@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-21T08:24:10.137296+00:00",
+  "source": "真实生产诊断38在第5次模型返回的Schema预校验失败；本轮仅用明确导入的供应商夹具验证纠错，不调用模型",
+  "files": {
+    "agent_runtime/drop_agent_runtime/runner.py": "362b7a48af34a045cbbaa9dd6f4ac0b876fc86cdec236103df8b83b077624ade",
+    "agent_runtime/tests/test_runtime.py": "40f0a1b7d9464f62fd02967c7e2161f20a4b38e788144495be2a16524204b53c"
+  },
+  "framework": "agentscope",
+  "framework_version": "2.0.10",
+  "checks": [
+    {
+      "command": ".local/agentscope-venv/Scripts/python.exe -X utf8 -m unittest discover -s agent_runtime/tests -v",
+      "tests_run": 50,
+      "passed": 41,
+      "skipped": 9,
+      "failed": 0,
+      "duration_seconds": 9.522,
+      "skip_reason": "Linux SO_PEERCRED regression requires Linux"
+    },
+    {
+      "command": "python -m py_compile agent_runtime/drop_agent_runtime/runner.py agent_runtime/tests/test_runtime.py",
+      "passed": true
+    },
+    {
+      "command": "git diff --check -- agent_runtime/drop_agent_runtime/runner.py agent_runtime/tests/test_runtime.py",
+      "passed": true
+    }
+  ],
+  "new_regressions": [
+    "mixed valid/invalid batch executes zero tools, corrected batch succeeds",
+    "feedback reveals only known tool / fixed validator / known top-level property or arguments",
+    "unknown keys, values, rejected assistant and hidden thought absent from later model history/checkpoints",
+    "explicit 2/5/9 budgets preserve max-1 ordinary rounds and account all usage/model_end",
+    "unknown tool, invalid/reused/duplicate ID, duplicate JSON, oversize and non-diagnosis schema errors stay fatal",
+    "fixed-feedback checkpoint crash/recovery retains counts and rejected IDs without original args",
+    "model_end lease rejection/cancellation stops before retry"
+  ],
+  "behavior": {
+    "phase": "diagnosis only",
+    "all_hard_guards_validated_before_schema_reselection": true,
+    "whole_batch_rejected": true,
+    "no_tool_callback_for_rejected_batch": true,
+    "no_tool_or_fact_success_claim_for_rejected_batch": true,
+    "failed_batch_ids_retained": true,
+    "safe_feedback_checkpointed_via_native_observe": true,
+    "budgets_raised_or_reset": false,
+    "wire_or_go_or_schema_changed": false,
+    "opaque_accepted_numeric_tokens_preserved": true
+  },
+  "linux_full_50_pending_release_image": true,
+  "production_model_called": false,
+  "product_mutations": false
+}

@@ -1,0 +1,34 @@
+{
+  "passed": true,
+  "go_version": "go1.26.10",
+  "database": "fresh isolated loopback PostgreSQL17, all ten authoritative migrations",
+  "provider": "no real model calls; imported fixtures for provider and protocol tests",
+  "tests_passed_including_subtests": 18,
+  "tests_skipped_including_subtests": 0,
+  "failed_tests": [],
+  "skipped_tests": [],
+  "elapsed_seconds": 48.71,
+  "log_sha256": "8ee5a8532c817bbdfd60f67f3adbbcdef7622090b8faad51c72e3fd79daabef7",
+  "top_level_pass": 7,
+  "subtest_pass": 11,
+  "source_sha256": {
+    "api\\internal\\service\\diagnostic_signal_read.go": "5a4a949375a5e2306224074738cb6652c39c56bb6c92d8b750cd99c1387082bf",
+    "api\\internal\\httpapi\\investigations.go": "4836e4dec76f2c9d5b4738e848cbfad5fe0fcd6ddef8c3398cddaa85b3bdeb7e",
+    "api\\internal\\httpapi\\verification_signals_integration_test.go": "62d5ee6b2d462bcd729395537d0a2e3d44a8892893be399860015b508fd6368c"
+  },
+  "command": "go test -json -tags=nomsgpack -count=1 -p=1 -timeout=180s -run 'TestPostgresVerificationSignals|TestPostgresHTTPAuthorization|TestAgentExtensionHTTP|TestPostgresAgentExtensionHTTP|TestPostgresDiagnosticExtensionsAliasAuthorization' ./internal/httpapi ./internal/service",
+  "captured_at": "2026-10-21T08:15:00.617461+00:00",
+  "vet": {
+    "command": "go vet -tags=nomsgpack -p=1 ./...",
+    "exit_code": 0
+  },
+  "format": {
+    "gofmt_clean": true,
+    "git_diff_check_clean": true
+  },
+  "limits": [
+    "No real model, collector, signal-source network or production calls.",
+    "HTTP reports are explicit imported synthetic protocol fixtures; only database/middleware/authorization are executed.",
+    "Task write checks retained; source authorization and registry fencing reused without relaxation."
+  ]
+}

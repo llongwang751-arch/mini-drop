@@ -145,11 +145,51 @@ class AcceptedResult(BaseException):
 
 
 class RejectedToolBatch(BaseException):
-    """仅表示整批工具数量超限且没有执行；不携带供应商正文、参数或异常文本。
+    """整批工具未执行时请求安全重选；只携带由平台常量与可信 Schema 生成的反馈。
 
     在 SDK 把该批次写入 assistant 上下文之前中止本轮，由外层在原模型预算内反馈重选。
     使用独立控制异常，避免 SDK 将它转换成工具错误或重试而产生未配对的调用记录。
     """
+
+    def __init__(self, feedback: str | None = None) -> None:
+        self.feedback = feedback
+
+
+# validator 与字段说明不能采用 ValidationError.message/schema_path 原文；它们可能包含
+# 模型传入的未知 key、枚举值或整个 arguments。反馈仅指出可信顶层字段，避免回显攻击载荷。
+SCHEMA_FEEDBACK_VALIDATORS = frozenset(
+    {
+        "type", "required", "enum", "const", "additionalProperties",
+        "minimum", "maximum", "exclusiveMinimum", "exclusiveMaximum",
+        "multipleOf", "minLength", "maxLength", "pattern", "format",
+        "minItems", "maxItems", "uniqueItems", "contains", "minContains",
+        "maxContains", "minProperties", "maxProperties", "dependentRequired",
+        "allOf", "anyOf", "oneOf", "not", "unevaluatedProperties",
+    }
+)
+
+
+def schema_reselection_feedback(name: str, schema: dict, failure) -> str:
+    """名称已在阶段白名单内；validator 固定枚举，路径只保留 Schema 已知的顶层字段。"""
+    validator = (
+        failure.validator
+        if failure.validator in SCHEMA_FEEDBACK_VALIDATORS
+        else "schema"
+    )
+    top = next(iter(failure.absolute_path), None)
+    field = (
+        top
+        if isinstance(top, str)
+        and top in schema.get("properties", {})
+        and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]{0,63}", top)
+        else "arguments"
+    )
+    return (
+        "上一轮工具参数未通过已给 Schema 校验，未执行其中任何工具。"
+        f"工具={name}；校验规则={validator}；字段={field}。"
+        "请依据已给工具 Schema 修正参数并重新选择；"
+        "上一轮已计入本次模型调用预算，不能增加权限或预算。"
+    )
 
 
 @dataclass(frozen=True)
@@ -583,6 +623,7 @@ class RuntimeMiddleware(MiddlewareBase):
         if session.format_only and calls:
             raise ProtocolError("AI_BUDGET_EXCEEDED")
         batch_ids = set()
+        parsed_calls = []
         for call in calls:
             if (
                 not CALL_ID.fullmatch(call.id)
@@ -593,15 +634,24 @@ class RuntimeMiddleware(MiddlewareBase):
             ):
                 raise ProtocolError("AI_TOOL_REJECTED")
             arguments = strict_json(call.input)
-            try:
-                if not isinstance(arguments, dict):
-                    raise ProtocolError("AI_TOOL_REJECTED")
-                jsonschema.Draft202012Validator(
-                    session.tools[call.name].input_schema
-                ).validate(arguments)
-            except jsonschema.ValidationError:
-                raise ProtocolError("AI_TOOL_REJECTED") from None
+            if not isinstance(arguments, dict):
+                raise ProtocolError("AI_TOOL_REJECTED")
             batch_ids.add(call.id)
+            parsed_calls.append((call, arguments))
+        # 先完成整批 ID/名称/长度/严格 JSON 的硬校验，再判断可纠正的 Schema 错误。
+        # 前一个调用的参数错误不能掩盖后一个调用的未知工具、重复 ID 或重复 JSON key。
+        schema_feedback = None
+        for call, arguments in parsed_calls:
+            schema = session.tools[call.name].input_schema
+            try:
+                jsonschema.Draft202012Validator(schema).validate(arguments)
+            except jsonschema.ValidationError as failure:
+                if session.request.phase != "diagnosis":
+                    raise ProtocolError("AI_TOOL_REJECTED") from None
+                if schema_feedback is None:
+                    schema_feedback = schema_reselection_feedback(
+                        call.name, schema, failure
+                    )
         # 只保留可见正文与工具调用；隐藏推理不转交 Go、不写日志或持久状态，
         # 也不带入下一次请求。
         response.content = [
@@ -629,14 +679,14 @@ class RuntimeMiddleware(MiddlewareBase):
                     raise ProtocolError("AI_INVALID_RESPONSE")
                 session.usage[key] += count
         await session.callback("model_end", **({"usage": usage} if usage else {}))
-        if len(calls) > session.request.budget["max_tools_per_round"]:
-            # 参数、名称和 ID 已完整通过硬校验；只对纯数量超限反馈重选。
+        if schema_feedback or len(calls) > session.request.budget["max_tools_per_round"]:
+            # 整批硬校验已通过；诊断参数 Schema 错误或纯数量超限才允许反馈重选。
             # 整批不进入 SDK acting，也不截取前几个执行。真实用量与 model_end 仍归本轮，
             # 被拒批次的 ID 也不能在后续轮次复用；SDK _reasoning_impl 在本钩子返回后才写上下文。
             session.seen_ids.update(batch_ids)
             await session.save_checkpoint(agent)
             set_stage("model_parse")
-            raise RejectedToolBatch()
+            raise RejectedToolBatch(schema_feedback)
         await session.save_checkpoint(
             agent,
             cursor="tools" if calls else "finish",
@@ -696,7 +746,7 @@ async def _run_agent(
 ) -> dict:
     """执行一个受限阶段，返回 Go 接受的业务结果与本次真实 SDK 运行证明。
 
-    AgentScope 负责“模型→工具→观察”的原生循环；外层循环只处理 Go 对最终 JSON/证据的拒绝反馈。
+    AgentScope 负责“模型→工具→观察”的原生循环；外层处理安全整批重选及 Go 最终验收反馈。
     模型本身不能生成可信 runtime 字段，SDK 版本、类、run_id、次数与耗时在这里核实组装。
     超时或取消会停止网关并关闭模型客户端；没有失败后静默切换到另一实现的路径。
     """
@@ -782,25 +832,30 @@ async def _run_agent(
                             content = final.get_text_content()
                         else:
                             content, pending_text = pending_text, None
-                    except RejectedToolBatch:
+                    except RejectedToolBatch as rejection:
                         session.check_active()
                         ordinary_limit = request.budget["max_model_calls"]
                         if request.phase == "diagnosis":
                             ordinary_limit -= 1
                         if session.model_calls >= ordinary_limit:
                             raise ProtocolError("AI_BUDGET_EXCEEDED") from None
-                        # 同一 Agent 保留之前的合法观测；超限 assistant 从未写入原生上下文，
+                        # 同一 Agent 保留之前的合法观测；被拒 assistant 从未写入原生上下文，
                         # 因而无需伪造工具结果来补齐 call ID，也不会将原始失败批次转发模型。
                         inputs = [
                             UserMsg(
                                 name="gateway",
-                                content=(
+                                content=rejection.feedback or (
                                     "上一轮工具批次数量超限，未执行其中任何工具。"
                                     f"请每轮最多{request.budget['max_tools_per_round']}个工具，"
                                     "按优先级重新选择；上一轮已计入本次模型调用预算。"
                                 ),
                             )
                         ]
+                        # 使用 2.x 公开 observe 接口追加固定反馈并立即保存，使进程重启仍可
+                        # 在原累计预算内纠正；不保存失败 assistant、原参数或隐藏推理。
+                        await agent.observe(inputs)
+                        inputs = None
+                        await session.save_checkpoint(agent)
                         continue
                     session.check_active()
                     if not isinstance(content, str) or len(content.encode()) > 49152:

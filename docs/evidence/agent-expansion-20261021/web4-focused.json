@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-21T08:08:51.545961+00:00",
+  "status": "LOCAL_PASSED_WAITING_PUBLIC_RELEASE",
+  "scope": "长diff键盘滚动及严格self字体CSP修复",
+  "files": {
+    "web/vite.config.ts": "868b9633fd687e97b07e271a90d9103909384298ccf8d0bae222240009e9bf97",
+    "web/src/components/RepairValidationExtensions.tsx": "b289a82af60819e22333b81644240220d8073c0c83823ac3a394e81ac3a0193f",
+    "web/e2e/agent-extensions.spec.ts": "2391b0a8deb72d41fd9052d4842c0f3bd7e25710ec25e72ce2378e8b29b64829"
+  },
+  "checks": [
+    {
+      "command": "npx playwright test e2e/agent-extensions.spec.ts --config playwright.agent-extensions.config.ts --grep 'long patch|facts anchors|substituted patch|actual self-only' --reporter=list --output=../.local/agent-expansion-20261021/web4-focused",
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 19.6
+    },
+    {
+      "command": "npm run build",
+      "passed": true
+    },
+    {
+      "command": "npm exec -- prettier --check vite.config.ts src/components/RepairValidationExtensions.tsx e2e/agent-extensions.spec.ts",
+      "passed": true
+    },
+    {
+      "command": "git diff --check -- web/vite.config.ts web/src/components/RepairValidationExtensions.tsx web/e2e/agent-extensions.spec.ts",
+      "passed": true
+    }
+  ],
+  "fonts": {
+    "inline_font_data_uri_count": 0,
+    "static_font_files": 14,
+    "formerly_inline_file": "web/dist/assets/manrope-cyrillic-ext-wght-normal-C8S-KRRz.woff2",
+    "formerly_inline_bytes": 2552,
+    "sha256": "de37de877dc17e4577341fa68bb5cb526b53d54cb29721e674208546a3c7849d",
+    "production_csp_policy_changed": false,
+    "actual_nginx_csp_browser_test_passed": true
+  },
+  "screenshots": [
+    {
+      "path": ".local/agent-expansion-20261021/web4-focused/agent-extensions-imported--10418-yboard-scrollable-at-1440px/long-patch-1440.png",
+      "sha256": "31445f959a4ee3a9019a8836044c7d54c411df6d33e3170d7839789073b551fe"
+    },
+    {
+      "path": ".local/agent-expansion-20261021/web4-focused/agent-extensions-imported--174ae-eyboard-scrollable-at-375px/long-patch-375.png",
+      "sha256": "804bb1adbf38d69130343819cab010c6304aa9532d35e13c9041d9cfa5e3164a"
+    }
+  ],
+  "model_called": false,
+  "product_mutations": false
+}

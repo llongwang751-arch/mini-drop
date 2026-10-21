@@ -15,6 +15,8 @@ export default defineConfig({
   },
   build: {
     sourcemap: false,
+    // 小字体也输出为同源静态文件，避免被生产 font-src 'self' 拒绝；不放宽 CSP。
+    assetsInlineLimit: 0,
     rollupOptions: {
       output: {
         manualChunks: {

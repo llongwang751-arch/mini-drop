@@ -4,8 +4,9 @@ package service
 
 import (
 	"context"
-	"drop/api/internal/domain"
 	"encoding/json"
+
+	"drop/api/internal/domain"
 )
 
 func diagnosticSignalRefs(trace []DiagnosisStep) ([]string, error) {
@@ -81,6 +82,32 @@ func (s *Suggestions) AuthorizeDiagnosisSignals(ctx context.Context, u domain.Us
 			if json.Unmarshal(step.Observation, &metadata) != nil || metadata.Revision != s.Observability.Digest {
 				return domain.Fail("FORBIDDEN", "原业务信号登记版本已改变")
 			}
+		}
+	}
+	return nil
+}
+
+// AuthorizeVerificationSignals 覆盖复测报告中的基线/候选诊断副本。
+// 任务共享只授予profile操作权限，不能顺带授予被复制业务信号的读取权限；每个实际来源都走原诊断的当前授权检查。
+// 调用方仍须保留基线和候选任务的原有权限检查。没有业务信号的旧来源可读；缺少来源或登记配置则失败关闭。
+func (s *Suggestions) AuthorizeVerificationSignals(ctx context.Context, u domain.User, verification VerificationRun) error {
+	if s == nil || s.Repo == nil {
+		return domain.Fail("FORBIDDEN", "无法核验复测诊断来源")
+	}
+	sources := []struct{ diagnosisID, taskID int64 }{{verification.DiagnosisID, verification.BaselineTaskID}}
+	if verification.CandidateDiagnosisID != nil {
+		sources = append(sources, struct{ diagnosisID, taskID int64 }{*verification.CandidateDiagnosisID, verification.CandidateTaskID})
+	}
+	for _, source := range sources {
+		if source.diagnosisID <= 0 || source.taskID <= 0 {
+			return domain.Fail("INVALID_EVIDENCE", "复测诊断来源无效")
+		}
+		var run DiagnosisRun
+		if err := s.Repo.Context(ctx).Where("id=? AND task_id=?", source.diagnosisID, source.taskID).First(&run).Error; err != nil {
+			return domain.Fail("FORBIDDEN", "复测诊断来源无法核实")
+		}
+		if err := s.AuthorizeDiagnosisSignals(ctx, u, run); err != nil {
+			return err
 		}
 	}
 	return nil

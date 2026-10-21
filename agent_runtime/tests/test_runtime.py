@@ -672,6 +672,188 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaisesRegex(ProtocolError, "AI_BUDGET_EXCEEDED"):
             await self.execute(responses)
 
+    async def test_schema_reselection_discards_mixed_batch_and_preserves_safe_history(self):
+        """真 SDK 整批拒绝合法+非法混合调用，只把可信字段提示交给下一轮。"""
+        gateway = DurableFixtureGateway()
+        body = run_body(tools=[
+            tool_definition(properties={"rank": {"type": "integer", "minimum": 1, "maximum": 10}}),
+            tool_definition("check_collection_quality"),
+        ])
+        body["checkpoint"] = deepcopy(gateway.snapshot)
+        result, provider, gateway = await self.execute([
+            completion("fixture-rejected-assistant-text", calls=[
+                ("discarded-valid", "check_collection_quality", "{}"),
+                ("discarded-invalid", "inspect_hotspots", '{"rank":"fixture-private-argument"}'),
+            ], reasoning_content="fixture-hidden-thought"),
+            completion(calls=[
+                ("corrected-hotspot", "inspect_hotspots", '{"rank":1}'),
+                ("corrected-quality", "check_collection_quality", "{}"),
+            ]),
+            completion('{"summary":"candidate"}'),
+        ], body, gateway)
+        self.assertEqual((result["runtime"]["model_calls"], result["runtime"]["tool_calls"]), (3, 2))
+        self.assertEqual(result["runtime"]["usage"], {"input_tokens": 30, "output_tokens": 15})
+        self.assertEqual(gateway.executions, ["corrected-hotspot", "corrected-quality"])
+        self.assertEqual([c["round"] for c in gateway.calls if c["type"] == "model_end"], [1, 2, 3])
+        self.assertTrue({"discarded-valid", "discarded-invalid"} <= set(gateway.snapshot["state"]["seen_ids"]))
+        history = json.dumps(provider.requests[1:], ensure_ascii=False)
+        context = json.dumps(gateway.snapshot["state"]["context"], ensure_ascii=False)
+        checkpoints = "\n".join(c["content"] for c in gateway.calls if c["type"] == "checkpoint")
+        for value in ("fixture-private-argument", "fixture-rejected-assistant-text", "fixture-hidden-thought"):
+            self.assertNotIn(value, history + context + checkpoints)
+        for value in ("工具=inspect_hotspots", "校验规则=type", "字段=rank", "未执行其中任何工具"):
+            self.assertIn(value, history)
+        self.assertNotIn("discarded-", history)
+        for request in provider.requests:
+            pending = set()
+            for message in request["messages"]:
+                pending.update(call["id"] for call in message.get("tool_calls", []))
+                if message["role"] == "tool":
+                    self.assertIn(message["tool_call_id"], pending)
+                    pending.remove(message["tool_call_id"])
+            self.assertFalse(pending, "被拒 assistant 不能生成孤立工具调用")
+
+    async def test_schema_feedback_never_echoes_unknown_keys_values_or_nested_paths(self):
+        """ValidationError 的 message/instance/path 不能直接反馈，尤其不能反射未知参数。"""
+        cases = [
+            ({"type": "object", "properties": {}, "additionalProperties": False},
+             '{"fixture_unknown_parameter":"fixture-private-value"}', "additionalProperties", "arguments"),
+            ({"type": "object", "properties": {"mode": {"enum": ["safe"]}}, "additionalProperties": False},
+             '{"mode":"fixture-private-value"}', "enum", "mode"),
+            ({"type": "object", "properties": {"mode": {"type": "string"}}, "required": ["mode"], "additionalProperties": False},
+             '{}', "required", "arguments"),
+            ({"type": "object", "properties": {"plan": {"type": "object", "properties": {}, "additionalProperties": False}}, "additionalProperties": False},
+             '{"plan":{"fixture_unknown_parameter":"fixture-private-value"}}', "additionalProperties", "plan"),
+        ]
+        for schema, arguments, validator, field in cases:
+            with self.subTest(validator=validator, field=field):
+                definition = tool_definition()
+                definition["function"]["parameters"] = schema
+                result, provider, gateway = await self.execute([
+                    completion(calls=[("rejected-schema", "inspect_hotspots", arguments)]),
+                    completion('{"summary":"candidate"}'),
+                ], run_body(tools=[definition]))
+                feedback = provider.requests[1]["messages"][-1]["content"]
+                self.assertIn(f"校验规则={validator}", feedback)
+                self.assertIn(f"字段={field}", feedback)
+                self.assertNotIn("fixture_unknown_parameter", feedback)
+                self.assertNotIn("fixture-private-value", feedback)
+                self.assertEqual(result["runtime"]["model_calls"], 2)
+                self.assertEqual(result["runtime"]["tool_calls"], 0)
+                self.assertFalse(any(c["type"] == "tool" for c in gateway.calls))
+
+    async def test_schema_reselection_exhausts_original_lower_and_expanded_budgets(self):
+        """持续错误不会得到额外模型轮；旧 4+1、新 8+1 和更低显式上限均不升额。"""
+        for maximum in (2, 5, 9):
+            with self.subTest(max_model_calls=maximum):
+                ordinary = maximum - 1
+                body = run_body(tools=[tool_definition(properties={"rank": {"type": "integer"}})])
+                body["budget"].update(max_model_calls=maximum, max_tool_calls=14 if maximum == 9 else 7)
+                gateway = FixtureGateway()
+                provider = Provider([completion(calls=[(f"schema-{i}", "inspect_hotspots", '{"rank":"invalid"}')]) for i in range(ordinary)])
+                with self.assertRaises(SafeRuntimeFailure) as caught:
+                    await run_agent(RunRequest.parse(body, self.config.model), self.config, gateway, transport=httpx.MockTransport(provider))
+                self.assertEqual(caught.exception.code, "AI_BUDGET_EXCEEDED")
+                self.assertEqual(caught.exception.diagnostics["model_calls"], ordinary)
+                self.assertEqual(caught.exception.diagnostics["tool_calls"], 0)
+                self.assertEqual(len(provider.requests), ordinary)
+                ends = [c for c in gateway.calls if c["type"] == "model_end"]
+                self.assertEqual([c["round"] for c in ends], list(range(1, maximum)))
+                self.assertEqual(sum(c["usage"]["input_tokens"] for c in ends), ordinary * 10)
+                self.assertFalse(any(c["type"] == "tool" for c in gateway.calls))
+
+    async def test_schema_reselection_keeps_hard_guards_and_rejected_ids(self):
+        """任一硬错误优先终止整批，已拒批次的 ID 也不能换参数后再执行。"""
+        invalid = ("first-schema-invalid", "inspect_hotspots", '{"rank":"invalid"}')
+        hard = [
+            ("unknown-tool", "Bash", "{}"),
+            ("invalid id", "inspect_hotspots", "{}"),
+            ("first-schema-invalid", "inspect_hotspots", "{}"),
+            ("duplicate-json", "inspect_hotspots", '{"rank":1,"rank":2}'),
+            ("oversize", "inspect_hotspots", '{"rank":"' + "x" * 49152 + '"}'),
+        ]
+        for call in hard:
+            with self.subTest(hard_guard=call[0]):
+                gateway = FixtureGateway()
+                provider = Provider([completion(calls=[invalid, call])])
+                with self.assertRaises(ProtocolError):
+                    await run_agent(RunRequest.parse(run_body(), self.config.model), self.config, gateway, transport=httpx.MockTransport(provider))
+                self.assertEqual(len(provider.requests), 1)
+                self.assertEqual([c["type"] for c in gateway.calls], ["model_start"])
+        gateway = FixtureGateway()
+        provider = Provider([
+            completion(calls=[invalid]),
+            completion(calls=[("first-schema-invalid", "inspect_hotspots", "{}")]),
+        ])
+        with self.assertRaisesRegex(ProtocolError, "AI_TOOL_REJECTED"):
+            await run_agent(RunRequest.parse(run_body(), self.config.model), self.config, gateway, transport=httpx.MockTransport(provider))
+        self.assertEqual(len(provider.requests), 2)
+        self.assertEqual(len([c for c in gateway.calls if c["type"] == "model_end"]), 1)
+        self.assertFalse(any(c["type"] == "tool" for c in gateway.calls))
+        for phase, name in (("planning", "list_collectors"), ("repair", "read_source")):
+            with self.subTest(phase=phase):
+                gateway = FixtureGateway()
+                provider = Provider([completion(calls=[("outside-diagnosis", name, '{"unknown":"invalid"}')])])
+                with self.assertRaisesRegex(ProtocolError, "AI_TOOL_REJECTED"):
+                    await run_agent(RunRequest.parse(run_body(phase, [tool_definition(name)]), self.config.model), self.config, gateway, transport=httpx.MockTransport(provider))
+                self.assertEqual([c["type"] for c in gateway.calls], ["model_start"])
+
+    async def test_schema_feedback_checkpoint_resumes_without_original_arguments(self):
+        """固定反馈与 seen ID 已持久化后退出，恢复沿用原计数且不重放失败参数。"""
+        class FeedbackCrashGateway(DurableFixtureGateway):
+            crashed = False
+
+            async def call(self, payload):
+                response = await super().call(payload)
+                if payload["type"] == "checkpoint" and not self.crashed and "校验规则=" in payload["content"]:
+                    self.crashed = True
+                    raise ImportedProcessExit()
+                return response
+
+        gateway = FeedbackCrashGateway()
+        body = run_body(tools=[tool_definition(properties={"rank": {"type": "integer"}})])
+        body["checkpoint"] = deepcopy(gateway.snapshot)
+        provider = Provider([completion(calls=[("crashed-invalid", "inspect_hotspots", '{"rank":"fixture-private-argument"}')])])
+        with self.assertRaises(ImportedProcessExit):
+            await run_agent(RunRequest.parse(body, self.config.model), self.config, gateway, transport=httpx.MockTransport(provider))
+        self.assertEqual((gateway.snapshot["model_calls"], gateway.snapshot["tool_calls"]), (1, 0))
+        self.assertIn("crashed-invalid", gateway.snapshot["state"]["seen_ids"])
+        self.assertNotIn("fixture-private-argument", json.dumps(gateway.snapshot))
+        body["run_id"] = str(uuid.uuid4())
+        body["checkpoint"] = deepcopy(gateway.snapshot)
+        result, provider, _ = await self.execute([
+            completion(calls=[("resumed-corrected", "inspect_hotspots", '{"rank":1}')]),
+            completion('{"summary":"candidate"}'),
+        ], body, gateway)
+        self.assertEqual((result["runtime"]["model_calls"], result["runtime"]["tool_calls"]), (3, 1))
+        self.assertEqual(result["runtime"]["usage"], {"input_tokens": 30, "output_tokens": 15})
+        self.assertEqual(gateway.executions, ["resumed-corrected"])
+        history = json.dumps(provider.requests, ensure_ascii=False)
+        self.assertIn("校验规则=type", history)
+        self.assertNotIn("fixture-private-argument", history)
+        self.assertNotIn("crashed-invalid", history)
+
+    async def test_schema_reselection_stops_on_model_end_fence_or_cancel(self):
+        """软反馈不能绕过 Go 租约拒绝或取消，闭合模型轮之前不能进入重选。"""
+        for cancel in (False, True):
+            with self.subTest(cancel=cancel):
+                gateway = FixtureGateway()
+
+                def callback(payload):
+                    if payload["type"] == "model_end":
+                        if cancel:
+                            gateway.cancelled = True
+                            return {"ok": True}
+                        return {"ok": False, "fatal": True, "error_code": "STALE_LEASE"}
+
+                gateway.handler = callback
+                provider = Provider([completion(calls=[("invalid-before-cancel", "inspect_hotspots", '{"unknown":"fixture-private-value"}')])])
+                expected = asyncio.CancelledError if cancel else ProtocolError
+                with self.assertRaises(expected):
+                    await run_agent(RunRequest.parse(run_body(), self.config.model), self.config, gateway, transport=httpx.MockTransport(provider))
+                self.assertEqual(len(provider.requests), 1)
+                self.assertEqual([c["type"] for c in gateway.calls], ["model_start", "model_end"])
+
     async def test_oversized_batch_reselects_within_four_calls_without_orphan_history(
         self,
     ):
@@ -774,7 +956,7 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(sum(call["usage"]["output_tokens"] for call in ends), 20)
 
     async def test_oversized_batch_keeps_format_only_and_invalid_calls_fatal(self):
-        """纯格式轮、越权/Schema/重复 ID 及网关租约拒绝均不能降格成数量反馈。"""
+        """纯格式轮、越权/重复 ID 及网关租约拒绝均不能降格成重选反馈。"""
         gateway = FixtureGateway(
             lambda payload: (
                 {
@@ -796,7 +978,7 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
             + [
                 completion("invalid"),
                 completion(
-                    calls=[(f"format-{i}", "inspect_hotspots", "{}") for i in range(3)]
+                    calls=[(f"format-{i}", "inspect_hotspots", '{"unknown":"invalid"}') for i in range(3)]
                 ),
             ]
         )
@@ -820,11 +1002,6 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
             "unknown_tool": [
                 ("bad-1", "inspect_hotspots", "{}"),
                 ("bad-2", "Bash", "{}"),
-                ("bad-3", "inspect_hotspots", "{}"),
-            ],
-            "invalid_schema": [
-                ("bad-1", "inspect_hotspots", "{}"),
-                ("bad-2", "inspect_hotspots", '{"task_id":1}'),
                 ("bad-3", "inspect_hotspots", "{}"),
             ],
             "duplicate_id": [
@@ -914,6 +1091,9 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
         ):
             with self.subTest(arguments=arguments):
                 gateway = FixtureGateway()
+                body = run_body()
+                # 只有一轮普通预算；Schema 可纠正也不能新增模型请求，更不能执行注入参数。
+                body["budget"]["max_model_calls"] = 2
                 with self.assertRaises(ProtocolError):
                     await self.execute(
                         [
@@ -923,7 +1103,7 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
                                 ]
                             )
                         ],
-                        gateway=gateway,
+                        body=body, gateway=gateway,
                     )
                 self.assertFalse(any(call["type"] == "tool" for call in gateway.calls))
 

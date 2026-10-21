@@ -130,6 +130,8 @@ jobs:
       - run: python -m unittest discover -s deploy/tests -p test_helper_deployment.py
       - name: AgentScope complete Compose merge and hostile overlay boundaries (imported fixtures)
         run: python -m unittest discover -s deploy/tests -p test_agentscope_deployment.py -v
+      - name: Telemetry demo complete Compose merge, AppArmor peer and target isolation (imported config values)
+        run: python -m unittest discover -s deploy/tests -p test_observability_demo_deployment.py -v
       - name: Helper spool provisioning boundaries (fake mount commands)
         run: python -m unittest discover -s deploy/tests -p test_helper_spool.py -v
       - name: Build pinned MinIO fixture from official release binary

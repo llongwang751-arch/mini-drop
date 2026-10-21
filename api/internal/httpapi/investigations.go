@@ -114,13 +114,22 @@ func (s *Server) verifications(c *gin.Context) {
 		return
 	}
 	visible := []service.VerificationRun{}
+	// 即使AI功能当前未配置，也要查真实来源；Repo-only校验允许无信号旧记录，含信号时因缺登记配置失败关闭。
+	signalAuthorizer := s.Suggestions
+	if signalAuthorizer == nil {
+		signalAuthorizer = &service.Suggestions{Repo: s.Repo}
+	}
 	for _, r := range rows {
 		if _, err := s.Repo.AuthorizeTaskWrite(c.Request.Context(), u, r.BaselineTaskID); err != nil {
 			continue
 		}
-		if _, err := s.Repo.AuthorizeTaskWrite(c.Request.Context(), u, r.CandidateTaskID); err == nil {
-			visible = append(visible, r)
+		if _, err := s.Repo.AuthorizeTaskWrite(c.Request.Context(), u, r.CandidateTaskID); err != nil {
+			continue
 		}
+		if err := signalAuthorizer.AuthorizeVerificationSignals(c.Request.Context(), u, r); err != nil {
+			continue
+		}
+		visible = append(visible, r)
 	}
 	s.ok(c, 200, list(visible, int64(len(visible)), 1, len(visible)))
 }

@@ -161,6 +161,7 @@
       "knowledge": "可选知识先验由Go绑定。新协议SDK最多14次回调，Go同时限制含自动E1/知识E2在内的trace总数15；知识开启时至多13次后续SDK工具。运行时tool_calls仅计SDK回调，不含Go预先提供的E1/E2。Skill必需工具和当前测量引用由Go验收，撤销及来源变化在终态事务再次校验。旧报告协议仍使用5模型/7回调工具及最多8条trace。",
       "new_tools_boundary": "业务信号与拓扑工具只读取当前授权范围内的登记数据；补采工具只生成待审阅计划，不直接启动采集、写任意SQL或访问模型提供的URL。",
       "oversized_tool_batch": "仅对通过名称/参数/ID校验的数量超限批次整批不执行；记录真实usage和model_end，并在请求原普通模型预算内反馈重选。禁止截取前两个执行；格式纠错轮仍禁止工具。",
+      "schema_reselection": "诊断阶段仅对已通过调用ID/去重/已知工具名/严格JSON/长度校验的JSON Schema参数错误整批拒绝并反馈重选；不执行任何工具、不保留失败参数或自由文本。只反馈已知工具、固定validator和Schema声明的顶层字段。真实模型请求及usage仍计入原预算，seen IDs与检查点继续保存；未知工具、非法或重复ID、重复JSON键、超长与格式轮工具仍硬拒绝。",
       "max_model_calls": 9,
       "regular_model_calls": 8,
       "max_tool_calls": 14,

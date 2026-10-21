@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-21T08:22:21.365683+00:00",
+  "command": "python -m unittest discover -s deploy/tests -p test_observability_demo_deployment.py -v",
+  "passed": true,
+  "tests_run": 5,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "compose_version": "5.5.0",
+  "negative_subcases": [
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_controller_role_or_target_identity_mismatch",
+      "parameters": "(service='observability-catalog', fields={'pid': 'host'})",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_controller_role_or_target_identity_mismatch",
+      "parameters": "(service='observability-catalog', fields={'pid': 'service:collector-helper'})",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_controller_role_or_target_identity_mismatch",
+      "parameters": "(service='observability-catalog', fields={'user': '0:0'})",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_controller_role_or_target_identity_mismatch",
+      "parameters": "(service='observability-gateway', fields={'pid': 'host'})",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_controller_role_or_target_identity_mismatch",
+      "parameters": "(service='observability-gateway', fields={'pid': 'service:collector-helper'})",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_controller_role_or_target_identity_mismatch",
+      "parameters": "(service='observability-gateway', fields={'user': '0:0'})",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_extra_privilege_ports_and_unbounded_resources",
+      "parameters": "(fields={'ports': ['18131:8131']})",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_extra_privilege_ports_and_unbounded_resources",
+      "parameters": "(fields={'cap_add': ['SYS_PTRACE']})",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_extra_privilege_ports_and_unbounded_resources",
+      "parameters": "(fields={'privileged': True})",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_extra_privilege_ports_and_unbounded_resources",
+      "parameters": "(fields={'volumes': ['/var/run/docker.sock:/var/run/docker.sock:ro']})",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_extra_privilege_ports_and_unbounded_resources",
+      "parameters": "(fields={'secrets': ['database_url']})",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_extra_privilege_ports_and_unbounded_resources",
+      "parameters": "(fields={'environment': {'AI_API_KEY_FILE': '/run/secrets/ai_api_key'}})",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_extra_privilege_ports_and_unbounded_resources",
+      "parameters": "(fields={'read_only': False})",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_extra_privilege_ports_and_unbounded_resources",
+      "parameters": "(fields={'networks': ['model-egress']})",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_extra_privilege_ports_and_unbounded_resources",
+      "parameters": "(fields={'mem_limit': '256m', 'memswap_limit': '256m'})",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_extra_privilege_ports_and_unbounded_resources",
+      "parameters": "(fields={'memswap_limit': '256m'})",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_extra_privilege_ports_and_unbounded_resources",
+      "parameters": "(fields={'cpus': 1})",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_extra_privilege_ports_and_unbounded_resources",
+      "parameters": "(fields={'pids_limit': 64})",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_removed_or_wrong_target_peer_role",
+      "parameters": "(service='observability-catalog', options=['no-new-privileges:true'])",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_removed_or_wrong_target_peer_role",
+      "parameters": "(service='observability-catalog', options=['no-new-privileges:true', 'apparmor=docker-default'])",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_removed_or_wrong_target_peer_role",
+      "parameters": "(service='observability-catalog', options=['no-new-privileges:true', 'apparmor=unconfined'])",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_removed_or_wrong_target_peer_role",
+      "parameters": "(service='observability-catalog', options=['no-new-privileges:true', 'apparmor=drop-agent-controller'])",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_removed_or_wrong_target_peer_role",
+      "parameters": "(service='observability-gateway', options=['no-new-privileges:true'])",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_removed_or_wrong_target_peer_role",
+      "parameters": "(service='observability-gateway', options=['no-new-privileges:true', 'apparmor=docker-default'])",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_removed_or_wrong_target_peer_role",
+      "parameters": "(service='observability-gateway', options=['no-new-privileges:true', 'apparmor=unconfined'])",
+      "passed": true
+    },
+    {
+      "test": "test_observability_demo_deployment.ObservabilityDemoDeploymentTests.test_actual_merge_rejects_removed_or_wrong_target_peer_role",
+      "parameters": "(service='observability-gateway', options=['no-new-privileges:true', 'apparmor=drop-agent-controller'])",
+      "passed": true
+    }
+  ],
+  "positive_baseline_services": 33,
+  "positive_merged_services": 35,
+  "docker_engine_contacted": false,
+  "containers_started": false,
+  "production_contacted": false,
+  "configuration_values": "explicit_imported_fixture_only",
+  "limits": [
+    "Final Compose configuration only; does not prove a Linux AppArmor policy was loaded or actual process reads succeed.",
+    "The first local run found one invalid negative fixture: Compose prunes unused volumes. The fixture now changes an actually referenced volume."
+  ],
+  "source_sha256": {
+    "deploy/tests/test_observability_demo_deployment.py": "d7a0d3028b2c08c7ca23c16a76d8a18a8f4d87f559668fd9a5d056e54b497fba",
+    ".github/workflows/ci.yml": "69d2fdd3985109f2cddcc63853d3274f210710dccc3669905744f682134e9a26",
+    "deploy/compose.agent-expansion-demo.yml": "aa568ff2475a92bc455976b78e6586e7a3bb619a5c83d8ef059d1b1c2aeb357d"
+  },
+  "negative_cases_total": 29,
+  "static_configuration_service_counts_include_inactive_and_init_services": true
+}

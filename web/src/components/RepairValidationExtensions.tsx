@@ -260,6 +260,9 @@ export default function RepairValidationExtensions({
           <details>
             <summary>审阅代码与新增测试 diff</summary>
             <pre
+              role="region"
+              aria-label="代码与新增测试补丁"
+              tabIndex={0}
               style={{
                 maxHeight: 320,
                 overflow: "auto",
