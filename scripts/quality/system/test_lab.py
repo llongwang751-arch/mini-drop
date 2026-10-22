@@ -17,6 +17,33 @@ def container(project=PROJECT, service='agent', privileged=False, pid_mode=''):
 
 
 class SystemLabSafetyTests(unittest.TestCase):
+    def test_failure_states_export_only_owned_fixed_metadata(self):
+        lab = Lab.__new__(Lab)
+        lab.project = PROJECT
+        lab.container = Mock(return_value='owned')
+        value = container()
+        value['Config']['Env'] = ['SYNTHETIC_SECRET=must-never-export']
+        value['State'] = {'Status': 'exited', 'Running': False, 'OOMKilled': True, 'ExitCode': 137,
+                          'Error': 'synthetic private body', 'Health': {'Status': 'unhealthy', 'Log': ['private']}}
+        def command(_argv):
+            return SimpleNamespace(stdout=json.dumps([value]).encode())
+        lab.command = command
+        rows = lab.failure_states()
+        self.assertEqual(len(rows), 8)
+        agent = next(r for r in rows if r['service'] == 'agent')
+        self.assertEqual(agent, {'service': 'agent', 'status': 'exited', 'running': False,
+                                'oom_killed': True, 'exit_code': 137, 'health': 'unhealthy'})
+        self.assertNotIn('private', json.dumps(rows))
+        self.assertNotIn('SYNTHETIC_SECRET', json.dumps(rows))
+        self.assertTrue(all(r.get('error_code') == 'OWNED_STATE_UNAVAILABLE' for r in rows if r['service'] != 'agent'))
+
+    def test_failure_states_never_export_foreign_container_values(self):
+        lab = Lab.__new__(Lab)
+        lab.project = PROJECT
+        lab.container = Mock(return_value='foreign')
+        lab.command = Mock(return_value=SimpleNamespace(stdout=json.dumps([container('production')]).encode()))
+        self.assertTrue(all(r.get('error_code') == 'OWNED_STATE_UNAVAILABLE' for r in lab.failure_states()))
+
     def test_host_interrupt_uses_fixed_failure_for_finally_cleanup(self):
         with self.assertRaisesRegex(LabError, '^LAB_INTERRUPTED$'):
             interrupted(15, None)

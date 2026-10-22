@@ -321,6 +321,28 @@ class Lab:
         require(len(observed) == len(containers), 'RESOURCE_SNAPSHOT_INCOMPLETE')
         return {'monotonic_seconds': time.monotonic(), 'provenance': 'actual docker stats display values, not exact-byte RSS or host meminfo', 'containers': observed}
 
+    def failure_states(self):
+        """失败后、清理前保留固定状态字段；不导出inspect中的环境、挂载、命令或日志正文。"""
+        states = []
+        for service in ('postgres', 'storage-backend', 'minio', 'drop-server', 'api', 'analyzer', 'agent', 'web'):
+            try:
+                container = self.container(service)
+                value = json.loads(self.command(['docker', 'inspect', container]).stdout)[0]
+                inspect_owned(value, self.project, service)
+                state = value.get('State', {})
+                status = state.get('Status')
+                health = state.get('Health', {}).get('Status')
+                exit_code = state.get('ExitCode')
+                states.append({'service': service,
+                               'status': status if status in ('created', 'running', 'paused', 'restarting', 'removing', 'exited', 'dead') else 'unknown',
+                               'running': state.get('Running') is True,
+                               'oom_killed': state.get('OOMKilled') is True,
+                               'exit_code': exit_code if type(exit_code) is int and -1 <= exit_code <= 255 else None,
+                               'health': health if health in ('starting', 'healthy', 'unhealthy') else 'not_configured'})
+            except (LabError, ValueError, KeyError):
+                states.append({'service': service, 'error_code': 'OWNED_STATE_UNAVAILABLE'})
+        return states
+
     def cleanup(self):
         if not self.created:
             return {'passed': True, 'scope': 'no compose resources created'}
@@ -445,6 +467,11 @@ def run(args):
     except Exception:
         summary['error_code'] = 'ISOLATED_LAB_FAILED'
     finally:
+        if not summary['passed'] and lab.created:
+            try:
+                summary['failure_container_states'] = lab.failure_states()
+            except Exception:
+                summary['failure_state_error'] = 'OWNED_STATE_CAPTURE_FAILED'
         try:
             summary['cleanup'] = lab.cleanup()
         except Exception:

@@ -6,6 +6,8 @@ const configuration = JSON.parse(readFileSync(process.argv[2], "utf8"));
 let phase = "configuration";
 let browser;
 let lastTask;
+let lastHttp;
+let agentReadiness;
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const require = (condition) => {
   if (!condition) throw new Error("QUALITY_BROWSER_ASSERTION");
@@ -44,6 +46,11 @@ async function main() {
       timeout: 15000,
       maxRedirects: 0,
     });
+    // 只记录固定接口类别及状态码，禁止把包含任务ID、查询和凭据的完整URL写进回执。
+    lastHttp = {
+      area: route.startsWith("/agents?") ? "agents" : "task",
+      status: response.status(),
+    };
     require(response.ok());
     const raw = await response.body();
     require(raw.byteLength <= 2 * 1024 * 1024);
@@ -80,10 +87,22 @@ async function main() {
       readFileSync(configuration.secrets + "/admin_password", "utf8").trim(),
     );
   await page.getByRole("button", { name: "进入工作台", exact: true }).click();
+  phase = "login_wait_application_shell";
   await page.locator(".app-shell").waitFor({ state: "visible" });
+  phase = "controlled_agent_ready";
   const deadline = Date.now() + 45000;
   while (true) {
     const agents = (await data("/agents?page_size=20")).items;
+    require(Array.isArray(agents));
+    const controlled = agents.find((a) => a.id === "aliyun-local");
+    agentReadiness = {
+      listed_agents: Math.min(agents.length, 20),
+      controlled_agent_found: !!controlled,
+      proc_cpu_available: !!controlled?.capabilities?.includes("PROC_CPU"),
+      controlled_uid_published: !!controlled?.resources?.processes?.some(
+        (p) => p.uid === 10001,
+      ),
+    };
     if (
       agents.some(
         (a) =>
@@ -207,6 +226,8 @@ try {
       ? error.name
       : "UnknownError",
     ...(lastTask ? { last_observed_task: lastTask } : {}),
+    ...(lastHttp ? { last_http: lastHttp } : {}),
+    ...(agentReadiness ? { agent_readiness: agentReadiness } : {}),
   };
   // 固定步骤码和有限任务状态足够定位门禁失败，不保存页面/错误正文/签名URL。
   writeFileSync(configuration.output, JSON.stringify(failure, null, 2) + "\n", {
