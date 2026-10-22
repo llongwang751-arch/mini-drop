@@ -66,6 +66,41 @@ def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def core_log_projection(raw, service):
+    """把本轮Core日志变成固定事件计数/匹配布尔；正文、配置和TLS身份一律不返回。"""
+    require(service in ('drop-agent', 'drop-server') and len(raw) <= 256 * 1024, 'CORE_LOG_PROJECTION_BOUND')
+    text = raw.decode('utf-8', errors='replace')
+    counts = {key: 0 for key in ('configuration_loaded', 'perf_probe_succeeded', 'perf_probe_unavailable',
+                                 'registration_succeeded', 'registration_failed', 'server_ready', 'configuration_error')}
+    messages = {'Effective configuration loaded': 'configuration_loaded',
+                'perf capability verified by real sampling probe': 'perf_probe_succeeded',
+                'Registered over mTLS': 'registration_succeeded',
+                'mTLS control plane ready': 'server_ready'}
+    codes = {'PERF_UNAVAILABLE': 'perf_probe_unavailable', 'REGISTER_FAILED': 'registration_failed',
+             'CONFIGURATION_ERROR': 'configuration_error'}
+    for line in text.splitlines():
+        try:
+            row = json.loads(line)
+        except ValueError:
+            continue
+        if not isinstance(row, dict) or row.get('service') != service:
+            continue
+        for field, mapping in (('message', messages), ('error_code', codes)):
+            value = row.get(field)
+            if isinstance(value, str) and value in mapping:
+                counts[mapping[value]] += 1
+    lower = text.lower()
+    flags = {key: literal in lower for key, literal in {
+        'tls_verify_failed': 'certificate verify failed', 'tls_bad_certificate': 'bad certificate',
+        'peer_name_mismatch': 'not in peer certificate', 'dns_resolution_failed': 'dns resolution failed',
+        'connect_all_addresses_failed': 'failed to connect to all addresses',
+        'thread_creation_failed': 'could not create grpc_sync_server worker-thread',
+        'shared_library_missing': 'cannot open shared object file',
+    }.items()}
+    return {'events': counts, 'stderr_flags': flags,
+            'scope': 'last 100 owned container log lines; fixed event counts and literal-match booleans only'}
+
+
 def inspect_owned(value, project, service=None):
     labels = value.get('Config', {}).get('Labels', {})
     require(project.startswith('txdrop-dev-qa-') and labels.get('com.docker.compose.project') == project, 'OWNERSHIP_MISMATCH')
@@ -343,6 +378,31 @@ class Lab:
                 states.append({'service': service, 'error_code': 'OWNED_STATE_UNAVAILABLE'})
         return states
 
+    def failure_core_diagnostics(self):
+        diagnostics = {}
+        for service in ('drop-server', 'agent'):
+            container = self.container(service)
+            value = json.loads(self.command(['docker', 'inspect', container]).stdout)[0]
+            inspect_owned(value, self.project, service)
+            raw = self.command(['docker', 'logs', '--tail', '100', container], allowed_failure=True)
+            diagnostics[service] = core_log_projection(raw.stdout + raw.stderr, 'drop-agent' if service == 'agent' else 'drop-server')
+            # 只表明代理键是否非空，不能把代理地址或no_proxy内容带入公开报告。
+            environment = dict(item.split('=', 1) for item in value.get('Config', {}).get('Env', []) if '=' in item)
+            diagnostics[service]['proxy_keys_present'] = {name: bool(environment.get(name)) for name in
+                ('grpc_proxy', 'http_proxy', 'https_proxy', 'HTTP_PROXY', 'HTTPS_PROXY', 'no_proxy', 'NO_PROXY')}
+        agent = self.container('agent')
+        # 只对已重新验证归属的QA节点做TLS握手，不执行注册、不读取业务内容。
+        probe = self.command(['docker', 'exec', agent, 'timeout', '6s', 'openssl', 's_client',
+                              '-connect', 'drop-server:50051', '-servername', 'drop-server', '-alpn', 'h2',
+                              '-CAfile', '/etc/drop/tls/ca.crt', '-cert', '/etc/drop/tls/agent.crt',
+                              '-key', '/etc/drop/tls/agent.key', '-brief', '-no_ign_eof'], 10, allowed_failure=True)
+        text = (probe.stdout + probe.stderr).decode('utf-8', errors='replace')
+        diagnostics['agent_to_core_tls'] = {'exit_code': probe.returncode,
+            'connection_established': 'CONNECTION ESTABLISHED' in text,
+            'certificate_verified': 'Verification: OK' in text,
+            'scope': 'one six-second bounded openssl handshake between two currently owned QA containers'}
+        return diagnostics
+
     def cleanup(self):
         if not self.created:
             return {'passed': True, 'scope': 'no compose resources created'}
@@ -472,6 +532,10 @@ def run(args):
                 summary['failure_container_states'] = lab.failure_states()
             except Exception:
                 summary['failure_state_error'] = 'OWNED_STATE_CAPTURE_FAILED'
+            try:
+                summary['failure_core_diagnostics'] = lab.failure_core_diagnostics()
+            except Exception:
+                summary['failure_core_diagnostics_error'] = 'OWNED_CORE_DIAGNOSTICS_UNAVAILABLE'
         try:
             summary['cleanup'] = lab.cleanup()
         except Exception:

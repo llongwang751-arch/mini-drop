@@ -6,7 +6,7 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
 
-from lab import API, Lab, LabError, NoRedirect, atomic_json, inspect_owned, interrupted, validate_system_networks
+from lab import API, Lab, LabError, NoRedirect, atomic_json, core_log_projection, inspect_owned, interrupted, validate_system_networks
 
 PROJECT = 'txdrop-dev-qa-' + 'a' * 12
 
@@ -17,6 +17,32 @@ def container(project=PROJECT, service='agent', privileged=False, pid_mode=''):
 
 
 class SystemLabSafetyTests(unittest.TestCase):
+    def test_core_log_projection_counts_only_fixed_events_without_exporting_body(self):
+        rows = [{'service': 'drop-agent', 'message': 'Effective configuration loaded', 'configuration': {'secret': 'SYNTHETIC_PRIVATE'}},
+                {'service': 'drop-agent', 'error_code': 'REGISTER_FAILED', 'message': 'SYNTHETIC_PRIVATE'},
+                {'service': 'drop-server', 'error_code': 'REGISTER_FAILED'},
+                {'service': 'drop-agent', 'error_code': 'SYNTHETIC_PRIVATE', 'message': ['REGISTER_FAILED']}]
+        raw = ('\n'.join(json.dumps(r) for r in rows) + '\nTLS certificate verify failed SYNTHETIC_PRIVATE\n').encode()
+        result = core_log_projection(raw, 'drop-agent')
+        self.assertEqual(result['events']['configuration_loaded'], 1)
+        self.assertEqual(result['events']['registration_failed'], 1)
+        self.assertTrue(result['stderr_flags']['tls_verify_failed'])
+        self.assertNotIn('SYNTHETIC_PRIVATE', json.dumps(result))
+        self.assertNotIn('secret', json.dumps(result))
+        with self.assertRaises(LabError):
+            core_log_projection(b'x' * (256 * 1024 + 1), 'drop-agent')
+
+    def test_core_diagnostics_recheck_owner_before_logs_or_handshake(self):
+        lab = Lab.__new__(Lab)
+        lab.project = PROJECT
+        lab.container = Mock(return_value='foreign')
+        lab.command = Mock(return_value=SimpleNamespace(stdout=json.dumps([container('production')]).encode()))
+        with self.assertRaises(LabError):
+            lab.failure_core_diagnostics()
+        self.assertEqual(lab.command.call_count, 1)
+        self.assertNotIn('logs', lab.command.call_args.args[0])
+        self.assertNotIn('exec', lab.command.call_args.args[0])
+
     def test_failure_states_export_only_owned_fixed_metadata(self):
         lab = Lab.__new__(Lab)
         lab.project = PROJECT
