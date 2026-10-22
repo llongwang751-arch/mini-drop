@@ -1,5 +1,7 @@
 ## 2026-10-23 · 面向测试开发岗位的质量工具与门禁
 
+- 功能提交b4875c17已正常推送GitHub master，并以源码增量同步82.157.81.79：124份提交内文件逐个SHA通过，readiness200、7监控up，29个生产容器身份/镜像/卷、命名发布镜像和三项目登记快照/执行器broker保持，SQL仍10。此次只新增CLI/CI测试能力，没有重建生产应用或增加页面；私有CRM只读快照与公开源码分开。见[部署收据](docs/evidence/jd-quality-20261023/deployment.json)。
+- 精确功能提交b4875c17的GitHub检查已终态通过：新增JD testing assurance的3/3与既有quality的7/7，合计10/10、无失败或跳过job，17:00:19 UTC再次实际观察。见[CI收据](docs/evidence/jd-quality-20261023/github-ci.json)；后续仅文档收尾不冒作另一次代码CI运行。
 - 新增scripts/quality六类工具：真实CRM联系人接口契约与有界AI计划、Agent冻结评测、真实HTTP安全矩阵、性能实验、状态机/协议与采样分析门禁。普通PR不调用付费模型或生产地址；外部CRM源码只放服务器私有只读快照，不进入GitHub。
 - 真实AgentScope2.0.10/DeepSeek以1模型/1工具选择47个审阅场景；实际本机与Linux容器均47/47基线、47/47 sham、3/3合成变异被杀死，每轮265个ASGI请求。断言不由模型修改，394个CRM Python文件前后摘要一致；使用MemoryRepository和合成身份/记录，不冒充完整CRM/PG/RLS或三个真实漏洞。
 - 真实隔离PG17/十次迁移：随机状态机4seed各96步及已有竞争回归共10通过；HTTP权限矩阵41个拒绝场景及成功读取对照，含总用例42通过/0skip，18张领域表完整行快照逐次无业务副作用。三个原生Go Fuzz各5秒、单worker，共119104次执行通过。函数语句覆盖Cancel72.0%、Retry75.0%、DispatchOne65.1%，门禁基线70/73/63%，不扩大为分支或全仓覆盖率。

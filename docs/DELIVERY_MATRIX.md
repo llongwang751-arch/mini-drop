@@ -4,6 +4,8 @@
 
 新增[质量工具包](../scripts/quality/README.md)和[岗位映射](JD_QUALITY_LAB.md)，平台API9/runtime4/Web6/Analyzer0.2.5/SQL10保持。此次是测试工具、分层门禁与实际证据增量，没有增加生产权限或替换业务数据。
 
+功能提交b4875c17已推送GitHub master并同步82.157.81.79；124份提交内文件SHA核对通过，29个生产容器/镜像/卷及三个登记快照/执行器broker保持，readiness200、7监控up，见[源码部署](evidence/jd-quality-20261023/deployment.json)。新增工具通过CLI和CI使用，没有新增前端页面。精确功能提交的新增JD工作流3/3及既有quality工作流7/7已终态成功，见[CI收据](evidence/jd-quality-20261023/github-ci.json)。
+
 | 范围 | 已实际执行 | 边界 |
 | --- | --- | --- |
 | CRM业务缺陷发现 | 本机及服务器各47基线/47 sham通过、3/3合成变异被杀死；每轮265实际ASGI请求 | 真实联系人路由/服务/MemoryRepository；合成身份，不覆盖TCP/TLS/CRM PG/RLS |
@@ -13,7 +15,7 @@
 | 内存安全及采样分析 | Linux ASan/UBSan/泄漏/Werror的6个CTest；实际Runner→MinIO→Analyzer成功，3个制品SHA验证 | 不是Go HTTP→Agent gRPC→浏览器全平台单条E2E |
 | 性能基线 | Core独立身份10/25/50，850心跳0失败；9采样窗口+阶梯+30秒持续测量 | 资源受限、合成与短时；不称容量上限、无扰动或长期长稳 |
 | Agent新评测 | 7实际诊断通过、1非法输入拒绝；受控标签Top3匹配7/7 | 作者可见，独立人工语义、正常误报及拒答准确率仍null |
-| 持续防退化 | 独立3-job workflow、关键函数覆盖门禁、失败收据和严格解析负控 | CI实际状态及源码部署收据在推送后另附，不预写通过 |
+| 持续防退化 | 新增3-job workflow与既有7-job workflow均通过；关键函数覆盖门禁、失败收据和严格解析负控 | 绑定功能提交b4875c17，CI不包含付费模型或外部CRM源码；不扩大为生产长稳认证 |
 
 工具与模型/采样/CI的结果分开记录；测试框架负控不算真实模型调用，合成变异不算生产漏洞。历史失败、第一次门禁汇总失败以及修复后通过的记录均保留。
 
