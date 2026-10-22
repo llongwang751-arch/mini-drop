@@ -10,6 +10,8 @@
 
 功能提交 `2d413e4a4abd` 的12份工具/门禁/契约Git blob已逐SHA同步线上源码目录，原权限、29容器身份/镜像/卷保持，零重启/SQL/模型。收尾[只读核验](evidence/jd-depth-20261023/release/final-readonly.json)为29容器健康、真实API就绪、7监控up、14条记录与Git blob全等，见[同步收据](evidence/jd-depth-20261023/release/source-tools-sync-2d413e4a4abd.json)。文档及工具源码同步不冒作重新构建应用或新的30分钟/模型验收。
 
+文档提交 `7bd70394efa7` 的81份公开文档/证据已逐SHA同步服务器，29容器及原权限保持，见[文档同步收据](evidence/jd-depth-20261023/release/source-docs-sync-7bd70394efa7.json)。随后仅归档该收据与文档收尾并再次同步；独立质量发布目录的14条记录保持，功能CI仍绑定2d提交。
+
 历史bd3c045对应CI重新核对为8/10：先前9/10误沿用上一SHA结果，现更正；浏览器和OpenAPI字段覆盖两项失败。其后窗口3字段的生成器及正负控已修，88路由/126schema通过。r3/r4发布失败及独立恢复证据保存在[发布历史](evidence/jd-depth-20261023/release/)。r5已上线API23.2/Web23.1，内部API ready、公网API JSON、13条初始记录及7监控通过，其他27容器和卷保持；追加新因果失败后共14条，原13条SHA不变、29容器不变。真实公网两宽、14条摘要、匿名401、历史失败与JSON导出已通过[浏览器验收](evidence/jd-depth-20261023/release/public-browser.json)。
 
 093a05d的新CI契约及另8项成功，完整平台门禁仍失败：受控Agent未注册，接口200/列表0；8服务运行无OOM、清理成功。补owned Core固定事件与TLS握手投影后继续定位，未把服务器隔离环境已通过代替GitHub的失败。
