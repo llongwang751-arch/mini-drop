@@ -100,6 +100,31 @@ class CausalContractTests(unittest.TestCase):
         self.assertTrue(runner.phase_uncertain({"load_stop_confirmed": True, "cleanup": {"task_cancel_confirmed": False}}))
         self.assertTrue(runner.phase_uncertain({"load_stop_confirmed": True, "cleanup": {"error": "DIAGNOSIS_CREATE_OUTCOME_UNKNOWN_DO_NOT_REPLAY"}}))
 
+    def test_collection_creation_transport_failure_bad_id_and_5xx_stop_without_replay(self):
+        for failure in ("transport", "bad_id", "invalid_data", "5xx", "rejected"):
+            sent = []
+            class ImportedUncertainCreateControl:
+                def request(self, method, path, body=None, key=None):
+                    sent.append((method, path))
+                    if failure == "transport":
+                        raise runner.platform_client.RunError("IMPORTED_TRANSPORT_FAILURE")
+                    if failure == "5xx":
+                        return 503, {"data": {}}
+                    if failure == "rejected":
+                        return 403, {"data": {}}
+                    return 201, {"data": [] if failure == "invalid_data" else {"id": "invalid"}}
+            model, oracle, _ = experiment.dataset()
+            platform = runner.Platform(ImportedUncertainCreateControl(), {"agent_id": "imported", "telemetry_service_id": "gateway"}, {"catalog": {"pid": 42}}, runner.Budget(oracle["policy"]), model, time.monotonic()+10)
+            with self.assertRaises(RuntimeError):
+                platform.collect_and_diagnose({}, "imported", time.monotonic()+10)
+            cleanup = platform.cleanup()
+            self.assertEqual(len(sent), 1)
+            self.assertEqual(platform.budget.models, 0)
+            self.assertEqual(platform.cleanup(), {})
+            self.assertEqual(runner.cleanup_uncertain(cleanup), failure != "rejected")
+            if failure != "rejected":
+                self.assertIn("COLLECTION_CREATE_OUTCOME_UNKNOWN_DO_NOT_REPLAY", cleanup["error"])
+
     def test_timeout_wait_requires_same_real_trace_completion(self):
         client = runner.DemoClient("http://127.0.0.1:18080", "http://127.0.0.1:18081", True)
         expected, other = "a"*32, "b"*32

@@ -258,17 +258,24 @@ class Platform:
         self.task = self.run = None
         self.analysis_pending = False
         self.request_unknown = False
+        self.collection_request_unknown = False
 
     def collect_and_diagnose(self, phase, trial_name, phase_deadline):
         self.budget.reserve()
         params = {**{k: v for k, v in self.model["collection"].items() if k != "kind"}, "pid": self.target["catalog"]["pid"]}
         body = {"name": "受控观测 " + trial_name, "kind": "PYTHON_CPU", "target_agent_id": self.config["agent_id"], "parameters": params}
+        # 写请求可能已被Go提交，但应答途中丢失；必须先标未知，不能误判无任务后继续下一轮。
+        self.collection_request_unknown = True
         status, response = self.client.request("POST", "/api/v1/tasks", body, "causal-collect-" + uuid.uuid4().hex)
         if status not in {200, 201}:
+            if not 400 <= status < 500:
+                raise CausalError("COLLECTION_CREATE_OUTCOME_UNKNOWN")
+            self.collection_request_unknown = False
             raise CausalError("COLLECTION_CREATE_REJECTED")
         task = response.get("data", {})
-        if not platform_client.quality.valid_id(task.get("id")):
+        if not isinstance(task, dict) or not platform_client.quality.valid_id(task.get("id")):
             raise CausalError("COLLECTION_CREATE_OUTCOME_UNKNOWN")
+        self.collection_request_unknown = False
         self.task, self.analysis_pending = str(task["id"]), True
         phase["task_id"] = self.task
         deadline = min(self.deadline, phase_deadline, time.monotonic() + 90)
@@ -331,6 +338,9 @@ class Platform:
 
     def cleanup(self):
         result = {}
+        if self.collection_request_unknown:
+            result["error"] = "COLLECTION_CREATE_OUTCOME_UNKNOWN_DO_NOT_REPLAY"
+            self.collection_request_unknown = False
         if self.request_unknown:
             self.budget.charge({})
             result["error"] = "DIAGNOSIS_CREATE_OUTCOME_UNKNOWN_DO_NOT_REPLAY"
