@@ -11,6 +11,7 @@
 | [39844103076](https://github.com/llongwang751-arch/mini-drop/actions/runs/39844103076) | 093a05d | 同提交基线 7/7、JD 2/3，合计 9/10；登录与读取鉴权通过，但固定等待内没有 Agent 注册。 |
 | [39846360210](https://github.com/llongwang751-arch/mini-drop/actions/runs/39846360210) | 6aeb122 | 同提交基线 7/7、JD 2/3，合计 9/10；初始化已完成，实际 TLS 握手通过，但 gRPC 注册失败二十六次。 |
 | [39849366453](https://github.com/llongwang751-arch/mini-drop/actions/runs/39849366453) | 0cc95f6 | 诊断插桩轮，不能作为最终验收；同提交基线 7/7、JD 1/3，合计 8/10。Go Fuzz 在时长预算末尾非零退出；独立的真实浏览器门禁记录 Agent 注册 gRPC 14 共二十六次。 |
+| [39854002402](https://github.com/llongwang751-arch/mini-drop/actions/runs/39854002402) | 91aaa00 | 诊断插桩轮，基线 7/7、JD 2/3，合计 9/10。Linux Fuzz 实报 600028 次全部 PASS；原浏览器仍失败，同栈 default→native→default 明确重现解析策略差异。 |
 
 bd3 的原始 `login` 阶段同时覆盖了登录及 Agent 就绪等待，不能据此称为认证失败。093 增加了安全细分阶段：实际登录成功，最后一次 Agent 列表请求为 HTTP 200，列表仍为零；八个本轮常驻容器均运行且未发生 OOM，清理了十二个本轮容器。这些证据将问题缩小到初始化或注册路径，尚不能独立证明具体根因。
 
@@ -23,3 +24,5 @@ bd3 的原始 `login` 阶段同时覆盖了登录及 Agent 就绪等待，不能
 0cc 的 QA 构建只为注册日志添加固定数字状态码，`acceptance_eligible=false`；该轮确实显式请求了内部 `/health/ready`，返回 200。服务端 INTERNAL 计数为零，尚不足证明具体解析器故障。Go Fuzz 的原始非零退出单独保留；上游停止时机缺陷与现象相符，但未证明是本轮原因，原 CI 没有采集到持久化反例目录，不能说没有崩溃。`local-fixed-fuzz-200k-001.json` 仅证明 Windows 上三个目标各二十万次通过，不能替代 Linux CI。
 
 `resolver-probe-001.json` 保留独立服务器薄运行时诊断的 bootstrap CRLF 前置失败；没有到注册阶段。002 使用相同薄运行时、新目录和明确的四十六文件 SHA，默认解析器实际注册成功，因此没有继续 native 对照，不能由动态库版本差异认定 c-ares 为根因。该诊断没有任务、attempt 或模型调用；十二个 owned 容器清理后容器、卷、网络均为零，生产二十九容器与冻结六十一源码、三份环境来源 SHA 保持。它使用服务器冻结构建及显式工作区文件字节，不声称与 CI 镜像字节相同，也不代替最终普通 CI。
+
+91的原始公开summary/browser/resolver-diagnostic逐字节保存，三腿保持原浏览器失败与诊断不合格标记。原default有27次gRPC14且均为固定DNS类，native新CID约1.05秒注册成功，恢复default新CID45.72秒后仍有15次gRPC14/DNS且未注册；两腿均Running/noOOM/ready200，tasks与attempt均零，严格核验只变解析器环境键。此结果证明该GitHub环境的解析策略影响，未证明具体c-ares版本或安全补丁的因果关系。后续普通修复只对QA Agent显式native，并核实际owned运行配置；不回滚安全包、不改生产Compose、不放宽等待，未插桩完整CI结果需另记。

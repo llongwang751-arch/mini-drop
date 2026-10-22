@@ -1,0 +1,141 @@
+{
+  "diagnostic_only": true,
+  "acceptance_eligible": false,
+  "original_browser_failure_preserved": true,
+  "initial_default_failed_grpc_14": true,
+  "legs": [
+    {
+      "name": "native",
+      "registered": true,
+      "observed_seconds": 1.0454866089999086,
+      "new_container_checked": true,
+      "only_resolver_setting_changed": true,
+      "work_counts": {
+        "tasks": 0,
+        "attempts": 0
+      },
+      "agent_log_projection": {
+        "events": {
+          "configuration_loaded": 1,
+          "perf_probe_succeeded": 0,
+          "perf_probe_unavailable": 1,
+          "registration_succeeded": 1,
+          "registration_failed": 0,
+          "server_ready": 0,
+          "configuration_error": 0,
+          "rpc_internal_error": 0,
+          "database_sweep_deferred": 0
+        },
+        "registration_grpc_status_counts": {
+          "0": 0,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "10": 0,
+          "11": 0,
+          "12": 0,
+          "13": 0,
+          "14": 0,
+          "15": 0,
+          "16": 0
+        },
+        "registration_error_classes": {
+          "control_internal": 0,
+          "dns": 0,
+          "failed_connect": 0,
+          "other": 0
+        },
+        "stderr_flags": {
+          "tls_verify_failed": false,
+          "tls_bad_certificate": false,
+          "peer_name_mismatch": false,
+          "dns_resolution_failed": false,
+          "connect_all_addresses_failed": false,
+          "thread_creation_failed": false,
+          "shared_library_missing": false
+        },
+        "scope": "last 100 owned container log lines; fixed event counts and literal-match booleans only"
+      },
+      "container_running": true,
+      "container_oom_killed": false,
+      "readiness": {
+        "status": 200,
+        "dependency": "none"
+      }
+    },
+    {
+      "name": "default_after_ready",
+      "registered": false,
+      "observed_seconds": 45.71861764700009,
+      "new_container_checked": true,
+      "only_resolver_setting_changed": true,
+      "work_counts": {
+        "tasks": 0,
+        "attempts": 0
+      },
+      "agent_log_projection": {
+        "events": {
+          "configuration_loaded": 1,
+          "perf_probe_succeeded": 0,
+          "perf_probe_unavailable": 1,
+          "registration_succeeded": 0,
+          "registration_failed": 15,
+          "server_ready": 0,
+          "configuration_error": 0,
+          "rpc_internal_error": 0,
+          "database_sweep_deferred": 0
+        },
+        "registration_grpc_status_counts": {
+          "0": 0,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "10": 0,
+          "11": 0,
+          "12": 0,
+          "13": 0,
+          "14": 15,
+          "15": 0,
+          "16": 0
+        },
+        "registration_error_classes": {
+          "control_internal": 0,
+          "dns": 15,
+          "failed_connect": 0,
+          "other": 0
+        },
+        "stderr_flags": {
+          "tls_verify_failed": false,
+          "tls_bad_certificate": false,
+          "peer_name_mismatch": false,
+          "dns_resolution_failed": false,
+          "connect_all_addresses_failed": false,
+          "thread_creation_failed": false,
+          "shared_library_missing": false
+        },
+        "scope": "last 100 owned container log lines; fixed event counts and literal-match booleans only"
+      },
+      "container_running": true,
+      "container_oom_killed": false,
+      "readiness": {
+        "status": 200,
+        "dependency": "none"
+      }
+    }
+  ],
+  "model_calls": 0,
+  "task_creates": 0,
+  "conclusion": "RESOLVER_STRATEGY_DIFFERENCE_REPRODUCED"
+}

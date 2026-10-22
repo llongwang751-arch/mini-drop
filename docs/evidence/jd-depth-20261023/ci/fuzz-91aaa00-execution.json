@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "derived_safe_projection",
+  "说明": "这是固定GitHub执行的安全派生投影；独立manifest文件保留下载原始字节，未保存日志正文。",
+  "source_commit": "91aaa00b7d4a36d591ea1e77c728072d97234e77",
+  "run_id": 39854002402,
+  "job_id": 120087326265,
+  "job_name": "protocol-state",
+  "job_status": "completed",
+  "job_conclusion": "success",
+  "job_started_at": "2026-10-22T21:02:48Z",
+  "job_completed_at": "2026-10-22T21:05:31Z",
+  "observation_utc": "2026-10-22T21:09:33.796152+00:00",
+  "projection_written_at": "2026-10-22T21:11:45.089772+00:00",
+  "native_fuzz": {
+    "runner_os": "ubuntu-24.04",
+    "requested_fuzztime": "200000x",
+    "requested_executions_per_target": 200000,
+    "target_count": 3,
+    "requested_total_executions": 600000,
+    "parallel_workers": 1,
+    "GOMAXPROCS": 2,
+    "process_timeout_seconds": 120,
+    "targets": [
+      {
+        "target": "FuzzTaskNormalizeAndValidate",
+        "package": "drop/api/internal/domain",
+        "reported_executions": 200000,
+        "reported_go_elapsed_seconds": 6.588,
+        "reported_PASS": true,
+        "inferred_exit_code": 0
+      },
+      {
+        "target": "FuzzDiagnosisObservationObject",
+        "package": "drop/api/internal/service",
+        "reported_executions": 200000,
+        "reported_go_elapsed_seconds": 28.375,
+        "reported_PASS": true,
+        "inferred_exit_code": 0
+      },
+      {
+        "target": "FuzzDiagnosisExactScalar",
+        "package": "drop/api/internal/service",
+        "reported_executions": 200028,
+        "reported_go_elapsed_seconds": 30.348,
+        "reported_PASS": true,
+        "inferred_exit_code": 0
+      }
+    ],
+    "reported_total_executions": 600028,
+    "exit_code_projection": [
+      0,
+      0,
+      0
+    ],
+    "exit_code_basis": "三个命令各自PASS，固定顺序bash -e无重试且native步骤成功，因而推得退出码0/0/0；未单独插桩捕获三个原始process-returncode。",
+    "audit_reruns_performed": 0
+  },
+  "counterexample_capture": {
+    "artifact_id": 12458632173,
+    "artifact_name": "synthetic-go-fuzz-counterexamples",
+    "artifact_zip_sha256": "1b7014739c43a050dfa3526d779fc226c777fe8ea53e09a4fc4e7d57ca5f92b5",
+    "github_artifact_digest": "sha256:1b7014739c43a050dfa3526d779fc226c777fe8ea53e09a4fc4e7d57ca5f92b5",
+    "manifest_file": "fuzz-91aaa00-manifest.json",
+    "manifest_sha256": "d33f5de8dfa19ba6f25fe0396e6e1d6dff381d9fc9555411cc6ffd5d331908ec",
+    "manifest_original_bytes_preserved": true,
+    "capture_passed": true,
+    "native_go_fuzz_outcome": "success",
+    "captured_files": 0,
+    "captured_total_bytes": 0,
+    "rejections": 0,
+    "limits": {
+      "files_per_target": 8,
+      "file_bytes": 393216,
+      "total_bytes": 2097152
+    }
+  },
+  "partial_log_projection": {
+    "tail_bytes_read": 32768,
+    "tail_sha256": "7187000fd563b3355b5abee940e05b656c90ec264fd81fa29927632790c2e673",
+    "whole_job_log_read": false,
+    "raw_log_text_saved_or_published": false
+  },
+  "projection_control": {
+    "initial_in_memory_equal_200000_check": false,
+    "reason": "第三目标实际报告200028，使临时等值投影检查返回false；这是投影假设错误，不是Go或CI失败。",
+    "go_or_ci_result_modified": false,
+    "ci_rerun_triggered": false,
+    "projection_error_does_not_invalidate_actual_PASS": true
+  },
+  "limits": [
+    "预算是三组200000x，实际reported总数600028；不能把超过预算的28次抹掉或写成精确600000。",
+    "0/0/0是PASS、顺序bash -e和step success支持的推断，不冒作三个独立进程退出码的原始捕获。",
+    "空corpus仅表示本次没有保存反例，不证明没有crash或不存在未知缺陷；capture不改变原Go结果，也未触发重试。",
+    "只读取固定manifest与必要Fuzz尾部并提取计数；未下载或公开完整业务日志，也没有完整loghash，不虚构该散列。",
+    "这里只投影三个合成协议目标的Linux真跑，不增加真实CRM、付费模型或生产系统的验收范围。"
+  ]
+}

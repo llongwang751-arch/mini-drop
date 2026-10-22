@@ -4,7 +4,7 @@
 
 ## 确定性和随机序列
 
-Go 新增三个原生 Fuzz 入口：`FuzzTaskNormalizeAndValidate`、`FuzzDiagnosisObservationObject`、`FuzzDiagnosisExactScalar`。当前CI每个目标使用单worker、`-fuzztime=200000x`固定执行次数和120秒进程硬超时，保留全部断言且失败立即退出。此前10秒预算轮出现过末时`context deadline exceeded`；[Go官方缺陷82362](https://github.com/golang/go/issues/82362)记录了相符的预算竞态并建议Nx，但不能证明本次就是同一竞态，也不能由缺少失败输入日志推断没有崩溃。原轮次仍保留为失败，不自动重试挑绿。
+Go 新增三个原生 Fuzz 入口：`FuzzTaskNormalizeAndValidate`、`FuzzDiagnosisObservationObject`、`FuzzDiagnosisExactScalar`。当前CI每个目标使用单worker、`-fuzztime=200000x`二十万次执行预算和120秒进程硬超时，实际执行数按Go输出的reported count记录，不要求恰好等于预算，保留全部断言且失败立即退出。此前10秒预算轮出现过末时`context deadline exceeded`；[Go官方缺陷82362](https://github.com/golang/go/issues/82362)记录了相符的预算竞态并建议Nx，但不能证明本次就是同一竞态，也不能由缺少失败输入日志推断没有崩溃。原轮次仍保留为失败，不自动重试挑绿。91aaa00的Linux实际记录为200000、200000、200028，合计600028，三个目标均PASS；预算与实际计数分开保存，不推测多出的28次原因。
 
 `capture_fuzz_corpus.py`在CI的always步骤保留上述三个固定`testdata/fuzz/<目标>`中的合成反例及SHA清单。仅接受16或64位hex文件名和Go语料头，拒绝祖先/叶子符号链接、硬链接、非常规文件及读取期间变化；每目标最多8个、单文件384KiB、总量2MiB。超限/拒绝会在清单中失败，不把捕获结果覆盖原Go退出码。空语料不证明没有crash；这些可重放字节来自本轮合成Fuzz，不是业务profile或模型输出。没有发现崩溃也不代表所有输入已验证。
 

@@ -54,3 +54,7 @@ control/storage保持内部网络，仅Web另接入口网络并发布精确回�
 故障定位可用 `make_diagnostic_context.py` 生成唯一注册日志的临时插桩上下文，记录原文件、补丁、插桩文件和两个构建基础镜像的 SHA；它不改仓库C++。诊断镜像在固定日志 `stage` 增加 gRPC 0–16 状态与 `control_internal`、`dns`、`failed_connect`、`other` 四类枚举。错误正文仅在进程内与固定字面量/前缀比较，禁止记录正文和 details。运行时必须给 `--diagnostic-manifest`，回执明确 `acceptance_eligible=false`；这类运行不能作为最终未插桩门禁通过证明，修复后须恢复普通runtime重跑。API还要显式检查真实 `/health/ready` 的依赖枚举，Compose的liveness通过不代表控制面就绪。
 
 只有显式插桩轮的原始浏览器门禁已失败、当前Agent未注册且有gRPC14、Core无INTERNAL事件、显式ready200、独立PG确认tasks/attempt均为零，才运行受限解析器对照：保留原default失败，停止本轮Agent，仅加native重建观察最多20秒，再去掉native重建default观察最多45秒。各腿检查新CID固定注册日志、镜像/环境/挂载/用户/网络一致性；不用数据库残留Agent行判断成功，不创建任务，不访问生产或模型。只有native成功而恢复default仍失败，才记为解析策略差异；这本身不证明具体软件包缺陷。公开`resolver-diagnostic.json`只保存白名单元数据，原browser失败和`acceptance_eligible=false`保持，异常仍执行owner清理。
+
+普通QA节点显式使用`GRPC_DNS_RESOLVER=native`，且启动后从owned Agent的实际运行配置核验固定键，公开summary仅记录`collector_dns_resolver="native"`。依据是91aaa00同一GitHub隔离栈的真实对照：原default二十七次DNS类gRPC14，native新CID约1.05秒注册成功；Core已ready后恢复default的新CID仍在45.72秒内出现十五次DNS类gRPC14。两腿镜像、其它环境、挂载、用户和网络保持，tasks/attempt均为零、无OOM。该证据仅证明此环境的解析策略差异，不能证明具体c-ares软件包或安全补丁有缺陷。
+
+[gRPC v1.51.1官方环境变量文档](https://github.com/grpc/grpc/blob/v1.51.1/doc/environment_variables.md#grpc-environment-variables)说明native使用系统getaddrinfo；支持c-ares时默认可使用ares。修复只改隔离QA Agent，保留APT安全更新、mTLS、受控目标和原固定等待。普通CI使用未插桩Core runtime且不传diagnostic manifest，须重新完整通过浏览器和恢复门禁；之前的诊断轮仍为失败。

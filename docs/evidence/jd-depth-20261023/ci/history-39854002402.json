@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "source_commit": "91aaa00b7d4a36d591ea1e77c728072d97234e77",
+  "workflow": "JD testing assurance",
+  "run_id": 39854002402,
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "id": 120087326095,
+      "name": "memory-and-live-sampling",
+      "status": "completed",
+      "conclusion": "failure",
+      "successful_steps": 22,
+      "active_or_failed_steps": [
+        {
+          "name": "Real browser to HTTP to mTLS collector to S3 to Analyzer and owned recovery",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "id": 120087326265,
+      "name": "protocol-state",
+      "status": "completed",
+      "conclusion": "success",
+      "successful_steps": 19,
+      "active_or_failed_steps": []
+    },
+    {
+      "id": 120087326465,
+      "name": "bounded-business-and-agent-regressions",
+      "status": "completed",
+      "conclusion": "success",
+      "successful_steps": 14,
+      "active_or_failed_steps": []
+    }
+  ],
+  "same_source_baseline": {
+    "run_id": 39854002424,
+    "observed_at": "2026-10-22T21:18:39.295698+00:00",
+    "jobs": [
+      {
+        "id": 120087326507,
+        "name": "web",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 16,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120087326534,
+        "name": "api",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 12,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120087326589,
+        "name": "core",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 5,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120087326606,
+        "name": "maintenance",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 33,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120087326656,
+        "name": "agent-runtime",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 9,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120087326685,
+        "name": "analyzer",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 7,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120087327201,
+        "name": "contracts",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 14,
+        "active_or_failed_steps": []
+      }
+    ]
+  },
+  "observed_at": "2026-10-22T21:18:13.775788+00:00",
+  "all_ten_jobs": {
+    "success": 9,
+    "failure": 1,
+    "completed": 10
+  },
+  "diagnostic_instrumentation": true,
+  "acceptance_eligible": false,
+  "original_browser_failure_preserved": true,
+  "failure_code": "CPP_DEFAULT_RESOLVER_DNS_FAILURE_REPRODUCED",
+  "detail": "Initial default Agent reported27gRPC14/DNS failures. Same owned stack and verified image/env/mount/user/network except resolver: native new CID registered after1.045486609seconds; restored default new CID remained unregistered after45.718617647seconds and15gRPC14/DNS failures. Both legs running, noOOM, explicit control-ready200, tasks0/attempts0. This demonstrates a resolver-strategy effect in this GitHub environment, not a specific c-ares package regression or security-fix cause. Original failed browser and diagnostic ineligibility preserved.",
+  "artifact_id": 12459258227,
+  "artifact_zip_sha256": "5d739a3ecc3c70a86ed1a2702d51883bb2346397306c6357e51c260b7ea50d8a",
+  "actual_linux_fuzz_reported_executions": [
+    200000,
+    200000,
+    200028
+  ],
+  "fuzz_evidence": "fuzz-91aaa00-execution.json",
+  "model_calls": 0,
+  "production_access": false,
+  "private_logs_published": false
+}

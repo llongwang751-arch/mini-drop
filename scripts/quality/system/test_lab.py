@@ -18,6 +18,70 @@ def container(project=PROJECT, service='agent', privileged=False, pid_mode=''):
 
 
 class SystemLabSafetyTests(unittest.TestCase):
+    def test_actual_prepare_renderer_selects_native_only_for_owned_agent(self):
+        # fixture放在ASCII仓库私有目录，避免Windows旧代码页把UTF-8 JSON路径误解码。
+        fixture_root = Path(__file__).resolve().parents[3] / '.local'
+        fixture_root.mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix='qa-native-render-synthetic-', dir=fixture_root) as directory:
+            root = Path(directory).resolve()
+            # 显式合成夹具，只验证真实prepare的复制、生成和渲染校验，不执行这些假二进制。
+            fixtures = {'deploy/storage-gateway.conf': '# imported synthetic nginx',
+                        'deploy/db-permissions.sql': '-- imported synthetic SQL',
+                        'deploy/bootstrap.sh': '# synthetic bootstrap; never executed',
+                        'contracts/task-kinds.json': '{"synthetic":true}',
+                        'analyzer/drop_analyzer/__init__.py': '# synthetic analyzer',
+                        'db/migrations/001_synthetic.sql': '-- imported synthetic migration',
+                        'web/nginx.conf': '# synthetic web config', 'inputs/api': 'synthetic API binary',
+                        'inputs/web/index.html': '<p>synthetic build</p>'}
+            fixtures.update({'inputs/core/' + name: 'synthetic binary ' + name for name in ('drop_server', 'drop_agent', 'drop_workload')})
+            for name, body in fixtures.items():
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(body)
+            output = root / 'output'
+            output.mkdir()
+            bindings = {'api_binary': str(root / 'inputs/api'), 'web_dist': str(root / 'inputs/web'),
+                        'core_binaries': str(root / 'inputs/core')}
+            with patch('lab.ROOT', root), patch('lab.dev.ROOT', root):
+                lab = Lab(output, {'core': 'synthetic:core'}, bindings)
+                rendered_models = []
+                def command(argv):
+                    if 'config' not in argv:
+                        return SimpleNamespace(stdout=b'')
+                    # 适配器只补Compose基础网络/name，其余完全读取真实prepare刚写出的覆盖文件。
+                    rendered = json.loads((lab.path / 'overlay.json').read_text())
+                    rendered['name'] = lab.project
+                    rendered['networks']['storage'] = {'internal': True}
+                    rendered_models.append(rendered)
+                    return SimpleNamespace(stdout=json.dumps(rendered).encode())
+                lab.command = command
+                hashes = lab.prepare()
+            self.assertEqual(len(rendered_models), 1)
+            services = rendered_models[0]['services']
+            self.assertEqual(services['agent']['environment']['GRPC_DNS_RESOLVER'], 'native')
+            self.assertTrue(all('GRPC_DNS_RESOLVER' not in value.get('environment', {}) for name, value in services.items() if name != 'agent'))
+            self.assertEqual(set(hashes) & {'drop_agent', 'drop_server', 'drop_workload', 'drop-api'},
+                             {'drop_agent', 'drop_server', 'drop_workload', 'drop-api'})
+
+    def test_collector_runtime_requires_owned_exact_native_value(self):
+        lab = Lab.__new__(Lab)
+        lab.project = PROJECT
+        lab.container = Mock(return_value='owned-agent')
+        value = container()
+        value['Config']['Env'] = ['SYNTHETIC_PRIVATE=never-export', 'GRPC_DNS_RESOLVER=native']
+        lab.command = Mock(return_value=SimpleNamespace(stdout=json.dumps([value]).encode()))
+        self.assertEqual(lab.collector_dns_resolver(), 'native')
+        for environment in ([], ['GRPC_DNS_RESOLVER=ares'], ['GRPC_DNS_RESOLVER=native', 'GRPC_DNS_RESOLVER=native']):
+            value['Config']['Env'] = environment
+            lab.command.return_value.stdout = json.dumps([value]).encode()
+            with self.assertRaisesRegex(LabError, '^COLLECTOR_DNS_RESOLVER_MISMATCH$'):
+                lab.collector_dns_resolver()
+        value = container('production')
+        value['Config']['Env'] = ['GRPC_DNS_RESOLVER=native']
+        lab.command.return_value.stdout = json.dumps([value]).encode()
+        with self.assertRaisesRegex(LabError, '^OWNERSHIP_MISMATCH$'):
+            lab.collector_dns_resolver()
+
     def test_diagnostic_patch_is_exact_once_and_has_no_error_body(self):
         source = b'prefix\n' + diagnostic_context.BEFORE + b'\nsuffix\n'
         changed = diagnostic_context.patched(source)

@@ -14,6 +14,8 @@
 
 0cc95f6插桩诊断轮为8/10且不可作为最终验收：26次注册失败均为gRPC14，Core内部错误0、真实API ready200、TLS校验通过。原10秒Fuzz预算另失败，保留原轮而不自动重试；新增固定200000次/目标及120秒硬限、有界反例导出，Windows600000次和20项捕获/既有回归通过，不能代替Linux最终CI。独立[薄镜像来源](evidence/jd-depth-20261023/ci/thin-qa-build-001.json)及[实际动态库对照](evidence/jd-depth-20261023/ci/thin-library-comparison-001.json)只证明版本差异，尚不单独证明故障原因。
 
+91aaa00诊断轮同SHA9/10：默认27次DNS失败，单改native后约1秒注册，恢复默认再45秒仍15次DNS失败；两腿Core始终ready、进程运行/无OOM、零任务和其他设置不变，证明策略差异，不归因为具体c-ares安全包。最终普通workflow已恢复原C++镜像，QA Agent明确使用系统解析器并实际核验；System27项和protocol20项通过，普通CI仍需另验。[LinuxFuzz收据](evidence/jd-depth-20261023/ci/fuzz-91aaa00-execution.json)记录实际600028次，不把三组20万次预算冒作精确执行数。
+
 修复后唯一v2-r2已完成原六轮：12诊断终态成功、43模型/50工具；独立干预6/6，故障方向2/6，综合2通过4失败。恢复Top3 6/6不能作误报率0，因为六份正常报告也均含CPU假设。精确根因/正常误报/拒答三个独立人审指标仍null；六个故障轮未主动查业务信号，暴露策略缺口。实际Go工具窗collector_execution与context_queried=false已被正常run125调用验证；29生产、源码及环境后验与清理通过。见[独立原始分数及边界](evidence/jd-depth-20261023/causal/v2-r2/README.md)，不覆盖旧失败或合并分母。
 
 ## JD质量补强（2026-10-23）

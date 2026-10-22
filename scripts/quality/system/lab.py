@@ -287,6 +287,9 @@ class Lab:
             services[service]['volumes'].append({'type': 'bind', 'source': str(self.path / 'task-kinds.json'), 'target': '/etc/drop/task-kinds.json', 'read_only': True})
         services['drop-server']['entrypoint'] = ['/usr/local/bin/drop_server']
         services['agent']['entrypoint'] = ['/usr/local/bin/drop_agent']
+        # 本轮GitHub同栈default→native→default实证定位到解析策略差异。
+        # 仅隔离QA节点使用系统解析器；不修改生产Compose、证书、APT安全更新或等待阈值。
+        services['agent']['environment']['GRPC_DNS_RESOLVER'] = 'native'
         services['analyzer'].update({'entrypoint': ['python', '-m', 'drop_analyzer'], 'working_dir': '/app', 'volumes': [{'type': 'bind', 'source': str(target / 'drop_analyzer'), 'target': '/app/drop_analyzer', 'read_only': True}]})
         services['analyzer']['environment'] = {'ANALYZER_METRICS_PORT': '0'}
         services['web']['volumes'] = [{'type': 'bind', 'source': str(target / 'web'), 'target': '/usr/share/nginx/html', 'read_only': True}, {'type': 'bind', 'source': str(target / 'web-nginx.conf'), 'target': '/etc/nginx/nginx.conf', 'read_only': True}]
@@ -338,6 +341,15 @@ print(json.dumps({'status':status,'dependency':dependency}))
                 and result['status'] in (0, 200, 503) and result['dependency'] in
                 ('none', 'database', 'storage', 'control', 'unavailable', 'unknown'), 'INVALID_READINESS_RECEIPT')
         return result
+
+    def collector_dns_resolver(self):
+        """从本轮Agent实际运行配置核验固定键；公开收据只返回枚举，不导出环境内容。"""
+        container = self.container('agent')
+        value = json.loads(self.command(['docker', 'inspect', container]).stdout)[0]
+        inspect_owned(value, self.project, 'agent')
+        actual = [item for item in value.get('Config', {}).get('Env', []) if item.startswith('GRPC_DNS_RESOLVER=')]
+        require(actual == ['GRPC_DNS_RESOLVER=native'], 'COLLECTOR_DNS_RESOLVER_MISMATCH')
+        return 'native'
 
     def container(self, service):
         name = self.command(self.base + ['ps', '-aq', service]).stdout.decode().strip()
@@ -576,6 +588,7 @@ def run(args):
         summary['images'] = {key: lab.command(['docker', 'image', 'inspect', value, '--format', '{{.Id}}']).stdout.decode().strip() for key, value in images.items()}
         summary['phase'] = 'start'
         lab.start(args.bootstrap_image or images['core'])
+        summary['collector_dns_resolver'] = lab.collector_dns_resolver()
         summary['phase'] = 'platform_readiness'
         summary['readiness'] = lab.readiness()
         require(summary['readiness'] == {'status': 200, 'dependency': 'none'}, 'PLATFORM_NOT_READY')
