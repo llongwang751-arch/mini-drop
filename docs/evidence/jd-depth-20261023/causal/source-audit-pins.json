@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "kind": "historical_source_references_for_original_r1_audits",
+  "actual_r1_api_image_sha256": "a042ff70ad4c8e53466a03aea3160984312e540166001c35c5dc5774496ef89c",
+  "references": [
+    {
+      "role": "logging_filter_before_fix",
+      "historical_source_commit": "ea2c6e4a2261621efec59b10c8118855377cafda",
+      "path": "api/internal/logging/logging.go",
+      "line": 83,
+      "source_file_sha256": "6df279840d7f88127fc84e8640b6c4dcd7ed760e3e7f788a80c207085dddbb08",
+      "source_link": "https://github.com/llongwang751-arch/mini-drop/blob/ea2c6e4a2261621efec59b10c8118855377cafda/api/internal/logging/logging.go#L83"
+    },
+    {
+      "role": "expanded_signal_window_before_fix",
+      "historical_source_commit": "670da845ae729734d9e4a2880770290a877f4d55",
+      "path": "api/internal/service/diagnostic_signal_query.go",
+      "line": 81,
+      "source_file_sha256": "5e44fe5d3082c0bab061986845ef987c19b579fd6aadf155caa3a49032894907",
+      "source_link": "https://github.com/llongwang751-arch/mini-drop/blob/670da845ae729734d9e4a2880770290a877f4d55/api/internal/service/diagnostic_signal_query.go#L81"
+    }
+  ],
+  "fix_source_commit": "e0b497a1ae8bb11e6813a5f89b0edae46126b482",
+  "limits": [
+    "原审计引用的是修复前源文件行；当前源文件已修复，故另提供不可变历史源码链接。",
+    "历史源码内容与取证所述行为吻合，但仅凭文件历史不独立证明镜像编译来源；镜像实际身份由冻结清单提供。",
+    "r1原始分数和capture未改变；r2是不同平台版本的独立新执行，不合并挑优。"
+  ]
+}

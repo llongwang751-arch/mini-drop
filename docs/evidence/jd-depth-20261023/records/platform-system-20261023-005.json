@@ -1,0 +1,130 @@
+{
+  "category": "system",
+  "checks": [
+    {
+      "detail": "实际API23.2候选镜像和逐文件核验的r3字节接入全新隔离栈；仅Web接入口网，数据面保持内部网络。",
+      "id": "environment-prepare",
+      "label": "隔离环境准备",
+      "status": "passed"
+    },
+    {
+      "detail": "浏览器完成登录、创建、实采、对象上传与分析，页面加载实际gzip制品；不填充业务响应。",
+      "id": "baseline-browser",
+      "label": "真实界面基线",
+      "status": "passed"
+    },
+    {
+      "detail": "界面取消保留旧CANCELED尝试，同一任务重试生成第2次尝试并成功。",
+      "id": "cancel-retry-preservation",
+      "label": "取消重试保留尝试",
+      "status": "passed"
+    },
+    {
+      "detail": "SIGKILL后通过持久日志拒绝重复采样，旧任务明确失败，后续新实采成功。",
+      "id": "agent-kill-recovery",
+      "label": "采集中终止恢复",
+      "status": "passed"
+    },
+    {
+      "detail": "停止分析器后形成持久待处理队列，启动后完成；不覆盖已持租约时崩溃。",
+      "id": "analyzer-pending-recovery",
+      "label": "分析待处理队列恢复",
+      "status": "passed"
+    },
+    {
+      "detail": "独立数据库短停三秒，原会话和历史结果保持，后续新实采成功。",
+      "id": "postgres-short-recovery",
+      "label": "数据库短时停机恢复",
+      "status": "passed"
+    },
+    {
+      "detail": "每十五秒只读比较29个生产容器身份、镜像及卷名摘要；不向生产发送测试业务请求或故障。",
+      "id": "production-readonly-guard",
+      "label": "生产资源身份只读守护",
+      "status": "passed"
+    },
+    {
+      "detail": "按精确项目标签与名称清理后独立复核：本轮容器、卷和网络均零，生产身份摘要保持。",
+      "id": "owned-cleanup-verification",
+      "label": "本轮资源所有权清理",
+      "status": "passed"
+    }
+  ],
+  "counts": {
+    "failed": 0,
+    "passed": 8,
+    "skipped": 0,
+    "total": 8
+  },
+  "environment": "linux_isolated",
+  "finished_at": "2026-10-22T19:19:45.430055+00:00",
+  "fixture_scope": "API23.2候选镜像、r3构建字节及原Core Release；真实浏览器到双向证书采集、MinIO和Analyzer，目标为自有合成PROC_CPU负载。",
+  "id": "platform-system-20261023-005",
+  "limits": [
+    "固定8项：准备1项、界面2项、恢复3项，以及只读生产身份守护、所有权清理各1项；不按成功任务数量扩充独立业务场景。",
+    "本轮持续预算为零，验证新API候选版本整链兼容和有界恢复；原004三十分钟仅属于其冻结r2版本，不在本轮重跑或追认为新版本长稳。",
+    "仅验证受控PROC_CPU线程级CPU tick链路；业务取证窗口语义另由Go回归与独立因果实验验收，本轮没有调用模型。",
+    "停止分析器仅覆盖持久待处理队列恢复，不代表持有租约worker被强杀、跨主机灾备或主从高可用。",
+    "源散列绑定本轮实际summary；候选镜像和API字节另见输入回执，编译来源与提交标识分开记录。",
+    "Linuxquality测试二进制复用先前的原通过证明，本轮没有宣称重跑；实际执行证据为本轮浏览器、采集分析和恢复门禁。",
+    "全部测试业务、故障及删除仅操作本轮独立资源，另有只读生产Docker身份摘要守护；原001至004收据保持原字节。"
+  ],
+  "metrics": [
+    {
+      "id": "completed-real-task-count",
+      "label": "成功真实采集任务数",
+      "unit": "count",
+      "value": 5
+    },
+    {
+      "id": "verified-artifact-count",
+      "label": "核对字节与散列的制品数",
+      "unit": "count",
+      "value": 20
+    },
+    {
+      "id": "completed-fault-scenario-count",
+      "label": "恢复场景数",
+      "unit": "count",
+      "value": 3
+    },
+    {
+      "id": "soak-completed-window-count",
+      "label": "持续窗口完成任务数",
+      "unit": "count",
+      "value": 0
+    },
+    {
+      "id": "production-guard-check-count",
+      "label": "生产身份摘要守护次数",
+      "unit": "count",
+      "value": 11
+    },
+    {
+      "id": "preserved-container-count",
+      "label": "保持身份的生产容器数",
+      "unit": "count",
+      "value": 29
+    },
+    {
+      "id": "owned-container-removed-count",
+      "label": "清理本轮容器数",
+      "unit": "count",
+      "value": 12
+    },
+    {
+      "id": "actual-model-call-count",
+      "label": "实际模型调用数",
+      "unit": "count",
+      "value": 0
+    }
+  ],
+  "provenance": "actual_execution",
+  "schema_version": 1,
+  "source_commit": null,
+  "source_sha256": "224691330d5482b116bc4512e27ec2bb6c0b66a8c1ab1612a2b11f9663ebf336",
+  "started_at": "2026-10-22T19:16:54.400999+00:00",
+  "status": "passed",
+  "suite": "platform-owned-system",
+  "title": "API23.2平台回归：核心链路与恢复通过"
+}

@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "source_commit": "af50c9b8c8c22d2f638a66838076ad934f64a8ba",
+  "source_files": 173,
+  "source_sha256": "4d67d3f800696c9081146b6778a9d0a58da5425863e2eaa3a5af8baeb360223d",
+  "api_build": "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath ./cmd/drop-api",
+  "api_tags": "default",
+  "candidate_image": {
+    "passed": true,
+    "source_sha256": "4d67d3f800696c9081146b6778a9d0a58da5425863e2eaa3a5af8baeb360223d",
+    "release": "drop-api:20261023.2",
+    "image_id": "sha256:8a932662fa2cc7d68b5e941a8101d4827baaf934c77843991ec241ea9f5af3f3",
+    "base": "drop-api:20261021.9",
+    "base_image_id": "sha256:a042ff70ad4c8e53466a03aea3160984312e540166001c35c5dc5774496ef89c",
+    "api_binary_sha256": "bce07fb7f0e61de335f0f2f0ded5a4c298d29f1fe8eb4b8747dca8bb1fd2db40",
+    "web_unchanged_release": "drop-web:20261023.1",
+    "parser_test_binary_reused_without_rerun": "00a4dfd5d15e7dae4ebd1d556bed24abadbfcfa5ee151cb1e5ade205f8728f16",
+    "production_containers_changed": false,
+    "finished_at": "2026-10-22T19:14:23.789817+00:00"
+  },
+  "web_dist_unchanged_from_r2": true,
+  "fresh_pg_http_regression": {
+    "passed": true,
+    "go_version": "go1.26.10",
+    "database": "fresh isolated loopback PostgreSQL17, all ten authoritative migrations",
+    "provider": "no real model calls; imported fixtures for provider and protocol tests",
+    "tests_passed_including_subtests": 43,
+    "tests_skipped_including_subtests": 0,
+    "failed_tests": [],
+    "skipped_tests": [],
+    "elapsed_seconds": 32.08,
+    "log_sha256": "631be716a26b7fe0b349495e0e99ea1e051541b4a94359c45a33b22dedb6f15c"
+  },
+  "changes": [
+    "collector execution bounds instead of expanded business aggregation window",
+    "fixed bounded failure log fields",
+    "report correction guidance without changing validator or budget"
+  ],
+  "limits": [
+    "The prior 30-minute receipt binds the earlier API bytes; final API receives its own whole-chain regression.",
+    "The named API image reuses the previously deployed base OS; no new complete image CVE/signing claim.",
+    "Candidate image construction is not deployment."
+  ]
+}

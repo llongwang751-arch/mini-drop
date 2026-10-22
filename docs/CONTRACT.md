@@ -237,7 +237,7 @@ token-level framework continuation is not a contract.
 - py-spy空栈适配只用于python_cpu_v1/PYTHON_CPU/folded和当前采集attempt关联的可信runner_metadata，用户制品自报或import不触发。未知栈/帧使用固定占位符保留全部权重，sections.sampling_quality及metadata记录固定计数。Go核source、单位、总权重与两份计数一致后才投影质量；未知占位正权重不能支持cpu_hotspot。Repository使用不与attempt整数列冲突的行别名读取runner_metadata；重新分析保留原failed analysis_run归档。
 - 最终公开报告包含 `report_version/facts` 及既有字段；知识、运行证明和 `followup_plans` 由Go附加。仅新模型协议2且存在有效facts时展示字段核验标签。历史协议1、缺失版本和本地evidence模式报告不补发新可信标签。
 - `query_business_signals`仅接收 `{service_ref:'S1'..'S8',signal:'metrics'|'logs'|'traces'|'changes'}`；`inspect_service_topology`只接收空对象。S1为根服务，完整登记邻接排序形成其余固定别名；无权服务保留内部空位而不重绑其他别名，不返回真实身份。
-- 业务窗口由绑定attempt的实际执行起止各扩展一分钟，最大15分钟。缺失、反序、过宽或异常未来时钟返回 `available:false/reason:collection_window_unknown`；不使用分析完成时间代替。执行边界可能含准备/上传，不能宣称精确采样时钟。数据源版本改变、当前撤权或来源重分析会阻止继续使用旧快照。
+- 业务查询的 `window` 优先使用绑定attempt中Agent/helper记录的完整整数 `collection_started_unix_ms` / `collection_finished_unix_ms`，须位于有界attempt执行区间内，`window_scope=collector_execution`；它不是逐个sample的采样时间戳。仅两项均未记录的旧任务回退attempt执行区间并标 `attempt_execution`，可能含准备/上传。原起止各扩展一分钟仅以 `context_window` 展示，`context_queried=false`，不发给源或混入本次查询。缺失执行边界、坏/单项/反序/越界collector时钟返回 `available:false/reason:collection_window_unknown`，不补正常零值，不用创建或分析完成时间替代。数据源版本改变、当前撤权或来源重分析仍阻止旧快照复用。固定预聚合查询自身的回看语义由登记源决定，查询时间边界不等于重建其全部底层请求；本轮精确请求窗口回归使用Drop adapter。
 - Prometheus只执行登记的聚合查询，取窗口内实际末点；Loki仅投影固定日志结构；Tempo缺span/错误数时保持未知；Drop adapter还校验服务ID、信号类型、数量、单位、时间和范围。指标仅延迟毫秒、错误比例、吞吐量；Trace/版本标识散列，原日志正文、自由属性、令牌和真实Trace ID不入模型。无数据不补零，失败源清空部分数组，截断明确标记。登记拓扑及同时段关联均不证明因果。
 
 ### 动态补证状态和清理
