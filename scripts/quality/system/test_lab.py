@@ -23,7 +23,9 @@ class SystemLabSafetyTests(unittest.TestCase):
         changed = diagnostic_context.patched(source)
         self.assertIn(b'status.error_code()', changed)
         self.assertIn(b'register_grpc_', changed)
-        self.assertNotIn(b'error_message()', changed)
+        self.assertIn(b'const auto registration_message = status.error_message();', changed)
+        self.assertNotIn(b'log("drop-agent", registration_message', changed)
+        self.assertIn(b'register_detail_other', changed)
         self.assertNotIn(b'error_details()', changed)
         self.assertEqual(changed.count(diagnostic_context.AFTER), 1)
         for wrong in (b'', source + diagnostic_context.BEFORE, changed):
@@ -77,6 +79,89 @@ class SystemLabSafetyTests(unittest.TestCase):
         self.assertEqual(projected['registration_grpc_status_counts']['14'], 1)
         self.assertNotIn('synthetic-private', json.dumps(projected))
         self.assertEqual(core_log_projection(raw, 'drop-server')['events']['rpc_internal_error'], 1)
+
+    def test_registration_detail_allows_only_fixed_class_names(self):
+        rows = [{'service': 'drop-agent', 'error_code': 'REGISTER_DETAIL', 'stage': 'register_detail_dns'},
+                {'service': 'drop-agent', 'error_code': 'REGISTER_DETAIL', 'stage': 'register_detail_SYNTHETIC_PRIVATE'},
+                {'service': 'drop-server', 'error_code': 'REGISTER_DETAIL', 'stage': 'register_detail_control_internal'},
+                {'service': 'drop-agent', 'error_code': 'REGISTER_DETAIL', 'stage': 'dns'}]
+        result = core_log_projection('\n'.join(json.dumps(r) for r in rows).encode(), 'drop-agent')
+        self.assertEqual(result['registration_error_classes'], {'control_internal': 0, 'dns': 1, 'failed_connect': 0, 'other': 0})
+        self.assertNotIn('SYNTHETIC_PRIVATE', json.dumps(result))
+
+    def test_resolver_diagnostic_rejects_non14_before_any_command(self):
+        lab = Lab.__new__(Lab)
+        lab.command = Mock()
+        initial = {'agent': {'registration_grpc_status_counts': {'14': 0}, 'events': {'registration_succeeded': 0}}, 'drop-server': {'events': {'rpc_internal_error': 0}}}
+        with self.assertRaisesRegex(LabError, '^RESOLVER_DIAGNOSTIC_PRECONDITION$'):
+            lab.diagnostic_resolver_comparison(initial)
+        lab.command.assert_not_called()
+
+    def test_resolver_diagnostic_rejects_nonzero_work_before_restart(self):
+        lab = Lab.__new__(Lab)
+        lab.readiness = Mock(return_value={'status': 200, 'dependency': 'none'})
+        lab.container = Mock(return_value='owned-postgres')
+        lab.command = Mock(return_value=SimpleNamespace(stdout=b'{"tasks":1,"attempts":0}'))
+        initial = {'agent': {'registration_grpc_status_counts': {'14': 26}, 'events': {'registration_succeeded': 0}}, 'drop-server': {'events': {'rpc_internal_error': 0}}}
+        with self.assertRaisesRegex(LabError, '^RESOLVER_DIAGNOSTIC_NONZERO_WORK$'):
+            lab.diagnostic_resolver_comparison(initial)
+        self.assertEqual(lab.command.call_count, 1)
+        self.assertNotIn('stop', lab.command.call_args.args[0])
+
+    def test_resolver_diagnostic_three_legs_check_new_cids_not_persisted_agent_row(self):
+        with tempfile.TemporaryDirectory(prefix='qa-resolver-synthetic-') as directory:
+            lab = Lab.__new__(Lab)
+            lab.path, lab.output, lab.project = Path(directory), Path(directory), PROJECT
+            lab.config, lab.base = {}, ['compose-synthetic']
+            lab.readiness = Mock(return_value={'status': 200, 'dependency': 'none'})
+            atomic_json(lab.path / 'overlay.json', {'services': {'agent': {'environment': {'SYNTHETIC_FIXED': 'value'}}}})
+            state = {'cid': 'original'}
+            calls = []
+            lab.container = Mock(side_effect=lambda service: 'pg-owned' if service == 'postgres' else state['cid'])
+            def command(argv, *_args, **_kwargs):
+                calls.append(argv)
+                env = json.loads((lab.path / 'overlay.json').read_text())['services']['agent']['environment']
+                if argv[:2] == ['docker', 'inspect']:
+                    row = container()
+                    row.update({'Image': 'synthetic-fixed-image', 'Mounts': [], 'NetworkSettings': {'Networks': {PROJECT + '_control': {}}},
+                                'State': {'Running': True, 'OOMKilled': False}})
+                    row['Config'].update({'Env': [k + '=' + v for k, v in env.items()], 'Entrypoint': ['drop_agent'], 'Cmd': None, 'User': '10001:10001'})
+                    return SimpleNamespace(stdout=json.dumps([row]).encode())
+                if argv[:2] == ['docker', 'exec']:
+                    return SimpleNamespace(stdout=b'{"tasks":0,"attempts":0}')
+                if 'config' in argv:
+                    return SimpleNamespace(stdout=json.dumps({'services': {'agent': {'environment': env, 'image': 'same'}}}).encode())
+                if 'up' in argv:
+                    state['cid'] = 'native-new' if 'GRPC_DNS_RESOLVER' in env else 'default-new'
+                if argv[:2] == ['docker', 'logs']:
+                    event = {'service': 'drop-agent', 'message': 'Registered over mTLS'} if state['cid'] == 'native-new' else {'service': 'drop-agent', 'error_code': 'REGISTER_FAILED', 'stage': 'register_grpc_14'}
+                    return SimpleNamespace(stdout=json.dumps(event).encode(), stderr=b'')
+                return SimpleNamespace(stdout=b'')
+            lab.command = command
+            initial = {'agent': {'registration_grpc_status_counts': {'14': 26}, 'events': {'registration_succeeded': 0}}, 'drop-server': {'events': {'rpc_internal_error': 0}}}
+            clock = iter(range(0, 1000, 5))
+            with patch('lab.dev.validate_rendered'), patch('lab.validate_system_networks'), patch('lab.time.sleep'), patch('lab.time.monotonic', side_effect=lambda: next(clock)):
+                row = lab.diagnostic_resolver_comparison(initial)
+            self.assertEqual(row['conclusion'], 'RESOLVER_STRATEGY_DIFFERENCE_REPRODUCED')
+            self.assertEqual([r['registered'] for r in row['legs']], [True, False])
+            self.assertFalse(row['acceptance_eligible'])
+            self.assertTrue(row['original_browser_failure_preserved'])
+            self.assertEqual(sum('stop' in argv for argv in calls), 2)
+            self.assertEqual({argv[-1] for argv in calls if argv[:2] == ['docker', 'logs']}, {'native-new', 'default-new'})
+            self.assertNotIn('GRPC_DNS_RESOLVER', json.loads((lab.path / 'overlay.json').read_text())['services']['agent']['environment'])
+            # 有界负控：第二次对照中Core在第三腿变503，必须拒绝归因，保留已有两腿收据。
+            state['cid'] = 'original-again'
+            lab.readiness = Mock(side_effect=[{'status': 200, 'dependency': 'none'},
+                                              {'status': 200, 'dependency': 'none'},
+                                              {'status': 503, 'dependency': 'control'}])
+            clock = iter(range(0, 1000, 5))
+            with patch('lab.dev.validate_rendered'), patch('lab.validate_system_networks'), patch('lab.time.sleep'), patch('lab.time.monotonic', side_effect=lambda: next(clock)):
+                with self.assertRaisesRegex(LabError, '^RESOLVER_DIAGNOSTIC_CORE_CHANGED$'):
+                    lab.diagnostic_resolver_comparison(initial)
+            rejected = json.loads((lab.output / 'resolver-diagnostic.json').read_text())
+            self.assertNotIn('conclusion', rejected)
+            self.assertEqual(rejected['legs'][-1]['readiness'], {'status': 503, 'dependency': 'control'})
+            self.assertFalse(rejected['acceptance_eligible'])
 
     def test_core_log_projection_counts_only_fixed_events_without_exporting_body(self):
         rows = [{'service': 'drop-agent', 'message': 'Effective configuration loaded', 'configuration': {'secret': 'SYNTHETIC_PRIVATE'}},

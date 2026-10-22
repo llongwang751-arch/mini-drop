@@ -74,6 +74,7 @@ def core_log_projection(raw, service):
                                  'registration_succeeded', 'registration_failed', 'server_ready', 'configuration_error',
                                  'rpc_internal_error', 'database_sweep_deferred')}
     grpc_status_counts = {str(code): 0 for code in range(17)}
+    registration_error_classes = {name: 0 for name in ('control_internal', 'dns', 'failed_connect', 'other')}
     messages = {'Effective configuration loaded': 'configuration_loaded',
                 'perf capability verified by real sampling probe': 'perf_probe_succeeded',
                 'Registered over mTLS': 'registration_succeeded',
@@ -96,6 +97,10 @@ def core_log_projection(raw, service):
             match = re.fullmatch(r'register_grpc_([0-9]|1[0-6])', row['stage'])
             if match:
                 grpc_status_counts[match.group(1)] += 1
+        if row.get('error_code') == 'REGISTER_DETAIL' and isinstance(row.get('stage'), str):
+            name = row['stage'].removeprefix('register_detail_')
+            if row['stage'].startswith('register_detail_') and name in registration_error_classes:
+                registration_error_classes[name] += 1
     lower = text.lower()
     flags = {key: literal in lower for key, literal in {
         'tls_verify_failed': 'certificate verify failed', 'tls_bad_certificate': 'bad certificate',
@@ -104,7 +109,8 @@ def core_log_projection(raw, service):
         'thread_creation_failed': 'could not create grpc_sync_server worker-thread',
         'shared_library_missing': 'cannot open shared object file',
     }.items()}
-    return {'events': counts, 'registration_grpc_status_counts': grpc_status_counts, 'stderr_flags': flags,
+    return {'events': counts, 'registration_grpc_status_counts': grpc_status_counts,
+            'registration_error_classes': registration_error_classes, 'stderr_flags': flags,
             'scope': 'last 100 owned container log lines; fixed event counts and literal-match booleans only'}
 
 
@@ -440,6 +446,93 @@ print(json.dumps({'status':status,'dependency':dependency}))
             'scope': 'one six-second bounded openssl handshake between two currently owned QA containers'}
         return diagnostics
 
+    def diagnostic_resolver_comparison(self, initial):
+        """仅显式插桩轮、原注册14且零任务时比较解析策略；永不把原失败改成通过。
+
+        每腿重建本轮Agent，并从新CID日志确认注册，避免上一腿数据库中保留的Agent行误报。
+        native后再恢复default，区分解析策略与首次启动时序；全部服务、证书、镜像和挂载保持。
+        """
+        require(initial['agent']['registration_grpc_status_counts']['14'] > 0
+                and initial['agent']['events']['registration_succeeded'] == 0
+                and initial['drop-server']['events']['rpc_internal_error'] == 0,
+                'RESOLVER_DIAGNOSTIC_PRECONDITION')
+        require(self.readiness() == {'status': 200, 'dependency': 'none'}, 'RESOLVER_DIAGNOSTIC_CORE_NOT_READY')
+
+        def no_work():
+            pg = self.container('postgres')
+            row = json.loads(self.command(['docker', 'exec', pg, 'psql', '-U', 'drop', '-d', 'drop', '-XAt', '-c',
+                                         "SELECT json_build_object('tasks',(SELECT count(*) FROM tasks),'attempts',(SELECT count(*) FROM task_attempts))"]).stdout)
+            require(set(row) == {'tasks', 'attempts'} and all(type(v) is int and v == 0 for v in row.values()), 'RESOLVER_DIAGNOSTIC_NONZERO_WORK')
+            return row
+
+        def runtime_signature(expected_resolver=None):
+            cid = self.container('agent')
+            value = json.loads(self.command(['docker', 'inspect', cid]).stdout)[0]
+            inspect_owned(value, self.project, 'agent')
+            resolver_values = [v.split('=', 1)[1] for v in value['Config']['Env'] if v.startswith('GRPC_DNS_RESOLVER=')]
+            require(resolver_values == ([] if expected_resolver is None else [expected_resolver]), 'RESOLVER_DIAGNOSTIC_RUNTIME_SETTING_MISMATCH')
+            return cid, {'image': value['Image'],
+                         'environment': sorted(v for v in value['Config']['Env'] if not v.startswith('GRPC_DNS_RESOLVER=')),
+                         'mounts': sorted((m['Type'], m['Source'], m['Destination'], m.get('RW')) for m in value['Mounts']),
+                         'entrypoint': value['Config']['Entrypoint'], 'command': value['Config']['Cmd'],
+                         'user': value['Config']['User'], 'networks': sorted(value['NetworkSettings']['Networks'])}
+
+        no_work()
+        old, original_signature = runtime_signature()
+        rendered = json.loads(self.command(self.base + ['config', '--format', 'json']).stdout)
+        baseline = rendered['services']['agent']
+        require('GRPC_DNS_RESOLVER' not in baseline['environment'], 'RESOLVER_DIAGNOSTIC_BASELINE_ALREADY_SET')
+        report = {'diagnostic_only': True, 'acceptance_eligible': False, 'original_browser_failure_preserved': True,
+                  'initial_default_failed_grpc_14': True, 'legs': [], 'model_calls': 0, 'task_creates': 0}
+
+        for resolver, seconds in (('native', 20), ('default_after_ready', 45)):
+            no_work()
+            old = self.container('agent')
+            self.command(['docker', 'stop', '--time', '3', old], 15)
+            overlay = json.loads((self.path / 'overlay.json').read_text())
+            environment = overlay['services']['agent']['environment']
+            if resolver == 'native':
+                environment['GRPC_DNS_RESOLVER'] = 'native'
+            else:
+                environment.pop('GRPC_DNS_RESOLVER', None)
+            atomic_json(self.path / 'overlay.json', overlay)
+            rendered = json.loads(self.command(self.base + ['config', '--format', 'json']).stdout)
+            dev.validate_rendered(self.config, rendered)
+            validate_system_networks(rendered)
+            actual = rendered['services']['agent']
+            actual['environment'].pop('GRPC_DNS_RESOLVER', None)
+            require(actual == baseline, 'RESOLVER_DIAGNOSTIC_UNCONTROLLED_COMPOSE_CHANGE')
+            self.command(self.base + ['up', '-d', '--no-deps', '--no-build', '--force-recreate', 'agent'], 45)
+            current, signature = runtime_signature('native' if resolver == 'native' else None)
+            require(current != old and signature == original_signature, 'RESOLVER_DIAGNOSTIC_UNCONTROLLED_RUNTIME_CHANGE')
+            started = time.monotonic()
+            projection = None
+            while time.monotonic() - started < seconds:
+                raw = self.command(['docker', 'logs', '--tail', '100', current], allowed_failure=True)
+                projection = core_log_projection(raw.stdout + raw.stderr, 'drop-agent')
+                if projection['events']['registration_succeeded'] > 0:
+                    break
+                time.sleep(1)
+            value = json.loads(self.command(['docker', 'inspect', current]).stdout)[0]
+            inspect_owned(value, self.project, 'agent')
+            state = value.get('State', {})
+            row = {'name': resolver, 'registered': projection['events']['registration_succeeded'] > 0,
+                   'observed_seconds': time.monotonic() - started, 'new_container_checked': True,
+                   'only_resolver_setting_changed': True, 'work_counts': no_work(), 'agent_log_projection': projection,
+                   'container_running': state.get('Running') is True, 'container_oom_killed': state.get('OOMKilled') is True,
+                   'readiness': self.readiness()}
+            report['legs'].append(row)
+            atomic_json(self.output / 'resolver-diagnostic.json', report)
+            require(row['readiness'] == {'status': 200, 'dependency': 'none'}, 'RESOLVER_DIAGNOSTIC_CORE_CHANGED')
+        report['conclusion'] = ('RESOLVER_STRATEGY_DIFFERENCE_REPRODUCED' if report['legs'][0]['registered']
+                                and not report['legs'][1]['registered']
+                                and report['legs'][1]['agent_log_projection']['registration_grpc_status_counts']['14'] > 0
+                                and all(r['container_running'] and not r['container_oom_killed']
+                                        and r['readiness'] == {'status': 200, 'dependency': 'none'} for r in report['legs'])
+                                else 'NO_CLEAN_RESOLVER_EFFECT')
+        atomic_json(self.output / 'resolver-diagnostic.json', report)
+        return report
+
     def cleanup(self):
         if not self.created:
             return {'passed': True, 'scope': 'no compose resources created'}
@@ -585,6 +678,11 @@ def run(args):
                 summary['failure_core_diagnostics'] = lab.failure_core_diagnostics()
             except Exception:
                 summary['failure_core_diagnostics_error'] = 'OWNED_CORE_DIAGNOSTICS_UNAVAILABLE'
+            if args.diagnostic_manifest and summary.get('failure_core_diagnostics', {}).get('agent', {}).get('registration_grpc_status_counts', {}).get('14', 0) > 0:
+                try:
+                    summary['resolver_diagnostic'] = lab.diagnostic_resolver_comparison(summary['failure_core_diagnostics'])
+                except Exception:
+                    summary['resolver_diagnostic_error'] = 'OWNED_RESOLVER_COMPARISON_REJECTED'
         try:
             summary['cleanup'] = lab.cleanup()
         except Exception:

@@ -4,7 +4,9 @@
 
 ## 确定性和随机序列
 
-Go 新增三个原生 Fuzz 入口：`FuzzTaskNormalizeAndValidate`、`FuzzDiagnosisObservationObject`、`FuzzDiagnosisExactScalar`。先运行种子回归，再使用单 worker、有界时间变异；发现的失败会由 Go 保存为可重放语料。没有发现崩溃不代表所有输入已验证。
+Go 新增三个原生 Fuzz 入口：`FuzzTaskNormalizeAndValidate`、`FuzzDiagnosisObservationObject`、`FuzzDiagnosisExactScalar`。当前CI每个目标使用单worker、`-fuzztime=200000x`固定执行次数和120秒进程硬超时，保留全部断言且失败立即退出。此前10秒预算轮出现过末时`context deadline exceeded`；[Go官方缺陷82362](https://github.com/golang/go/issues/82362)记录了相符的预算竞态并建议Nx，但不能证明本次就是同一竞态，也不能由缺少失败输入日志推断没有崩溃。原轮次仍保留为失败，不自动重试挑绿。
+
+`capture_fuzz_corpus.py`在CI的always步骤保留上述三个固定`testdata/fuzz/<目标>`中的合成反例及SHA清单。仅接受16或64位hex文件名和Go语料头，拒绝祖先/叶子符号链接、硬链接、非常规文件及读取期间变化；每目标最多8个、单文件384KiB、总量2MiB。超限/拒绝会在清单中失败，不把捕获结果覆盖原Go退出码。空语料不证明没有crash；这些可重放字节来自本轮合成Fuzz，不是业务profile或模型输出。没有发现崩溃也不代表所有输入已验证。
 
 `TestPostgresLifecycleRandomizedProperties` 使用真实 Repository、所有权入口、PostgreSQL 事务及全部迁移，执行 4 个固定种子各 96 个操作。覆盖取消、重试、幂等重放、跨所有者读写、延迟 Outbox 与丢失 ACK；每一步校验 attempt 单调、对象命名空间独立、旧授权失效、事件原子性。失败输出第一个失败操作前缀和 seed；`DROP_LIFECYCLE_SEED=<seed>` 可复现，不把测试自己的转移表当作生产状态机。
 

@@ -86,13 +86,25 @@ jobs:
           assert any(r.get('Test') == 'TestPostgresQualityRoutesRespectRoleRevocation' and r.get('Action') == 'pass' for r in rows)
           assert not any(r.get('Action') in {'skip', 'fail'} for r in rows)
           PY
-      - name: Native Go Fuzz, three independent ten-second budgets
+      - name: Native Go Fuzz, three independent 200000-execution budgets
+        id: native_go_fuzz
         working-directory: api
         env: {GOMAXPROCS: '2'}
         run: |
-          go test ./internal/domain -run '^$' -fuzz '^FuzzTaskNormalizeAndValidate$' -fuzztime=10s -parallel=1 -timeout=60s
-          go test ./internal/service -run '^$' -fuzz '^FuzzDiagnosisObservationObject$' -fuzztime=10s -parallel=1 -timeout=60s
-          go test ./internal/service -run '^$' -fuzz '^FuzzDiagnosisExactScalar$' -fuzztime=10s -parallel=1 -timeout=60s
+          go test ./internal/domain -run '^$' -fuzz '^FuzzTaskNormalizeAndValidate$' -fuzztime=200000x -parallel=1 -timeout=120s
+          go test ./internal/service -run '^$' -fuzz '^FuzzDiagnosisObservationObject$' -fuzztime=200000x -parallel=1 -timeout=120s
+          go test ./internal/service -run '^$' -fuzz '^FuzzDiagnosisExactScalar$' -fuzztime=200000x -parallel=1 -timeout=120s
+      - name: Preserve bounded synthetic counterexamples even when fuzzing fails
+        if: always()
+        run: python scripts/quality/protocol/capture_fuzz_corpus.py --output "$PWD/.local/quality-fuzz-corpus" --native-outcome '${{ steps.native_go_fuzz.outcome || 'unknown' }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: synthetic-go-fuzz-counterexamples
+          path: .local/quality-fuzz-corpus/
+          # 只包含捕获器新建的固定目录；不扩展到其它.local私有材料。
+          include-hidden-files: true
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -218,7 +230,7 @@ jobs:
         if: always()
         run: |
           mkdir -p .local/system-public
-          for name in summary.json browser.json progress.json; do
+          for name in summary.json browser.json progress.json resolver-diagnostic.json; do
             if sudo test -f "$PWD/.local/system-live-run/$name"; then
               sudo install -m 0644 "$PWD/.local/system-live-run/$name" "$PWD/.local/system-public/$name"
             fi
@@ -232,4 +244,5 @@ jobs:
             .local/system-public/summary.json
             .local/system-public/browser.json
             .local/system-public/progress.json
+            .local/system-public/resolver-diagnostic.json
           if-no-files-found: warn

@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "source_commit": "0cc95f6e3bb12f6b844c8340e4bc96e591ff4ef2",
+  "workflow": "JD testing assurance",
+  "run_id": 39849366453,
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "id": 120071107732,
+      "name": "protocol-state",
+      "status": "completed",
+      "conclusion": "failure",
+      "successful_steps": 14,
+      "active_or_failed_steps": [
+        {
+          "name": "Native Go Fuzz, three independent ten-second budgets",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "id": 120071108248,
+      "name": "memory-and-live-sampling",
+      "status": "completed",
+      "conclusion": "failure",
+      "successful_steps": 22,
+      "active_or_failed_steps": [
+        {
+          "name": "Real browser to HTTP to mTLS collector to S3 to Analyzer and owned recovery",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "id": 120071108407,
+      "name": "bounded-business-and-agent-regressions",
+      "status": "completed",
+      "conclusion": "success",
+      "successful_steps": 14,
+      "active_or_failed_steps": []
+    }
+  ],
+  "observed_at": "2026-10-22T20:47:45.037287+00:00",
+  "same_source_baseline": {
+    "run_id": 39849366330,
+    "observed_at": "2026-10-22T20:46:22.931855+00:00",
+    "jobs": [
+      {
+        "id": 120071108201,
+        "name": "api",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 12,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120071108408,
+        "name": "core",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 5,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120071108529,
+        "name": "analyzer",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 7,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120071108659,
+        "name": "web",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 16,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120071108687,
+        "name": "maintenance",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 33,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120071108735,
+        "name": "contracts",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 14,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120071108781,
+        "name": "agent-runtime",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 9,
+        "active_or_failed_steps": []
+      }
+    ]
+  },
+  "diagnostic_instrumentation": true,
+  "acceptance_eligible": false,
+  "instrumentation_scope": "QA build context substitutes only registration logging with numeric gRPC status 0..16; repository production C++ bytes unchanged",
+  "failure_codes": [
+    "GO_DURATION_FUZZ_CONTEXT_DEADLINE_EXCEEDED",
+    "CPP_GRPC_REGISTRATION_UNAVAILABLE_14"
+  ],
+  "details": [
+    "Go first native Fuzz duration budget exited nonzero at its deadline after176033 executions. No failing input was printed; this does not establish absence of a crash, and the original ephemeral corpus was not captured. Independent failure retained.",
+    "Owned Agent Init failed26times with numeric gRPC code14; no register success; server INTERNAL count0. Explicit internal API readiness returned200/none, and owned openssl mTLS handshake succeeded. Resolver/root cause not proven in this CI run."
+  ],
+  "all_ten_jobs": {
+    "success": 8,
+    "failure": 2,
+    "completed": 10
+  },
+  "private_log_sha256": "16c5fee5b9b218d5f6438bb5c951a438c1f9ce5d4da60115b7dacd0fa496f60a",
+  "private_logs_published": false,
+  "model_calls": 0,
+  "production_access": false
+}

@@ -15,7 +15,19 @@ AFTER = b'''      LogContext registration_context;
       registration_context.stage =
           "register_grpc_" + std::to_string(static_cast<int>(status.error_code()));
       log("drop-agent", "Registration unavailable", "", "REGISTER_FAILED",
-          registration_context);'''
+          registration_context);
+      LogContext registration_detail;
+      registration_detail.stage = "register_detail_other";
+      const auto registration_message = status.error_message();
+      if (registration_message == "Control plane temporarily unavailable") {
+        registration_detail.stage = "register_detail_control_internal";
+      } else if (registration_message.find("DNS resolution failed") == 0) {
+        registration_detail.stage = "register_detail_dns";
+      } else if (registration_message.find("failed to connect to all addresses") == 0) {
+        registration_detail.stage = "register_detail_failed_connect";
+      }
+      log("drop-agent", "Registration transport classification", "", "REGISTER_DETAIL",
+          registration_detail);'''
 DOCKERFILE = '''ARG CORE_BUILD_IMAGE
 ARG CORE_RUNTIME_IMAGE
 FROM ${CORE_BUILD_IMAGE} AS diagnostic-build
@@ -60,7 +72,7 @@ def prepare(output, build_image, runtime_image):
                'original_source_sha256': hashlib.sha256(original).hexdigest(),
                'instrumented_source_sha256': hashlib.sha256(instrumented).hexdigest(),
                'patch_sha256': hashlib.sha256(patch).hexdigest(), 'base_image_ids': ids,
-               'scope': 'single registration log gets fixed numeric gRPC status in stage; no error message or details exported',
+               'scope': 'registration log gets numeric gRPC status plus fixed error class enum; error message only compared internally, never exported',
                'files': {name: hashlib.sha256(body).hexdigest() for name, body in files.items()}}
     (output / 'manifest.json').write_text(json.dumps(receipt, indent=2) + '\n')
     return receipt

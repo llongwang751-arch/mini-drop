@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-22T20:44:37.343019+00:00",
+  "provenance": "local Windows Go1.26.10, explicitly synthetic existing corpus; not replacement for failed Linux CI",
+  "targets": [
+    {
+      "target": "FuzzTaskNormalizeAndValidate",
+      "exit_code": 0,
+      "elapsed_seconds": 17.017,
+      "reported_fuzz_execs": 200000,
+      "fixed_budget": 200000,
+      "hard_timeout_seconds": 120,
+      "parallel": 1
+    },
+    {
+      "target": "FuzzDiagnosisObservationObject",
+      "exit_code": 0,
+      "elapsed_seconds": 84.959,
+      "reported_fuzz_execs": 200000,
+      "fixed_budget": 200000,
+      "hard_timeout_seconds": 120,
+      "parallel": 1
+    },
+    {
+      "target": "FuzzDiagnosisExactScalar",
+      "exit_code": 0,
+      "elapsed_seconds": 85.695,
+      "reported_fuzz_execs": 200000,
+      "fixed_budget": 200000,
+      "hard_timeout_seconds": 120,
+      "parallel": 1
+    }
+  ],
+  "source_commit": "0cc95f6e3bb12f6b844c8340e4bc96e591ff4ef2",
+  "go_version": "go version go1.26.10 windows/amd64",
+  "source_fuzz_sha256": {
+    "api/internal/domain/task_fuzz_test.go": "6bf7d68d3a8224465ec1772eddcd8183c2720d90510feb3b8a19d118c431cd20",
+    "api/internal/service/diagnosis_fuzz_test.go": "16a26fba4b9199b14d3c73029a7d3908d20589216892e4f811c92b4f1a3a74b3",
+    "api/go.sum": "42f219db588a7d73f0bb32bd9ac78d01da3cae6168004293fe074068343cae43"
+  },
+  "passed": true,
+  "fixed_budget_total": 600000,
+  "linux_ci_replacement": false,
+  "original_auxiliary_go_version": "go version go1.26.5 windows/amd64",
+  "original_auxiliary_metadata_query_cwd": "E:/tx-drop (outside Go module)",
+  "module_toolchain_confirmation": {
+    "queried_at": "2026-10-22T20:58:02.697218+00:00",
+    "metadata_query_cwd": "E:/tx-drop/api",
+    "version_stdout": "go version go1.26.10 windows/amd64",
+    "goversion": "go1.26.10",
+    "gotoolchain": "auto",
+    "go_mod_relative": "api/go.mod",
+    "go_mod_sha256": "251545e50428dc62866c50aad43db2c9cc9dddff6f5ab572cc7a04022bae35e1",
+    "execution_cwd_matches_three_fuzz_commands": true,
+    "explanation": "Initial auxiliary go version was queried at repository root outside api module. Actual Fuzz subprocesses used api cwd with automatic go.mod toolchain selection; same cwd and environment re-query confirms1.26.10. Original auxiliary1.26.5 observation retained;600000 executions were not rerun."
+  }
+}

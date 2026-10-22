@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "source_commit": "6aeb122639e1d037ca56402f5e398029857d0f13",
+  "workflow": "JD testing assurance",
+  "run_id": 39846360210,
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "id": 120060564727,
+      "name": "memory-and-live-sampling",
+      "status": "completed",
+      "conclusion": "failure",
+      "successful_steps": 20,
+      "active_or_failed_steps": [
+        {
+          "name": "Real browser to HTTP to mTLS collector to S3 to Analyzer and owned recovery",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "id": 120060564985,
+      "name": "protocol-state",
+      "status": "completed",
+      "conclusion": "success",
+      "successful_steps": 17,
+      "active_or_failed_steps": []
+    },
+    {
+      "id": 120060565229,
+      "name": "bounded-business-and-agent-regressions",
+      "status": "completed",
+      "conclusion": "success",
+      "successful_steps": 14,
+      "active_or_failed_steps": []
+    }
+  ],
+  "observed_at": "2026-10-22T20:22:17.592686+00:00",
+  "failure_code": "GRPC_REGISTRATION_REFUSED_DESPITE_VERIFIED_TLS",
+  "detail": "Owned Core ready event and Agent configuration-loaded event seen; 26 registration failures, no registered event. Agent-to-Core openssl mTLS handshake exited zero with peer certificate verification. No proxy environment keys present. Specific gRPC status not recorded in this original run; no exact root cause claimed.",
+  "private_log_sha256": "f1617da1865bb109373b74045bab9984643b23c7ce1fec8d8ada6b8b9784a236",
+  "private_logs_published": false,
+  "model_calls": 0,
+  "production_access": false,
+  "same_source_baseline": {
+    "run_id": 39846360186,
+    "jobs": [
+      {
+        "id": 120060563771,
+        "name": "contracts",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 14,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120060564108,
+        "name": "core",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 5,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120060564293,
+        "name": "api",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 12,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120060564353,
+        "name": "analyzer",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 7,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120060564423,
+        "name": "maintenance",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 33,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120060564466,
+        "name": "agent-runtime",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 9,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120060564490,
+        "name": "web",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 16,
+        "active_or_failed_steps": []
+      }
+    ],
+    "passed": 7,
+    "failed": 0
+  },
+  "combined_same_source_jobs": {
+    "total": 10,
+    "passed": 9,
+    "failed": 1,
+    "skipped": 0
+  },
+  "api_healthy_is_liveness_only_not_readiness": true
+}
