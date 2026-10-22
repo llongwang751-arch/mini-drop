@@ -332,13 +332,16 @@ S["TelemetryChange"] = obj({"timestamp": DATE, "change_type": string(enum=["depl
     ("timestamp", "change_type", "revision_ref"), closed=True)
 S["BusinessSignalObservation"] = obj({"available": BOOL, "reason": string(), "service_ref": string(pattern=r"^S[1-8]$"),
     "signal": string(enum=["metrics", "logs", "traces", "changes"]), "window": ref("SignalWindow"),
+    "window_scope": string(enum=["collector_execution", "attempt_execution"]),
+    "context_window": ref("SignalWindow"), "context_queried": {"type": "boolean", "const": False},
     "source_kind": string(enum=["prometheus", "loki", "tempo", "drop-adapter"]), "query_digest": string(),
     "metrics": arr(ref("TelemetryMetric"), maxItems=3), "logs": arr(ref("TelemetryLog"), maxItems=30),
     "traces": arr(ref("TelemetryTrace"), maxItems=20), "changes": arr(ref("TelemetryChange"), maxItems=20),
-    "truncated": BOOL, "limitations": arr(string())}, ("available", "service_ref", "signal", "truncated", "limitations"), closed=True,
-    description="只读业务观测，不包含原日志、自由标签或连接配置。window采用omitzero：没有可核实时钟则省略，并返回available=false/reason=collection_window_unknown；缺数据不证明正常。")
+    "truncated": BOOL, "limitations": arr(string())}, ("available", "service_ref", "signal", "context_queried", "truncated", "limitations"), closed=True,
+    description="只读业务观测。window优先使用collector执行时钟，旧任务明确回退attempt执行区间；context_window只作上下文说明，context_queried固定false，未混入本轮聚合。没有可核实时钟则省略窗口，并返回available=false/reason=collection_window_unknown；缺数据不证明正常。")
 S["BusinessSignalObservation"]["allOf"] = [{"if": {"properties": {"reason": {"const": "collection_window_unknown"}}, "required": ["reason"]},
-    "then": {"not": {"required": ["window"]}, "properties": {"available": {"const": False}}}}]
+    "then": {"not": {"anyOf": [{"required": [key]} for key in ("window", "window_scope", "context_window")]}, "properties": {"available": {"const": False}}}},
+    {"if": {"required": ["window_scope"]}, "then": {"required": ["window", "context_window"]}}]
 S["DiagnosisStep"]["allOf"] = [{"if": {"properties": {"tool": {"const": "query_business_signals"}}, "required": ["tool"]},
     "then": {"properties": {"observation": ref("BusinessSignalObservation")}}}]
 S["DiagnosisRun"] = obj({"id": ID, "task_id": ID, "attempt_id": ID, "analysis_job_id": ID, "analysis_run": integer(minimum=0),

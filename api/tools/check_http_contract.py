@@ -194,9 +194,19 @@ def main():
     valid("DiagnosisVerifiedFact", {**fact, "value": {"untrusted": "object"}}, False)
     valid("DiagnosisStep", {"evidence_id": "E15", "tool": "propose_followup_collection", "observation": {}})
     valid("DiagnosisStep", {"evidence_id": "E16", "tool": "inspect_hotspots", "observation": {}}, False)
-    unknown_window = {"available": False, "service_ref": "S1", "signal": "metrics", "reason": "collection_window_unknown", "truncated": False, "limitations": ["真实采集时钟缺失"]}
+    unknown_window = {"available": False, "service_ref": "S1", "signal": "metrics", "reason": "collection_window_unknown", "context_queried": False, "truncated": False, "limitations": ["真实采集时钟缺失"]}
     valid("BusinessSignalObservation", unknown_window)
     valid("BusinessSignalObservation", {**unknown_window, "window": {"start": "0001-01-01T00:00:00Z", "end": "0001-01-01T00:00:00Z"}}, False)
+    # 固定导入夹具：原上下文窗未查询，不能把范围元数据解释成本轮聚合范围。
+    executed_window = {"start": "2026-10-23T01:00:00Z", "end": "2026-10-23T01:00:20Z"}
+    measured_signal = {key: value for key, value in unknown_window.items() if key != "reason"}
+    measured_signal.update(available=True, window=executed_window, context_window=executed_window, window_scope="collector_execution")
+    valid("BusinessSignalObservation", measured_signal)
+    valid("BusinessSignalObservation", {**measured_signal, "window_scope": "attempt_execution"})
+    valid("BusinessSignalObservation", {**measured_signal, "window_scope": "historical_aggregate"}, False)
+    valid("BusinessSignalObservation", {**measured_signal, "context_queried": True}, False)
+    valid("BusinessSignalObservation", {key: value for key, value in measured_signal.items() if key != "context_window"}, False)
+    valid("BusinessSignalObservation", {**unknown_window, "context_window": executed_window}, False)
     valid("TelemetryMetric", {"name": "error_rate", "value": 0.01, "unit": "ratio", "observed_at": "2026-10-21T01:00:00Z"})
     valid("TelemetryTrace", {"trace_ref": "trace_imported", "duration_ms": 1, "started_at": "2026-10-21T01:00:00Z"})
     regression_counts = {"tests": 1, "failures": 0, "errors": 0, "skipped": 0, "unexpected_successes": 0, "expected_failures": 0, "success": True}

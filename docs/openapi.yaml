@@ -6263,6 +6263,16 @@ components:
           - changes
         window:
           $ref: '#/components/schemas/SignalWindow'
+        window_scope:
+          type: string
+          enum:
+          - collector_execution
+          - attempt_execution
+        context_window:
+          $ref: '#/components/schemas/SignalWindow'
+        context_queried:
+          type: boolean
+          const: false
         source_kind:
           type: string
           enum:
@@ -6301,10 +6311,11 @@ components:
       - available
       - service_ref
       - signal
+      - context_queried
       - truncated
       - limitations
       additionalProperties: false
-      description: 只读业务观测，不包含原日志、自由标签或连接配置。window采用omitzero：没有可核实时钟则省略，并返回available=false/reason=collection_window_unknown；缺数据不证明正常。
+      description: 只读业务观测。window优先使用collector执行时钟，旧任务明确回退attempt执行区间；context_window只作上下文说明，context_queried固定false，未混入本轮聚合。没有可核实时钟则省略窗口，并返回available=false/reason=collection_window_unknown；缺数据不证明正常。
       allOf:
       - if:
           properties:
@@ -6314,11 +6325,23 @@ components:
           - reason
         then:
           not:
-            required:
-            - window
+            anyOf:
+            - required:
+              - window
+            - required:
+              - window_scope
+            - required:
+              - context_window
           properties:
             available:
               const: false
+      - if:
+          required:
+          - window_scope
+        then:
+          required:
+          - window
+          - context_window
     DiagnosisRun:
       type: object
       properties:
