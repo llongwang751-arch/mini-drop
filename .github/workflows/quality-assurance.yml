@@ -170,6 +170,14 @@ jobs:
           docker build -f api/Dockerfile -t drop-api:quality-system .
           docker build --target runtime -f core/Dockerfile -t drop-core:quality-system .
           docker build -f web/Dockerfile -t drop-web:quality-system .
+      - name: QA-only exact registration status instrumentation, never final acceptance
+        run: |
+          python3 scripts/quality/system/make_diagnostic_context.py --build-image drop-core-test --runtime-image drop-core:quality-system --output "$PWD/.local/system-registration-diagnostic"
+          core_build_id="$(docker image inspect drop-core-test --format '{{.Id}}')"
+          core_runtime_id="$(docker image inspect drop-core:quality-system --format '{{.Id}}')"
+          docker build --network none --build-arg CORE_BUILD_IMAGE=drop-core-test --build-arg CORE_RUNTIME_IMAGE=drop-core:quality-system -t drop-core:quality-system-diagnostic "$PWD/.local/system-registration-diagnostic"
+          test "$(docker image inspect drop-core-test --format '{{.Id}}')" = "$core_build_id"
+          test "$(docker image inspect drop-core:quality-system --format '{{.Id}}')" = "$core_runtime_id"
       - uses: actions/setup-python@v5
         with: {python-version: '3.12'}
       - uses: actions/setup-node@v4
@@ -183,7 +191,7 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Extract only current build artifacts, never production running containers
         run: |
-          python scripts/quality/system/extract_bindings.py --api-image drop-api:quality-system --core-image drop-core:quality-system --web-image drop-web:quality-system --analyzer-image drop-analyzer:quality --output "$PWD/.local/system-current-build"
+          python scripts/quality/system/extract_bindings.py --api-image drop-api:quality-system --core-image drop-core:quality-system-diagnostic --web-image drop-web:quality-system --analyzer-image drop-analyzer:quality --output "$PWD/.local/system-current-build"
       - name: Real browser to HTTP to mTLS collector to S3 to Analyzer and owned recovery
         env:
           SOAK_MINUTES: ${{ github.event.inputs.soak_minutes || '0' }}
@@ -191,7 +199,15 @@ jobs:
           # Compose插件安装在runner的Docker配置目录，sudo后仍显式使用该固定版本。
           compose_version="$(sudo env DOCKER_CONFIG="${DOCKER_CONFIG:-$HOME/.docker}" docker compose version --short)"
           test "${compose_version#v}" = '2.40.3'
-          sudo env PATH="$PATH" DOCKER_CONFIG="${DOCKER_CONFIG:-$HOME/.docker}" PLAYWRIGHT_BROWSERS_PATH="$HOME/.cache/ms-playwright" python scripts/quality/system/lab.py --images "$PWD/.local/system-current-build/images.json" --bindings "$PWD/.local/system-current-build/bindings.json" --bootstrap-image drop-core-test --output "$PWD/.local/system-live-run" --soak-minutes "$SOAK_MINUTES"
+          sudo env PATH="$PATH" DOCKER_CONFIG="${DOCKER_CONFIG:-$HOME/.docker}" PLAYWRIGHT_BROWSERS_PATH="$HOME/.cache/ms-playwright" python scripts/quality/system/lab.py --images "$PWD/.local/system-current-build/images.json" --bindings "$PWD/.local/system-current-build/bindings.json" --bootstrap-image drop-core-test --output "$PWD/.local/system-live-run" --soak-minutes "$SOAK_MINUTES" --diagnostic-manifest "$PWD/.local/system-registration-diagnostic/manifest.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qa-only-registration-instrumentation
+          path: |
+            .local/system-registration-diagnostic/manifest.json
+            .local/system-registration-diagnostic/registration-status.patch
+          if-no-files-found: warn
       - uses: actions/upload-artifact@v4
         if: always()
         with:

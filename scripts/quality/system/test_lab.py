@@ -7,6 +7,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 from lab import API, Lab, LabError, NoRedirect, atomic_json, core_log_projection, inspect_owned, interrupted, validate_system_networks
+import make_diagnostic_context as diagnostic_context
 
 PROJECT = 'txdrop-dev-qa-' + 'a' * 12
 
@@ -17,6 +18,66 @@ def container(project=PROJECT, service='agent', privileged=False, pid_mode=''):
 
 
 class SystemLabSafetyTests(unittest.TestCase):
+    def test_diagnostic_patch_is_exact_once_and_has_no_error_body(self):
+        source = b'prefix\n' + diagnostic_context.BEFORE + b'\nsuffix\n'
+        changed = diagnostic_context.patched(source)
+        self.assertIn(b'status.error_code()', changed)
+        self.assertIn(b'register_grpc_', changed)
+        self.assertNotIn(b'error_message()', changed)
+        self.assertNotIn(b'error_details()', changed)
+        self.assertEqual(changed.count(diagnostic_context.AFTER), 1)
+        for wrong in (b'', source + diagnostic_context.BEFORE, changed):
+            with self.assertRaises(ValueError):
+                diagnostic_context.patched(wrong)
+
+    def test_diagnostic_context_preserves_original_source_and_binds_image_ids(self):
+        with tempfile.TemporaryDirectory(prefix='qa-diagnostic-synthetic-') as directory:
+            root = Path(directory)
+            (root / 'core/src').mkdir(parents=True)
+            source = b'// explicit synthetic C++\n' + diagnostic_context.BEFORE + b'\n'
+            (root / 'core/src/agent.cpp').write_bytes(source)
+            ids = {'build': 'sha256:' + 'a' * 64, 'runtime': 'sha256:' + 'b' * 64}
+            output = (root / 'output').resolve()
+            with patch.object(diagnostic_context, 'ROOT', root), patch.object(diagnostic_context, 'image_id', side_effect=lambda ref: ids[ref]):
+                row = diagnostic_context.prepare(output, 'build', 'runtime')
+            self.assertEqual((root / 'core/src/agent.cpp').read_bytes(), source)
+            self.assertFalse(row['acceptance_eligible'])
+            self.assertFalse(row['production_or_repository_cpp_modified'])
+            self.assertEqual(row['base_image_ids'], ids)
+            self.assertEqual(set(row['files']), {'agent.diagnostic.cpp', 'registration-status.patch', 'Dockerfile'})
+            self.assertNotEqual(row['original_source_sha256'], row['instrumented_source_sha256'])
+
+    def test_readiness_refuses_foreign_dependency_before_execution(self):
+        lab = Lab.__new__(Lab)
+        lab.container = Mock(side_effect=LabError('OWNERSHIP_MISMATCH'))
+        lab.command = Mock()
+        with self.assertRaises(LabError):
+            lab.readiness()
+        lab.command.assert_not_called()
+
+    def test_readiness_requires_exact_bounded_dependency_receipt(self):
+        lab = Lab.__new__(Lab)
+        lab.container = Mock(return_value='owned')
+        lab.command = Mock(return_value=SimpleNamespace(stdout=b'{"status":503,"dependency":"control"}'))
+        self.assertEqual(lab.readiness(), {'status': 503, 'dependency': 'control'})
+        for row in ({'status': 200, 'dependency': 'none', 'raw': 'synthetic-private'},
+                    {'status': True, 'dependency': 'none'}, {'status': 503, 'dependency': 'unbounded-private'}):
+            lab.command.return_value.stdout = json.dumps(row).encode()
+            with self.assertRaises(LabError):
+                lab.readiness()
+
+    def test_grpc_status_counts_and_server_internal_errors_are_fixed_only(self):
+        rows = [{'service': 'drop-agent', 'error_code': 'REGISTER_FAILED', 'stage': 'register_grpc_14'},
+                {'service': 'drop-agent', 'error_code': 'REGISTER_FAILED', 'stage': 'register_grpc_999'},
+                {'service': 'drop-agent', 'error_code': 'REGISTER_FAILED', 'stage': 'synthetic-private'},
+                {'service': 'drop-server', 'error_code': 'INTERNAL'}]
+        raw = '\n'.join(json.dumps(r) for r in rows).encode()
+        projected = core_log_projection(raw, 'drop-agent')
+        self.assertEqual(sum(projected['registration_grpc_status_counts'].values()), 1)
+        self.assertEqual(projected['registration_grpc_status_counts']['14'], 1)
+        self.assertNotIn('synthetic-private', json.dumps(projected))
+        self.assertEqual(core_log_projection(raw, 'drop-server')['events']['rpc_internal_error'], 1)
+
     def test_core_log_projection_counts_only_fixed_events_without_exporting_body(self):
         rows = [{'service': 'drop-agent', 'message': 'Effective configuration loaded', 'configuration': {'secret': 'SYNTHETIC_PRIVATE'}},
                 {'service': 'drop-agent', 'error_code': 'REGISTER_FAILED', 'message': 'SYNTHETIC_PRIVATE'},

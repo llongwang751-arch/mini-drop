@@ -16,6 +16,8 @@
 
 - 新失败摘要已以新ID原子追加至线上14条，原13条SHA保持，29容器身份/镜像/卷前后相等，零重启/SQL/模型。公网真实浏览器管理员14条SHA、匿名401、7历史失败筛选、未知人审显示、JSON下载与1440/375两宽通过，0页面错误、logout200；两份截图已实际检查。见[追加](docs/evidence/jd-depth-20261023/release/records-append.json)与[公网验收](docs/evidence/jd-depth-20261023/release/public-browser.json)。
 
+- 6aeb122的真实CI依然9/10，新增证据确认Core启动和Agent初始化完成、注册失败26次，代理为空、owned mTLS握手通过；尚未取得具体RPC状态。下一轮只在可销毁QA构建上下文进行一次日志插桩，记录原/补丁/插桩源码SHA并标明acceptance_eligible=false；仓库C++、协议和生产程序不改。补Core内部错误计数、真正API就绪依赖投影，21项负控与语法/YAML检查通过。诊断轮不能作为最终整链验收；定位后须回到普通未插桩镜像重新执行。
+
 ## 2026-10-23 · 面向测试开发岗位的质量工具与门禁
 
 - 功能提交b4875c17已正常推送GitHub master，并以源码增量同步82.157.81.79：124份提交内文件逐个SHA通过，readiness200、7监控up，29个生产容器身份/镜像/卷、命名发布镜像和三项目登记快照/执行器broker保持，SQL仍10。此次只新增CLI/CI测试能力，没有重建生产应用或增加页面；私有CRM只读快照与公开源码分开。见[部署收据](docs/evidence/jd-quality-20261023/deployment.json)。

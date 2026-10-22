@@ -71,13 +71,16 @@ def core_log_projection(raw, service):
     require(service in ('drop-agent', 'drop-server') and len(raw) <= 256 * 1024, 'CORE_LOG_PROJECTION_BOUND')
     text = raw.decode('utf-8', errors='replace')
     counts = {key: 0 for key in ('configuration_loaded', 'perf_probe_succeeded', 'perf_probe_unavailable',
-                                 'registration_succeeded', 'registration_failed', 'server_ready', 'configuration_error')}
+                                 'registration_succeeded', 'registration_failed', 'server_ready', 'configuration_error',
+                                 'rpc_internal_error', 'database_sweep_deferred')}
+    grpc_status_counts = {str(code): 0 for code in range(17)}
     messages = {'Effective configuration loaded': 'configuration_loaded',
                 'perf capability verified by real sampling probe': 'perf_probe_succeeded',
                 'Registered over mTLS': 'registration_succeeded',
                 'mTLS control plane ready': 'server_ready'}
     codes = {'PERF_UNAVAILABLE': 'perf_probe_unavailable', 'REGISTER_FAILED': 'registration_failed',
-             'CONFIGURATION_ERROR': 'configuration_error'}
+             'CONFIGURATION_ERROR': 'configuration_error', 'INTERNAL': 'rpc_internal_error',
+             'DB_UNAVAILABLE': 'database_sweep_deferred'}
     for line in text.splitlines():
         try:
             row = json.loads(line)
@@ -89,6 +92,10 @@ def core_log_projection(raw, service):
             value = row.get(field)
             if isinstance(value, str) and value in mapping:
                 counts[mapping[value]] += 1
+        if row.get('error_code') == 'REGISTER_FAILED' and isinstance(row.get('stage'), str):
+            match = re.fullmatch(r'register_grpc_([0-9]|1[0-6])', row['stage'])
+            if match:
+                grpc_status_counts[match.group(1)] += 1
     lower = text.lower()
     flags = {key: literal in lower for key, literal in {
         'tls_verify_failed': 'certificate verify failed', 'tls_bad_certificate': 'bad certificate',
@@ -97,7 +104,7 @@ def core_log_projection(raw, service):
         'thread_creation_failed': 'could not create grpc_sync_server worker-thread',
         'shared_library_missing': 'cannot open shared object file',
     }.items()}
-    return {'events': counts, 'stderr_flags': flags,
+    return {'events': counts, 'registration_grpc_status_counts': grpc_status_counts, 'stderr_flags': flags,
             'scope': 'last 100 owned container log lines; fixed event counts and literal-match booleans only'}
 
 
@@ -296,6 +303,36 @@ class Lab:
             self.command(self.base + ['exec', '-T', service, 'nginx', '-s', 'reload'])
         dev.validate_live_web(self.config, self.path)
 
+    def readiness(self):
+        # Compose的API healthcheck只有liveness；显式检查真实数据库/S3/Core依赖，不能据healthy推断ready。
+        self.container('api')
+        self.container('drop-server')
+        analyzer = self.container('analyzer')
+        program = '''import json,urllib.request,urllib.error
+client=urllib.request.build_opener(urllib.request.ProxyHandler({}))
+try:
+ response=client.open('http://api:8080/health/ready',timeout=6)
+except urllib.error.HTTPError as error:
+ response=error
+except Exception:
+ print(json.dumps({'status':0,'dependency':'unavailable'}));raise SystemExit(0)
+with response:
+ status=response.code
+ body=response.read(513)
+try:
+ value=json.loads(body) if len(body)<=512 else {}
+except ValueError:
+ value={}
+dependency=value.get('dependency') if isinstance(value,dict) else None
+dependency=dependency if dependency in ('database','storage','control') else ('none' if status==200 and value=={'status':'ready'} else 'unknown')
+print(json.dumps({'status':status,'dependency':dependency}))
+'''
+        result = json.loads(self.command(['docker', 'exec', analyzer, 'python', '-c', program], 10).stdout)
+        require(set(result) == {'status', 'dependency'} and type(result['status']) is int
+                and result['status'] in (0, 200, 503) and result['dependency'] in
+                ('none', 'database', 'storage', 'control', 'unavailable', 'unknown'), 'INVALID_READINESS_RECEIPT')
+        return result
+
     def container(self, service):
         name = self.command(self.base + ['ps', '-aq', service]).stdout.decode().strip()
         require(re.fullmatch(r'[a-f0-9]{12,64}', name) is not None, 'CONTAINER_ID_MISSING')
@@ -433,10 +470,22 @@ def run(args):
     lab = Lab(args.output, images, bindings)
     summary = {'schema_version': 1, 'passed': False, 'scope': 'disposable real browser -> Go HTTP -> mTLS Core/Agent PROC_CPU -> MinIO -> Analyzer -> browser result; owned recovery and bounded soak', 'production_access': False, 'model_calls': 0, 'phase': 'prepare', 'error_code': None, 'trials': [], 'faults': [], 'soak': {'requested_minutes': args.soak_minutes}, 'cleanup': None}
     try:
+        summary['diagnostic_instrumentation'] = bool(args.diagnostic_manifest)
+        summary['acceptance_eligible'] = not args.diagnostic_manifest
+        if args.diagnostic_manifest:
+            path = args.diagnostic_manifest
+            require(path.is_file() and not path.is_symlink() and path.stat().st_size <= 16384, 'DIAGNOSTIC_MANIFEST_INVALID')
+            manifest = json.loads(path.read_text())
+            require(manifest.get('diagnostic_instrumentation') is True and manifest.get('acceptance_eligible') is False
+                    and manifest.get('original_source_sha256') == digest(ROOT / 'core/src/agent.cpp'), 'DIAGNOSTIC_SOURCE_BINDING_MISMATCH')
+            summary['diagnostic_manifest_sha256'] = digest(path)
         summary['bindings_sha256'] = lab.prepare()
         summary['images'] = {key: lab.command(['docker', 'image', 'inspect', value, '--format', '{{.Id}}']).stdout.decode().strip() for key, value in images.items()}
         summary['phase'] = 'start'
         lab.start(args.bootstrap_image or images['core'])
+        summary['phase'] = 'platform_readiness'
+        summary['readiness'] = lab.readiness()
+        require(summary['readiness'] == {'status': 200, 'dependency': 'none'}, 'PLATFORM_NOT_READY')
         origin = f"http://127.0.0.1:{lab.config['port']}"
         summary['phase'] = 'real_browser'
         artifact_directory = lab.output / 'browser-artifacts'
@@ -557,6 +606,7 @@ def main():
     parser.add_argument('--node', default='node')
     parser.add_argument('--browser-executable', default='')
     parser.add_argument('--browser-image', default='', help='Optional exact local sha256 image ID of official matching Playwright runtime')
+    parser.add_argument('--diagnostic-manifest', type=Path, help='Explicit QA-only instrumented-source proof; run is ineligible for final acceptance')
     args = parser.parse_args()
     signal.signal(signal.SIGTERM, interrupted)
     signal.signal(signal.SIGINT, interrupted)
