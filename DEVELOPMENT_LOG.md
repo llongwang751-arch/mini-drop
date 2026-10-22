@@ -14,6 +14,8 @@
 
 - 修复后唯一v2-r2原六轮已完成：12诊断终态成功、43逻辑模型/50工具，0未知计费；独立干预6/6，但预登记故障方向仅2/6、综合2通过4失败。恢复Top3 6/6依赖insufficient_evidence匹配，六份正常报告也全含cpu_hotspot，不能称正常误报率0；独立真人语义仍null。六个故障轮均未主动查业务信号，唯一metrics来自正常run125，实际collector_execution约20秒/context_queried=false已验证，取证正确不保证策略正确。29容器、61源码及3环境源后验保持，负载/owned驱动/临时凭据清理完成。新失败摘要独立追加，不覆盖v1/v2-r1，见[完整证据](docs/evidence/jd-depth-20261023/causal/v2-r2/README.md)。
 
+- 新失败摘要已以新ID原子追加至线上14条，原13条SHA保持，29容器身份/镜像/卷前后相等，零重启/SQL/模型。公网真实浏览器管理员14条SHA、匿名401、7历史失败筛选、未知人审显示、JSON下载与1440/375两宽通过，0页面错误、logout200；两份截图已实际检查。见[追加](docs/evidence/jd-depth-20261023/release/records-append.json)与[公网验收](docs/evidence/jd-depth-20261023/release/public-browser.json)。
+
 ## 2026-10-23 · 面向测试开发岗位的质量工具与门禁
 
 - 功能提交b4875c17已正常推送GitHub master，并以源码增量同步82.157.81.79：124份提交内文件逐个SHA通过，readiness200、7监控up，29个生产容器身份/镜像/卷、命名发布镜像和三项目登记快照/执行器broker保持，SQL仍10。此次只新增CLI/CI测试能力，没有重建生产应用或增加页面；私有CRM只读快照与公开源码分开。见[部署收据](docs/evidence/jd-quality-20261023/deployment.json)。

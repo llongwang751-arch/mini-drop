@@ -1,6 +1,6 @@
 # 剩余验收与环境边界
 
-更新：2026-10-23。当前[Drop](https://82.157.81.79)为API20261023.2 / AgentScope runtime20261021.4（SDK2.0.10）/ Web20261023.1 / Analyzer20261021.2（0.2.5）/ SQL10、29个运行容器。本轮[测试深度补强](JD_QUALITY_DEPTH.md)已上线管理员只读[质量验证](https://82.157.81.79/quality)，初始13条摘要逐SHA读回；仅API/Web替换，其他27容器、数据卷及三项目登记快照保持，见[部署收据](evidence/jd-depth-20261023/release/deployment.json)。此前八项Agent扩展见[实现与边界](AGENT_EXPANSION.md)；BOLT、malloc和16类Runner的既有真实验收见[交付矩阵](DELIVERY_MATRIX.md)。旧120.24.187.205只属于历史部署。
+更新：2026-10-23。当前[Drop](https://82.157.81.79)为API20261023.2 / AgentScope runtime20261021.4（SDK2.0.10）/ Web20261023.1 / Analyzer20261021.2（0.2.5）/ SQL10、29个运行容器。本轮[测试深度补强](JD_QUALITY_DEPTH.md)已上线管理员只读[质量验证](https://82.157.81.79/quality)，当前14条摘要逐SHA读回；桌面/手机、历史失败、未知指标、401与JSON导出通过真实[公网浏览器验收](evidence/jd-depth-20261023/release/public-browser.json)。仅API/Web替换，其他27容器、数据卷及三项目登记快照保持，见[部署收据](evidence/jd-depth-20261023/release/deployment.json)。此前八项Agent扩展见[实现与边界](AGENT_EXPANSION.md)；BOLT、malloc和16类Runner的既有真实验收见[交付矩阵](DELIVERY_MATRIX.md)。旧120.24.187.205只属于历史部署。
 
 | 后续范围 | 当前边界 |
 |---|---|
