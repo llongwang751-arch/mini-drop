@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "feature_commit": "d91e6f0d776b3138ef03d153efd4e5bc647f6839",
+  "source_binding": {
+    "production_source_files": 173,
+    "all_equal_after_declared_checkout_newline_normalization": true,
+    "files_with_checkout_newline_difference": 0,
+    "working_tree_sha256": "11c20f5bfea098c818e9db05ae44186dbdd9de7fc54aea84ff3548b044f56a70",
+    "git_canonical_source_sha256": "11c20f5bfea098c818e9db05ae44186dbdd9de7fc54aea84ff3548b044f56a70",
+    "note": "Binaries were built before feature commit from the recorded worktree bytes. The canonical Git source map is independently compared; hashes of checkout bytes and Git blobs need not match."
+  },
+  "current_cpp_release_werror": {
+    "passed": true,
+    "source_archive_sha256": "aed278e0acae6ba832432d7cb762dedf4efea2aad5f5fd6cc1d5d22f68a4624b",
+    "source_commit": "bdfda9ec7f1cca412f61d897c0253808be7c7582",
+    "binaries": {
+      "drop_server": {
+        "sha256": "b2bafd9741d3774d3bfc7782076e73c580ce64c108c546ba9cf476d0caf7de2b"
+      },
+      "drop_agent": {
+        "sha256": "8bf7959c617b694d6f4ef26e4527073d29116f7ad54a46ea3427219fbaf1ed1b"
+      },
+      "drop_workload": {
+        "sha256": "2a19ba3bd7373c6e2eba3f012170c116007bdff4185577609c75c96f922d8f90"
+      }
+    },
+    "requested_memory_bytes": 1610612736,
+    "requested_cpu_cores": 1.25,
+    "exit_code": 0,
+    "finished_at": "2026-10-22T18:03:34.566630+00:00"
+  },
+  "current_linux_parser_and_fifo": {
+    "passed": true,
+    "exit_code": 0,
+    "test_binary_sha256": "00a4dfd5d15e7dae4ebd1d556bed24abadbfcfa5ee151cb1e5ade205f8728f16",
+    "actual_execution": "Linux container, no network, current cross-compiled Go quality parser and FIFO tests",
+    "finished_at": "2026-10-22T18:17:05.112305+00:00"
+  },
+  "candidate_images_before_deployment": {
+    "passed": true,
+    "source_sha256": "11c20f5bfea098c818e9db05ae44186dbdd9de7fc54aea84ff3548b044f56a70",
+    "images": {
+      "api": {
+        "base": "drop-api:20261021.9",
+        "release": "drop-api:20261023.1",
+        "base_image_id": "sha256:a042ff70ad4c8e53466a03aea3160984312e540166001c35c5dc5774496ef89c",
+        "image_id": "sha256:bda1e641c25b3a401b88a3f88a0c91444707c924717c50398f6d3cdb00070cf1"
+      },
+      "web": {
+        "base": "drop-web:20261021.6",
+        "release": "drop-web:20261023.1",
+        "base_image_id": "sha256:f85fc86fe3e2e975362145c2c712c9119a10ac2ceab66fd06712e259e6e75cb4",
+        "image_id": "sha256:c794e8ba8a18d4cf38b5d0dd935b95bc1794368b65e7ac2b20a536ac5b9e3812"
+      }
+    },
+    "production_containers_changed": false,
+    "finished_at": "2026-10-22T18:20:10.780770+00:00"
+  },
+  "real_postgres_role_revocation": {
+    "passed": true,
+    "go_version": "go1.26.10",
+    "database": "fresh isolated loopback PostgreSQL17, all ten authoritative migrations",
+    "provider": "no real model calls; imported fixtures for provider and protocol tests",
+    "tests_passed_including_subtests": 1,
+    "tests_skipped_including_subtests": 0,
+    "failed_tests": [],
+    "skipped_tests": [],
+    "elapsed_seconds": 11.43,
+    "log_sha256": "0b0288324a02bd582fa3317dd1c8b539f793b9280ed8bcfa5b6f3a5ef3bec1a2"
+  },
+  "new_quality_ui_synthetic_fixtures": {
+    "stats": {
+      "startTime": "2026-10-22T18:12:47.906Z",
+      "duration": 8513.778,
+      "expected": 6,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "fixture_scope": "Explicit imported API summaries for rendering; real production acceptance recorded separately."
+  },
+  "limits": [
+    "Named candidate image construction is separate from production deployment.",
+    "No paid model call or private CRM data is used in ordinary CI.",
+    "This receipt does not claim a new full image CVE scan or image signature."
+  ]
+}

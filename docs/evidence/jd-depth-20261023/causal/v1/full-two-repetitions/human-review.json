@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "kind": "controlled_causal_human_review",
+  "plan_sha256": "32e865d4377ba116ccd4bd30248e6e2b13ffc1e7ccdf30e7c4754cbca2793d0e",
+  "reviews": [
+    {
+      "case_id": "c01",
+      "replicate": 2,
+      "phase": "fault",
+      "run_id": "104",
+      "task_id": "121",
+      "analysis_sha256": "af447dc2829b7ec73df32f03129b021a1c62ff396ae4b387f395f9a2f2a6314f",
+      "report_sha256": "d9aa283a0625660fbe3971bbd019819b2b1613aba7bb89c57709fa7ba7521b2c",
+      "assessment_type": "human_manual_review",
+      "reviewer": null,
+      "independence_attested": false,
+      "blind_to_oracle": false,
+      "exact_root_cause_supported": null,
+      "normal_false_positive": null,
+      "appropriate_abstention": null,
+      "notes": null
+    },
+    {
+      "case_id": "c01",
+      "replicate": 2,
+      "phase": "after",
+      "run_id": "105",
+      "task_id": "122",
+      "analysis_sha256": "d6f302537d15991f7e537ac10f23a0d26e9728a681db9a0f709601c0a6702dab",
+      "report_sha256": "7472161d797bee7940d024a91f8f6962311927cc516b96685d05a2aafd79518c",
+      "assessment_type": "human_manual_review",
+      "reviewer": null,
+      "independence_attested": false,
+      "blind_to_oracle": false,
+      "exact_root_cause_supported": null,
+      "normal_false_positive": null,
+      "appropriate_abstention": null,
+      "notes": null
+    },
+    {
+      "case_id": "c03",
+      "replicate": 1,
+      "phase": "fault",
+      "run_id": "106",
+      "task_id": "123",
+      "analysis_sha256": "149a3108f096a4f6354f7ac0dbf442f220fecbf80f805b9049ef88a46a78fe59",
+      "report_sha256": "4481b395b45bd2025955d05acb59316a31779aaf0ac6ef62308933f1fcd43f59",
+      "assessment_type": "human_manual_review",
+      "reviewer": null,
+      "independence_attested": false,
+      "blind_to_oracle": false,
+      "exact_root_cause_supported": null,
+      "normal_false_positive": null,
+      "appropriate_abstention": null,
+      "notes": null
+    }
+  ],
+  "review_api_contract": {
+    "identity": [
+      "plan_sha256",
+      "case_id",
+      "replicate",
+      "phase",
+      "run_id",
+      "report_sha256"
+    ],
+    "reviewer_required": true,
+    "independence_attested_required": true,
+    "ai_review_allowed": false,
+    "save_state": "unreviewed_until_real_human_submits"
+  },
+  "instructions": [
+    "报告页可渲染此结构供独立真人填写；没有真人提交前保持null。",
+    "先遮蔽oracle评价报告，再核对受控真值；实际未遮蔽不可声称盲评。",
+    "精确根因须与本轮客观干预结论一起审查，方向命中不自动等于根因正确。"
+  ]
+}

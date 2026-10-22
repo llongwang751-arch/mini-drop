@@ -64,6 +64,7 @@ type diagnosisModelReportV2 struct {
 }
 
 const diagnosisFactReportInstructions = `最终回复必须是report_version=2的纯JSON，只允许下列顶层字段：report_version、facts、hypotheses、verification_requests。不要输出自由summary、claim、verification、limitations、plan、facts核验标签、runtime或knowledge；权威描述由程序生成。
+报告收到前提不满足的校验反馈后，逐项检查已引用事实。能够从已有观测补齐时修正facts与fact_ids；无法支持该类型时，保留已核验事实并采用insufficient_evidence，撤回没有证据的根因推断。重复同一未满足前提的假设不会获得新证据，不得为报告修订增加工具、模型或时间预算。
 facts为1至24项，通常只选3至8项与问题和假设直接相关的事实，不要为了填满24项而加入无关字段。每项只含{id,evidence_id,path,operator,value,unit}；id为F1等唯一编号。evidence_id必须是实际返回的当前观测E编号，历史知识不能作事实来源。path使用下面列出的有限JSON Pointer，数组下标从0开始。value必须与该来源的实际值完全一致；不能换单位、跨E编号借字段或补默认值。operator只有eq、count、count_positive_self，后两者仅在明确列出的数组使用；node_count等已返回数字是标量，必须eq，不能count。
 可用字段：read_profile_summary的/total_weight(单位取E1.measurement_unit)、/node_count(count)、/kind(category)、/measurement_unit(unit)、/verification_available(boolean)；inspect_hotspots的/top_functions/0/self_percent与total_percent(percent)、rank(rank)、symbol_hint(category)，索引最多9；/top_functions可用count_positive_self，unit=count，只代表已返回Top表正self项目数，不代表整个树唯一叶帧。check_collection_quality的/duration_seconds(seconds)、/frequency_hz(hertz)、/kind(category)，/issues与/unknowns可count(count)。
 check_collection_quality实际返回sampling_quality时，可eq引用/sampling_quality/normalized(boolean)、unresolved_stack_lines(count)、placeholder_count(count)、unresolved_sample_weight(samples)、total_sample_weight(samples)。路径均带/sampling_quality/前缀。未知栈或帧占位符只表示无法解析，权重没有删除；不能把它当业务函数或源码位置，normalized=false也不能证明没有其他丢样。
@@ -236,7 +237,7 @@ var diagnosisFeedbackRepairs = map[string]string{
 	"hypothesis_allocation_evidence_missing": "allocation_gc需要本假设引用实际allocation/garbage_collection提示或内存采集kind事实；没有时移除此假设或改为insufficient_evidence。",
 	"hypothesis_lock_evidence_missing":       "lock_io需要本假设引用实际等待/IO提示或IO_TRACE kind事实；不能用纯热点数值替代。没有时移除或改为insufficient_evidence。",
 	"hypothesis_mixed_evidence_missing":      "mixed_signals需要本假设引用至少两类实际提示；多个同类字段不是不同信号类别。没有时移除或改为insufficient_evidence。",
-	"hypothesis_cpu_evidence_missing":        "cpu_hotspot需要本假设引用inspect_hotspots中正self占比或正self计数；不能用总权重、资源CPU百分比或拓扑替代。",
+	"hypothesis_cpu_evidence_missing":        "cpu_hotspot需要本假设引用inspect_hotspots中正self占比或正self计数；不能用总权重、资源CPU百分比或拓扑替代。请补充已有观测中符合条件的事实并同步fact_ids；若当前事实无法支持该前提，改为insufficient_evidence并撤回CPU根因推断，保留可核验事实和证据边界。不要重复提交相同的无支持假设，也不增加预算。",
 	"hypothesis_latency_evidence_missing":    "business_latency需要本假设引用实际业务毫秒时长事实；不能用CPU采集时长或登记拓扑替代。",
 	"hypothesis_dependency_evidence_missing": "downstream_dependency需要本假设引用登记拓扑中正的edges计数；依赖方向仍不是故障因果。",
 	"hypothesis_change_evidence_missing":     "deployment_regression必须引用query_business_signals实际返回的change_type事实；空changes、拓扑nodes/edges或时间重合均不能替代。无变更事实时移除该假设或改为insufficient_evidence。",

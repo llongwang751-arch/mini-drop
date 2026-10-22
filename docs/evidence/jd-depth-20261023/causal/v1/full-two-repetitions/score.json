@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "kind": "controlled_causal_intervention_scoring",
+  "plan_sha256": "32e865d4377ba116ccd4bd30248e6e2b13ffc1e7ccdf30e7c4754cbca2793d0e",
+  "manifest_sha256": "9a27f0c57b2ef5f29bf641e8d5a676f2f8a4b342c829dd74b7d67d18bcca2afa",
+  "environment_sha256": "03c2a63354fff18dee5e485c5822b1ce159baacd3a28929be1e24ed3dc8ddfc7",
+  "metrics": {
+    "controlled_intervention_verified": {
+      "numerator": 1,
+      "denominator": 6,
+      "rate": 0.16666666666666666
+    },
+    "fault_supported_direction_top3": {
+      "numerator": 1,
+      "denominator": 6,
+      "rate": 0.16666666666666666
+    },
+    "normal_after_direction_top3": {
+      "numerator": 1,
+      "denominator": 6,
+      "rate": 0.16666666666666666
+    },
+    "exact_root_cause_accuracy": null,
+    "independent_human_reviews": 0,
+    "semantic_false_positive_rate": null,
+    "semantic_abstention_accuracy": null
+  },
+  "rounds": [
+    {
+      "case_id": "c01",
+      "replicate": 2,
+      "controlled_effect": {
+        "passed": true,
+        "checks": {
+          "all_windows_measured": true,
+          "normal_controls_have_no_measured_errors": true,
+          "same_target_and_environment": true,
+          "phase_order": true,
+          "fault_recovery_window_separated": true,
+          "latency_changes_and_recovers": true,
+          "actual_cpu_sample_changes_and_recovers": true,
+          "real_same_parameter_collection_pair": true
+        },
+        "measurements": {
+          "normal_before": {
+            "p95_ms": 1.903971,
+            "error_rate": 0.0,
+            "response_count": 3,
+            "http_504_rate": 0.0
+          },
+          "fault": {
+            "p95_ms": 203.707686,
+            "error_rate": 0.0,
+            "response_count": 23,
+            "http_504_rate": 0.0
+          },
+          "normal_after": {
+            "p95_ms": 4.552459,
+            "error_rate": 0.0,
+            "response_count": 93,
+            "http_504_rate": 0.0
+          }
+        },
+        "causal_scope": "fixed_python_cpu_loop_request_path",
+        "arbitrary_root_cause_accuracy": false
+      },
+      "fault_direction": {
+        "observed": true,
+        "matched": true,
+        "kinds": [
+          "cpu_hotspot",
+          "lock_io",
+          "insufficient_evidence"
+        ],
+        "run_id": "104",
+        "task_id": "121",
+        "analysis_sha256": "af447dc2829b7ec73df32f03129b021a1c62ff396ae4b387f395f9a2f2a6314f",
+        "report_sha256": "d9aa283a0625660fbe3971bbd019819b2b1613aba7bb89c57709fa7ba7521b2c",
+        "semantic_root_cause_verified": false,
+        "fact_values_revalidated": false
+      },
+      "after_direction": {
+        "observed": true,
+        "matched": true,
+        "kinds": [
+          "insufficient_evidence"
+        ],
+        "run_id": "105",
+        "task_id": "122",
+        "analysis_sha256": "d6f302537d15991f7e537ac10f23a0d26e9728a681db9a0f709601c0a6702dab",
+        "report_sha256": "7472161d797bee7940d024a91f8f6962311927cc516b96685d05a2aafd79518c",
+        "semantic_root_cause_verified": false,
+        "fact_values_revalidated": false
+      }
+    },
+    {
+      "case_id": "c03",
+      "replicate": 1,
+      "controlled_effect": {
+        "passed": false,
+        "checks": {
+          "all_windows_measured": true,
+          "normal_controls_have_no_measured_errors": true,
+          "same_target_and_environment": true,
+          "phase_order": true,
+          "fault_recovery_window_separated": false,
+          "actual_gateway_deadline": true,
+          "actual_downstream_work": true,
+          "real_same_parameter_collection_pair": false
+        },
+        "measurements": {
+          "normal_before": {
+            "p95_ms": 7.311072,
+            "error_rate": 0.0,
+            "response_count": 3,
+            "http_504_rate": 0.0
+          },
+          "fault": {
+            "p95_ms": 53.530948,
+            "error_rate": 1.0,
+            "response_count": 37,
+            "http_504_rate": 1.0
+          },
+          "normal_after": {
+            "p95_ms": 6.390927,
+            "error_rate": 0.0,
+            "response_count": 82,
+            "http_504_rate": 0.0
+          }
+        },
+        "causal_scope": "combined_twelve_sqlite_aggregations_and_50ms_gateway_deadline",
+        "arbitrary_root_cause_accuracy": false
+      },
+      "fault_direction": {
+        "observed": true,
+        "matched": false,
+        "kinds": [
+          "cpu_hotspot",
+          "insufficient_evidence"
+        ],
+        "run_id": "106",
+        "task_id": "123",
+        "analysis_sha256": "149a3108f096a4f6354f7ac0dbf442f220fecbf80f805b9049ef88a46a78fe59",
+        "report_sha256": "4481b395b45bd2025955d05acb59316a31779aaf0ac6ef62308933f1fcd43f59",
+        "semantic_root_cause_verified": false,
+        "fact_values_revalidated": false
+      },
+      "after_direction": {
+        "observed": false,
+        "matched": false
+      }
+    },
+    {
+      "case_id": "c02",
+      "replicate": 1,
+      "controlled_effect": {
+        "passed": false,
+        "checks": {
+          "all_windows_measured": false
+        }
+      },
+      "fault_direction": {
+        "observed": false,
+        "matched": false
+      },
+      "after_direction": {
+        "observed": false,
+        "matched": false
+      }
+    },
+    {
+      "case_id": "c01",
+      "replicate": 1,
+      "controlled_effect": {
+        "passed": false,
+        "checks": {
+          "all_windows_measured": false
+        }
+      },
+      "fault_direction": {
+        "observed": false,
+        "matched": false
+      },
+      "after_direction": {
+        "observed": false,
+        "matched": false
+      }
+    },
+    {
+      "case_id": "c02",
+      "replicate": 2,
+      "controlled_effect": {
+        "passed": false,
+        "checks": {
+          "all_windows_measured": false
+        }
+      },
+      "fault_direction": {
+        "observed": false,
+        "matched": false
+      },
+      "after_direction": {
+        "observed": false,
+        "matched": false
+      }
+    },
+    {
+      "case_id": "c03",
+      "replicate": 2,
+      "controlled_effect": {
+        "passed": false,
+        "checks": {
+          "all_windows_measured": false
+        }
+      },
+      "fault_direction": {
+        "observed": false,
+        "matched": false
+      },
+      "after_direction": {
+        "observed": false,
+        "matched": false
+      }
+    }
+  ],
+  "budget": {
+    "accounted_model_calls": 11,
+    "accounted_tool_calls": 10,
+    "unknown_runs_charged_worst_case": 0,
+    "model_limit": 60,
+    "tool_limit": 80
+  },
+  "limitations": [
+    "只能证明这三条固定合成路径的受控干预效果，不代表任意业务RCA。",
+    "timeout同时改变查询强度和deadline，是组合干预，不隔离单一因素。",
+    "hypotheses.kind只表示模型支持方向，不能区分精确SQL或deadline根因。",
+    "before为独立HTTP观测；fault与after各有同参数实际采集和新诊断。",
+    "失败、超时、缺失及预算停止保留在预注册分母，不重试挑优。",
+    "人工评审与模型方向标签分列，未把模型文字或kind当成精确根因。",
+    "故障前后为相同固定工作负载的闭环客户端，并非固定到达率SLA压测。",
+    "环境摘要是控制器提供的冻结来源绑定，不是远端可信执行证明。"
+  ]
+}

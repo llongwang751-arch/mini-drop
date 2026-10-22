@@ -10,6 +10,11 @@
 | HTTP安全 | [security/run.py](security/run.py) | 真实Go路由和隔离PG的拒绝矩阵，逐次核对领域数据没有副作用 |
 | 性能测量 | [performance/run_isolated.py](performance/run_isolated.py)、[心跳](../benchmarks/README.md) | 真实采样扰动、阶梯负载、有界持续运行，以及真实Core注册和心跳 |
 | 协议与恢复 | [protocol/README.md](protocol/README.md) | 原生Fuzz、真实PG随机操作、关键函数覆盖门禁、C++消毒器及真实采样分析链 |
+| 新业务序列生成 | [business/generate_cases_with_agentscope.py](business/generate_cases_with_agentscope.py) | 生成新的受限数据和操作序列，独立需求oracle及sham/变异负控判断效果 |
+| CRM真实数据库 | [crm_postgres](crm_postgres/README.md) | 私有原始SQL、真实SupabaseRepository/PostgREST、非超管RLS及本地签名issuer |
+| 整链及故障门禁 | [system](system/README.md) | 真实浏览器、Go HTTP、mTLS采集、S3、Analyzer、取消重试及受控恢复/持续窗口 |
+| 干预与恢复评测 | [causal/v2](causal/v2/README.md) | 已知干预、独立测量、撤销洗脱及再次诊断；失败保留分母，精确语义另行人审 |
+| 不可变结果发布 | [reports](reports/README.md) | 有界原子摘要、来源SHA、管理员只读质量页及历史失败保留 |
 
 ## 执行顺序
 
@@ -43,6 +48,6 @@ python3 scripts/quality/performance/run_isolated.py \
 
 ## CI与证据
 
-[quality-assurance.yml](../../.github/workflows/quality-assurance.yml)增加三组门禁：SDK/工具回归，真实PG/安全矩阵/Fuzz/覆盖门禁，以及ASan/UBSan/真实Runner→MinIO→Analyzer。最后一组覆盖采集和分析数据链，不代替Go HTTP创建、Agent gRPC派发或浏览器完整E2E。
+[quality-assurance.yml](../../.github/workflows/quality-assurance.yml)有三组门禁：SDK/工具与质量页回归，真实PG/安全矩阵/Fuzz/覆盖门禁，以及ASan/UBSan和完整平台整链。最后一组先检查Runner→MinIO→Analyzer，再从当前源码独立构建API/Core/Web，实际登录浏览器，经HTTP、mTLS派发、受控采集到分析结果，验证取消重试及三种恢复场景。普通PR持续窗口为零；手动执行可选30分钟。
 
-岗位映射、实际结果及未覆盖项见 [质量实验说明](../../docs/JD_QUALITY_LAB.md)。不得把短时负载、单个合成函数或作者可见回归集宣传成生产容量、长期稳定性或独立语义准确率。
+岗位映射与前轮结果见 [质量实验说明](../../docs/JD_QUALITY_LAB.md)，本轮新增真实数据库、整链、因果及质量页见 [测试深度说明](../../docs/JD_QUALITY_DEPTH.md)。不得把短时负载、单个合成函数或作者可见回归集宣传成生产容量、长期稳定性或独立语义准确率。

@@ -419,6 +419,8 @@ func (s *agentSession) callback(call agentCallback) map[string]any {
 		}
 		accepted, err := s.spec.Finish(s.ctx, call.Content)
 		if err != nil {
+			// 只记录固定错误枚举及已计数的调用量，便于区分报告修订和工具循环；不保存候选正文。
+			slog.Warn("AgentScope report rejected", "reason", "report_rejected", "error_code", safeAgentError(err), "stage", "finish_callback", "model_calls", s.round, "tool_calls", s.toolCalls)
 			response := agentFailure(safeAgentError(err), false)
 			// 只接受专用类型产生并重新核验的安全反馈；绝不把err.Error/domain.Message或上游内容回填给模型。
 			if provider, ok := err.(diagnosisReportBatchFeedbackProvider); ok {

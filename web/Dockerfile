@@ -3,6 +3,8 @@ FROM node:24.15.0-alpine AS build
 WORKDIR /app
 COPY web/package.json web/package-lock.json ./
 RUN npm ci --no-audit --no-fund
+# 契约测试按../../contracts读取共享合成fixture；仅复制到构建阶段，运行镜像仍只接收dist。
+COPY contracts/fixtures/ /contracts/fixtures/
 COPY web/ ./
 RUN npm test && npm run build
 

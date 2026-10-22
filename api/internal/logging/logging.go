@@ -62,6 +62,26 @@ func (h *handler) Handle(_ context.Context, record slog.Record) error {
 			key = strings.Join(h.groups, ".") + "." + key
 		}
 		switch key {
+		case "reason":
+			// 只保留控制面预定义的失败位置；通用字符串白名单仍可能把上游内容带入日志。
+			if value.Kind() == slog.KindString {
+				switch value.String() {
+				case "response_protocol_invalid", "accepted_result_mismatch", "runtime_metadata_mismatch", "runner_non_200", "report_rejected":
+					fields[key] = value.String()
+				}
+			}
+		case "exception_kind":
+			if value.Kind() == slog.KindString {
+				switch value.String() {
+				case "protocol", "timeout", "transport", "sdk", "validation", "internal":
+					fields[key] = value.String()
+				}
+			}
+		case "model_calls", "tool_calls":
+			// 日志层另设小上限，拒绝字符串/浮点/负数；真实阶段预算仍由Runner校验。
+			if value.Kind() == slog.KindInt64 && value.Int64() >= 0 && value.Int64() <= 32 {
+				fields[key] = value.Int64()
+			}
 		case "request_id", "agent_id", "stage", "trace_id", "config_hash":
 			if value.Kind() == slog.KindString && identifier(value.String(), 128) {
 				fields[key] = value.String()

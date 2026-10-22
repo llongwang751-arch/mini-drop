@@ -348,7 +348,7 @@ func TestPostgresDiagnosticExtensionsSignalWindowAndUnavailableClearPartial(t *t
 	}
 	run := DiagnosisRun{TaskID: task.ID, AttemptID: attempt.ID, AnalysisJobID: jobID, RequestedBy: u.ID, TelemetryServiceID: "fixture-root"}
 	window, err := s.signalWindow(ctx, run)
-	if err != nil || !window.Start.Equal(started.Add(-time.Minute)) || !window.End.Equal(finished.Add(time.Minute)) {
+	if err != nil || !window.Start.Equal(started) || !window.End.Equal(finished) {
 		t.Fatal("signal window not bound to actual collection attempt", window, err)
 	}
 	var calls atomic.Int64

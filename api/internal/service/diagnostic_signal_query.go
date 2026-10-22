@@ -3,6 +3,7 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -48,19 +49,22 @@ type TelemetryChange struct {
 	RevisionRef string    `json:"revision_ref"`
 }
 type BusinessSignalObservation struct {
-	Available   bool              `json:"available"`
-	Reason      string            `json:"reason,omitempty"`
-	ServiceRef  string            `json:"service_ref"`
-	Signal      string            `json:"signal"`
-	Window      SignalWindow      `json:"window,omitzero"`
-	SourceKind  string            `json:"source_kind,omitempty"`
-	QueryDigest string            `json:"query_digest,omitempty"`
-	Metrics     []TelemetryMetric `json:"metrics,omitempty"`
-	Logs        []TelemetryLog    `json:"logs,omitempty"`
-	Traces      []TelemetryTrace  `json:"traces,omitempty"`
-	Changes     []TelemetryChange `json:"changes,omitempty"`
-	Truncated   bool              `json:"truncated"`
-	Limitations []string          `json:"limitations"`
+	Available      bool              `json:"available"`
+	Reason         string            `json:"reason,omitempty"`
+	ServiceRef     string            `json:"service_ref"`
+	Signal         string            `json:"signal"`
+	Window         SignalWindow      `json:"window,omitzero"`
+	WindowScope    string            `json:"window_scope,omitempty"`
+	ContextWindow  *SignalWindow     `json:"context_window,omitempty"`
+	ContextQueried bool              `json:"context_queried"`
+	SourceKind     string            `json:"source_kind,omitempty"`
+	QueryDigest    string            `json:"query_digest,omitempty"`
+	Metrics        []TelemetryMetric `json:"metrics,omitempty"`
+	Logs           []TelemetryLog    `json:"logs,omitempty"`
+	Traces         []TelemetryTrace  `json:"traces,omitempty"`
+	Changes        []TelemetryChange `json:"changes,omitempty"`
+	Truncated      bool              `json:"truncated"`
+	Limitations    []string          `json:"limitations"`
 }
 
 func finiteSignal(value float64) bool {
@@ -70,19 +74,66 @@ func metricUnit(name string) string {
 	return map[string]string{"latency_p95_ms": "milliseconds", "error_rate": "ratio", "throughput_rps": "requests_per_second"}[name]
 }
 
-func (s *Suggestions) signalWindow(ctx context.Context, run DiagnosisRun) (SignalWindow, error) {
+type diagnosticSignalWindows struct {
+	Collection SignalWindow
+	Context    SignalWindow
+	Scope      string
+}
+
+// collectionSignalWindows 只为真实执行区间聚合指标。上下文扩窗只提供元数据，
+// 不能将此前正常请求混进本轮P95，也不能把attempt包含的准备/上传时间称为精确采样时钟。
+func collectionSignalWindows(attempt domain.Attempt, now time.Time) (diagnosticSignalWindows, error) {
+	fail := func() (diagnosticSignalWindows, error) {
+		return diagnosticSignalWindows{}, domain.Fail("SIGNAL_WINDOW_UNKNOWN", "没有可核实且有界的采集执行时钟")
+	}
+	if attempt.StartedAt == nil || attempt.FinishedAt == nil || !attempt.FinishedAt.After(*attempt.StartedAt) || attempt.FinishedAt.Sub(*attempt.StartedAt) > 13*time.Minute || attempt.FinishedAt.After(now.Add(time.Minute)) {
+		return fail()
+	}
+	result := diagnosticSignalWindows{Collection: SignalWindow{attempt.StartedAt.UTC(), attempt.FinishedAt.UTC()}, Context: SignalWindow{attempt.StartedAt.Add(-time.Minute).UTC(), attempt.FinishedAt.Add(time.Minute).UTC()}, Scope: "attempt_execution"}
+	var metadata map[string]json.RawMessage
+	raw := bytes.TrimSpace(attempt.RunnerMetadata)
+	if len(attempt.RunnerMetadata) > 32768 || len(attempt.RunnerMetadata) != 0 && len(raw) == 0 || len(raw) != 0 && (json.Unmarshal(raw, &metadata) != nil || metadata == nil) {
+		return fail()
+	}
+	startRaw, hasStart := metadata["collection_started_unix_ms"]
+	endRaw, hasEnd := metadata["collection_finished_unix_ms"]
+	if hasStart != hasEnd {
+		return fail()
+	}
+	if !hasStart {
+		return result, nil
+	}
+	var startMS, endMS *int64
+	if json.Unmarshal(startRaw, &startMS) != nil || json.Unmarshal(endRaw, &endMS) != nil || startMS == nil || endMS == nil || *startMS <= 0 || *endMS <= *startMS {
+		return fail()
+	}
+	start, end := time.UnixMilli(*startMS).UTC(), time.UnixMilli(*endMS).UTC()
+	if *startMS < attempt.StartedAt.UnixMilli() || *endMS > attempt.FinishedAt.UnixMilli() {
+		return fail()
+	}
+	// Agent/helper的时钟为毫秒精度；首毫秒与精确attempt起点取交集，
+	// 不因量化误差读到attempt以前，也不引入任意的时钟漂移容差。
+	if start.Before(*attempt.StartedAt) {
+		start = attempt.StartedAt.UTC()
+	}
+	if !end.After(start) {
+		return fail()
+	}
+	result.Collection, result.Scope = SignalWindow{start, end}, "collector_execution"
+	return result, nil
+}
+
+func (s *Suggestions) diagnosticSignalWindows(ctx context.Context, run DiagnosisRun) (diagnosticSignalWindows, error) {
 	var attempt domain.Attempt
 	if err := s.Repo.Context(ctx).Where("id=? AND task_id=?", run.AttemptID, run.TaskID).First(&attempt).Error; err != nil {
-		return SignalWindow{}, err
+		return diagnosticSignalWindows{}, err
 	}
-	if attempt.StartedAt == nil || attempt.FinishedAt == nil || attempt.FinishedAt.Before(*attempt.StartedAt) {
-		return SignalWindow{}, domain.Fail("SIGNAL_WINDOW_UNKNOWN", "没有可核实的采集执行时钟")
-	}
-	start, end := attempt.StartedAt.Add(-time.Minute), attempt.FinishedAt.Add(time.Minute)
-	if end.Sub(start) > 15*time.Minute || end.After(time.Now().Add(2*time.Minute)) {
-		return SignalWindow{}, domain.Fail("SIGNAL_WINDOW_UNKNOWN", "采集时间边界过宽或时钟无效")
-	}
-	return SignalWindow{start.UTC(), end.UTC()}, nil
+	return collectionSignalWindows(attempt, time.Now())
+}
+
+func (s *Suggestions) signalWindow(ctx context.Context, run DiagnosisRun) (SignalWindow, error) {
+	windows, err := s.diagnosticSignalWindows(ctx, run)
+	return windows.Collection, err
 }
 
 func (s *Suggestions) queryBusinessSignals(ctx context.Context, run DiagnosisRun, args json.RawMessage) (json.RawMessage, error) {
@@ -112,14 +163,19 @@ func (s *Suggestions) queryBusinessSignals(ctx context.Context, run DiagnosisRun
 		out.Reason = "signal_not_configured"
 		return json.Marshal(out)
 	}
-	window, err := s.signalWindow(ctx, run)
+	windows, err := s.diagnosticSignalWindows(ctx, run)
 	if err != nil {
 		out.Reason = "collection_window_unknown"
 		out.Limitations = append(out.Limitations, "缺少有效采集执行起止时钟，不使用创建时间或分析完成时间替代。")
 		return json.Marshal(out)
 	}
-	out.Window = window
-	out.Limitations = append(out.Limitations, "窗口使用采集attempt执行起止各扩展一分钟；执行边界可能包含准备与上传时间，不等同精确采样时钟。")
+	out.Window, out.WindowScope, out.ContextWindow = windows.Collection, windows.Scope, &windows.Context
+	out.Limitations = append(out.Limitations, "指标只按window内的采集执行区间聚合；context_window是旧扩展上下文范围，仅供说明，本次未查询或混入其指标。")
+	if windows.Scope == "attempt_execution" {
+		out.Limitations = append(out.Limitations, "旧任务缺少collector起止元数据，使用attempt执行区间；它可能含准备与上传，不是精确采样时钟。")
+	} else {
+		out.Limitations = append(out.Limitations, "collector_execution来自Agent/helper记录的有界执行起止；它仍不是逐个sample的采样时间戳。")
+	}
 	parent := ctx
 	ctx, cancel := context.WithTimeout(ctx, 8*time.Second)
 	defer cancel()

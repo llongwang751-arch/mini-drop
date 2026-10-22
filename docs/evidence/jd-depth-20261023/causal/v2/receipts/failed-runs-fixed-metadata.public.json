@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "kind": "actual_failed_diagnoses_safe_metadata",
+  "model_and_raw_profile_text_included": false,
+  "runs": [
+    {
+      "run_id": "108",
+      "task_id": "126",
+      "status": "failed",
+      "error_code": "AI_BUDGET_EXCEEDED",
+      "started_at": "2026-10-22T18:38:27.217872Z",
+      "finished_at": "2026-10-22T18:38:54.375072Z",
+      "steps": [
+        {
+          "step": 1,
+          "tool": "read_profile_summary",
+          "observation_sha256": "ede7457dff5bf6dfd1baa201c0b68def72fd1c977a60c22c8e1bb542068e179f",
+          "error_code": null
+        },
+        {
+          "step": 2,
+          "tool": "inspect_hotspots",
+          "observation_sha256": "739dab00f11e07c9d18c9cc27a9c78adc5304292b7062fbfaf9cc204776853da",
+          "error_code": null
+        },
+        {
+          "step": 3,
+          "tool": "check_collection_quality",
+          "observation_sha256": "e4c5e3e164b170928c8e3f6750e86c48a6484d8aea0fd418d65adfa20b67ec83",
+          "error_code": null
+        },
+        {
+          "step": 4,
+          "tool": "inspect_call_paths",
+          "observation_sha256": "5e62917244d7806af1355f5c09ff84a1ffdd96ac2580cbba698521ab9a81b0ab",
+          "error_code": null
+        },
+        {
+          "step": 5,
+          "tool": "query_business_signals",
+          "observation_sha256": "e3423939f9e5b0cd91bb3d2e35fd9972c45d1b4a26f75a84f0315f195dee3b1c",
+          "error_code": null,
+          "available": true,
+          "signal": "metrics",
+          "truncated": false,
+          "metric_count": 3
+        }
+      ],
+      "tool_counts": {
+        "read_profile_summary": 1,
+        "inspect_hotspots": 1,
+        "check_collection_quality": 1,
+        "inspect_call_paths": 1,
+        "query_business_signals": 1
+      },
+      "identical_observation_repetitions": [],
+      "runtime_failure_fixed_metadata": [
+        {
+          "time": "2026-10-22T18:38:54.374807423Z",
+          "error_code": "AI_BUDGET_EXCEEDED",
+          "stage": "finish_callback"
+        }
+      ],
+      "failed_report_runtime_metadata_present": false
+    },
+    {
+      "run_id": "116",
+      "task_id": "134",
+      "status": "failed",
+      "error_code": "AI_BUDGET_EXCEEDED",
+      "started_at": "2026-10-22T18:47:53.974064Z",
+      "finished_at": "2026-10-22T18:48:20.908204Z",
+      "steps": [
+        {
+          "step": 1,
+          "tool": "read_profile_summary",
+          "observation_sha256": "8c7a1ea022630101b358031040df9932cc3e8b76d1e5121f17e50623abf087c0",
+          "error_code": null
+        },
+        {
+          "step": 2,
+          "tool": "inspect_hotspots",
+          "observation_sha256": "552b78a4502dcbeb847c22ba0c21c372c4d689733c063186fef2691e86a833b9",
+          "error_code": null
+        },
+        {
+          "step": 3,
+          "tool": "check_collection_quality",
+          "observation_sha256": "943af9934af5cf3b7b66ecbf6aa0b22704d6c912dcb3140a848456e56488fb38",
+          "error_code": null
+        },
+        {
+          "step": 4,
+          "tool": "inspect_call_paths",
+          "observation_sha256": "b6dd0d4feee82f7400ac4a7972d652dc380068ef9c94dc9c8d138999fddb7c90",
+          "error_code": null
+        },
+        {
+          "step": 5,
+          "tool": "inspect_call_paths",
+          "observation_sha256": "88e82a051497cb385048828e33a8219c745fb9c11a2f8b489d48e993241d8465",
+          "error_code": null
+        }
+      ],
+      "tool_counts": {
+        "read_profile_summary": 1,
+        "inspect_hotspots": 1,
+        "check_collection_quality": 1,
+        "inspect_call_paths": 2
+      },
+      "identical_observation_repetitions": [],
+      "runtime_failure_fixed_metadata": [
+        {
+          "time": "2026-10-22T18:48:20.908109594Z",
+          "error_code": "AI_BUDGET_EXCEEDED",
+          "stage": "finish_callback"
+        }
+      ],
+      "failed_report_runtime_metadata_present": false
+    }
+  ],
+  "logging_source_audit": {
+    "caller": "api/internal/service/agent_runtime.go:697",
+    "filter_string_fields": "api/internal/logging/logging.go:65",
+    "filter_integer_fields": "api/internal/logging/logging.go:83",
+    "emitted_but_not_whitelisted": [
+      "reason",
+      "exception_kind",
+      "model_calls",
+      "tool_calls"
+    ],
+    "scope": "可复核源码字段过滤定位；未从日志恢复不存在的计数或模型正文。"
+  },
+  "limits": [
+    "只证明实际已落入证据trace的工具步骤，不能排除被拒绝的工具选择或反复格式修订。",
+    "stage=finish_callback与预算失败不等于已确认导致报告拒绝的具体validator原因。",
+    "缺少失败runtime计数按原9模型/14工具最坏值记账；54/69是保守预算账，不是两次失败精确实际用量。"
+  ],
+  "follow_up": [
+    "在受约束终态失败摘要中持久化stage、固定reason和exception_kind枚举、有界非负model_calls/tool_calls、格式修订与拒绝批次计数。",
+    "仅将上述安全字段加入日志白名单；不放行模型解释、profile、参数或任意上游错误。",
+    "先按实际validator reason定位，再用保留的失败结构补离线回归和报告修订；不能盲加模型预算或改原分母。"
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "dataset_id": "drop-causal-controls-v2",
+  "author_visible": true,
+  "model_receives_oracle": false,
+  "cases": [
+    {
+      "id": "c01",
+      "scenario": "cpu",
+      "control": "normal",
+      "causal_scope": "fixed_python_cpu_loop_request_path",
+      "direction_kinds": [
+        "cpu_hotspot"
+      ],
+      "requires_cpu_symbol": true
+    },
+    {
+      "id": "c02",
+      "scenario": "slow_query",
+      "control": "normal",
+      "causal_scope": "four_fixed_sqlite_cross_join_aggregations_instead_of_primary_key_lookup",
+      "direction_kinds": [
+        "business_latency",
+        "lock_io"
+      ],
+      "requires_cpu_symbol": false
+    },
+    {
+      "id": "c03",
+      "scenario": "timeout",
+      "control": "normal",
+      "causal_scope": "combined_twelve_sqlite_aggregations_and_50ms_gateway_deadline",
+      "direction_kinds": [
+        "business_latency",
+        "downstream_dependency"
+      ],
+      "requires_cpu_symbol": false
+    }
+  ],
+  "policy": {
+    "minimum_client_responses": 3,
+    "latency_ratio_minimum": 5,
+    "latency_increase_ms_minimum": 5,
+    "normal_error_rate_maximum": 0,
+    "timeout_504_rate_minimum": 0.8,
+    "cpu_fault_self_percent_minimum": 10,
+    "cpu_after_self_percent_maximum": 1,
+    "washout_seconds": 62,
+    "max_repetitions": 2,
+    "max_model_calls": 60,
+    "max_tool_calls": 80,
+    "reserve_model_calls_per_diagnosis": 9,
+    "reserve_tool_calls_per_diagnosis": 14,
+    "global_seconds": 1800,
+    "phase_seconds": 145,
+    "load_interval_seconds": 0.05,
+    "load_max_requests_per_phase": 2900,
+    "minimum_real_samples": 10,
+    "demo_http_request_limit": 36000,
+    "downstream_completion_seconds": 3,
+    "downstream_poll_interval_seconds": 0.1
+  },
+  "limits": [
+    "只能证明这三条固定合成路径的受控干预效果，不代表任意业务RCA。",
+    "timeout同时改变查询强度和deadline，是组合干预，不隔离单一因素。",
+    "hypotheses.kind只表示模型支持方向，不能区分精确SQL或deadline根因。",
+    "before为独立HTTP观测；fault与after各有同参数实际采集和新诊断。",
+    "失败、超时、缺失及预算停止保留在预注册分母，不重试挑优。",
+    "v2使用同参数20秒99Hz采样和50ms最小间隔闭环请求；timeout收到504后先观察同Trace目录完成，再发下一请求。"
+  ]
+}

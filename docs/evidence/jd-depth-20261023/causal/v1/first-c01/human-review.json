@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "kind": "controlled_causal_human_review",
+  "plan_sha256": "1e31b3a7c3297fbe42e0c7a01b712a9f517add58ae8f26b5d26fed82765279f3",
+  "reviews": [
+    {
+      "case_id": "c01",
+      "replicate": 1,
+      "phase": "fault",
+      "run_id": "102",
+      "task_id": "119",
+      "analysis_sha256": "9d119fb0baa7e2c620d6bce146e65a7dc18324b154856c8e748b9f45d6434d46",
+      "report_sha256": "eaf90a4d96f8e2c0d8fb05480a72036bcb08e3024394f0db794fab1a0909a710",
+      "assessment_type": "human_manual_review",
+      "reviewer": null,
+      "independence_attested": false,
+      "blind_to_oracle": false,
+      "exact_root_cause_supported": null,
+      "normal_false_positive": null,
+      "appropriate_abstention": null,
+      "notes": null
+    },
+    {
+      "case_id": "c01",
+      "replicate": 1,
+      "phase": "after",
+      "run_id": "103",
+      "task_id": "120",
+      "analysis_sha256": "fd52d653e24d72f832b5bffd60d06e99b4a116168856632e3fc574f2bc3d000f",
+      "report_sha256": "460541c44b98335f4123a328bdb2140b9ac7916690ade8175f07079f2f9edb9f",
+      "assessment_type": "human_manual_review",
+      "reviewer": null,
+      "independence_attested": false,
+      "blind_to_oracle": false,
+      "exact_root_cause_supported": null,
+      "normal_false_positive": null,
+      "appropriate_abstention": null,
+      "notes": null
+    }
+  ],
+  "review_api_contract": {
+    "identity": [
+      "plan_sha256",
+      "case_id",
+      "replicate",
+      "phase",
+      "run_id",
+      "report_sha256"
+    ],
+    "reviewer_required": true,
+    "independence_attested_required": true,
+    "ai_review_allowed": false,
+    "save_state": "unreviewed_until_real_human_submits"
+  },
+  "instructions": [
+    "报告页可渲染此结构供独立真人填写；没有真人提交前保持null。",
+    "先遮蔽oracle评价报告，再核对受控真值；实际未遮蔽不可声称盲评。",
+    "精确根因须与本轮客观干预结论一起审查，方向命中不自动等于根因正确。"
+  ]
+}

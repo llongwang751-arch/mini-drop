@@ -1,0 +1,156 @@
+{
+  "category": "system",
+  "checks": [
+    {
+      "detail": "最终API和Web构建制品及当前Core接入独立栈，仅Web接入口网，数据面保持内部网络。",
+      "id": "environment-prepare",
+      "label": "隔离环境准备",
+      "status": "passed"
+    },
+    {
+      "detail": "浏览器完成登录、创建、实采、对象上传与分析，页面加载实际gzip制品；不填充业务响应。",
+      "id": "baseline-browser",
+      "label": "真实界面基线",
+      "status": "passed"
+    },
+    {
+      "detail": "界面取消保留旧CANCELED尝试，同一任务重试生成第2次尝试并成功。",
+      "id": "cancel-retry-preservation",
+      "label": "取消重试保留尝试",
+      "status": "passed"
+    },
+    {
+      "detail": "SIGKILL后通过持久日志拒绝重复采样，旧任务明确失败，后续新实采成功。",
+      "id": "agent-kill-recovery",
+      "label": "采集中终止恢复",
+      "status": "passed"
+    },
+    {
+      "detail": "停止分析器后形成持久待处理队列，启动后完成；不覆盖已持租约时崩溃。",
+      "id": "analyzer-pending-recovery",
+      "label": "分析待处理队列恢复",
+      "status": "passed"
+    },
+    {
+      "detail": "独立数据库短停三秒，原会话和历史结果保持，后续新实采成功。",
+      "id": "postgres-short-recovery",
+      "label": "数据库短时停机恢复",
+      "status": "passed"
+    },
+    {
+      "detail": "固定间隔创建真实任务，检查当前尝试、CPU单位、实际制品字节及事件唯一性；无失败窗口补跑。",
+      "id": "bounded-soak-consistency",
+      "label": "三十分钟串行持续诊断",
+      "status": "passed"
+    },
+    {
+      "detail": "每十五秒只读比较29个生产容器身份、镜像及卷名摘要；不向生产发送测试业务请求或故障。",
+      "id": "production-readonly-guard",
+      "label": "生产资源身份只读守护",
+      "status": "passed"
+    },
+    {
+      "detail": "按精确项目标签与名称清理后独立复核：本轮容器、卷和网络均零，生产身份摘要保持。",
+      "id": "owned-cleanup-verification",
+      "label": "本轮资源所有权清理",
+      "status": "passed"
+    }
+  ],
+  "counts": {
+    "failed": 0,
+    "passed": 9,
+    "skipped": 0,
+    "total": 9
+  },
+  "environment": "linux_isolated",
+  "finished_at": "2026-10-22T18:58:28.384595+00:00",
+  "fixture_scope": "浏览器、Go接口、双向证书Core与Agent、MinIO、Analyzer及真实gzip页面；仅自有合成负载的PROC_CPU，全部业务及故障使用本轮独立资源。",
+  "id": "platform-system-20261023-004",
+  "limits": [
+    "固定9项：同前轮的准备1项、界面2项、恢复3项，再加持续窗口、只读守护和所有权清理各1项；窗口是重复观测，不扩成新增独立业务场景。",
+    "仅验证受控PROC_CPU线程级CPU tick链路，不外推其他采集器、函数级根因定位或模型解释的语义准确率。",
+    "持续窗口采用固定资源上限、串行两秒实采和三十秒间隔；不是容量、吞吐、性能优化、数天长稳或无内存泄漏认证。",
+    "浏览器在基线和取消重试阶段实际运行，持续窗口检查后端诊断，不代表浏览器常驻内存测试。",
+    "停止分析器只覆盖持久待处理队列恢复，不代表已持租约worker被强杀、跨主机灾备或数据库主从高可用。",
+    "本轮与另一组限额因果功能实验有时间重叠，不能据此进行无干扰性能对比。",
+    "来源散列绑定实际summary收据，起止时间来自同轮守护控制器；编译来源另见输入回执，提交版本未追溯记空。",
+    "业务流、故障及清理只操作本轮独立资源；另以只读Docker元数据守护29个生产容器，不读取生产业务数据或调用真实模型。",
+    "原001和002失败、003核心链路成功均单独保留；本记录不把旧失败改为成功。"
+  ],
+  "metrics": [
+    {
+      "id": "completed-real-task-count",
+      "label": "全部成功真实采集任务数",
+      "unit": "count",
+      "value": 65
+    },
+    {
+      "id": "pre-soak-real-task-count",
+      "label": "界面与恢复成功任务数",
+      "unit": "count",
+      "value": 5
+    },
+    {
+      "id": "soak-completed-window-count",
+      "label": "持续窗口完成任务数",
+      "unit": "count",
+      "value": 60
+    },
+    {
+      "id": "soak-actual-duration",
+      "label": "持续窗口实际秒数",
+      "unit": "s",
+      "value": 1800.0116514910478
+    },
+    {
+      "id": "verified-artifact-count",
+      "label": "核对字节与散列的制品数",
+      "unit": "count",
+      "value": 260
+    },
+    {
+      "id": "completed-fault-scenario-count",
+      "label": "恢复场景数",
+      "unit": "count",
+      "value": 3
+    },
+    {
+      "id": "resource-observation-count",
+      "label": "Docker资源状态观察数",
+      "unit": "count",
+      "value": 14
+    },
+    {
+      "id": "production-guard-check-count",
+      "label": "生产身份摘要守护次数",
+      "unit": "count",
+      "value": 128
+    },
+    {
+      "id": "preserved-container-count",
+      "label": "保持身份的生产容器数",
+      "unit": "count",
+      "value": 29
+    },
+    {
+      "id": "owned-container-removed-count",
+      "label": "清理本轮容器数",
+      "unit": "count",
+      "value": 12
+    },
+    {
+      "id": "actual-model-call-count",
+      "label": "实际模型调用数",
+      "unit": "count",
+      "value": 0
+    }
+  ],
+  "provenance": "actual_execution",
+  "schema_version": 1,
+  "source_commit": null,
+  "source_sha256": "9fb621a0f0ef16226de663b1d920154e8c1e0b73ec3d47ba0e3dd856b4f7719f",
+  "started_at": "2026-10-22T18:25:28.372206+00:00",
+  "status": "passed",
+  "suite": "platform-owned-system",
+  "title": "完整平台验收：三十分钟持续诊断通过"
+}

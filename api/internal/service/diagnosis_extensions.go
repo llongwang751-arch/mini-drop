@@ -11,7 +11,7 @@ func diagnosisExtensionDefinitions() []map[string]any {
 		return map[string]any{"type": "function", "function": map[string]any{"name": name, "description": description, "parameters": parameters}}
 	}
 	return []map[string]any{
-		tool("query_business_signals", "查询当前绑定服务及获授权的一跳关联服务的固定业务信号。只接受S1等服务别名和信号类型，时间窗口由本次采集确定；无数据不代表正常。", map[string]any{
+		tool("query_business_signals", "查询当前绑定服务及获授权的一跳关联服务的固定业务信号。只接受S1等服务别名和信号类型。window只按本轮采集执行区间聚合，window_scope标明时钟来源；context_window仅作未查询的上下文范围说明，不混入指标。无数据不代表正常。", map[string]any{
 			"service_ref": map[string]any{"type": "string", "pattern": "^S[1-8]$"},
 			"signal":      map[string]any{"type": "string", "enum": []string{"metrics", "logs", "traces", "changes"}},
 		}, []string{"service_ref", "signal"}),
