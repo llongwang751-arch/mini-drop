@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "source_commit": "093a05defeb39177978521a88475fd4fde5cdf09",
+  "workflow": "JD testing assurance",
+  "run_id": 39844103076,
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "id": 120053060558,
+      "name": "protocol-state",
+      "status": "completed",
+      "conclusion": "success",
+      "successful_steps": 17,
+      "active_or_failed_steps": []
+    },
+    {
+      "id": 120053060949,
+      "name": "bounded-business-and-agent-regressions",
+      "status": "completed",
+      "conclusion": "success",
+      "successful_steps": 14,
+      "active_or_failed_steps": []
+    },
+    {
+      "id": 120053061726,
+      "name": "memory-and-live-sampling",
+      "status": "completed",
+      "conclusion": "failure",
+      "successful_steps": 20,
+      "active_or_failed_steps": [
+        {
+          "name": "Real browser to HTTP to mTLS collector to S3 to Analyzer and owned recovery",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ]
+    }
+  ],
+  "observed_at": "2026-10-22T20:03:59.922250+00:00",
+  "failure_code": "CONTROLLED_AGENT_NOT_REGISTERED_WITHIN_BOUND",
+  "detail": "UI login succeeded, GET agents returned 200 with zero items through fixed 45-second readiness bound; all eight owned services running, no OOM. Root cause not yet established; cleanup passed.",
+  "private_log_sha256": "578587fa70326e652c5c697184618c268e9c71da9e2329c1a1909b4cc0242116",
+  "private_logs_published": false,
+  "model_calls": 0,
+  "production_access": false,
+  "same_source_baseline": {
+    "run_id": 39844102874,
+    "jobs": [
+      {
+        "id": 120052666568,
+        "name": "contracts",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 14,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120052666930,
+        "name": "core",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 5,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120052666956,
+        "name": "analyzer",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 7,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120052666959,
+        "name": "agent-runtime",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 9,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120052666980,
+        "name": "web",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 16,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120052666999,
+        "name": "api",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 12,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120052667517,
+        "name": "maintenance",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 33,
+        "active_or_failed_steps": []
+      }
+    ],
+    "passed": 7,
+    "failed": 0
+  },
+  "combined_same_source_jobs": {
+    "total": 10,
+    "passed": 9,
+    "failed": 1,
+    "skipped": 0
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "kind": "actual_collector_clock_and_adapter_http_preflight",
+  "source_task_id": "135",
+  "model_calls": 0,
+  "collection_create_requests": 0,
+  "production_go_tool_gateway_invoked": false,
+  "scope_limit": "从实际API读已有采集时钟、独立HTTP查询固定adapter；Go方法确实转发精确窗口由本轮43项fresh-PG回归证明，不冒充本复核调用了生产私有tool gateway。",
+  "expected_go_window_scope": "collector_execution",
+  "attempt_id": "136",
+  "collection_clock": {
+    "start_unix_ms": 1792694906395,
+    "end_unix_ms": 1792694925830,
+    "start": "2026-10-22T18:48:26.395000+00:00",
+    "end": "2026-10-22T18:48:45.830000+00:00",
+    "duration_seconds": 19.435
+  },
+  "observations": {
+    "collection": {
+      "window": {
+        "start": "2026-10-22T18:48:26.395000+00:00",
+        "end": "2026-10-22T18:48:45.830000+00:00"
+      },
+      "metrics": [
+        {
+          "name": "latency_p95_ms",
+          "value": 57.731489,
+          "unit": "milliseconds"
+        },
+        {
+          "name": "error_rate",
+          "value": 1.0,
+          "unit": "ratio"
+        },
+        {
+          "name": "throughput_rps",
+          "value": 0.5145356315924878,
+          "unit": "requests_per_second"
+        }
+      ]
+    },
+    "context": {
+      "window": {
+        "start": "2026-10-22T18:47:26.366849+00:00",
+        "end": "2026-10-22T18:49:45.922372+00:00"
+      },
+      "metrics": [
+        {
+          "name": "latency_p95_ms",
+          "value": 5.61838,
+          "unit": "milliseconds"
+        },
+        {
+          "name": "error_rate",
+          "value": 0.009057005860415556,
+          "unit": "ratio"
+        },
+        {
+          "name": "throughput_rps",
+          "value": 13.449843901914223,
+          "unit": "requests_per_second"
+        }
+      ]
+    }
+  },
+  "passed": true,
+  "logout_confirmed": true,
+  "demo_http_requests": 2,
+  "api_http_requests": 3
+}

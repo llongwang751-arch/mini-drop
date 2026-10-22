@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "source_commit": "e0b497a1ae8bb11e6813a5f89b0edae46126b482",
+  "workflow": "JD testing assurance",
+  "run_id": 39837800056,
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "id": 120030585325,
+      "name": "bounded-business-and-agent-regressions",
+      "status": "completed",
+      "conclusion": "success",
+      "successful_steps": 14,
+      "active_or_failed_steps": []
+    },
+    {
+      "id": 120030585699,
+      "name": "protocol-state",
+      "status": "completed",
+      "conclusion": "success",
+      "successful_steps": 17,
+      "active_or_failed_steps": []
+    },
+    {
+      "id": 120030585941,
+      "name": "memory-and-live-sampling",
+      "status": "completed",
+      "conclusion": "failure",
+      "successful_steps": 13,
+      "active_or_failed_steps": [
+        {
+          "name": "Current-source API, Core runtime and Web for full platform system gate",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ]
+    }
+  ],
+  "observed_at": "2026-10-22T19:22:25.005310+00:00",
+  "failure_code": "WEB_BUILD_SHARED_SCHEMA_MISSING",
+  "detail": "Web fixture copy fixed Vitest, but production build also required shared partial-result schema; browser not executed.",
+  "private_log_sha256": "03a5877977ca9568ae763c7fd5aff2d1a566a86c2acf2422f271c51d81cbfcee",
+  "private_logs_published": false,
+  "model_calls": 0,
+  "production_access": false
+}

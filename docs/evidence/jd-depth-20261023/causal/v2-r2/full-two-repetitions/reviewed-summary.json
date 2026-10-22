@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "kind": "controlled_causal_r2_public_interpretation",
+  "protocol": "v2-r2",
+  "source_capture_sha256": "be98e6499ccdf9aaa00964179ac0e65fec1f773b8700901b3faaf0423a0ba511",
+  "score_sha256": "3eb304268cb4067693fec5f4e07a4dcd70215e8e462aa43289b68fe3d8ee4e11",
+  "actual_diagnoses_succeeded": 12,
+  "counts": {
+    "passed": 2,
+    "failed": 4,
+    "skipped": 0,
+    "total": 6
+  },
+  "metrics": {
+    "controlled_intervention_verified": {
+      "numerator": 6,
+      "denominator": 6,
+      "rate": 1.0
+    },
+    "fault_supported_direction_top3": {
+      "numerator": 2,
+      "denominator": 6,
+      "rate": 0.3333333333333333
+    },
+    "normal_after_direction_top3": {
+      "numerator": 6,
+      "denominator": 6,
+      "rate": 1.0
+    },
+    "exact_root_cause_accuracy": null,
+    "independent_human_reviews": 0,
+    "semantic_false_positive_rate": null,
+    "semantic_abstention_accuracy": null
+  },
+  "budget": {
+    "accounted_model_calls": 43,
+    "accounted_tool_calls": 50,
+    "unknown_runs_charged_worst_case": 0,
+    "model_limit": 60,
+    "tool_limit": 80
+  },
+  "actual_fault_rounds_querying_business_signals": 0,
+  "actual_normal_rounds_querying_business_signals": 1,
+  "rows": [
+    {
+      "case_id": "c01",
+      "replicate": 2,
+      "controlled_intervention_verified": true,
+      "fault_direction_matched": true,
+      "normal_top3_contains_normal_or_insufficient": true,
+      "fault_kinds": [
+        "cpu_hotspot",
+        "insufficient_evidence"
+      ],
+      "normal_kinds": [
+        "cpu_hotspot",
+        "insufficient_evidence"
+      ],
+      "composite_passed": true
+    },
+    {
+      "case_id": "c03",
+      "replicate": 1,
+      "controlled_intervention_verified": true,
+      "fault_direction_matched": false,
+      "normal_top3_contains_normal_or_insufficient": true,
+      "fault_kinds": [
+        "cpu_hotspot",
+        "insufficient_evidence"
+      ],
+      "normal_kinds": [
+        "cpu_hotspot",
+        "insufficient_evidence"
+      ],
+      "composite_passed": false
+    },
+    {
+      "case_id": "c02",
+      "replicate": 1,
+      "controlled_intervention_verified": true,
+      "fault_direction_matched": false,
+      "normal_top3_contains_normal_or_insufficient": true,
+      "fault_kinds": [
+        "cpu_hotspot",
+        "insufficient_evidence"
+      ],
+      "normal_kinds": [
+        "cpu_hotspot",
+        "insufficient_evidence"
+      ],
+      "composite_passed": false
+    },
+    {
+      "case_id": "c01",
+      "replicate": 1,
+      "controlled_intervention_verified": true,
+      "fault_direction_matched": true,
+      "normal_top3_contains_normal_or_insufficient": true,
+      "fault_kinds": [
+        "cpu_hotspot",
+        "insufficient_evidence"
+      ],
+      "normal_kinds": [
+        "cpu_hotspot",
+        "normal_load",
+        "insufficient_evidence"
+      ],
+      "composite_passed": true
+    },
+    {
+      "case_id": "c02",
+      "replicate": 2,
+      "controlled_intervention_verified": true,
+      "fault_direction_matched": false,
+      "normal_top3_contains_normal_or_insufficient": true,
+      "fault_kinds": [
+        "cpu_hotspot",
+        "insufficient_evidence"
+      ],
+      "normal_kinds": [
+        "cpu_hotspot",
+        "insufficient_evidence"
+      ],
+      "composite_passed": false
+    },
+    {
+      "case_id": "c03",
+      "replicate": 2,
+      "controlled_intervention_verified": true,
+      "fault_direction_matched": false,
+      "normal_top3_contains_normal_or_insufficient": true,
+      "fault_kinds": [
+        "cpu_hotspot",
+        "insufficient_evidence"
+      ],
+      "normal_kinds": [
+        "cpu_hotspot",
+        "lock_io",
+        "insufficient_evidence"
+      ],
+      "composite_passed": false
+    }
+  ],
+  "interpretation_limits": [
+    "本次12次诊断终态成功不等于12次根因定位正确；综合按客观干预、故障方向、恢复方向三条件AND计2/6。",
+    "正常Top3的6/6只表示包含normal_load或insufficient_evidence之一；这六个正常报告也都含cpu_hotspot，不等于正常误报为零或语义诊断全部正确。",
+    "四个慢SQL/timeout轮未匹配预登记方向；故障轮均未主动查询业务信号，不能声称它们利用修复后的metrics正确定位业务根因。",
+    "唯一实际业务metrics调用属于正常run125，scope为collector_execution且context_queried=false，验证了实际工具转发的新窗口元数据。",
+    "slowSQL合成路径本身使用CPU密集SQLite聚合；kind方向未命中不能代替独立真人对具体解释是否合理的审查。",
+    "语义根因准确率、正常误报率和语义拒答准确率仍为null，未伪造独立人审或盲测。",
+    "既有v1和v2-r1的失败及分母、原source/capture/score全部保留，没有事后修改oracle或挑优合并。"
+  ],
+  "next_engineering_steps": [
+    "在不泄露scenario/oracle的运行时策略中，根据已授权telemetry能力与用户目标引导受预算控制的补证，尤其是CPU profile无法判定请求延迟、deadline或下游依赖时。",
+    "为混合normal/insufficient与异常CPU方向的报告增加可解释分歧状态，并以独立人工评审确定正常误报和拒答语义，不靠字符串或宽松Top3自动判语义通过。",
+    "用独立新版本、新场景及保留失败的预登记计划验证后续策略，不能重跑本轮挑好结果。"
+  ]
+}

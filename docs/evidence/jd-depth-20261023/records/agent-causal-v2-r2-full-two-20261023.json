@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "id": "agent-causal-v2-r2-full-two-20261023",
+  "title": "Agent因果诊断 v2-r2：修复采集信号窗口后的独立6轮计划",
+  "category": "agent",
+  "suite": "causal-controlled-v2-r2",
+  "status": "failed",
+  "started_at": "2026-10-22T19:52:48.469273Z",
+  "finished_at": "2026-10-22T20:06:01.038423Z",
+  "environment": "production_bounded",
+  "source_commit": null,
+  "source_sha256": "be98e6499ccdf9aaa00964179ac0e65fec1f773b8700901b3faaf0423a0ba511",
+  "provenance": "actual_execution",
+  "fixture_scope": "仓库自有合成CPU、SQLite与网关deadline路径的真实HTTP、采集和DeepSeek诊断；接线计划仅CPU，正式计划三种各两轮。",
+  "counts": {
+    "passed": 2,
+    "failed": 4,
+    "skipped": 0,
+    "total": 6
+  },
+  "metrics": [
+    {
+      "id": "controlled-intervention-verified",
+      "label": "独立客观干预验证率",
+      "value": 1.0,
+      "unit": "ratio"
+    },
+    {
+      "id": "fault-supported-direction-top3",
+      "label": "故障方向Top3匹配率",
+      "value": 0.3333333333333333,
+      "unit": "ratio"
+    },
+    {
+      "id": "normal-after-direction-top3",
+      "label": "恢复方向Top3匹配率",
+      "value": 1.0,
+      "unit": "ratio"
+    },
+    {
+      "id": "exact-root-cause-accuracy",
+      "label": "独立人审精确根因准确率",
+      "value": null,
+      "unit": "ratio"
+    },
+    {
+      "id": "semantic-false-positive-rate",
+      "label": "独立人审正常误报率",
+      "value": null,
+      "unit": "ratio"
+    },
+    {
+      "id": "semantic-abstention-accuracy",
+      "label": "独立人审拒答准确率",
+      "value": null,
+      "unit": "ratio"
+    },
+    {
+      "id": "independent-human-reviews",
+      "label": "已完成独立真人评审",
+      "value": 0,
+      "unit": "count"
+    },
+    {
+      "id": "successful-scored-diagnoses",
+      "label": "可评分成功诊断数",
+      "value": 12,
+      "unit": "count"
+    },
+    {
+      "id": "accounted-model-calls",
+      "label": "记账逻辑模型调用",
+      "value": 43,
+      "unit": "count"
+    },
+    {
+      "id": "accounted-tool-calls",
+      "label": "记账工具调用",
+      "value": 50,
+      "unit": "count"
+    },
+    {
+      "id": "unknown-runs-charged-worst-case",
+      "label": "缺元数据按最坏值记账运行",
+      "value": 0,
+      "unit": "count"
+    }
+  ],
+  "checks": [
+    {
+      "id": "trial-c01-repeat-2",
+      "label": "c01 第2轮三条件验证",
+      "status": "passed",
+      "detail": "客观干预通过；故障方向命中；恢复方向命中"
+    },
+    {
+      "id": "trial-c03-repeat-1",
+      "label": "c03 第1轮三条件验证",
+      "status": "failed",
+      "detail": "客观干预通过；故障方向未命中或未完成；恢复方向命中"
+    },
+    {
+      "id": "trial-c02-repeat-1",
+      "label": "c02 第1轮三条件验证",
+      "status": "failed",
+      "detail": "客观干预通过；故障方向未命中或未完成；恢复方向命中"
+    },
+    {
+      "id": "trial-c01-repeat-1",
+      "label": "c01 第1轮三条件验证",
+      "status": "passed",
+      "detail": "客观干预通过；故障方向命中；恢复方向命中"
+    },
+    {
+      "id": "trial-c02-repeat-2",
+      "label": "c02 第2轮三条件验证",
+      "status": "failed",
+      "detail": "客观干预通过；故障方向未命中或未完成；恢复方向命中"
+    },
+    {
+      "id": "trial-c03-repeat-2",
+      "label": "c03 第2轮三条件验证",
+      "status": "failed",
+      "detail": "客观干预通过；故障方向未命中或未完成；恢复方向命中"
+    }
+  ],
+  "limits": [
+    "每轮须同时满足客观干预验证、预登记故障方向与恢复方向才计pass；失败或未执行保留原分母。",
+    "Top3只匹配结构化hypotheses.kind方向，不代表精确SQL、deadline或任意业务根因准确率。",
+    "作者可见三类合成路径；不是独立盲测，独立真人语义评审仍为0且三个语义指标为null。",
+    "原始执行capture保存在私有位置；此记录仅绑定其SHA，不冒充独立编译或远程可信执行证明。",
+    "本轮没有调度其他业务QA负载；它仍是单闭环客户端功能实验，不用于最大容量或普遍延迟SLA结论。",
+    "不使用idle样本冒充CPU占比；超时是查询强度与网关deadline的组合干预。",
+    "独立v2为20秒99Hz，至少10真实采样权重；原效果阈值未降低。模型失败计失败，不包装成拒答成功。",
+    "本轮使用API20261023.2；业务工具实际采集窗与上下文元数据分离，v1/v2-r1原始分数仍保留。",
+    "计划、模型输入、oracle与60模型/80工具总预算与v2-r1相同；此次是修复后独立一次六轮，未择优拼接。",
+    "正常方向6/6只表示Top3含normal_load或insufficient_evidence；六份正常报告也均含cpu_hotspot，不能当成误报率0或语义正确率100%。",
+    "四个慢SQL与timeout故障轮未命中预登记方向；故障轮均未查询业务信号，唯一实际metrics调用来自正常run125。",
+    "12次诊断终态成功与每轮三条件综合通过分开；本次仍为failed，2通过、4失败、0跳过。"
+  ]
+}

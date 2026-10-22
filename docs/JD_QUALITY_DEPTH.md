@@ -40,10 +40,12 @@ flowchart LR
 
 v2因果6轮综合1/6，客观干预5/6、故障方向4/6、恢复方向3/6。两次报告阶段预算失败，最后恢复被总预算预留拒绝；54模型/69工具是保守记账。见[原分数](evidence/jd-depth-20261023/causal/v2/full-two-repetitions/score.json)。工具±60秒窗口把历史正常流量混进P95，独立故障1628.228ms时模型所见仅6.436ms；不能把方向失配全归模型语义。
 
-正在修复取证窗口与报告修订指引，再以原计划/原预算另跑独立目录。新43项真实PG/HTTP适配器回归通过且0skip，见[回归](evidence/jd-depth-20261023/window-regression.json)。取证优先有来源的collector执行时钟，旧任务明确回退attempt窗，原context_window未查询不聚合。日志只保留固定失败枚举和有界计数，未放宽验证器。新CI及API23.2发布尚未完成，后续按实际收据追加。
+取证窗口与报告修订指引已修复。43项真实PG/HTTP适配器回归通过且0skip，见[回归](evidence/jd-depth-20261023/window-regression.json)。取证优先有来源的collector执行时钟，旧任务明确回退attempt窗，原context_window未查询不聚合。日志只保留固定失败枚举和有界计数，未放宽验证器。r5已实际部署API23.2/Web23.1，内部API ready、公网API JSON、13条初始记录逐SHA及7监控通过，其他27容器/卷和三项目快照保持，见[部署](evidence/jd-depth-20261023/release/deployment.json)。
+
+修复后在新目录唯一执行原六轮/原60模型80工具预算：12诊断终态成功，43逻辑模型/50工具，0未知计费；独立干预6/6、故障方向2/6、综合2通过4失败。恢复Top3 6/6只说明含normal_load或insufficient_evidence，六份正常报告也全含cpu_hotspot，因此不能当正常误报率0。四个SQL/timeout故障仍偏CPU，且六个故障轮都未主动查业务信号；唯一metrics在正常run125，已真实验证新Go窗口。详见[完整分数、未填人审及后验](evidence/jd-depth-20261023/causal/v2-r2/README.md)。修复了取证与报告执行问题，尚未解决通用诊断策略和语义可靠性；最终CI仍单独验收。
 
 ## 使用与发布边界
 
 普通GitHub CI不用生产凭据、真实外部CRM源码或付费模型；CRM真实DB与模型另有授权环境执行收据。整链测试业务流完全在可销毁QA内，外层控制器另外只读核对生产29个容器的身份、镜像和卷名，不向生产注入故障。
 
-最终API/Web仅新增只读记录能力，不增加SQL迁移、采集执行权限或浏览器长期密钥。原业务源码和登记快照不自动发布。Android/iOS真机、全部Runner开销、多日长稳、全部当前镜像漏洞扫描与签名仍是独立范围。
+最终API/Web新增只读记录能力，同时修正业务信号取证窗口、报告修订指引与安全日志；不增加SQL迁移、采集执行权限或浏览器长期密钥。原业务源码和登记快照不自动发布。Android/iOS真机、全部Runner开销、多日长稳、全部当前镜像漏洞扫描与签名仍是独立范围。

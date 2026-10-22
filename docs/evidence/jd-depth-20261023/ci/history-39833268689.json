@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "source_commit": "d91e6f0d776b3138ef03d153efd4e5bc647f6839",
+  "workflow": "JD testing assurance",
+  "run_id": 39833268689,
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "id": 120014808385,
+      "name": "protocol-state",
+      "status": "completed",
+      "conclusion": "success",
+      "successful_steps": 17,
+      "active_or_failed_steps": []
+    },
+    {
+      "id": 120014808658,
+      "name": "bounded-business-and-agent-regressions",
+      "status": "completed",
+      "conclusion": "success",
+      "successful_steps": 14,
+      "active_or_failed_steps": []
+    },
+    {
+      "id": 120014809195,
+      "name": "memory-and-live-sampling",
+      "status": "completed",
+      "conclusion": "failure",
+      "successful_steps": 13,
+      "active_or_failed_steps": [
+        {
+          "name": "Current-source API, Core runtime and Web for full platform system gate",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ]
+    }
+  ],
+  "observed_at": "2026-10-22T20:09:05.045663+00:00",
+  "failure_code": "API_RUNTIME_APK_MIRROR_404",
+  "detail": "API runtime APK mirror index referenced unavailable musl packages; no full platform browser executed.",
+  "private_log_sha256": "34cc3b3fcfa6c18a0daa1e0335ac8620afa44f0d62daafd5d61ca4daeb75ea07",
+  "private_logs_published": false,
+  "model_calls": 0,
+  "production_access": false
+}

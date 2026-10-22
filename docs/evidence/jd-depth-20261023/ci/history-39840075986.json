@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "source_commit": "bd3c0452989e8881535eaa94f3e58f485bb1f831",
+  "workflow": "JD testing assurance",
+  "run_id": 39840075986,
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "id": 120038457117,
+      "name": "memory-and-live-sampling",
+      "status": "completed",
+      "conclusion": "failure",
+      "successful_steps": 20,
+      "active_or_failed_steps": [
+        {
+          "name": "Real browser to HTTP to mTLS collector to S3 to Analyzer and owned recovery",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "id": 120038457517,
+      "name": "protocol-state",
+      "status": "completed",
+      "conclusion": "success",
+      "successful_steps": 17,
+      "active_or_failed_steps": []
+    },
+    {
+      "id": 120038457639,
+      "name": "bounded-business-and-agent-regressions",
+      "status": "completed",
+      "conclusion": "success",
+      "successful_steps": 14,
+      "active_or_failed_steps": []
+    }
+  ],
+  "observed_at": "2026-10-22T19:40:18.467986+00:00",
+  "failure_code": "BROWSER_BEFORE_TASK_CREATION",
+  "detail": "All image builds passed; browser generic login phase included authentication and agent readiness, insufficient to assign original cause. Cleanup passed.",
+  "private_log_sha256": "d9eb0180e7927803a12cab22c6b9f9727ebc8f921677dfa61c06ed61ba5d0c5d",
+  "private_logs_published": false,
+  "model_calls": 0,
+  "production_access": false,
+  "same_source_baseline": {
+    "run_id": 39840075914,
+    "jobs": [
+      {
+        "id": 120038456860,
+        "name": "contracts",
+        "status": "completed",
+        "conclusion": "failure",
+        "successful_steps": 11,
+        "active_or_failed_steps": [
+          {
+            "name": "Run python api/tools/check_http_contract.py",
+            "status": "completed",
+            "conclusion": "failure"
+          }
+        ]
+      },
+      {
+        "id": 120038457165,
+        "name": "analyzer",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 7,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120038457186,
+        "name": "agent-runtime",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 9,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120038457301,
+        "name": "api",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 12,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120038457354,
+        "name": "web",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 16,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120038457551,
+        "name": "maintenance",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 33,
+        "active_or_failed_steps": []
+      },
+      {
+        "id": 120038457580,
+        "name": "core",
+        "status": "completed",
+        "conclusion": "success",
+        "successful_steps": 5,
+        "active_or_failed_steps": []
+      }
+    ],
+    "passed": 6,
+    "failed": 1
+  },
+  "combined_same_source_jobs": {
+    "total": 10,
+    "passed": 8,
+    "failed": 2,
+    "skipped": 0
+  }
+}

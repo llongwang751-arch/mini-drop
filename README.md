@@ -8,11 +8,11 @@
 
 面试质量主线见 [JD质量实验](docs/JD_QUALITY_LAB.md) 与 [测试工具包](scripts/quality/README.md)：真实CRM联系人接口、固定oracle与变异负控、原生AgentScope测试计划、HTTP安全矩阵、状态机随机序列、Fuzz、C++消毒器、心跳及采样扰动、真实采样分析门禁。实际运行与合成范围分别记录，独立人工语义指标保持真实边界。
 
-后续[测试深度补强](docs/JD_QUALITY_DEPTH.md)加入完整PROC_CPU浏览器整链、owned故障恢复、真实CRM数据库/RLS、新数据序列生成、因果干预评测和管理员只读质量记录。最终持续窗口、CI与部署进度以本轮收据为准。
+后续[测试深度补强](docs/JD_QUALITY_DEPTH.md)加入完整PROC_CPU浏览器整链、隔离故障恢复、真实CRM数据库/RLS、新数据序列生成、因果干预评测和管理员只读[质量验证](https://82.157.81.79/quality)。30分钟实际60/60窗口通过；修复后的六组因果评测12诊断执行成功、综合2/6，尚不能声称可靠自动根因，最终CI独立记录。
 
 ## 全量实现与验收状态
 
-当前平台已部署至 **[https://82.157.81.79](https://82.157.81.79)**，API 为 **20261021.9**，AgentScope runtime 为 **20261021.4**，Web 为 **20261021.6**，Analyzer 为 **20261021.2（0.2.5）**，官方 AgentScope SDK **2.0.10**、SQL **10**、**29** 个运行容器；Agent 与 Helper 保持版本3。新增八项诊断扩展和两个实时遥测演示服务，规划、诊断和源码修复使用真实 AgentScope ReAct，Go 保留权限、状态与验收。详见[本次发布与验收](docs/releases/20261021-agent-expansion.md)、[实际部署](docs/evidence/agent-expansion-20261021/deployment-r10.json)与[面试步骤](docs/INTERVIEW_DEMO.md)。旧120.24.187.205属于历史部署。
+当前平台已部署至 **[https://82.157.81.79](https://82.157.81.79)**，API 为 **20261023.2**，AgentScope runtime 为 **20261021.4**，Web 为 **20261023.1**，Analyzer 为 **20261021.2（0.2.5）**，官方 AgentScope SDK **2.0.10**、SQL **10**、**29** 个运行容器；Agent 与 Helper 保持版本3。规划、诊断和源码修复使用真实 AgentScope ReAct，Go 保留权限、状态与验收。此次仅替换API/Web，其他27容器、数据卷与原项目快照保持；内部API就绪、公网API JSON和13条初始质量记录逐SHA读回通过，见[实际部署](docs/evidence/jd-depth-20261023/release/deployment.json)、[深度验收](docs/JD_QUALITY_DEPTH.md)与[面试步骤](docs/INTERVIEW_DEMO.md)。旧120.24.187.205属于历史部署。
 
 原 CRM/Saber 演示和16类 Runner/20个真实任务、BOLT、malloc证据保留。上一轮 Saber 调查11共76.4秒，修复9通过原2+冻结6测试、384例和6组fresh对照，CPU中位1.5587倍，仅限受控查询基准。上一轮将这份既有结果登记为案例3，关联任务86/诊断29，没有重新执行该基准。历史见[AgentScope发布](docs/releases/20261020-agentscope.md)、[AgentScope接入](docs/AGENTSCOPE_INTEGRATION.md)与[Saber范围](docs/SABER_INTEGRATION.md)。
 
