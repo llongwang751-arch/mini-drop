@@ -1,0 +1,89 @@
+{
+  "counts_scope": "38 offline business tests use official AgentScope2.0.10 and synthetic MockTransport; 10 adapter/orchestration tests use synthetic local fixtures. They do not represent additional paid model calls or a CI deployment of private CRM.",
+  "credentials_included": false,
+  "generated_suite_sha256": "ee6408838a950bf85e004c302206efaf19171fd6986516e563e3731658cf093c",
+  "kind": "business_sdk_and_database_boundary_validation",
+  "model_context_sha256": "48dced7f2ebd66c4c2afe1114efa346014912df21d44faef06334e714c0f344d",
+  "model_schema_sha256": "d7cd546b72a59bccfe60de7369014936bb02ce5c01a3e62b861df3e8396e9a64",
+  "observed_at_utc": "2026-10-22T18:21:30.268531+00:00",
+  "oracle_source_sha256": "3ab09c5d861bb67de2b0271d70e364da7115a463623ca79cd6ced83ed3b95a0b",
+  "private_source_or_sql_included": false,
+  "real_user_data_included": false,
+  "request_or_response_bodies_included": false,
+  "reviewed_requirements_sha256": "f03a57772c57531134f13ed0d6edeeec5bf1be8747460c64847745550ca12f94",
+  "schema_version": 2,
+  "source_file_count": 394,
+  "source_manifest_sha256": "3e7fefb4d7fd5220ee3d23efb381e574eec08952372341884e97c97ac003beb6",
+  "tool_manifest_sha256": "0e23654bbcf2730be28a2a91793b3568a78b3ffd1a040eff1317112171313ced",
+  "tool_source_files": {
+    "business/__init__.py": "77b82c08c9db2b3ee416d053d4a56a76e5d3adfd2ec4126ebd82a16167aefb2d",
+    "business/case_dsl.py": "8074ae8cc5f2130f96d80c9419c0fac6fafde93497b18f0b2563b61bb2fd0573",
+    "business/contract.py": "e08de735dc354368bc1253ebdf635416a7522300ba667b85bb00f1ac63df7894",
+    "business/generate_cases_with_agentscope.py": "d4258c5cac45c575aa5560efca34f6a1824b83c7dc44f1b13776933e5443666a",
+    "business/independent_oracle.py": "3ab09c5d861bb67de2b0271d70e364da7115a463623ca79cd6ced83ed3b95a0b",
+    "business/plan_with_agentscope.py": "fc03def8a9aafc596610785d1b93ae1f0554fc8ed47eeffe18724b3f906f3497",
+    "business/run.py": "1cf3dbad63002a3b4d984016dd12e578bdae4415b0a98cb071762ee94019201c",
+    "business/run_generated.py": "7a0b3342e90a3bb8b232ce8bff684abdaad2f4811bb99b9819d08f04b154d548",
+    "business/worker.py": "ac5ab149ac7853906b0b3cc2f56989367cd580eedd26e2d9bc8a781d6167db55",
+    "crm_postgres/gateway.py": "2e0636e6b057a774f08f617b112851697d7febfede5b9096e45493c7bfcc83ae",
+    "crm_postgres/local_issuer.py": "978b1630c82608a8631a8e85c9b8c0478d837035fbde301f6a81c38c98d936c7",
+    "crm_postgres/package.py": "947c75eb518623382ac0608786537789309828ec3e505688ee65bae18cc2a766",
+    "crm_postgres/run_isolated.py": "f318f70ca20c0eed90ff03692530eaedeb9b9fc6a55d06f09a843b49d44981f6",
+    "crm_postgres/test_boundaries.py": "5dd0a3e05debf9bc2ed4d4bf88c9a848554f0e692f566e26662df8a421c02d8d",
+    "crm_postgres/test_orchestrator.py": "d202114479d2d5fb069c5b5ec036573002fe8008732a6dc8c30e93a8d412d12f",
+    "crm_postgres/worker.py": "ccea3e5ad0049532f851a12f71bb344758646923d202db64c4016a1ce818d410"
+  },
+  "validation": {
+    "all_tool_source_files_unchanged_from_final_bundle": true,
+    "kind": "official_sdk_mock_and_crm_boundary_final_validation",
+    "original_receipt_sha256": "b8d278f15f00b13c8570f1f9daee5209ff083f809e527b8b4ca3664aa974f7ca",
+    "passed": true,
+    "provider_calls_real": 0,
+    "receipt_parser_correction": "Normalize Windows CRLF using splitlines; original tests all returned exit 0; original receipt preserved",
+    "schema_version": 1,
+    "steps": [
+      {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-22T18:20:14.293674+00:00",
+        "log_sha256": "ca93bb7c188039aabe0ddd8c251ba52c3111aee9280eeee0cdbc6f7b6fbd3616",
+        "name": "business-sdk",
+        "passed": true,
+        "skips": 0,
+        "started_at_utc": "2026-10-22T18:20:11.752014+00:00",
+        "test_count": 38
+      },
+      {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-22T18:20:15.045983+00:00",
+        "log_sha256": "d619769190e8151eebed6df5219d9406b92d312a2c6fa6874c003650923b162b",
+        "name": "postgres-boundaries",
+        "passed": true,
+        "skips": 0,
+        "started_at_utc": "2026-10-22T18:20:14.293685+00:00",
+        "test_count": 10
+      },
+      {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-22T18:20:15.128343+00:00",
+        "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "name": "ruff",
+        "passed": true,
+        "skips": null,
+        "started_at_utc": "2026-10-22T18:20:15.045993+00:00",
+        "test_count": null
+      },
+      {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-22T18:20:15.207702+00:00",
+        "log_sha256": "ba72d5ff990b6755459efa6266bf58b9f38733d193f2c3339b32245e476e5994",
+        "name": "ruff-format",
+        "passed": true,
+        "skips": null,
+        "started_at_utc": "2026-10-22T18:20:15.128352+00:00",
+        "test_count": null
+      }
+    ],
+    "tool_manifest_sha256": "0e23654bbcf2730be28a2a91793b3568a78b3ffd1a040eff1317112171313ced"
+  },
+  "validation_receipt_sha256": "c7bba1124477ce82539cc5dcfa656c2786b6b04a833f66f4d691ef4e7a272bc4"
+}

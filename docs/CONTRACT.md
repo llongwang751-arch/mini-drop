@@ -1,5 +1,7 @@
 # 实现契约 v2
 
+2026-10-23增量：新增管理员只读 `GET /api/v1/quality/runs` 与 `GET /api/v1/quality/runs/:run_id`。质量摘要真源为 `contracts/quality-run.schema.json`，API从配置的 `QUALITY_REPORTS_DIR` 读取最多128份各32KiB原子发布的不可变文件；未配置返回空列表，配置目录损坏失败关闭。无HTTP执行/写入入口，不修改任务、attempt或SQL schema。记录状态与计数一致，跳过不算通过，未知指标保持null；文件SHA不冒充签名或独立人审。目录需独立持久保存、只读挂载给API，生产发布保留历史。详见 [记录发布](../scripts/quality/reports/README.md)。
+
 2026-10-21实现增量：SQL010增加报告协议2、受控业务信号、动态补证分支、版本化方法库和Agent持久检查点；新增6个HTTP操作，源码执行器新增通用Python协议4。详见本文末尾的“Agent扩展增量契约”和 [实现说明](AGENT_EXPANSION.md)。这是源码契约，线上版本与部署验收另以发布收据为准。
 
 2026-10-21增量：SQL009增加 `diagnosis_runs.knowledge_mode` 与个人 `diagnostic_cases`。新增诊断方法目录、案例保存/查询/撤销四个HTTP操作；诊断工具增加 `read_diagnostic_knowledge`，报告可含程序生成的knowledge。模式off/skills/experience参与幂等及来源摘要，旧行off兼容原摘要。知识不授予权限、不修改采集契约或Protobuf编号；每项假设必须引用本轮测量观测。详见 [知识层说明](DIAGNOSTIC_KNOWLEDGE.md) 与OpenAPI。

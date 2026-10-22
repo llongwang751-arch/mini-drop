@@ -1,0 +1,91 @@
+{
+  "category": "system",
+  "checks": [
+    {
+      "detail": "启动安全校验拒绝，未进入界面业务；原清理失败状态保留。",
+      "id": "environment-prepare",
+      "label": "隔离环境准备",
+      "status": "failed"
+    },
+    {
+      "detail": "前置阶段阻断，未执行该核心场景。",
+      "id": "baseline-browser",
+      "label": "真实界面基线",
+      "status": "skipped"
+    },
+    {
+      "detail": "前置阶段阻断，未执行该核心场景。",
+      "id": "cancel-retry-preservation",
+      "label": "取消重试保留尝试",
+      "status": "skipped"
+    },
+    {
+      "detail": "前置阶段阻断，未执行该核心场景。",
+      "id": "agent-kill-recovery",
+      "label": "采集中终止恢复",
+      "status": "skipped"
+    },
+    {
+      "detail": "前置阶段阻断，未执行该核心场景。",
+      "id": "analyzer-pending-recovery",
+      "label": "分析待处理队列恢复",
+      "status": "skipped"
+    },
+    {
+      "detail": "前置阶段阻断，未执行该核心场景。",
+      "id": "postgres-short-recovery",
+      "label": "数据库短时停机恢复",
+      "status": "skipped"
+    }
+  ],
+  "counts": {
+    "failed": 1,
+    "passed": 0,
+    "skipped": 5,
+    "total": 6
+  },
+  "environment": "linux_isolated",
+  "finished_at": "2026-10-22T18:08:05.816664+00:00",
+  "fixture_scope": "真实浏览器、服务接口、双向证书采集、对象存储及分析链；目标为自有受控合成负载，故障只施加于本轮隔离资源。",
+  "id": "platform-system-20261023-001",
+  "limits": [
+    "共6项：准备前置1项、界面基线与取消重试2项、恢复3项；核心场景固定5项，前置阻断不冒充业务断言已执行。",
+    "来源散列绑定原始汇总收据，时间来自同轮执行控制器；提交版本未知，不能当作编译来源证明。",
+    "本轮持续观察预算为零，只验核心链路与恢复；不代表三十分钟持续运行，也不标记第四轮完成。",
+    "故障仅限自有可销毁环境；不访问生产业务或调用真实模型，原失败与清理状态不被后续成功覆盖。"
+  ],
+  "metrics": [
+    {
+      "id": "completed-real-task-count",
+      "label": "已完成真实采集任务数",
+      "unit": "count",
+      "value": 0
+    },
+    {
+      "id": "verified-artifact-count",
+      "label": "已核对制品数",
+      "unit": "count",
+      "value": 0
+    },
+    {
+      "id": "completed-fault-scenario-count",
+      "label": "已完成恢复场景数",
+      "unit": "count",
+      "value": 0
+    },
+    {
+      "id": "preserved-container-count",
+      "label": "保留生产容器数",
+      "unit": "count",
+      "value": 29
+    }
+  ],
+  "provenance": "actual_execution",
+  "schema_version": 1,
+  "source_commit": null,
+  "source_sha256": "95cec6d7b922213a92cc3c852d1720bd973ffd0d5ed7b8f0ca535d1adb353df1",
+  "started_at": "2026-10-22T18:06:55.915956+00:00",
+  "status": "failed",
+  "suite": "platform-owned-system",
+  "title": "完整平台验收：失败轮保留"
+}

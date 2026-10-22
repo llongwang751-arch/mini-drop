@@ -45,6 +45,7 @@ var definitions = map[string]definition{
 	"S3_BUCKET":                   {value: "drop-artifacts"},
 	"PUBLIC_URL":                  {value: "http://localhost", endpoint: true},
 	"TASK_KINDS_FILE":             {value: "/app/contracts/task-kinds.json", reference: true},
+	"QUALITY_REPORTS_DIR":         {reference: true},
 	"OIDC_ISSUER":                 {endpoint: true},
 	"OIDC_CLIENT_ID":              {},
 	"OIDC_CLIENT_SECRET":          {secret: true},

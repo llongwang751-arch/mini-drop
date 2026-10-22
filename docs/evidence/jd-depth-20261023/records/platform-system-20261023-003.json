@@ -1,0 +1,91 @@
+{
+  "category": "system",
+  "checks": [
+    {
+      "detail": "当前制品接入全新隔离栈，服务与安全边界验收完成。",
+      "id": "environment-prepare",
+      "label": "隔离环境准备",
+      "status": "passed"
+    },
+    {
+      "detail": "真实浏览器登录、建任务并显示实际采集分析结果，未伪造业务响应。",
+      "id": "baseline-browser",
+      "label": "真实界面基线",
+      "status": "passed"
+    },
+    {
+      "detail": "取消尝试被保留，重试创建第二次尝试并完成。",
+      "id": "cancel-retry-preservation",
+      "label": "取消重试保留尝试",
+      "status": "passed"
+    },
+    {
+      "detail": "采集中终止采集节点，持久日志恢复后拒绝重复采样；后续新任务完成。",
+      "id": "agent-kill-recovery",
+      "label": "采集中终止恢复",
+      "status": "passed"
+    },
+    {
+      "detail": "停止分析器后形成持久待处理队列，重启后完成；不覆盖已获租约时崩溃。",
+      "id": "analyzer-pending-recovery",
+      "label": "分析待处理队列恢复",
+      "status": "passed"
+    },
+    {
+      "detail": "数据库短时停机重启，原会话和历史结果保持，随后新任务完成。",
+      "id": "postgres-short-recovery",
+      "label": "数据库短时停机恢复",
+      "status": "passed"
+    }
+  ],
+  "counts": {
+    "failed": 0,
+    "passed": 6,
+    "skipped": 0,
+    "total": 6
+  },
+  "environment": "linux_isolated",
+  "finished_at": "2026-10-22T18:24:38.268782+00:00",
+  "fixture_scope": "真实浏览器、服务接口、双向证书采集、对象存储及分析链；目标为自有受控合成负载，故障只施加于本轮隔离资源。",
+  "id": "platform-system-20261023-003",
+  "limits": [
+    "共6项：准备前置1项、界面基线与取消重试2项、恢复3项；核心场景固定5项，前置阻断不冒充业务断言已执行。",
+    "来源散列绑定原始汇总收据，时间来自同轮执行控制器；提交版本未知，不能当作编译来源证明。",
+    "本轮持续观察预算为零，只验核心链路与恢复；不代表三十分钟持续运行，也不标记第四轮完成。",
+    "故障仅限自有可销毁环境；不访问生产业务或调用真实模型，原失败与清理状态不被后续成功覆盖。"
+  ],
+  "metrics": [
+    {
+      "id": "completed-real-task-count",
+      "label": "已完成真实采集任务数",
+      "unit": "count",
+      "value": 5
+    },
+    {
+      "id": "verified-artifact-count",
+      "label": "已核对制品数",
+      "unit": "count",
+      "value": 20
+    },
+    {
+      "id": "completed-fault-scenario-count",
+      "label": "已完成恢复场景数",
+      "unit": "count",
+      "value": 3
+    },
+    {
+      "id": "preserved-container-count",
+      "label": "保留生产容器数",
+      "unit": "count",
+      "value": 29
+    }
+  ],
+  "provenance": "actual_execution",
+  "schema_version": 1,
+  "source_commit": null,
+  "source_sha256": "626c7dffdc2c4d7c49f30928d62c731dd665112e3c009e2b045e6ca36fadd959",
+  "started_at": "2026-10-22T18:21:46.941699+00:00",
+  "status": "passed",
+  "suite": "platform-owned-system",
+  "title": "完整平台验收：核心链路通过"
+}

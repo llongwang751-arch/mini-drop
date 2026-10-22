@@ -1,0 +1,137 @@
+{
+  "case_generation_boundary": "Creates new synthetic values and operation sequences in reviewed contact DSL; does not select 47 catalog IDs or generate executable code, URLs, SQL, assertions or expected statuses",
+  "credentials_included": false,
+  "first_attempt_rejection_attribution": "Original raw output was intentionally not retained; exact first rejection cause cannot be established. Schema/validator operation-field mismatch was independently identified and corrected without relaxing the validator or oracle.",
+  "generation": {
+    "cost": null,
+    "executable_code_generated_by_model": false,
+    "failed_attempt": {
+      "exact_rejection_cause_known": false,
+      "original_response_saved": false,
+      "receipt": {
+        "agent_class": "agentscope.agent.Agent",
+        "context_sha256": "b30c798320d7c71c64554a8536ccd898cc8b8ef398f3a390d2828f944d67b314",
+        "cost": null,
+        "elapsed_ms": 4343,
+        "endpoint_origin": "https://api.deepseek.com",
+        "error_code": "PLAN_OUTPUT_REJECTED",
+        "fixture_provider": false,
+        "framework": "agentscope",
+        "framework_version": "2.0.10",
+        "generation_mode": "generated_data_sequences",
+        "maximum_model_calls": 3,
+        "maximum_output_tokens": 4000,
+        "maximum_tool_calls": 1,
+        "model": "deepseek-flash",
+        "model_calls": 1,
+        "provider_requests": 1,
+        "proxy_environment_used": false,
+        "schema_sha256": "cabe8092e7435f94988c1a2512b2d479dd620621486f0abbe25969efa13112ce",
+        "schema_version": 1,
+        "sdk_and_http_retries": 0,
+        "source_or_oracle_sent_to_model": false,
+        "success": false,
+        "timeout_seconds": 60,
+        "tls_verification": true,
+        "tool_calls": 0,
+        "usage": {
+          "input_tokens": 5746,
+          "output_tokens": 1072
+        }
+      },
+      "receipt_sha256": "4334c1eca6f8ba8bb40db5172914b888af9accc39d880cd28230ca95e16137c6"
+    },
+    "mode": "new synthetic data and operation sequences; not catalog ID selection",
+    "oracle_generated_by_model": false,
+    "successful_attempt": {
+      "receipt": {
+        "acceptance_channel": "native_generate_business_cases_tool",
+        "agent_class": "agentscope.agent.Agent",
+        "context_sha256": "48dced7f2ebd66c4c2afe1114efa346014912df21d44faef06334e714c0f344d",
+        "cost": null,
+        "elapsed_ms": 3765,
+        "endpoint_origin": "https://api.deepseek.com",
+        "executable_code_or_oracle_generated": false,
+        "fixed_catalog_selection": false,
+        "fixture_provider": false,
+        "framework": "agentscope",
+        "framework_version": "2.0.10",
+        "generated_case_count": 4,
+        "generated_step_count": 17,
+        "generation_mode": "generated_data_sequences",
+        "maximum_model_calls": 3,
+        "maximum_output_tokens": 4000,
+        "maximum_tool_calls": 1,
+        "model": "deepseek-flash",
+        "model_calls": 1,
+        "plan_sha256": "ee6408838a950bf85e004c302206efaf19171fd6986516e563e3731658cf093c",
+        "provider_requests": 1,
+        "proxy_environment_used": false,
+        "reviewed_requirements_sha256": "f03a57772c57531134f13ed0d6edeeec5bf1be8747460c64847745550ca12f94",
+        "schema_sha256": "d7cd546b72a59bccfe60de7369014936bb02ce5c01a3e62b861df3e8396e9a64",
+        "schema_version": 2,
+        "sdk_and_http_retries": 0,
+        "source_or_oracle_sent_to_model": false,
+        "success": true,
+        "suite_file_sha256": "96df64eff0aa4476c973c2b796aa46132b6cf39754d7921d868f01f417f686cc",
+        "timeout_seconds": 60,
+        "tls_verification": true,
+        "tool_calls": 1,
+        "usage": {
+          "input_tokens": 6482,
+          "output_tokens": 746
+        }
+      },
+      "receipt_sha256": "edc1c0a57d0df736550de13a1871c74669f3e5695d0e8de55aa966cdf299ff59"
+    },
+    "total_actual_model_calls": 2,
+    "total_actual_provider_requests": 2,
+    "total_actual_tool_calls": 1
+  },
+  "kind": "real_agentscope_new_business_case_generation",
+  "memory_independent_oracle": {
+    "mutation_kills": [
+      {
+        "killed_by_cases": [
+          "foreign_seed_isolation"
+        ],
+        "mutation": "contact_get_ignores_tenant",
+        "synthetic_mutation": true
+      },
+      {
+        "killed_by_cases": [
+          "own_seed_phone_duplicate"
+        ],
+        "mutation": "duplicate_phone_guard_removed",
+        "synthetic_mutation": true
+      },
+      {
+        "killed_by_cases": [
+          "viewer_write_denied"
+        ],
+        "mutation": "viewer_rank_elevated",
+        "synthetic_mutation": true
+      }
+    ],
+    "report_sha256": "049a928feb3bde22047655330fa058b24912c1d5b9565203e6c624eaeb25dc70",
+    "scope": "real CRM ASGI routes and MemoryRepository, synthetic identity resolver; not PG/TCP end-to-end",
+    "summary": {
+      "actual_requests": 76,
+      "baseline_passed": 4,
+      "baseline_total": 4,
+      "passed": true,
+      "sham_passed": 4,
+      "synthetic_mutants_killed": 3
+    }
+  },
+  "observed_at_utc": "2026-10-22T18:21:30.268531+00:00",
+  "oracle_source_sha256": "3ab09c5d861bb67de2b0271d70e364da7115a463623ca79cd6ced83ed3b95a0b",
+  "private_source_or_sql_included": false,
+  "real_user_data_included": false,
+  "request_or_response_bodies_included": false,
+  "reviewed_requirements_sha256": "f03a57772c57531134f13ed0d6edeeec5bf1be8747460c64847745550ca12f94",
+  "schema_version": 2,
+  "scope": "Memory evidence uses actual CRM ASGI routes and MemoryRepository with explicit synthetic identity; PostgreSQL/local-issuer evidence is separate",
+  "source_file_count": 394,
+  "source_manifest_sha256": "3e7fefb4d7fd5220ee3d23efb381e574eec08952372341884e97c97ac003beb6"
+}

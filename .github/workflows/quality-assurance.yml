@@ -1,10 +1,16 @@
 name: JD testing assurance
 on:
   push:
-    paths: ['api/**', 'core/**', 'analyzer/**', 'agent_runtime/**', 'contracts/**', 'db/migrations/**', 'scripts/quality/**', '.github/workflows/quality-assurance.yml']
+    paths: ['api/**', 'core/**', 'analyzer/**', 'web/**', 'deploy/**', 'agent_runtime/**', 'contracts/**', 'db/migrations/**', 'scripts/quality/**', 'scripts/dev.py', '.github/workflows/quality-assurance.yml']
   pull_request:
-    paths: ['api/**', 'core/**', 'analyzer/**', 'agent_runtime/**', 'contracts/**', 'db/migrations/**', 'scripts/quality/**', '.github/workflows/quality-assurance.yml']
+    paths: ['api/**', 'core/**', 'analyzer/**', 'web/**', 'deploy/**', 'agent_runtime/**', 'contracts/**', 'db/migrations/**', 'scripts/quality/**', 'scripts/dev.py', '.github/workflows/quality-assurance.yml']
   workflow_dispatch:
+    inputs:
+      soak_minutes:
+        description: 'Disposable real platform soak; normal PR uses zero'
+        type: choice
+        options: ['0', '30']
+        default: '0'
 permissions:
   contents: read
 concurrency:
@@ -64,6 +70,22 @@ jobs:
           PY
       - name: Require executed scenarios and measured critical function floors
         run: python scripts/quality/protocol/check_risks.py --events .local/quality-protocol/repository-events.jsonl --coverage .local/quality-protocol/repository.cover --output .local/quality-protocol/risk-report.json
+      - name: Quality report routes enforce current role after revocation
+        working-directory: api
+        env:
+          TEST_DATABASE_URL: postgresql://drop_quality:ci-ephemeral-quality-password@localhost:5432/drop_quality?sslmode=disable
+          TEST_MIGRATIONS_DIR: ${{ github.workspace }}/db/migrations
+          TEST_TASK_KINDS_FILE: ${{ github.workspace }}/contracts/task-kinds.json
+          GOMAXPROCS: '2'
+        run: |
+          go test -race -json -count=1 -timeout=120s -run '^TestPostgresQualityRoutesRespectRoleRevocation$' ./internal/httpapi > ../.local/quality-protocol/quality-route-events.jsonl
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          rows = [json.loads(line) for line in Path('../.local/quality-protocol/quality-route-events.jsonl').read_text().splitlines()]
+          assert any(r.get('Test') == 'TestPostgresQualityRoutesRespectRoleRevocation' and r.get('Action') == 'pass' for r in rows)
+          assert not any(r.get('Action') in {'skip', 'fail'} for r in rows)
+          PY
       - name: Native Go Fuzz, three independent ten-second budgets
         working-directory: api
         env: {GOMAXPROCS: '2'}
@@ -102,9 +124,26 @@ jobs:
       - name: Performance measurement, fixed HTTP workload and negative-control regressions
         # 统计/门禁与自有本机HTTP目标测试；不将这些单测标成真实py-spy扰动实验。
         run: python -m unittest discover -s scripts/quality/performance -p 'test_*.py' -v
+      - name: Immutable quality reports and owned system fault-controller regressions
+        run: |
+          python -m unittest discover -s scripts/quality/reports -p 'test_*.py' -v
+          python -m unittest discover -s scripts/quality/system -p 'test_*.py' -v
+          python -m unittest discover -s scripts/quality/causal -p 'test_*.py' -v
+          # v2含同名测试模块且不是包，使用独立进程明确收集，避免被v1 discover漏掉。
+          python -m unittest discover -s scripts/quality/causal/v2 -p 'test_*.py' -v
+          python -m unittest discover -s scripts/quality/crm_postgres -p 'test_*.py' -v
+      - uses: actions/setup-node@v4
+        with: {node-version: '24.15.0', cache: npm, cache-dependency-path: web/package-lock.json}
+      - name: Quality report UI with explicit synthetic API fixtures
+        working-directory: web
+        run: |
+          npm ci
+          npm run build
+          npx playwright install --with-deps chromium
+          npx playwright test --config playwright.quality.config.ts
   memory-and-live-sampling:
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 85
     steps:
       - uses: actions/checkout@v4
       - name: C++ ASan, UBSan, Werror and seeded protocol mutations
@@ -125,4 +164,56 @@ jobs:
           name: fresh-sampling-analysis-receipt
           # 不上传 RAW、进程名、数据库连接、私有日志或临时 URL。
           path: .local/quality-protocol/live-chain-receipt.json
+          if-no-files-found: warn
+      - name: Current-source API, Core runtime and Web for full platform system gate
+        run: |
+          docker build -f api/Dockerfile -t drop-api:quality-system .
+          docker build --target runtime -f core/Dockerfile -t drop-core:quality-system .
+          docker build -f web/Dockerfile -t drop-web:quality-system .
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '24.15.0', cache: npm, cache-dependency-path: web/package-lock.json}
+      - uses: docker/setup-compose-action@v2.0.0
+        with: {version: 'v2.40.3'}
+      - name: Install real browser without intercepted business responses
+        working-directory: web
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Extract only current build artifacts, never production running containers
+        run: |
+          python scripts/quality/system/extract_bindings.py --api-image drop-api:quality-system --core-image drop-core:quality-system --web-image drop-web:quality-system --analyzer-image drop-analyzer:quality --output "$PWD/.local/system-current-build"
+      - name: Real browser to HTTP to mTLS collector to S3 to Analyzer and owned recovery
+        env:
+          SOAK_MINUTES: ${{ github.event.inputs.soak_minutes || '0' }}
+        run: |
+          # Compose插件安装在runner的Docker配置目录，sudo后仍显式使用该固定版本。
+          compose_version="$(sudo env DOCKER_CONFIG="${DOCKER_CONFIG:-$HOME/.docker}" docker compose version --short)"
+          test "${compose_version#v}" = '2.40.3'
+          sudo env PATH="$PATH" DOCKER_CONFIG="${DOCKER_CONFIG:-$HOME/.docker}" PLAYWRIGHT_BROWSERS_PATH="$HOME/.cache/ms-playwright" python scripts/quality/system/lab.py --images "$PWD/.local/system-current-build/images.json" --bindings "$PWD/.local/system-current-build/bindings.json" --bootstrap-image drop-core-test --output "$PWD/.local/system-live-run" --soak-minutes "$SOAK_MINUTES"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: current-system-build-binding
+          path: .local/system-current-build/binding-receipt.json
+          if-no-files-found: warn
+      - name: Copy only fixed public projections out of root-owned private fixture
+        if: always()
+        run: |
+          mkdir -p .local/system-public
+          for name in summary.json browser.json progress.json; do
+            if sudo test -f "$PWD/.local/system-live-run/$name"; then
+              sudo install -m 0644 "$PWD/.local/system-live-run/$name" "$PWD/.local/system-public/$name"
+            fi
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: real-platform-system-and-recovery
+          # 只上传固定公开投影，不上传private日志、会话、证书、凭据或RAW。
+          path: |
+            .local/system-public/summary.json
+            .local/system-public/browser.json
+            .local/system-public/progress.json
           if-no-files-found: warn

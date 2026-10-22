@@ -1,0 +1,68 @@
+{
+  "category": "business",
+  "checks": [
+    {
+      "detail": "生成输出被固定校验拒绝；未保存模型原文，不能确定具体拒收原因。",
+      "id": "bounded-generation-contract",
+      "label": "生成协议验收",
+      "status": "failed"
+    }
+  ],
+  "counts": {
+    "failed": 1,
+    "passed": 0,
+    "skipped": 0,
+    "total": 1
+  },
+  "environment": "windows_local",
+  "finished_at": "2026-10-22T18:01:34.186061+00:00",
+  "fixture_scope": "真实模型与官方智能体框架调用；输入为审阅需求和受限协议，只生成合成数据与操作序列，独立判定器不由模型改写。",
+  "id": "crm-generation-20261023-001",
+  "limits": [
+    "起止时间均取原始模型收据文件的实际写入UTC；未记录精确执行起止，不能据此计算耗时。",
+    "每条只记录该次调用；首轮失败与第二轮成功分别保留，总计两次模型请求、一次有效工具提交。",
+    "本记录只判断生成输出协议，不表示完整业务通过；业务执行由独立内存链和数据库记录验收。",
+    "模型仅在受限联系人操作内创造新数据和序列，不生成断言、预期状态或可执行代码。",
+    "首次拒收未留原文，具体原因不能归因；后续修正协议描述不放宽执行器或判定器。"
+  ],
+  "metrics": [
+    {
+      "id": "actual-model-call-count",
+      "label": "实际模型调用次数",
+      "unit": "count",
+      "value": 1
+    },
+    {
+      "id": "actual-provider-request-count",
+      "label": "实际供应商请求次数",
+      "unit": "count",
+      "value": 1
+    },
+    {
+      "id": "actual-tool-call-count",
+      "label": "实际工具调用次数",
+      "unit": "count",
+      "value": 0
+    },
+    {
+      "id": "input-token-count",
+      "label": "供应商输入用量",
+      "unit": "tokens",
+      "value": 5746
+    },
+    {
+      "id": "output-token-count",
+      "label": "供应商输出用量",
+      "unit": "tokens",
+      "value": 1072
+    }
+  ],
+  "provenance": "actual_execution",
+  "schema_version": 1,
+  "source_commit": null,
+  "source_sha256": "4334c1eca6f8ba8bb40db5172914b888af9accc39d880cd28230ca95e16137c6",
+  "started_at": "2026-10-22T18:01:34.186061+00:00",
+  "status": "failed",
+  "suite": "crm-business-generation",
+  "title": "业务用例生成：首轮拒收保留"
+}

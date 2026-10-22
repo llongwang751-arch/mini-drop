@@ -501,6 +501,14 @@ def query(name, schema=None, description=""):
 
 P = {}
 
+# 质量摘要的字段真源是共享Schema；只改写引用位置以嵌入OpenAPI。
+quality_schema = json.loads((ROOT / "contracts/quality-run.schema.json").read_text(encoding="utf-8"))
+S["QualityRecordID"] = quality_schema["$defs"]["id"]
+quality_schema.pop("$schema")
+quality_schema.pop("$defs")
+S["QualityRun"] = json.loads(json.dumps(quality_schema).replace("#/$defs/id", "#/components/schemas/QualityRecordID"))
+S["QualityRecord"] = obj({"run":ref("QualityRun"),"record_sha256":string(pattern="^[a-f0-9]{64}$")},("run","record_sha256"),closed=True)
+
 
 def operation(method, path, handler, summary, schema, *, tag="Tasks", body=None, code=200, description="", public=False,
               idem=False, queries=(), paged=False):
@@ -538,6 +546,12 @@ BASE = "/api/v1"
 def add(method, path, *args, **kwargs):
     return operation(method, BASE + path, *args, **kwargs)
 
+
+add("get", "/quality/runs", "qualityRuns", "管理员只读质量执行记录", page(ref("QualityRecord")), tag="Quality",
+    description="平台管理员专用；最多128份各32KiB不可变摘要，时间倒序。未配置目录返回空列表，损坏记录使整目录失败关闭。不会执行测试或返回原始profile。")
+quality_detail = add("get", "/quality/runs/{run_id}", "qualityRun", "读取质量记录及原文件摘要", ref("QualityRecord"), tag="Quality",
+    description="平台管理员专用；run_id为受限名称，不是任务bigint；SHA对应服务器原JSON文件字节，不是签名。")
+quality_detail["parameters"] = [{"name":"run_id","in":"path","required":True,"schema":ref("QualityRecordID")}]
 
 deleted = obj({"deleted": BOOL}, ("deleted",))
 enabled = obj({"enabled": BOOL}, ("enabled",), closed=True)

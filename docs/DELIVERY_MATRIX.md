@@ -1,5 +1,11 @@
 # 全量交付与验收矩阵
 
+## 测试深度补强（2026-10-23，最终持续窗口与发布进行中）
+
+实现与边界见[本轮说明](JD_QUALITY_DEPTH.md)、[CRM数据库验收](CRM_DATABASE_QUALITY.md)及[摘要发布](../scripts/quality/reports/README.md)。已实际通过真实模型新场景生成、Memory独立oracle/变异、真实PG/RLS/本地issuer，以及第003轮完整PROC_CPU网页/采集/分析与3类恢复。30分钟持续窗口、新因果协议、精确提交GitHub检查和生产API/Web切换尚未在本节记完成；后续按独立收据追加。
+
+结果页面只展示已完成的审阅执行记录，不提供任意测试命令或HTTP写入；Go当前会话重验管理员角色。独立人工语义评分仍需真人提交；结构匹配、受控干预和模板生成不代替人审。生产数据卷、旧命名镜像与原项目登记快照保持。
+
 ## JD质量补强（2026-10-23）
 
 新增[质量工具包](../scripts/quality/README.md)和[岗位映射](JD_QUALITY_LAB.md)，平台API9/runtime4/Web6/Analyzer0.2.5/SQL10保持。此次是测试工具、分层门禁与实际证据增量，没有增加生产权限或替换业务数据。

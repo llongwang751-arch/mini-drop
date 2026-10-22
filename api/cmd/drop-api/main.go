@@ -164,6 +164,7 @@ func run() error {
 	tasks := &service.Tasks{Repo: repo, Storage: store, Control: ctrl}
 	go tasks.Run(ctx)
 	api := &httpapi.Server{Tasks: tasks, Accounts: accounts, Repo: repo, Kinds: kinds, PublicURL: public, Telemetry: metrics, SecureCookie: strings.HasPrefix(public, "https://")}
+	api.QualityReportsDir, _ = secret("QUALITY_REPORTS_DIR", "")
 	issuer, _ := secret("OIDC_ISSUER", "")
 	if issuer != "" {
 		id, _ := required("OIDC_CLIENT_ID")

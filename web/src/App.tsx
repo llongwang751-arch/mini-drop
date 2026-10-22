@@ -29,6 +29,7 @@ import {
   Drop,
   ArrowRight,
   ShieldCheck,
+  TestTube,
   SidebarSimple,
 } from "@phosphor-icons/react";
 import {
@@ -54,6 +55,7 @@ import Settings from "./views/Settings";
 const Guide = lazy(() => import("./views/Guide"));
 const Investigations = lazy(() => import("./views/Investigations"));
 const Knowledge = lazy(() => import("./views/Knowledge"));
+const Quality = lazy(() => import("./views/Quality"));
 
 function DropSection() {
   const clipId = useId();
@@ -379,29 +381,31 @@ export default function App() {
         }}
       />
     );
-  const pageName = location.pathname.startsWith("/knowledge")
-    ? "诊断知识"
-    : location.pathname.startsWith("/investigations")
-      ? "智能性能调查"
-      : location.pathname.startsWith("/compare")
-        ? "任务对比"
-        : location.pathname.startsWith("/groups")
-          ? "权限组"
-          : location.pathname.startsWith("/rules")
-            ? "诊断规则"
-            : location.pathname.startsWith("/agents")
-              ? "接入节点"
-              : location.pathname.startsWith("/composites")
-                ? "复合诊断"
-                : location.pathname.startsWith("/tasks")
-                  ? "诊断任务"
-                  : location.pathname.startsWith("/schedules")
-                    ? "计划任务"
-                    : location.pathname.startsWith("/settings")
-                      ? "工作空间设置"
-                      : location.pathname.startsWith("/guide")
-                        ? "使用指南"
-                        : "工作空间总览";
+  const pageName = location.pathname.startsWith("/quality")
+    ? "质量验证"
+    : location.pathname.startsWith("/knowledge")
+      ? "诊断知识"
+      : location.pathname.startsWith("/investigations")
+        ? "智能性能调查"
+        : location.pathname.startsWith("/compare")
+          ? "任务对比"
+          : location.pathname.startsWith("/groups")
+            ? "权限组"
+            : location.pathname.startsWith("/rules")
+              ? "诊断规则"
+              : location.pathname.startsWith("/agents")
+                ? "接入节点"
+                : location.pathname.startsWith("/composites")
+                  ? "复合诊断"
+                  : location.pathname.startsWith("/tasks")
+                    ? "诊断任务"
+                    : location.pathname.startsWith("/schedules")
+                      ? "计划任务"
+                      : location.pathname.startsWith("/settings")
+                        ? "工作空间设置"
+                        : location.pathname.startsWith("/guide")
+                          ? "使用指南"
+                          : "工作空间总览";
   const navigation = [
     { to: "/", label: "工作空间总览", icon: SquaresFour },
     { to: "/tasks", label: "诊断任务", icon: Stack },
@@ -412,6 +416,9 @@ export default function App() {
     { to: "/groups", label: "权限组", icon: ShieldCheck },
     { to: "/rules", label: "诊断规则", icon: GearSix },
     { to: "/knowledge", label: "诊断知识", icon: BookOpen },
+    ...(["admin", "platform_admin"].includes(auth.user.role)
+      ? [{ to: "/quality", label: "质量验证", icon: TestTube }]
+      : []),
   ];
   return (
     <UserContext.Provider value={auth.user}>
@@ -628,6 +635,14 @@ export default function App() {
                   }
                 />
                 <Route path="/composites" element={<Composites />} />
+                <Route
+                  path="/quality"
+                  element={
+                    <Suspense fallback={<Busy />}>
+                      <Quality />
+                    </Suspense>
+                  }
+                />
                 <Route path="/composites/:id" element={<CompositeDetail />} />
                 <Route
                   path="/settings"

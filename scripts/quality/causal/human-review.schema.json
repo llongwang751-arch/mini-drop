@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:drop:controlled-causal-human-review:v1",
+  "title": "受控因果诊断的独立人工审阅输入",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "kind", "plan_sha256", "reviews"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "kind": {"const": "controlled_causal_human_review"},
+    "plan_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "review_api_contract": {"type": "object"},
+    "instructions": {"type": "array", "items": {"type": "string"}, "maxItems": 8},
+    "reviews": {"type": "array", "maxItems": 12, "items": {"$ref": "#/$defs/review"}}
+  },
+  "$defs": {
+    "nullableBoolean": {"type": ["boolean", "null"]},
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["case_id", "replicate", "phase", "run_id", "task_id", "analysis_sha256", "report_sha256", "assessment_type", "reviewer", "independence_attested", "blind_to_oracle", "exact_root_cause_supported", "normal_false_positive", "appropriate_abstention", "notes"],
+      "properties": {
+        "case_id": {"enum": ["c01", "c02", "c03"]},
+        "replicate": {"type": "integer", "minimum": 1, "maximum": 2},
+        "phase": {"enum": ["fault", "after"]},
+        "run_id": {"type": "string", "pattern": "^[1-9][0-9]{0,18}$"},
+        "task_id": {"type": "string", "pattern": "^[1-9][0-9]{0,18}$"},
+        "analysis_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "report_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "assessment_type": {"const": "human_manual_review"},
+        "reviewer": {"type": ["string", "null"], "minLength": 1, "maxLength": 120},
+        "independence_attested": {"type": "boolean"},
+        "blind_to_oracle": {"type": "boolean"},
+        "exact_root_cause_supported": {"$ref": "#/$defs/nullableBoolean"},
+        "normal_false_positive": {"$ref": "#/$defs/nullableBoolean"},
+        "appropriate_abstention": {"$ref": "#/$defs/nullableBoolean"},
+        "notes": {"type": ["string", "null"], "maxLength": 1000}
+      },
+      "allOf": [
+        {"if": {"anyOf": [{"properties": {"exact_root_cause_supported": {"type": "boolean"}}}, {"properties": {"normal_false_positive": {"type": "boolean"}}}, {"properties": {"appropriate_abstention": {"type": "boolean"}}}]}, "then": {"properties": {"independence_attested": {"const": true}, "reviewer": {"type": "string", "pattern": "\\S"}}}}
+      ]
+    }
+  }
+}

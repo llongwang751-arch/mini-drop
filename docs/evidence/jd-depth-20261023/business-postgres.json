@@ -1,0 +1,384 @@
+{
+  "authentication_scope": "Local HS256 issuer HTTP adapter plus real CRM auth/session/member resolution, real PostgREST JWT verification and PostgreSQL RLS; not external GoTrue, SSO or MFA.",
+  "credentials_included": false,
+  "denominator_note": "The same eight database checks and four authentication checks are replayed in fixed and model suites; repeated executions are not sixteen or eight distinct checks.",
+  "distinct_authentication_checks_total": 4,
+  "distinct_database_checks_total": 8,
+  "kind": "actual_private_crm_postgresql_rls_local_issuer_acceptance",
+  "limits": [
+    "Only reviewed contacts DSL operations and explicit config transaction fixture route are covered; no full CRM acceptance claim",
+    "Local HS256 issuer adapter is not GoTrue, external issuer, enterprise SSO or MFA",
+    "Supabase auth/storage SQL prelude is explicit compatibility fixture, not external service provisioning",
+    "Disabling disposable contacts RLS and raising service rollback exceptions are synthetic mutations, not newly discovered production vulnerabilities",
+    "Private bundle and CRM source are excluded from GitHub; only aggregate counts, names and hashes are publicable",
+    "No production Drop container, image or named volume was modified by these tests"
+  ],
+  "mutation_scope": "Disabling contacts RLS is an explicit synthetic mutation in a disposable database, detected and restored in finally. It is not a newly discovered production vulnerability.",
+  "observed_at_utc": "2026-10-22T18:21:30.268531+00:00",
+  "oracle_source_sha256": "3ab09c5d861bb67de2b0271d70e364da7115a463623ca79cd6ced83ed3b95a0b",
+  "passed": true,
+  "private_source_or_sql_included": false,
+  "real_user_data_included": false,
+  "request_count_scope": {
+    "memory_generated_suite_all_five_runs": 76,
+    "model_postgres_asgi_generated_steps": 17,
+    "model_postgres_gateway_http_requests": 132,
+    "note": "Memory76 includes baseline/sham/three mutations; gateway132 includes real repository/auth/internal HTTP and is a different denominator."
+  },
+  "request_or_response_bodies_included": false,
+  "reviewed_requirements_sha256": "f03a57772c57531134f13ed0d6edeeec5bf1be8747460c64847745550ca12f94",
+  "runs": [
+    {
+      "acceptance_sha256": "0bbbe880e77af0092fa91a6396006f4efe67513ab5d445872681471e6f2a85db",
+      "bundle_archive_sha256": "e4c5964fcc8eec04b159332bec8055a4d4e222127684a89342b21a91509020f8",
+      "bundle_manifest_sha256": "cfc57c7891f0619d511a424ebc65229712682798e6a850719c7fe49c554b8c3d",
+      "bundle_version": "003",
+      "cleanup": {
+        "db": "removed",
+        "network": "removed",
+        "rest": "removed",
+        "runner": "removed"
+      },
+      "controller_receipt_sha256": "d5f76a6de66f584ef15785a0fe96b35124acbc1a42ee5c48d44bce9c3aebb433",
+      "error_code": "CRM_PG_ACCEPTANCE_FAILED",
+      "error_type": "ValueError",
+      "failure_details": {
+        "diagnosed_cause": "PostgREST started before ephemeral authenticator role existed and exited; bootstrap handshake fixed startup order",
+        "note": "Original controller compared unsorted mount lists and reported false. A separate normalized follow-up matched all 29 container IDs, image IDs and volume names. The initial after-list was not retained, so the exact comparison discrepancy is not conclusively attributable; original false and follow-up remain distinct.",
+        "production_followup_normalized": {
+          "after_sha256": "2af8fbfe2fcfc441cbfb549817b2086537f2e03d59a7d3438d9882ccf0e881fe",
+          "before_sha256": "2af8fbfe2fcfc441cbfb549817b2086537f2e03d59a7d3438d9882ccf0e881fe",
+          "changed_container_id_count": 0,
+          "mount_order_only_difference": false,
+          "production_count_after": 29,
+          "production_count_before": 29,
+          "production_ids_images_volumes_unchanged": true
+        }
+      },
+      "finished_at_utc": "2026-10-22T18:11:37.643827+00:00",
+      "images": {
+        "postgres": {
+          "image_id": "sha256:ac08538c6f8b9904c33c8224c5e5706dbe760aca29db1d096972b4052c22a75d",
+          "requested": "pgvector/pgvector:pg17"
+        },
+        "postgrest": {
+          "image_id": "sha256:d09618df2b7b9547c80a076c2f4045b326be8d7ac06060d263caefec1334e3c9",
+          "requested": "postgrest/postgrest:v13.0.8"
+        },
+        "runner": {
+          "image_id": "sha256:dc12e7ab31dd44f09b27bd6cd7dc8f4b2b86ac458dada37424ba45a46ed5b439",
+          "requested": "drop-crm-sandbox:20261020.4"
+        }
+      },
+      "oracle_source_sha256": "3ab09c5d861bb67de2b0271d70e364da7115a463623ca79cd6ced83ed3b95a0b",
+      "passed": false,
+      "production_after_sha256": "2796c1264a7a2f475fc622087478be7621a8faba9ae6631e8650d8ba97f02ca7",
+      "production_before_sha256": "feb0bdd9033d852fef104f6654c6f50cbce3cdf7da82ce1306b550044382c85a",
+      "production_count": 29,
+      "production_ids_images_volumes_unchanged": false,
+      "run_id": "crm-run-001",
+      "run_receipt_sha256": "614aa1f3a7986f2b950af8864501e32cb2611ed47b46dfb0465f8863f84fc393",
+      "source_manifest_sha256": "3e7fefb4d7fd5220ee3d23efb381e574eec08952372341884e97c97ac003beb6",
+      "sqlstate": null,
+      "stage": "wait_original_postgrest",
+      "started_at_utc": "2026-10-22T18:10:53.357322+00:00",
+      "suite_sha256": "c2070d41339c90f44546b63fd08931d72fa63e6a5b798b8f3e7fb0829eb38dde",
+      "tool_manifest_sha256": "f9d189cd1a207ef4b9acf373d13b89537cd5dd8271f82f73b1c58da57e24d348"
+    },
+    {
+      "acceptance_sha256": "e9111330af66e34a890b946c52c483ac989332ee6952757fa1977a6730841733",
+      "actual_generated_asgi_requests": 17,
+      "adapter_counters": {
+        "gateway_requests": 114,
+        "local_issuer_checks": 20,
+        "local_issuer_rejections": 2
+      },
+      "authentication_checks": [
+        {
+          "business_state_unchanged": true,
+          "name": "missing",
+          "passed": true,
+          "status": 401
+        },
+        {
+          "business_state_unchanged": true,
+          "name": "wrong_signature",
+          "passed": true,
+          "status": 401
+        },
+        {
+          "business_state_unchanged": true,
+          "name": "expired",
+          "passed": true,
+          "status": 401
+        },
+        {
+          "name": "live_membership_revocation",
+          "passed": true,
+          "status": 403
+        }
+      ],
+      "authentication_scope": "local HS256 issuer over real HTTP plus real CRM auth resolution and PostgREST JWT verification; not GoTrue or external issuer",
+      "bundle_archive_sha256": "9f02db9a8da0efb252349c979771cecfa4c7f9683858ebdb3a44dcfdec76bf1c",
+      "bundle_manifest_sha256": "1f2093571d6700ca8613a9cac310b6b2e08dc499b5a33994b253155d7a61c74f",
+      "bundle_version": "004",
+      "cleanup": {
+        "db": "removed",
+        "network": "removed",
+        "rest": "removed",
+        "runner": "removed"
+      },
+      "controller_receipt_sha256": "fff1b6cc8f3477b93e437996329506fe534d856bea80c78ea8044ad84b3d65d9",
+      "database_checks": [
+        {
+          "name": "application_role_is_real_authenticated_non_superuser_non_bypass",
+          "passed": true
+        },
+        {
+          "name": "unfiltered_select_enforces_original_rls",
+          "passed": true
+        },
+        {
+          "name": "rls_cross_tenant_insert_denied_without_business_effect",
+          "passed": true,
+          "sqlstate": "42501"
+        },
+        {
+          "name": "real_transaction_rolls_back_insert_update_and_business_side_effects",
+          "passed": true
+        },
+        {
+          "name": "original_unique_index_arbitrates_concurrent_writers",
+          "outcomes": [
+            "committed",
+            "23505"
+          ],
+          "passed": true,
+          "resulting_rows": 1
+        },
+        {
+          "name": "positive_control_same_phone_in_different_tenants",
+          "passed": true,
+          "resulting_rows": 2
+        },
+        {
+          "name": "synthetic_rls_disabled_mutation_killed_and_restored",
+          "passed": true,
+          "root_cause_is_production_vulnerability": false,
+          "synthetic_mutation": true
+        },
+        {
+          "fixture_route_not_a_production_endpoint": true,
+          "name": "original_config_transaction_rolls_back_pipeline_and_stage_after_injected_failure",
+          "passed": true,
+          "synthetic_failure_injection": true
+        }
+      ],
+      "finished_at_utc": "2026-10-22T18:15:42.089218+00:00",
+      "full_external_authentication_claimed": false,
+      "generated_cases_passed": 4,
+      "generated_cases_total": 4,
+      "generated_steps_executed": 17,
+      "images": {
+        "postgres": {
+          "image_id": "sha256:ac08538c6f8b9904c33c8224c5e5706dbe760aca29db1d096972b4052c22a75d",
+          "requested": "pgvector/pgvector:pg17"
+        },
+        "postgrest": {
+          "image_id": "sha256:d09618df2b7b9547c80a076c2f4045b326be8d7ac06060d263caefec1334e3c9",
+          "requested": "postgrest/postgrest:v13.0.8"
+        },
+        "runner": {
+          "image_id": "sha256:dc12e7ab31dd44f09b27bd6cd7dc8f4b2b86ac458dada37424ba45a46ed5b439",
+          "requested": "drop-crm-sandbox:20261020.4"
+        }
+      },
+      "oracle_source_sha256": "3ab09c5d861bb67de2b0271d70e364da7115a463623ca79cd6ced83ed3b95a0b",
+      "original_sql_sources": {
+        "supabase/baseline.sql": "7d84d8c7f1be51c3f24e27fc528bdbd20ad659f98b1846423ef9171d55e52923",
+        "tests/supabase-prelude.sql": "43326c9e76c5c03768e45bb6de87797cc8b14be82a3a16032888eade50767ca6"
+      },
+      "packages": {
+        "asyncpg": "0.32.0",
+        "fastapi": "0.142.2",
+        "httpx": "0.28.1",
+        "pydantic": "2.13.5"
+      },
+      "passed": true,
+      "postgres_version": "17.11 (Debian 17.11-1.pgdg12+2)",
+      "production_after_sha256": "2af8fbfe2fcfc441cbfb549817b2086537f2e03d59a7d3438d9882ccf0e881fe",
+      "production_before_sha256": "2af8fbfe2fcfc441cbfb549817b2086537f2e03d59a7d3438d9882ccf0e881fe",
+      "production_count": 29,
+      "production_ids_images_volumes_unchanged": true,
+      "run_id": "crm-run-002",
+      "run_receipt_sha256": "d88406cf0f44e6a2db4f779eb5f8671b64ac566e27555fca3b1590994f8dbd19",
+      "source_manifest_sha256": "3e7fefb4d7fd5220ee3d23efb381e574eec08952372341884e97c97ac003beb6",
+      "source_unchanged": true,
+      "stage": "completed",
+      "started_at_utc": "2026-10-22T18:15:20.160673+00:00",
+      "suite_sha256": "c2070d41339c90f44546b63fd08931d72fa63e6a5b798b8f3e7fb0829eb38dde",
+      "tool_manifest_sha256": "0e23654bbcf2730be28a2a91793b3568a78b3ffd1a040eff1317112171313ced"
+    },
+    {
+      "acceptance_sha256": "37d1d34601b058cc122d9314cb13cb3a95125da303da97be2d3968319d1c6a62",
+      "actual_generated_asgi_requests": 17,
+      "adapter_counters": {
+        "gateway_requests": 132,
+        "local_issuer_checks": 21,
+        "local_issuer_rejections": 2
+      },
+      "authentication_checks": [
+        {
+          "business_state_unchanged": true,
+          "name": "missing",
+          "passed": true,
+          "status": 401
+        },
+        {
+          "business_state_unchanged": true,
+          "name": "wrong_signature",
+          "passed": true,
+          "status": 401
+        },
+        {
+          "business_state_unchanged": true,
+          "name": "expired",
+          "passed": true,
+          "status": 401
+        },
+        {
+          "name": "live_membership_revocation",
+          "passed": true,
+          "status": 403
+        }
+      ],
+      "authentication_scope": "local HS256 issuer over real HTTP plus real CRM auth resolution and PostgREST JWT verification; not GoTrue or external issuer",
+      "bundle_archive_sha256": "7da39621f691c70b7f4fe75e163d47e7217675beca726c9349650233b72eed70",
+      "bundle_manifest_sha256": "0bf2777a26d2f5e8803edbf7619961049af5ad425da49bcbcdb9347e2c6ce091",
+      "bundle_version": "005",
+      "cleanup": {
+        "db": "removed",
+        "network": "removed",
+        "rest": "removed",
+        "runner": "removed"
+      },
+      "controller_receipt_sha256": "d83186631ae9c9993f8bf1f2eaba6146c01f7cd60ec986677e4ef2012a4487b9",
+      "database_checks": [
+        {
+          "name": "application_role_is_real_authenticated_non_superuser_non_bypass",
+          "passed": true
+        },
+        {
+          "name": "unfiltered_select_enforces_original_rls",
+          "passed": true
+        },
+        {
+          "name": "rls_cross_tenant_insert_denied_without_business_effect",
+          "passed": true,
+          "sqlstate": "42501"
+        },
+        {
+          "name": "real_transaction_rolls_back_insert_update_and_business_side_effects",
+          "passed": true
+        },
+        {
+          "name": "original_unique_index_arbitrates_concurrent_writers",
+          "outcomes": [
+            "committed",
+            "23505"
+          ],
+          "passed": true,
+          "resulting_rows": 1
+        },
+        {
+          "name": "positive_control_same_phone_in_different_tenants",
+          "passed": true,
+          "resulting_rows": 2
+        },
+        {
+          "name": "synthetic_rls_disabled_mutation_killed_and_restored",
+          "passed": true,
+          "root_cause_is_production_vulnerability": false,
+          "synthetic_mutation": true
+        },
+        {
+          "fixture_route_not_a_production_endpoint": true,
+          "name": "original_config_transaction_rolls_back_pipeline_and_stage_after_injected_failure",
+          "passed": true,
+          "synthetic_failure_injection": true
+        }
+      ],
+      "finished_at_utc": "2026-10-22T18:17:08.068249+00:00",
+      "full_external_authentication_claimed": false,
+      "generated_cases_passed": 4,
+      "generated_cases_total": 4,
+      "generated_steps_executed": 17,
+      "images": {
+        "postgres": {
+          "image_id": "sha256:ac08538c6f8b9904c33c8224c5e5706dbe760aca29db1d096972b4052c22a75d",
+          "requested": "pgvector/pgvector:pg17"
+        },
+        "postgrest": {
+          "image_id": "sha256:d09618df2b7b9547c80a076c2f4045b326be8d7ac06060d263caefec1334e3c9",
+          "requested": "postgrest/postgrest:v13.0.8"
+        },
+        "runner": {
+          "image_id": "sha256:dc12e7ab31dd44f09b27bd6cd7dc8f4b2b86ac458dada37424ba45a46ed5b439",
+          "requested": "drop-crm-sandbox:20261020.4"
+        }
+      },
+      "oracle_source_sha256": "3ab09c5d861bb67de2b0271d70e364da7115a463623ca79cd6ced83ed3b95a0b",
+      "original_sql_sources": {
+        "supabase/baseline.sql": "7d84d8c7f1be51c3f24e27fc528bdbd20ad659f98b1846423ef9171d55e52923",
+        "tests/supabase-prelude.sql": "43326c9e76c5c03768e45bb6de87797cc8b14be82a3a16032888eade50767ca6"
+      },
+      "packages": {
+        "asyncpg": "0.32.0",
+        "fastapi": "0.142.2",
+        "httpx": "0.28.1",
+        "pydantic": "2.13.5"
+      },
+      "passed": true,
+      "postgres_version": "17.11 (Debian 17.11-1.pgdg12+2)",
+      "production_after_sha256": "2af8fbfe2fcfc441cbfb549817b2086537f2e03d59a7d3438d9882ccf0e881fe",
+      "production_before_sha256": "2af8fbfe2fcfc441cbfb549817b2086537f2e03d59a7d3438d9882ccf0e881fe",
+      "production_count": 29,
+      "production_ids_images_volumes_unchanged": true,
+      "run_id": "crm-run-003",
+      "run_receipt_sha256": "932abfc3fb8ff7b294f74f6857cd6a1686a6f3b3166d67d9f09500d229a53517",
+      "source_manifest_sha256": "3e7fefb4d7fd5220ee3d23efb381e574eec08952372341884e97c97ac003beb6",
+      "source_unchanged": true,
+      "stage": "completed",
+      "started_at_utc": "2026-10-22T18:16:45.728617+00:00",
+      "suite_sha256": "ee6408838a950bf85e004c302206efaf19171fd6986516e563e3731658cf093c",
+      "tool_manifest_sha256": "0e23654bbcf2730be28a2a91793b3568a78b3ffd1a040eff1317112171313ced"
+    }
+  ],
+  "safe_quality_record_projection": {
+    "acceptance_sha256": "37d1d34601b058cc122d9314cb13cb3a95125da303da97be2d3968319d1c6a62",
+    "auth_checks_passed": 4,
+    "auth_checks_total": 4,
+    "final_success_finished_at_utc": "2026-10-22T18:17:08.068249+00:00",
+    "final_success_started_at_utc": "2026-10-22T18:16:45.728617+00:00",
+    "generated_cases_passed": 4,
+    "generated_cases_total": 4,
+    "generated_steps_executed": 17,
+    "generated_suite_sha256": "ee6408838a950bf85e004c302206efaf19171fd6986516e563e3731658cf093c",
+    "memory_requests": 76,
+    "model_calls_total_including_failed": 2,
+    "model_tool_calls_total": 1,
+    "oracle_source_sha256": "3ab09c5d861bb67de2b0271d70e364da7115a463623ca79cd6ced83ed3b95a0b",
+    "postgres_gateway_requests": 132,
+    "production_containers_preserved": 29,
+    "real_database_checks_passed": 8,
+    "real_database_checks_total": 8,
+    "run_receipt_sha256": "932abfc3fb8ff7b294f74f6857cd6a1686a6f3b3166d67d9f09500d229a53517",
+    "source_manifest_sha256": "3e7fefb4d7fd5220ee3d23efb381e574eec08952372341884e97c97ac003beb6",
+    "started_at_utc": "2026-10-22T18:10:53.357322+00:00",
+    "status": "passed",
+    "synthetic_rls_mutation_killed": true
+  },
+  "schema_version": 2,
+  "source_file_count": 394,
+  "source_manifest_sha256": "3e7fefb4d7fd5220ee3d23efb381e574eec08952372341884e97c97ac003beb6"
+}

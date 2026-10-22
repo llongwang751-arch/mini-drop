@@ -21,6 +21,85 @@ tags:
 - name: Administration
 - name: Operations
 paths:
+  /api/v1/quality/runs:
+    get:
+      operationId: qualityRuns
+      summary: 管理员只读质量执行记录
+      tags:
+      - Quality
+      description: 平台管理员专用；最多128份各32KiB不可变摘要，时间倒序。未配置目录返回空列表，损坏记录使整目录失败关闭。不会执行测试或返回原始profile。
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/QualityRecord'
+                      total:
+                        type: integer
+                        minimum: 0
+                      page:
+                        type: integer
+                        minimum: 1
+                      page_size:
+                        type: integer
+                        minimum: 0
+                    required:
+                    - items
+                    - total
+                    - page
+                    - page_size
+                  error:
+                    type: 'null'
+                required:
+                - request_id
+                - data
+                - error
+        default:
+          $ref: '#/components/responses/Error'
+  /api/v1/quality/runs/{run_id}:
+    get:
+      operationId: qualityRun
+      summary: 读取质量记录及原文件摘要
+      tags:
+      - Quality
+      description: 平台管理员专用；run_id为受限名称，不是任务bigint；SHA对应服务器原JSON文件字节，不是签名。
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/QualityRecord'
+                  error:
+                    type: 'null'
+                required:
+                - request_id
+                - data
+                - error
+        default:
+          $ref: '#/components/responses/Error'
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/QualityRecordID'
   /api/v1/auth/login:
     post:
       operationId: login
@@ -9113,3 +9192,187 @@ components:
           pattern: ^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$
           maxLength: 55
           type: string
+    QualityRecordID:
+      type: string
+      pattern: ^[a-z][a-z0-9-]{7,79}$
+    QualityRun:
+      title: Reviewed immutable quality execution summary
+      type: object
+      additionalProperties: false
+      required:
+      - schema_version
+      - id
+      - title
+      - category
+      - suite
+      - status
+      - started_at
+      - finished_at
+      - environment
+      - source_commit
+      - source_sha256
+      - provenance
+      - fixture_scope
+      - counts
+      - metrics
+      - checks
+      - limits
+      properties:
+        schema_version:
+          const: 1
+        id:
+          $ref: '#/components/schemas/QualityRecordID'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 120
+        category:
+          enum:
+          - business
+          - agent
+          - security
+          - protocol
+          - system
+          - performance
+          - release
+          - client
+        suite:
+          $ref: '#/components/schemas/QualityRecordID'
+        status:
+          enum:
+          - passed
+          - failed
+          - incomplete
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+        environment:
+          enum:
+          - windows_local
+          - linux_isolated
+          - github_ci
+          - production_bounded
+        source_commit:
+          oneOf:
+          - type: 'null'
+          - type: string
+            pattern: ^[a-f0-9]{40}$
+        source_sha256:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+          description: 原始执行收据的SHA256；本记录是该收据的审阅投影，不替代独立编译来源证明。
+        provenance:
+          enum:
+          - actual_execution
+          - imported_fixture
+        fixture_scope:
+          type: string
+          minLength: 1
+          maxLength: 240
+        counts:
+          type: object
+          additionalProperties: false
+          required:
+          - passed
+          - failed
+          - skipped
+          - total
+          properties:
+            passed:
+              type: integer
+              minimum: 0
+              maximum: 10000000
+            failed:
+              type: integer
+              minimum: 0
+              maximum: 10000000
+            skipped:
+              type: integer
+              minimum: 0
+              maximum: 10000000
+            total:
+              type: integer
+              minimum: 1
+              maximum: 10000000
+        metrics:
+          type: array
+          maxItems: 16
+          items:
+            type: object
+            additionalProperties: false
+            required:
+            - id
+            - label
+            - value
+            - unit
+            properties:
+              id:
+                $ref: '#/components/schemas/QualityRecordID'
+              label:
+                type: string
+                minLength: 1
+                maxLength: 64
+              value:
+                type:
+                - number
+                - 'null'
+                minimum: 0
+              unit:
+                enum:
+                - count
+                - ms
+                - s
+                - ratio
+                - percent
+                - bytes
+                - tokens
+                - multiple
+        checks:
+          type: array
+          maxItems: 64
+          items:
+            type: object
+            additionalProperties: false
+            required:
+            - id
+            - label
+            - status
+            - detail
+            properties:
+              id:
+                $ref: '#/components/schemas/QualityRecordID'
+              label:
+                type: string
+                minLength: 1
+                maxLength: 80
+              status:
+                enum:
+                - passed
+                - failed
+                - skipped
+              detail:
+                type: string
+                maxLength: 240
+        limits:
+          type: array
+          minItems: 1
+          maxItems: 16
+          items:
+            type: string
+            minLength: 1
+            maxLength: 240
+    QualityRecord:
+      type: object
+      properties:
+        run:
+          $ref: '#/components/schemas/QualityRun'
+        record_sha256:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+      required:
+      - run
+      - record_sha256
+      additionalProperties: false

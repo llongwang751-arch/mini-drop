@@ -1,6 +1,6 @@
-"""通过官方 AgentScope 的单一工具生成有界 CRM 用例选择计划。
+"""通过官方 AgentScope 的单一工具生成有界 CRM 用例计划或新数据/操作序列。
 
-真实模型只接收场景 ID/分类，拿不到 CRM 源码、业务记录、固定 oracle 或身份。
+目录模式只接收场景ID/分类，生成模式接收审阅需求和DSL；均不提供CRM源码、业务记录、oracle代码或真实身份。
 密钥仅从显式文件参数读取，模型端点、轮数、工具数、超时和网络策略均不可由模型修改。
 这不是性能采集规划，不复用 propose_collection 的语义或权限。
 """
@@ -34,15 +34,44 @@ from run import clean_environment, emit
 SDK_VERSION = "2.0.10"
 ENDPOINT = "https://api.deepseek.com"
 MODELS = ("deepseek-flash", "deepseek-chat")
+SAFE_VALIDATION_CODES = frozenset(
+    {
+        "PLAN_JSON_SYNTAX",
+        "PLAN_VALUE_TYPE",
+        "PLAN_DUPLICATE_KEY",
+        "PLAN_FIELDS_INVALID",
+        "PLAN_VERSION_INVALID",
+        "PLAN_CASE_COUNT_INVALID",
+        "PLAN_CASE_ID_INVALID",
+        "PLAN_CASE_ID_DUPLICATE",
+        "DSL_SUITE_FIELDS",
+        "DSL_SUITE_ID",
+        "DSL_CASE_COUNT",
+        "DSL_CASE_FIELDS",
+        "DSL_STEP_COUNT",
+        "DSL_OPERATION",
+        "DSL_STEP_FIELDS",
+        "DSL_SLOT",
+        "DSL_FORWARD_OR_UNKNOWN_REFERENCE",
+        "DSL_BODY_FIELDS",
+        "DSL_DATA_DEPTH",
+        "DSL_DATA_BOUND",
+        "DSL_QUERY_FIELDS",
+        "DSL_LIMIT_BOUND",
+        "DSL_SEARCH_BOUND",
+        "DSL_SUITE_BUDGET",
+    }
+)
 
 
 class PlanFailure(Exception):
     """只携带固定错误码与安全计数，不包含供应商响应、参数、凭据或异常文本。"""
 
-    def __init__(self, code, receipt=None):
+    def __init__(self, code, receipt=None, *, validation_code=None):
         super().__init__(code)
         self.code = code
         self.receipt = receipt
+        self.validation_code = validation_code
 
 
 class AcceptedPlan(BaseException):
@@ -51,23 +80,78 @@ class AcceptedPlan(BaseException):
         self.channel = channel
 
 
-def strict_plan(raw: str):
-    if not isinstance(raw, str) or len(raw.encode("utf-8")) > 16_384:
+def strict_plan(raw: str, *, validator=validate_plan, maximum_bytes=16_384):
+    if not isinstance(raw, str) or len(raw.encode("utf-8")) > maximum_bytes:
         raise PlanFailure("PLAN_OUTPUT_SIZE_INVALID")
     try:
         value = json.loads(raw, object_pairs_hook=reject_duplicate_keys)
-        validate_plan(value)
-    except (ValueError, TypeError):
-        raise PlanFailure("PLAN_OUTPUT_REJECTED") from None
+        validator(value)
+    except (ValueError, TypeError) as error:
+        # 只输出本地固定枚举，绝不保存供应商正文、出错数据或任意异常字符串。
+        reason = (
+            "PLAN_JSON_SYNTAX"
+            if isinstance(error, json.JSONDecodeError)
+            else str(error)
+            if str(error) in SAFE_VALIDATION_CODES
+            else "PLAN_VALUE_TYPE"
+        )
+        raise PlanFailure("PLAN_OUTPUT_REJECTED", validation_code=reason) from None
     return value
 
 
 async def generate_plan(
-    key_file: Path, model_name="deepseek-flash", *, transport=None, timeout_seconds=60
+    key_file: Path,
+    model_name="deepseek-flash",
+    *,
+    transport=None,
+    timeout_seconds=60,
+    generation_mode="catalog",
 ):
     """transport 只用于离线回归注入，CLI 无自定义端点、TLS 或预算开关。"""
     if model_name not in MODELS:
         raise PlanFailure("PLAN_MODEL_REJECTED")
+    if generation_mode == "generated_data_sequences":
+        from case_dsl import generation_context, suite_schema, validate_suite
+
+        context_value, schema_value, validator = (
+            generation_context(),
+            suite_schema(),
+            validate_suite,
+        )
+        tool_name, maximum_tokens, maximum_output_bytes = (
+            "generate_business_cases",
+            4000,
+            65_536,
+        )
+        prompt = (
+            "你是受约束的CRM业务测试设计器。根据审阅需求和DSL Schema创造新的合成输入与多步操作序列，不使用固定用例ID目录。"
+            "至少包括新数据创建/修改/读取、viewer拒写、foreign_seed隔离、own_seed手机号重复。调用唯一工具generate_business_cases提交。"
+            "你不能写断言、预期状态、URL、SQL或执行代码；业务oracle独立判分。只生成4个简明case，每case最多8步。"
+            "如不用工具，只输出符合Schema的纯JSON。"
+        )
+    elif generation_mode == "catalog":
+        context_value, schema_value, validator = (
+            planner_context(),
+            plan_schema(),
+            validate_plan,
+        )
+        tool_name, maximum_tokens, maximum_output_bytes = (
+            "select_test_cases",
+            1500,
+            16_384,
+        )
+        prompt = (
+            "你是 CRM 接口测试计划选择器。只基于提供的场景 ID 和分类进行有界测试选择。"
+            "优先覆盖边界、异常、权限、租户和状态序列。调用唯一工具 select_test_cases 提交计划。"
+            "如果不用工具，只能输出符合 schema 的纯 JSON；不得输出 Markdown、任意代码、URL、断言或身份。"
+        )
+    else:
+        raise PlanFailure("PLAN_GENERATION_MODE_REJECTED")
+
+    def parse_output(raw, channel):
+        stats["validation_channel"] = channel
+        return strict_plan(raw, validator=validator, maximum_bytes=maximum_output_bytes)
+
     installed = importlib.metadata.version("agentscope")
     if installed != SDK_VERSION:
         raise PlanFailure("PLAN_SDK_VERSION_MISMATCH")
@@ -99,6 +183,7 @@ async def generate_plan(
         "tool_calls": 0,
         "usage": {"input_tokens": 0, "output_tokens": 0},
         "usage_reports": 0,
+        "validation_channel": None,
     }
     started = time.monotonic()
 
@@ -129,23 +214,23 @@ async def generate_plan(
             await self.inner.aclose()
 
     class SelectCases(ToolBase):
-        name = "select_test_cases"
-        description = "选择 CRM 联系人测试场景 ID。只能提交已给目录里的 ID；固定安全回归会自动补入。不能提供 URL、代码、断言或身份。"
-        input_schema = plan_schema()
+        name = tool_name
+        description = "提交符合所给Schema的有界CRM业务测试计划。不得提供URL、代码、SQL、断言或预期值。"
+        input_schema = schema_value
         is_read_only = True
         is_concurrency_safe = False
 
         async def check_permissions(self, tool_input, context):
             return PermissionDecision(
-                PermissionBehavior.ALLOW, "Only bounded local case IDs are accepted."
+                PermissionBehavior.ALLOW, "仅接受本地固定边界校验通过的业务测试DSL。"
             )
 
         async def call(self, **kwargs):
-            validate_plan(kwargs)
+            validator(kwargs)
             if stats["tool_calls"] >= 1:
                 raise PlanFailure("PLAN_TOOL_BUDGET_EXCEEDED")
             stats["tool_calls"] += 1
-            raise AcceptedPlan(kwargs, "native_select_test_cases_tool")
+            raise AcceptedPlan(kwargs, "native_" + tool_name + "_tool")
 
     class Guard(MiddlewareBase):
         async def on_compress_context(self, agent, input_kwargs, next_handler):
@@ -168,12 +253,10 @@ async def generate_plan(
             calls = [
                 item for item in response.content if isinstance(item, ToolCallBlock)
             ]
-            if len(calls) > 1 or any(
-                call.name != "select_test_cases" for call in calls
-            ):
+            if len(calls) > 1 or any(call.name != tool_name for call in calls):
                 raise PlanFailure("PLAN_TOOL_REJECTED")
             for call in calls:
-                strict_plan(call.input)
+                parse_output(call.input, "native_tool")
             # 不保存/转交隐藏推理，输出正文也有独立上限。
             response.content = [
                 item
@@ -186,7 +269,7 @@ async def generate_plan(
                     for item in response.content
                     if isinstance(item, TextBlock)
                 )
-                > 16_384
+                > maximum_output_bytes
             ):
                 raise PlanFailure("PLAN_OUTPUT_SIZE_INVALID")
             return response
@@ -215,8 +298,10 @@ async def generate_plan(
             "tls_verification": True,
             "proxy_environment_used": False,
             "source_or_oracle_sent_to_model": False,
-            "context_sha256": digest(planner_context()),
-            "schema_sha256": digest(plan_schema()),
+            "context_sha256": digest(context_value),
+            "schema_sha256": digest(schema_value),
+            "generation_mode": generation_mode,
+            "maximum_output_tokens": maximum_tokens,
             "elapsed_ms": int((time.monotonic() - started) * 1000),
             "fixture_provider": transport is not None,
             **extra,
@@ -241,7 +326,7 @@ async def generate_plan(
                 ),
                 model=model_name,
                 parameters=DeepSeekChatModel.Parameters(
-                    thinking_enable=False, temperature=0, max_tokens=1500
+                    thinking_enable=False, temperature=0, max_tokens=maximum_tokens
                 ),
                 stream=False,
                 max_retries=0,
@@ -249,11 +334,7 @@ async def generate_plan(
             )
             agent = Agent(
                 name="DropBusinessTestPlanner",
-                system_prompt=(
-                    "你是 CRM 接口测试计划选择器。只基于提供的场景 ID 和分类进行有界测试选择。"
-                    "优先覆盖边界、异常、权限、租户和状态序列。调用唯一工具 select_test_cases 提交计划。"
-                    "如果不用工具，只能输出符合 schema 的纯 JSON；不得输出 Markdown、任意代码、URL、断言或身份。"
-                ),
+                system_prompt=prompt,
                 model=model,
                 toolkit=Toolkit(tools=[SelectCases()]),
                 middlewares=[Guard()],
@@ -262,7 +343,8 @@ async def generate_plan(
                     max_iters=3, interruption_raise_cancelled_error=True
                 ),
                 context_config=ContextConfig(
-                    compression_tool_enabled=False, tool_result_limit=16_384
+                    compression_tool_enabled=False,
+                    tool_result_limit=maximum_output_bytes,
                 ),
                 injection_config=InjectionConfig(inject_runtime_state=False),
             )
@@ -272,21 +354,25 @@ async def generate_plan(
                         [
                             UserMsg(
                                 name="user",
-                                content=canonical(planner_context()).decode("utf-8"),
+                                content=canonical(context_value).decode("utf-8"),
                             )
                         ]
                     )
                     if final.finished_reason != "completed":
                         raise PlanFailure("PLAN_MODEL_BUDGET_EXCEEDED")
-                    value = strict_plan(final.get_text_content())
+                    value = parse_output(final.get_text_content(), "pure_json")
                     channel = "validated_pure_json"
             except AcceptedPlan as accepted:
                 value, channel = accepted.value, accepted.channel
             finally:
                 await model.client.close()
     except PlanFailure as failure:
+        details = {}
+        if failure.validation_code is not None:
+            details["validation_error_code"] = failure.validation_code
+            details["validation_channel"] = stats["validation_channel"]
         raise PlanFailure(
-            failure.code, receipt(False, error_code=failure.code)
+            failure.code, receipt(False, error_code=failure.code, **details)
         ) from None
     except RetryableProviderFailure:
         # 公共 runtime 用 BaseException 发出重试信号；本工具明确不重试，只留下安全失败回执。
@@ -299,7 +385,7 @@ async def generate_plan(
             "PLAN_PROVIDER_OR_RUNTIME_FAILED",
             receipt(False, error_code="PLAN_PROVIDER_OR_RUNTIME_FAILED"),
         ) from None
-    selected = validate_plan(value)
+    selected = validator(value)
     return value, receipt(
         True,
         acceptance_channel=channel,

@@ -1,0 +1,151 @@
+{
+  "category": "business",
+  "checks": [
+    {
+      "detail": "真实访问层已运行且后续业务验收完成。",
+      "id": "dependency-readiness",
+      "label": "数据库与访问层就绪",
+      "status": "passed"
+    },
+    {
+      "detail": "真实角色非超级用户、无绕过行安全权限，行安全保持开启。",
+      "id": "database-role-safety",
+      "label": "应用角色权限",
+      "status": "passed"
+    },
+    {
+      "detail": "不带租户过滤的读取仍仅返回本组织合成记录。",
+      "id": "database-unfiltered-isolation",
+      "label": "原行安全隔离",
+      "status": "passed"
+    },
+    {
+      "detail": "跨组织写入被原策略拒绝，业务表摘要不变。",
+      "id": "database-cross-tenant-denial",
+      "label": "跨组织插入拒绝",
+      "status": "passed"
+    },
+    {
+      "detail": "插入和修改后注入异常，业务表摘要恢复。",
+      "id": "database-transaction-rollback",
+      "label": "真实事务回滚",
+      "status": "passed"
+    },
+    {
+      "detail": "两个独立连接同组织同号写入，一提交、一唯一约束拒绝。",
+      "id": "database-concurrent-unique",
+      "label": "并发唯一约束",
+      "status": "passed"
+    },
+    {
+      "detail": "相同合成号码在不同组织可以分别创建。",
+      "id": "database-cross-tenant-positive",
+      "label": "异组织同号对照",
+      "status": "passed"
+    },
+    {
+      "detail": "只在可销毁库暂时关闭行安全，越权断言检出后恢复。",
+      "id": "database-synthetic-rls",
+      "label": "行安全故障负控",
+      "status": "passed"
+    },
+    {
+      "detail": "原配置事务创建两类资源后注入异常，两表摘要恢复；入口仅为测试夹具。",
+      "id": "database-service-rollback",
+      "label": "原服务事务回滚",
+      "status": "passed"
+    },
+    {
+      "detail": "真实认证链拒绝无效身份，相关业务表保持不变。",
+      "id": "auth-missing-session",
+      "label": "缺少会话拒绝",
+      "status": "passed"
+    },
+    {
+      "detail": "真实认证链拒绝无效身份，相关业务表保持不变。",
+      "id": "auth-invalid-signature",
+      "label": "错误签名拒绝",
+      "status": "passed"
+    },
+    {
+      "detail": "真实认证链拒绝无效身份，相关业务表保持不变。",
+      "id": "auth-expired-session",
+      "label": "过期会话拒绝",
+      "status": "passed"
+    },
+    {
+      "detail": "真实认证链拒绝无效身份，相关业务表保持不变。",
+      "id": "auth-membership-revoked",
+      "label": "成员撤销即时生效",
+      "status": "passed"
+    },
+    {
+      "detail": "合成输入经过真实业务链，由独立需求判定器验收。",
+      "id": "generated-business-01",
+      "label": "生成业务序列1",
+      "status": "passed"
+    },
+    {
+      "detail": "合成输入经过真实业务链，由独立需求判定器验收。",
+      "id": "generated-business-02",
+      "label": "生成业务序列2",
+      "status": "passed"
+    },
+    {
+      "detail": "合成输入经过真实业务链，由独立需求判定器验收。",
+      "id": "generated-business-03",
+      "label": "生成业务序列3",
+      "status": "passed"
+    },
+    {
+      "detail": "合成输入经过真实业务链，由独立需求判定器验收。",
+      "id": "generated-business-04",
+      "label": "生成业务序列4",
+      "status": "passed"
+    }
+  ],
+  "counts": {
+    "failed": 0,
+    "passed": 17,
+    "skipped": 0,
+    "total": 17
+  },
+  "environment": "linux_isolated",
+  "finished_at": "2026-10-22T18:15:42.089218+00:00",
+  "fixture_scope": "真实私有CRM代码与原数据库基线；临时数据库和访问层；组织、身份、会话及业务数据均为合成，本地签名认证适配。",
+  "id": "crm-pg-20261023-004",
+  "limits": [
+    "共17项：依赖前置1项、数据库8项、认证4项、生成业务4项；不同轮次不累加为更多独立场景。",
+    "仅覆盖受限联系人操作与明确事务夹具；本地签名认证适配不代表外部身份服务、企业登录或多因素认证。",
+    "关闭行安全和事务异常属于可销毁环境中的人工故障注入，不是线上真实漏洞。",
+    "来源散列绑定原验收报告，起止时间来自同轮编排收据；不是编译源码证明，提交版本未知记空。"
+  ],
+  "metrics": [
+    {
+      "id": "gateway-request-count",
+      "label": "内部网关请求数",
+      "unit": "count",
+      "value": 114
+    },
+    {
+      "id": "generated-request-count",
+      "label": "生成业务请求数",
+      "unit": "count",
+      "value": 17
+    },
+    {
+      "id": "preserved-container-count",
+      "label": "保留生产容器数",
+      "unit": "count",
+      "value": 29
+    }
+  ],
+  "provenance": "actual_execution",
+  "schema_version": 1,
+  "source_commit": null,
+  "source_sha256": "e9111330af66e34a890b946c52c483ac989332ee6952757fa1977a6730841733",
+  "started_at": "2026-10-22T18:15:20.160673+00:00",
+  "status": "passed",
+  "suite": "crm-postgres-acceptance",
+  "title": "CRM数据库验收：固定序列通过"
+}

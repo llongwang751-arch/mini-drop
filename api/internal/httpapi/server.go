@@ -28,20 +28,21 @@ import (
 )
 
 type Server struct {
-	Tasks        *service.Tasks
-	Accounts     *service.Accounts
-	Repo         *repository.Repository
-	Kinds        []map[string]any
-	PublicURL    string
-	SecureCookie bool
-	OIDC         *service.OIDC
-	Suggestions  *service.Suggestions
-	Telemetry    *telemetry.Metrics
-	createSlots  chan struct{}
-	loginLimiter *Limiter
-	writeLimiter *Limiter
-	requests     atomic.Uint64
-	errors       atomic.Uint64
+	Tasks             *service.Tasks
+	Accounts          *service.Accounts
+	Repo              *repository.Repository
+	Kinds             []map[string]any
+	PublicURL         string
+	SecureCookie      bool
+	QualityReportsDir string
+	OIDC              *service.OIDC
+	Suggestions       *service.Suggestions
+	Telemetry         *telemetry.Metrics
+	createSlots       chan struct{}
+	loginLimiter      *Limiter
+	writeLimiter      *Limiter
+	requests          atomic.Uint64
+	errors            atomic.Uint64
 }
 
 // Router 安装恢复、请求标识、观测与认证中间件，再注册公共探针和受保护业务路由。
@@ -67,6 +68,8 @@ func (s *Server) Router() *gin.Engine {
 	v.GET("/auth/oidc/callback", s.oidcCallback)
 	v.Use(s.authenticate())
 	s.platformRoutes(v)
+	v.GET("/quality/runs", s.qualityRuns)
+	v.GET("/quality/runs/:run_id", s.qualityRun)
 	v.GET("/auth/me", func(c *gin.Context) { s.ok(c, 200, gin.H{"user": user(c), "csrf_token": c.GetString("csrf")}) })
 	v.POST("/auth/logout", s.logout)
 	v.GET("/overview", s.overview)
@@ -167,7 +170,7 @@ func (s *Server) fail(c *gin.Context, err error) {
 		status = 409
 	case "RATE_LIMITED", "QUOTA_EXCEEDED", "DIAGNOSIS_BUSY":
 		status = 429
-	case "AGENT_OFFLINE", "CAPABILITY_UNAVAILABLE", "STORAGE_UNAVAILABLE", "AI_UNAVAILABLE", "OIDC_UNAVAILABLE", "CODE_EXECUTOR_UNAVAILABLE":
+	case "AGENT_OFFLINE", "CAPABILITY_UNAVAILABLE", "STORAGE_UNAVAILABLE", "AI_UNAVAILABLE", "OIDC_UNAVAILABLE", "CODE_EXECUTOR_UNAVAILABLE", "QUALITY_REPORTS_UNAVAILABLE":
 		status = 503
 		de.Retryable = true
 	case "INTERNAL_ERROR":

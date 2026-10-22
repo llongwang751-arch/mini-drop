@@ -1,0 +1,8 @@
+# 质量摘要由管理员离线校验、原子发布；API只读挂载，不提供远程执行测试入口。
+# 启用前创建目录并授予API运行组读取权限，保留原记录及备份，不在应用容器中写入。
+services:
+  api:
+    environment:
+      QUALITY_REPORTS_DIR: /app/quality-records
+    volumes:
+      - ${QUALITY_REPORTS_HOST_DIR:?请设置已审阅质量记录的绝对目录}:/app/quality-records:ro
