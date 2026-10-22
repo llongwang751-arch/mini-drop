@@ -8,11 +8,15 @@
 
 面试质量主线见 [JD质量实验](docs/JD_QUALITY_LAB.md) 与 [测试工具包](scripts/quality/README.md)：真实CRM联系人接口、固定oracle与变异负控、原生AgentScope测试计划、HTTP安全矩阵、状态机随机序列、Fuzz、C++消毒器、心跳及采样扰动、真实采样分析门禁。实际运行与合成范围分别记录，独立人工语义指标保持真实边界。
 
-后续[测试深度补强](docs/JD_QUALITY_DEPTH.md)加入完整PROC_CPU浏览器整链、隔离故障恢复、真实CRM数据库/RLS、新数据序列生成、因果干预评测和管理员只读[质量验证](https://82.157.81.79/quality)。窗口修复前API的30分钟实际60/60窗口通过；当前API23.2另通过核心整链及三类故障，持续预算为零，不能合称新API通过30分钟。修复后的六组因果评测12诊断执行成功、综合2/6，尚不能声称可靠自动根因，最终CI独立记录。
+后续[测试深度补强](docs/JD_QUALITY_DEPTH.md)加入完整PROC_CPU浏览器整链、隔离故障恢复、真实CRM数据库/RLS、新数据序列生成、因果干预评测和管理员只读[质量验证](https://82.157.81.79/quality)。窗口修复前API的30分钟实际60/60窗口通过；当前API23.2另通过核心整链及三类故障，持续预算为零，不能合称新API通过30分钟。修复后的六组因果评测12诊断执行成功、综合2/6，尚不能声称可靠自动根因。
+
+功能提交 `2d413e4a4abd` 的两个GitHub工作流共10项检查已跨attempt全部成功：基线7项、JD协议/内存与真实采样/业务与Agent回归3项。前端job首次因系统依赖下载耗尽外层时限而取消，仅该job重跑成功；协议与采样job复用原成功执行，不计作再次测试。普通未插桩整链通过5个成功任务、20份制品SHA、3类恢复与网页取消重试；Linux Fuzz实际600011次。取消历史、重跑及版本绑定见[最终CI收据](docs/evidence/jd-depth-20261023/ci/github-ci.json)，不能解释为首次attempt全绿或AI语义通过。
 
 ## 全量实现与验收状态
 
 当前平台已部署至 **[https://82.157.81.79](https://82.157.81.79)**，API 为 **20261023.2**，AgentScope runtime 为 **20261021.4**，Web 为 **20261023.1**，Analyzer 为 **20261021.2（0.2.5）**，官方 AgentScope SDK **2.0.10**、SQL **10**、**29** 个运行容器；Agent 与 Helper 保持版本3。规划、诊断和源码修复使用真实 AgentScope ReAct，Go 保留权限、状态与验收。此次仅替换API/Web，其他27容器、数据卷与原项目快照保持；内部API就绪与公网API JSON通过，初始13条加新因果1条共**14条记录**逐SHA核对，桌面/手机、历史失败与导出真实浏览器通过，见[实际部署](docs/evidence/jd-depth-20261023/release/deployment.json)、[公网验收](docs/evidence/jd-depth-20261023/release/public-browser.json)与[面试步骤](docs/INTERVIEW_DEMO.md)。旧120.24.187.205属于历史部署。
+
+功能提交 `2d413e4a4abd` 的12份工具、门禁与契约源码已按Git blob逐SHA同步服务器；收尾只读核验为29容器健康、API就绪、7监控up、14条不可变记录与仓库字节一致。此后工具/文档同步不重建应用、不重启、不执行SQL或模型，不能当作新的长稳或模型评测，见[工具同步](docs/evidence/jd-depth-20261023/release/source-tools-sync-2d413e4a4abd.json)与[最终只读核验](docs/evidence/jd-depth-20261023/release/final-readonly.json)。
 
 原 CRM/Saber 演示和16类 Runner/20个真实任务、BOLT、malloc证据保留。上一轮 Saber 调查11共76.4秒，修复9通过原2+冻结6测试、384例和6组fresh对照，CPU中位1.5587倍，仅限受控查询基准。上一轮将这份既有结果登记为案例3，关联任务86/诊断29，没有重新执行该基准。历史见[AgentScope发布](docs/releases/20261020-agentscope.md)、[AgentScope接入](docs/AGENTSCOPE_INTEGRATION.md)与[Saber范围](docs/SABER_INTEGRATION.md)。
 

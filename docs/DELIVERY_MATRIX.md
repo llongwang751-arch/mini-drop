@@ -1,10 +1,14 @@
 # 全量交付与验收矩阵
 
-## 测试深度补强（2026-10-23，已发布，最终CI进行中）
+## 测试深度补强（2026-10-23，已发布，最终CI通过）
 
-实现与边界见[本轮说明](JD_QUALITY_DEPTH.md)、[CRM数据库验收](CRM_DATABASE_QUALITY.md)及[摘要发布](../scripts/quality/reports/README.md)。已实际通过真实模型新场景生成、Memory独立oracle/变异、真实PG/RLS/本地issuer，以及完整PROC_CPU网页/采集/分析与3类恢复。第004轮真实1800.011651秒/60成功窗口，合计65任务/260制品，绑定窗口修复前API；第005轮当前API23.2核心链路与3故障通过，持续预算为零。取证修复后43项真PG/HTTP回归0skip通过，原六轮因果独立复测已完成2/6，细节见下。最终CI另行记录，不能把旧字节持续窗口或方向匹配当成新版本语义验收。
+实现与边界见[本轮说明](JD_QUALITY_DEPTH.md)、[CRM数据库验收](CRM_DATABASE_QUALITY.md)及[摘要发布](../scripts/quality/reports/README.md)。已实际通过真实模型新场景生成、Memory独立oracle/变异、真实PG/RLS/本地issuer，以及完整PROC_CPU网页/采集/分析与3类恢复。第004轮真实1800.011651秒/60成功窗口，合计65任务/260制品，绑定窗口修复前API；第005轮当前API23.2核心链路与3故障通过，持续预算为零。取证修复后43项真PG/HTTP回归0skip通过，原六轮因果独立复测已完成2/6，细节见下。最终CI通过，不能把旧字节持续窗口或方向匹配当成新版本语义验收。
+
+最终功能提交 `2d413e4a4abd` 两个工作流共10项跨attempt成功（基线7、JD3）。bounded前端job首次因依赖下载超外层时限而取消，原取消保留且仅此job重跑；protocol/memory为原成功物理执行的复用，不能说首次attempt全绿或全部重跑。普通未插桩PROC_CPU整链通过5成功任务/20份制品SHA、3类恢复与页面取消重试，持续预算为零；Linux Fuzz实际600011次。见[最终CI收据](evidence/jd-depth-20261023/ci/github-ci.json)。
 
 结果页面只展示已完成的审阅执行记录，不提供任意测试命令或HTTP写入；Go当前会话重验管理员角色。独立人工语义评分仍需真人提交；结构匹配、受控干预和模板生成不代替人审。生产数据卷、旧命名镜像与原项目登记快照保持。
+
+功能提交 `2d413e4a4abd` 的12份工具/门禁/契约Git blob已逐SHA同步线上源码目录，原权限、29容器身份/镜像/卷保持，零重启/SQL/模型。收尾[只读核验](evidence/jd-depth-20261023/release/final-readonly.json)为29容器健康、真实API就绪、7监控up、14条记录与Git blob全等，见[同步收据](evidence/jd-depth-20261023/release/source-tools-sync-2d413e4a4abd.json)。文档及工具源码同步不冒作重新构建应用或新的30分钟/模型验收。
 
 历史bd3c045对应CI重新核对为8/10：先前9/10误沿用上一SHA结果，现更正；浏览器和OpenAPI字段覆盖两项失败。其后窗口3字段的生成器及正负控已修，88路由/126schema通过。r3/r4发布失败及独立恢复证据保存在[发布历史](evidence/jd-depth-20261023/release/)。r5已上线API23.2/Web23.1，内部API ready、公网API JSON、13条初始记录及7监控通过，其他27容器和卷保持；追加新因果失败后共14条，原13条SHA不变、29容器不变。真实公网两宽、14条摘要、匿名401、历史失败与JSON导出已通过[浏览器验收](evidence/jd-depth-20261023/release/public-browser.json)。
 
@@ -14,7 +18,7 @@
 
 0cc95f6插桩诊断轮为8/10且不可作为最终验收：26次注册失败均为gRPC14，Core内部错误0、真实API ready200、TLS校验通过。原10秒Fuzz预算另失败，保留原轮而不自动重试；新增固定200000次/目标及120秒硬限、有界反例导出，Windows600000次和20项捕获/既有回归通过，不能代替Linux最终CI。独立[薄镜像来源](evidence/jd-depth-20261023/ci/thin-qa-build-001.json)及[实际动态库对照](evidence/jd-depth-20261023/ci/thin-library-comparison-001.json)只证明版本差异，尚不单独证明故障原因。
 
-91aaa00诊断轮同SHA9/10：默认27次DNS失败，单改native后约1秒注册，恢复默认再45秒仍15次DNS失败；两腿Core始终ready、进程运行/无OOM、零任务和其他设置不变，证明策略差异，不归因为具体c-ares安全包。最终普通workflow已恢复原C++镜像，QA Agent明确使用系统解析器并实际核验；System27项和protocol20项通过，普通CI仍需另验。[LinuxFuzz收据](evidence/jd-depth-20261023/ci/fuzz-91aaa00-execution.json)记录实际600028次，不把三组20万次预算冒作精确执行数。
+91aaa00诊断轮同SHA9/10：默认27次DNS失败，单改native后约1秒注册，恢复默认再45秒仍15次DNS失败；两腿Core始终ready、进程运行/无OOM、零任务和其他设置不变，证明策略差异，不归因为具体c-ares安全包。最终普通workflow已恢复原C++镜像，QA Agent明确使用系统解析器并实际核验；System27项和protocol20项通过，后续普通2d验收结果见本节首部。[历史LinuxFuzz收据](evidence/jd-depth-20261023/ci/fuzz-91aaa00-execution.json)记录实际600028次，不把三组20万次预算冒作精确执行数。
 
 修复后唯一v2-r2已完成原六轮：12诊断终态成功、43模型/50工具；独立干预6/6，故障方向2/6，综合2通过4失败。恢复Top3 6/6不能作误报率0，因为六份正常报告也均含CPU假设。精确根因/正常误报/拒答三个独立人审指标仍null；六个故障轮未主动查业务信号，暴露策略缺口。实际Go工具窗collector_execution与context_queried=false已被正常run125调用验证；29生产、源码及环境后验与清理通过。见[独立原始分数及边界](evidence/jd-depth-20261023/causal/v2-r2/README.md)，不覆盖旧失败或合并分母。
 

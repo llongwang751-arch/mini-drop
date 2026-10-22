@@ -42,9 +42,13 @@ v2因果6轮综合1/6，客观干预5/6、故障方向4/6、恢复方向3/6。�
 
 取证窗口与报告修订指引已修复。43项真实PG/HTTP适配器回归通过且0skip，见[回归](evidence/jd-depth-20261023/window-regression.json)。取证优先有来源的collector执行时钟，旧任务明确回退attempt窗，原context_window未查询不聚合。日志只保留固定失败枚举和有界计数，未放宽验证器。r5已实际部署API23.2/Web23.1，内部API ready、公网API JSON、13条初始记录逐SHA及7监控通过，其他27容器/卷和三项目快照保持，见[部署](evidence/jd-depth-20261023/release/deployment.json)。
 
-修复后在新目录唯一执行原六轮/原60模型80工具预算：12诊断终态成功，43逻辑模型/50工具，0未知计费；独立干预6/6、故障方向2/6、综合2通过4失败。恢复Top3 6/6只说明含normal_load或insufficient_evidence，六份正常报告也全含cpu_hotspot，因此不能当正常误报率0。四个SQL/timeout故障仍偏CPU，且六个故障轮都未主动查业务信号；唯一metrics在正常run125，已真实验证新Go窗口。详见[完整分数、未填人审及后验](evidence/jd-depth-20261023/causal/v2-r2/README.md)。修复了取证与报告执行问题，尚未解决通用诊断策略和语义可靠性；最终CI仍单独验收。
+修复后在新目录唯一执行原六轮/原60模型80工具预算：12诊断终态成功，43逻辑模型/50工具，0未知计费；独立干预6/6、故障方向2/6、综合2通过4失败。恢复Top3 6/6只说明含normal_load或insufficient_evidence，六份正常报告也全含cpu_hotspot，因此不能当正常误报率0。四个SQL/timeout故障仍偏CPU，且六个故障轮都未主动查业务信号；唯一metrics在正常run125，已真实验证新Go窗口。详见[完整分数、未填人审及后验](evidence/jd-depth-20261023/causal/v2-r2/README.md)。修复了取证与报告执行问题，尚未解决通用诊断策略和语义可靠性；程序CI与模型语义分别验收。
 
 新因果失败摘要已原子追加为第14条，原13条逐SHA保持，发布前后29容器身份/镜像/卷完全相等、零重启/SQL/模型，见[追加收据](evidence/jd-depth-20261023/release/records-append.json)。真实公网浏览器通过管理员登录、14条SHA、未登录401、7条历史失败筛选、未知人审显示、重新鉴权JSON导出及1440/375两宽无溢出，0页面错误，logout200；已实际查看两份截图，见[浏览器收据](evidence/jd-depth-20261023/release/public-browser.json)。
+
+收尾按功能提交 `2d413e4a4abd` 的Git blob同步12份工具、门禁与契约源码，全部SHA及原有权限核对通过。同步不构建或重启服务、不执行SQL/模型，29容器身份/镜像/卷完全保持。随后独立只读观察确认29容器健康、真实API就绪、7监控up，14条记录逐个与仓库Git blob相同；这是交付观察，不新增一次浏览器、持续运行或模型验收。见[工具源码同步](evidence/jd-depth-20261023/release/source-tools-sync-2d413e4a4abd.json)及[最终只读观察](evidence/jd-depth-20261023/release/final-readonly.json)。
+
+最终功能提交 `2d413e4a4abd` 的GitHub基线7项和JD3项检查跨attempt全部成功。原bounded前端job因APT依赖下载耗尽外层12分钟而取消，6项UI断言此前已通过；仅该job被接受重跑并成功。protocol/memory的attempt2展示ID复用原attempt1的物理执行，不能多算两次测试。普通未插桩整链实际通过5成功任务、20份制品SHA、3类故障恢复、页面取消和同task新attempt重试，native解析运行设置核验且12个owned容器清理成功；持续预算为零。Linux三目标Fuzz实际200011/200000/200000，合计600011次，空反例目录不保证没有潜在缺陷。见[最终CI收据与版本绑定](evidence/jd-depth-20261023/ci/github-ci.json)，不替代私有CRM、付费模型或独立人审。
 
 ## 使用与发布边界
 

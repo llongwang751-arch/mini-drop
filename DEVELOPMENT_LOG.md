@@ -1,4 +1,8 @@
-## 2026-10-23 · 测试深度补强：真实整链、CRM数据库与质量记录（已发布，最终CI进行中）
+## 2026-10-23 · 测试深度补强：真实整链、CRM数据库与质量记录（已发布，最终CI通过）
+
+- 最终功能提交 `2d413e4a4abdc0c132107a29ea37d7b4e1535004`：基线工作流39856663489的7项均成功；JD39856663534的3项跨attempt均成功。首次bounded业务/Agent/质量UI job因APT下载耗尽外层12分钟而取消，原6项UI断言实际已通过；仅此job一次被接受重跑，attempt2成功，原取消与先前因workflow仍运行被403拒绝的请求均保留。最新界面的protocol/memory jobID为原attempt1物理执行的复用，时间与runner未变，不多计测试。普通未插桩真实整链5成功任务/20份制品SHA、3类恢复、网页取消/同task新attempt重试通过，实际native解析设置核验，0页面错误/模型调用，12个owned容器清理成功；持续预算为零。最终Linux三目标Fuzz为200011/200000/200000，共600011次，与91诊断轮600028次分开。见[最终CI收据](docs/evidence/jd-depth-20261023/ci/github-ci.json)；付费模型与私有CRM验收仍由各自原始收据证明。
+
+- 收尾按功能提交 `2d413e4a4abd` 的Git blob同步12份工具、门禁与契约源码，归档SHA `fb95b245caf2e925f540aacfe6589b395af145595e6c2a7e364cdb3af555c2f1`；全部文件SHA、原权限及29容器身份/镜像/卷保持，零重启/SQL/模型。随后独立只读观察为29容器健康、真实API ready、7监控up，14条不可变记录与仓库Git blob全等。见[工具同步](docs/evidence/jd-depth-20261023/release/source-tools-sync-2d413e4a4abd.json)及[最终只读观察](docs/evidence/jd-depth-20261023/release/final-readonly.json)；不是新的应用构建、浏览器、长稳或模型执行。
 
 - 新增可销毁真实平台门禁：浏览器建任务、Go HTTP/mTLS真实PROC_CPU、MinIO/Analyzer及gzip结果，页面取消后新attempt重试；独立核对实际制品字节与唯一事件。第003轮通过5个成功任务/20份制品和3恢复场景；第001/002轮网络及浏览器驱动失败保留。第004轮实际1800.011651秒、60/60持续窗口通过，合计65成功任务/260份制品SHA、3故障、128次生产29容器身份守护及独立清理通过。该收据绑定修复取证窗口前API字节，不冒作后续新二进制的30分钟验收。
 - CRM使用私有原始SQL、真实SupabaseRepository/PostgREST、非超管RLS角色及本地签名issuer。固定及真实模型两套件均通过8项数据库、4项认证和4个新场景，17步；本地issuer不是外部GoTrue。首轮REST启动早于角色安装导致失败，补握手/早退负控后新目录通过，全部旧证据保留。

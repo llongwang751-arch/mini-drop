@@ -12,6 +12,7 @@
 | [39846360210](https://github.com/llongwang751-arch/mini-drop/actions/runs/39846360210) | 6aeb122 | 同提交基线 7/7、JD 2/3，合计 9/10；初始化已完成，实际 TLS 握手通过，但 gRPC 注册失败二十六次。 |
 | [39849366453](https://github.com/llongwang751-arch/mini-drop/actions/runs/39849366453) | 0cc95f6 | 诊断插桩轮，不能作为最终验收；同提交基线 7/7、JD 1/3，合计 8/10。Go Fuzz 在时长预算末尾非零退出；独立的真实浏览器门禁记录 Agent 注册 gRPC 14 共二十六次。 |
 | [39854002402](https://github.com/llongwang751-arch/mini-drop/actions/runs/39854002402) | 91aaa00 | 诊断插桩轮，基线 7/7、JD 2/3，合计 9/10。Linux Fuzz 实报 600028 次全部 PASS；原浏览器仍失败，同栈 default→native→default 明确重现解析策略差异。 |
+| [39856663534](https://github.com/llongwang751-arch/mini-drop/actions/runs/39856663534) | 2d413e4 | 普通未插桩最终 10/10：基线 7/7、JD 3/3。UI job 首次因依赖下载占用外层预算被取消，同提交仅定向重跑该 job 后通过；原取消及 attempt 关系完整保留。 |
 
 bd3 的原始 `login` 阶段同时覆盖了登录及 Agent 就绪等待，不能据此称为认证失败。093 增加了安全细分阶段：实际登录成功，最后一次 Agent 列表请求为 HTTP 200，列表仍为零；八个本轮常驻容器均运行且未发生 OOM，清理了十二个本轮容器。这些证据将问题缩小到初始化或注册路径，尚不能独立证明具体根因。
 
@@ -26,3 +27,9 @@ bd3 的原始 `login` 阶段同时覆盖了登录及 Agent 就绪等待，不能
 `resolver-probe-001.json` 保留独立服务器薄运行时诊断的 bootstrap CRLF 前置失败；没有到注册阶段。002 使用相同薄运行时、新目录和明确的四十六文件 SHA，默认解析器实际注册成功，因此没有继续 native 对照，不能由动态库版本差异认定 c-ares 为根因。该诊断没有任务、attempt 或模型调用；十二个 owned 容器清理后容器、卷、网络均为零，生产二十九容器与冻结六十一源码、三份环境来源 SHA 保持。它使用服务器冻结构建及显式工作区文件字节，不声称与 CI 镜像字节相同，也不代替最终普通 CI。
 
 91的原始公开summary/browser/resolver-diagnostic逐字节保存，三腿保持原浏览器失败与诊断不合格标记。原default有27次gRPC14且均为固定DNS类，native新CID约1.05秒注册成功，恢复default新CID45.72秒后仍有15次gRPC14/DNS且未注册；两腿均Running/noOOM/ready200，tasks与attempt均零，严格核验只变解析器环境键。此结果证明该GitHub环境的解析策略影响，未证明具体c-ares版本或安全补丁的因果关系。后续普通修复只对QA Agent显式native，并核实际owned运行配置；不回滚安全包、不改生产Compose、不放宽等待，未插桩完整CI结果需另记。
+
+最终`github-ci.json`重新从同一2d提交的两个workflow及各attempt API取证：十个逻辑job最终全部成功。只有bounded UI job实际定向重跑一次；其原attempt1取消保留在`history-39856663534-attempt1-cancelled.json`，APT依赖下载曾报告625秒，而六个UI断言已通过。GitHub在attempt2给已过protocol/memory生成新的展示jobID，但runner、全部步骤时间和开始/结束时间与原attempt1完全相同；最终收据保留原物理执行ID及该复用关系，不重复统计为新执行，也不宣称首次一次全绿。
+
+普通整链使用未插桩Core且实际核验QA Agent的native键：真实页面登录、创建、取消、同任务第2次尝试、gzip结果均通过；五个成功任务的二十份制品实际下载大小/SHA校验通过，三种有界恢复完成，十二个owned容器清理成功。四十份当前构建制品SHA与实际挂载副本逐一相符。该轮持续预算为零，不把旧004三十分钟归到本版本，不代表容量、跨机灾备或模型诊断语义准确率验收。
+
+最终2d的Go Fuzz实报200011、200000、200000，合计600011，与91历史600028区分。固定反例捕获清单为零文件、零拒绝；空清单不证明所有输入或所有崩溃已穷尽。原始summary/browser/build-binding保持CI artifact原字节，`history-39856663534-manifest.json`校验本轮最终与取消历史安全文件；不公开日志正文、会话、凭据、证书、RAW或模型输出。
