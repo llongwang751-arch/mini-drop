@@ -110,6 +110,10 @@ removed. Host-side report files remain for review.
 
 ## Current evidence
 
-The tool/runner are prepared locally. No remote run, throughput value, P95/P99
-result, capacity claim or production change is implied by their presence.
-The root task must attach actual isolated Linux reports to close this gate.
+The first isolated Linux run completed on 2026-10-23 (UTC+8) using Go1.26.10,
+the reviewed Core/Agent image and fresh PostgreSQL17.11. The10/25/50 identity
+stages completed all850 measured heartbeats without error. Actual image IDs,
+limits, finite percentiles and queue delays are in
+[the execution receipt](../../docs/evidence/jd-quality-20261023/core-heartbeat.json).
+This closes the baseline execution gate; maximum capacity, business collection
+load and long-term availability remain outside its scope.

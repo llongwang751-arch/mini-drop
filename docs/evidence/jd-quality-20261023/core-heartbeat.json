@@ -1,0 +1,127 @@
+{
+  "environment": {
+    "architecture": "amd64",
+    "client_cgroup_cpu_max": "25000 100000",
+    "client_cgroup_memory_max": "134217728",
+    "client_cgroup_memory_swap_max": "0",
+    "core_image_id": "sha256:abb10f7f51f7f33e08248fde4c0d6ec0bbf200f5b4c9cde7248e8701cb25c4dc",
+    "docker_engine": "29.1.3",
+    "go": "go1.26.10",
+    "gomaxprocs": 1,
+    "kernel": "5.15.0-181-generic",
+    "logical_cpus_seen": 4,
+    "os": "linux",
+    "postgres_image_id": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+    "runner_requested_joint_caps": {
+      "additional_swap_bytes": 0,
+      "cpu_quota_cores": 1,
+      "device_read_bytes_per_second": 8388608,
+      "device_write_bytes_per_second": 4194304,
+      "memory_bytes": 536870912
+    }
+  },
+  "fixed_heartbeat_interval_seconds": 2,
+  "identity_model": "One independent ECDSA-P256 mTLS client identity per logical Agent; IDs reused across ascending stages; empty collector capabilities; no tasks/events/profiles generated.",
+  "limitations": [
+    "Small fixed-cadence baseline under shared-host resource caps; not maximum capacity, saturation, availability or production SLA proof.",
+    "Percentiles describe only this finite run; client CPU throttling and scheduler queue time can affect observed RPC latency.",
+    "Unset protobuf CPU/memory/load fields have zero defaults; they are placeholders, not observed business-host resource measurements."
+  ],
+  "percentile_method": "nearest rank over successful RPC durations; scheduling delay separate; failures never invent zero-latency success",
+  "protocol_version": 2,
+  "provenance": "Actual real Core InitAgent/HealthCheck RPCs and isolated PostgreSQL; all Agent identities and heartbeat payloads are synthetic benchmark clients, not business collectors.",
+  "run_id": "233d37e18b4024cb",
+  "schema_version": 1,
+  "stages": [
+    {
+      "simulated_agents": 10,
+      "rounds_per_agent": 10,
+      "maximum_in_flight_rpcs": 8,
+      "planned_heartbeats": 100,
+      "registration_or_warmup_failed": 0,
+      "setup_failure_codes": {},
+      "measurement_started": true,
+      "measurement": {
+        "attempted": 100,
+        "success": 100,
+        "failed": 0,
+        "elapsed_seconds": 20.000547885,
+        "successful_heartbeats_per_second": 4.999863032502122,
+        "successful_rpc_latency": {
+          "p50_ms": 14.460869,
+          "p95_ms": 23.231897,
+          "p99_ms": 27.391152
+        },
+        "successful_scheduler_queue_delay": {
+          "p50_ms": 0.867068,
+          "p95_ms": 8.751122,
+          "p99_ms": 9.477004
+        },
+        "failure_codes": {}
+      }
+    },
+    {
+      "simulated_agents": 25,
+      "rounds_per_agent": 10,
+      "maximum_in_flight_rpcs": 8,
+      "planned_heartbeats": 250,
+      "registration_or_warmup_failed": 0,
+      "setup_failure_codes": {},
+      "measurement_started": true,
+      "measurement": {
+        "attempted": 250,
+        "success": 250,
+        "failed": 0,
+        "elapsed_seconds": 20.001327285,
+        "successful_heartbeats_per_second": 12.499170501924018,
+        "successful_rpc_latency": {
+          "p50_ms": 16.475931,
+          "p95_ms": 53.956917,
+          "p99_ms": 70.948991
+        },
+        "successful_scheduler_queue_delay": {
+          "p50_ms": 11.840593,
+          "p95_ms": 57.878935,
+          "p99_ms": 69.368027
+        },
+        "failure_codes": {}
+      }
+    },
+    {
+      "simulated_agents": 50,
+      "rounds_per_agent": 10,
+      "maximum_in_flight_rpcs": 8,
+      "planned_heartbeats": 500,
+      "registration_or_warmup_failed": 0,
+      "setup_failure_codes": {},
+      "measurement_started": true,
+      "measurement": {
+        "attempted": 500,
+        "success": 500,
+        "failed": 0,
+        "elapsed_seconds": 20.000099519,
+        "successful_heartbeats_per_second": 24.999875601869,
+        "successful_rpc_latency": {
+          "p50_ms": 20.886161,
+          "p95_ms": 71.256891,
+          "p99_ms": 90.235014
+        },
+        "successful_scheduler_queue_delay": {
+          "p50_ms": 38.238963,
+          "p95_ms": 161.815384,
+          "p99_ms": 179.392403
+        },
+        "failure_codes": {}
+      }
+    }
+  ],
+  "success": true,
+  "tool": "drop-heartbeat-baseline-v1",
+  "warmup": "One actual registration and one heartbeat per identity per stage; TLS/setup/warmup excluded from measured latency and throughput.",
+  "public_projection": {
+    "original_sha256": "0fefdc6fed06314a01f62047ac81a314de019675b7ec66d16a2d0c08537521da",
+    "omitted_fields": [
+      "host meminfo text; never used as container RSS"
+    ]
+  }
+}

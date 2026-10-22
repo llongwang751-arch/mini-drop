@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "tests_passed": 5,
+  "tests_skipped": 0,
+  "provenance": "local synthetic stdout protocol fault injection, not a live sampling result",
+  "command": "python -m unittest discover -s scripts/quality/protocol -p test_chain_receipt.py -v",
+  "checks": [
+    "separate Analyzer stdout and stderr files",
+    "exactly one complete marker line, no arbitrary substring extraction",
+    "strict bool passed and integer schema",
+    "duplicate keys, malformed JSON, non-finite constants and unknown fields rejected",
+    "bounded fixed strings/counts/digests and no raw output on failure"
+  ],
+  "source_sha256": {
+    "scripts/quality/protocol/run-live-chain.sh": "e29b68331963578d419a75f3bf932f168f668de39be4bb630ea7bbbddcf1a7ca",
+    "scripts/quality/protocol/chain_receipt.py": "022656e076da157e8e04db0f9311bb7f215340cec5ef0bfcd732a819c16a22df",
+    "scripts/quality/protocol/test_chain_receipt.py": "8d49c34a2f246c4f4de78c8898df277bdf1c943e3e310058203499ee16316458"
+  },
+  "live_status": "first live run business operations succeeded but summarizer exited 1; preserve that record and rerun in a fresh directory with this parser"
+}

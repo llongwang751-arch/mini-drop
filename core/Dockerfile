@@ -8,6 +8,16 @@ COPY contracts /src/contracts
 COPY core /src/core
 RUN cmake -S core -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build --parallel 1 && ctest --test-dir build --output-on-failure && cmake --install build --prefix /output
 
+# 独立目标只执行无网络、无内核权限的协议/参数/恢复纯逻辑；发布运行镜像仍来自上面的普通 build。
+FROM toolchain AS sanitizer
+WORKDIR /src
+COPY contracts /src/contracts
+COPY core /src/core
+ENV ASAN_OPTIONS=detect_leaks=1:halt_on_error=1:abort_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1
+RUN cmake -S core -B build-sanitizer -DCMAKE_BUILD_TYPE=Debug -DDROP_ENABLE_SANITIZERS=ON && \
+    cmake --build build-sanitizer --parallel 1 --target domain_test json_test catalog_test lifecycle_test sampling_test protocol_property_test && \
+    ctest --test-dir build-sanitizer --output-on-failure -R '^(domain|json|catalog|lifecycle|sampling|protocol_properties)$'
+
 FROM ubuntu:24.04 AS runtime
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends libgrpc++1.51t64 libprotobuf32t64 libpq5 libcurl4t64 libssl3t64 ca-certificates linux-tools-generic && rm -rf /var/lib/apt/lists/* && useradd --system --uid 10001 --create-home drop && mkdir -p /var/lib/drop-agent && chown drop:drop /var/lib/drop-agent

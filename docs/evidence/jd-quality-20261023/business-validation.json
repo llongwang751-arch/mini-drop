@@ -1,0 +1,51 @@
+{
+  "current_test_files": {
+    "scripts/quality/business/tests/test_agentscope_planner.py": "55728a55230fbec8305b8f3a867e148a3207e9746b4b267af8679abfd8bf1893",
+    "scripts/quality/business/tests/test_contract.py": "a31c85557fd626ef30b9734a99f4d8344df44edcb8094369f5992e0433d12a3c"
+  },
+  "earlier_boundary_suite": {
+    "command": "python -m unittest discover -s scripts/quality/business/tests -v",
+    "passed": 15,
+    "scope": "earlier pre-SDK boundary-suite execution; included in the final suite, not 15 additional distinct tests",
+    "skipped": 0
+  },
+  "final_sdk_suite": {
+    "command": ".local/agentscope-venv/Scripts/python.exe -m unittest discover -s scripts/quality/business/tests -v",
+    "composition": {
+      "base_boundary_tests": 15,
+      "native_sdk_mock_transport_tests": 7,
+      "strict_planner_tests": 2
+    },
+    "fixture_origin": "explicitly imported synthetic provider completions and mock transport",
+    "framework_version": "2.0.10",
+    "passed": 24,
+    "real_crm_imported_by_unit_tests": false,
+    "real_model_called": false,
+    "skipped": 0
+  },
+  "format": {
+    "command": "python -m ruff format scripts/quality/business --check",
+    "files": 8,
+    "passed": true
+  },
+  "history": [
+    "baseline-1 failed due to missing child user-package lookup environment; failure preserved",
+    "baseline-2 passed using an earlier request-receipt shape; its synthetic request bodies remain private and are not published",
+    "baseline-3 and baseline-4 are separate successful implementation-stage receipts, not independent new cases",
+    "ai-selected-001 and ai-selected-final use the same actual model-selected plan; execution rerun does not count as a second model invocation"
+  ],
+  "kind": "business_tool_boundary_regression_receipt",
+  "limits": [
+    "Unit tests validate tool, SDK adapter and secrecy/budget boundaries; actual CRM and actual model execution are recorded separately",
+    "15 earlier tests overlap the final 24; do not sum them as 39 distinct tests",
+    "This receipt records checks actually run locally; it is not a GitHub workflow completion record"
+  ],
+  "lint": {
+    "command": "python -m ruff check scripts/quality/business",
+    "passed": true
+  },
+  "oracle_revision_sha256": "ed7790fdac86d14f24c24872c2fa62e81f5874e48ecefdeed10ab0a26cd2da3e",
+  "passed": true,
+  "schema_version": 1,
+  "validation_receipt_sha256": "5a5841659a894aa0b603f23cf7878fa99117c8ca7aa7bc273da82aa2fe8080da"
+}

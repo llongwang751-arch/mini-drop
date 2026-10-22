@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "coverage_scope": "selected production function statement coverage, not branch coverage or whole-repository coverage",
+  "required_scenarios": {
+    "TestPostgresLifecycleRandomizedProperties": "pass",
+    "TestPostgresLifecycleRandomizedProperties/seed_7": "pass",
+    "TestPostgresLifecycleRandomizedProperties/seed_1984": "pass",
+    "TestPostgresLifecycleRandomizedProperties/seed_20261023": "pass",
+    "TestPostgresLifecycleRandomizedProperties/seed_922337": "pass",
+    "TestPostgresCancelIsIdempotentForConcurrentAndTerminalRequests": "pass",
+    "TestPostgresExhaustedDispatchCannotOverwriteConcurrentLifecycle": "pass"
+  },
+  "checks": [
+    {
+      "risk_id": "LIFECYCLE-CANCEL-ATOMIC",
+      "function": "Cancel",
+      "statement_coverage_percent": 72.0,
+      "minimum_percent": 70.0,
+      "passed": true
+    },
+    {
+      "risk_id": "LIFECYCLE-RETRY-FENCE",
+      "function": "Retry",
+      "statement_coverage_percent": 75.0,
+      "minimum_percent": 73.0,
+      "passed": true
+    },
+    {
+      "risk_id": "LIFECYCLE-STALE-OUTBOX",
+      "function": "DispatchOne",
+      "statement_coverage_percent": 65.1,
+      "minimum_percent": 63.0,
+      "passed": true
+    }
+  ],
+  "tests_passed_including_subtests": 10,
+  "tests_skipped_including_subtests": 0,
+  "note": "Scenario presence plus measured production function statements; this is not proof of all branches or semantic completeness"
+}

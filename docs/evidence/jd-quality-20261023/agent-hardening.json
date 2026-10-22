@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-22T16:47:47.303822+00:00",
+  "scope": "final_small_runner_cleanup_and_public_scoring_hardening_no_model_execution",
+  "checks": [
+    {
+      "command": "python -m unittest discover -s scripts/quality/agent -p 'test_*.py' -q",
+      "passed": true,
+      "tests": 23,
+      "skipped": 0
+    },
+    {
+      "command": "python -m unittest discover -s scripts/quality/security -p 'test_*.py' -q",
+      "passed": true,
+      "tests": 3,
+      "skipped": 0
+    },
+    {
+      "command": "python -m py_compile scripts/quality/agent/quality.py scripts/quality/agent/run.py",
+      "passed": true
+    },
+    {
+      "command": "git diff --check",
+      "passed": true
+    }
+  ],
+  "source_sha256": {
+    "quality.py": "69ee1d835d76e36ed6f9804759c7a8e8ab15097584353ea51efcf06d280feecf",
+    "run.py": "93120feead04e0686359f07d5cfdaa60d242fab8fac6999a1f1413d5e1d8b81e",
+    "test_quality.py": "b5e022f127c639441ef4eb56d7eeb5c110a3dda9c04ed6565c328d24c753763c",
+    "README.md": "90cc231bfef2ccdbefa82fec5feeb71c6cb7837acbfe8c3e0b4f911a0741b4fa"
+  },
+  "frozen_manifest": {
+    "schema_version": 1,
+    "dataset_id": "jd-agent-controlled-v1",
+    "model_inputs_sha256": "653767362c4cea400d271a4ce6cda26ac5390f2c4304aaac81ef7cbd3a833418",
+    "oracle_sha256": "8df6ef4bd4cfa4396e2d45a83a3b21c8286d00c57a5ea1278e1691718742253d",
+    "case_ids": [
+      "jd01",
+      "jd02",
+      "jd03",
+      "jd04",
+      "jd05",
+      "jd06",
+      "jd07",
+      "jd08"
+    ],
+    "provenance": "author_visible_imported_synthetic_regression",
+    "ground_truth_sent_to_model": false,
+    "classification_denominator": "all preregistered diagnosis-eligible trials including failed and missing",
+    "input_rejection_denominator": "all preregistered invalid-input trials",
+    "classification_top_k": 3,
+    "semantic_accuracy_requires_independent_human": true,
+    "external_blind_test": false
+  },
+  "real_model_calls_performed_by_this_agent": 0,
+  "actual_root_capture_rerun": false,
+  "limitations": [
+    "The root actual platform capture remains separate and unchanged.",
+    "Scorer checks structure, runtime and evidence references; fact scalar values are not revalidated here.",
+    "Synthetic unit controls do not establish actual model performance."
+  ]
+}

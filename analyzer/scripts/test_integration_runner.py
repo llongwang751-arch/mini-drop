@@ -59,7 +59,7 @@ class IsolatedRunnerSafetyTests(unittest.TestCase):
             )
         cls.script = Path(__file__).with_name("run-isolated-integration.sh").resolve()
 
-    def run_fixture(self, *, collision=None, foreign=False):
+    def run_fixture(self, *, collision=None, foreign=False, live_path=""):
         with tempfile.TemporaryDirectory(prefix="drop-runner-safety-") as temporary:
             root = Path(temporary)
             commands = root / "bin"
@@ -78,6 +78,7 @@ class IsolatedRunnerSafetyTests(unittest.TestCase):
                 "FAKE_STATE": str(state).replace("\\", "/"),
                 "ANALYZER_TEST_PREFIX": prefix,
                 "FOREIGN_STORAGE": "1" if foreign else "0",
+                "TEST_LIVE_CAPTURE_DIR": live_path,
             }
             result = subprocess.run(
                 [self.shell, str(self.script).replace("\\", "/")],
@@ -87,7 +88,7 @@ class IsolatedRunnerSafetyTests(unittest.TestCase):
                 capture_output=True,
                 timeout=15,
             )
-            trace = (state / "commands").read_text()
+            trace = (state / "commands").read_text() if (state / "commands").exists() else ""
             remaining = {
                 path.name: path.read_text()
                 for path in state.iterdir()
@@ -122,6 +123,14 @@ class IsolatedRunnerSafetyTests(unittest.TestCase):
         self.assertEqual(result.returncode, 17, result.stderr)
         self.assertEqual(remaining, {"drop-analyzer-fixture-safety-minio": "foreign"})
         self.assertNotIn("rm -f drop-analyzer-fixture-safety-minio", trace)
+
+    def test_live_capture_mount_rejects_escape_and_foreign_names_before_docker(self):
+        for path in ("/tmp/profile", ".local/../../private", ".local/drop-quality-chain-123/capture", ".local/drop-quality-chain-0123456789abcdeg/capture", ".local/drop-quality-chain-0123456789abcdef/capture,readonly=false"):
+            with self.subTest(path=path):
+                result, trace, remaining = self.run_fixture(live_path=path)
+                self.assertEqual(result.returncode, 2)
+                self.assertFalse(trace)
+                self.assertFalse(remaining)
 
 
 if __name__ == "__main__":

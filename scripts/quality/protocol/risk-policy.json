@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "provenance": "Measured on 2026-10-23 using fresh PostgreSQL 17, all authoritative migrations, deterministic synthetic lifecycle sequences and existing cancellation/dispatch races",
+  "coverage_scope": "selected production function statement coverage, not branch coverage or whole-repository coverage",
+  "required_tests": [
+    "TestPostgresLifecycleRandomizedProperties",
+    "TestPostgresLifecycleRandomizedProperties/seed_7",
+    "TestPostgresLifecycleRandomizedProperties/seed_1984",
+    "TestPostgresLifecycleRandomizedProperties/seed_20261023",
+    "TestPostgresLifecycleRandomizedProperties/seed_922337",
+    "TestPostgresCancelIsIdempotentForConcurrentAndTerminalRequests",
+    "TestPostgresExhaustedDispatchCannotOverwriteConcurrentLifecycle"
+  ],
+  "functions": [
+    {"risk_id": "LIFECYCLE-CANCEL-ATOMIC", "file": "drop/api/internal/repository/postgres.go", "function": "Cancel", "measured_percent": 72.0, "minimum_percent": 70.0, "invariant": "terminal cancellation is idempotent and task, current attempt, event and cancellation outbox commit together"},
+    {"risk_id": "LIFECYCLE-RETRY-FENCE", "file": "drop/api/internal/repository/postgres.go", "function": "Retry", "measured_percent": 75.0, "minimum_percent": 73.0, "invariant": "new retry creates a unique monotonically increasing attempt, replay does not duplicate and foreign owner cannot mutate"},
+    {"risk_id": "LIFECYCLE-STALE-OUTBOX", "file": "drop/api/internal/repository/postgres.go", "function": "DispatchOne", "measured_percent": 65.1, "minimum_percent": 63.0, "invariant": "delayed dispatch and exhausted lost acknowledgements cannot overwrite a committed newer lifecycle"}
+  ]
+}

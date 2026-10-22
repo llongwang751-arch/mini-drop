@@ -4,6 +4,19 @@ set -eu
 # 在具备Docker的宿主上从仓库根目录运行；全部资源都是本次一次性夹具，
 # 不发布端口、不使用持久卷，也不连接应用数据库。
 context_root=$(pwd)
+live_capture_source="$context_root/analyzer/tests"
+if [ -n "${TEST_LIVE_CAPTURE_DIR:-}" ]; then
+  live_nonce=${TEST_LIVE_CAPTURE_DIR#.local/drop-quality-chain-}
+  live_nonce=${live_nonce%/capture}
+  case "$live_nonce" in ''|*[!a-f0-9]*) echo 'Invalid live collection fixture path' >&2; exit 2 ;; esac
+  if [ "${#live_nonce}" -ne 16 ] || [ "$TEST_LIVE_CAPTURE_DIR" != ".local/drop-quality-chain-$live_nonce/capture" ]; then
+    echo 'Invalid live collection fixture path' >&2; exit 2
+  fi
+  live_capture_source="$context_root/$TEST_LIVE_CAPTURE_DIR"
+  if [ ! -d "$live_capture_source" ] || [ -L "$live_capture_source" ]; then
+    echo 'Live collection fixture directory missing or unsafe' >&2; exit 2
+  fi
+fi
 prefix=${ANALYZER_TEST_PREFIX:-drop-analyzer-test-$(openssl rand -hex 8)}
 case "$prefix" in
   ''|*[!a-zA-Z0-9_-]*) echo 'Invalid isolated test prefix' >&2; exit 2 ;;
@@ -92,7 +105,9 @@ docker run --rm --name "$runner" --network "$network" \
   --read-only --cap-drop ALL --security-opt no-new-privileges \
   --tmpfs /tmp:rw,size=384m,mode=1777 \
   --mount "type=bind,src=$context_root,dst=/workspace,readonly" --workdir /workspace/analyzer \
+  --mount "type=bind,src=$live_capture_source,dst=/quality-live-capture,readonly" \
   -e "TEST_DATABASE_URL=postgresql://analyzer_test:$test_password@$database/analyzer_test" \
   -e "TEST_S3_ENDPOINT=$storage:9000" -e TEST_S3_ACCESS_KEY=analyzer-test -e "TEST_S3_SECRET_KEY=$test_password" \
+  -e "TEST_LIVE_CAPTURE_DIR=${TEST_LIVE_CAPTURE_DIR:-}" \
   -e ANALYZER_METRICS_PORT=0 \
   "$image" python -m unittest "$@"

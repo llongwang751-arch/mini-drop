@@ -1,0 +1,128 @@
+name: JD testing assurance
+on:
+  push:
+    paths: ['api/**', 'core/**', 'analyzer/**', 'agent_runtime/**', 'contracts/**', 'db/migrations/**', 'scripts/quality/**', '.github/workflows/quality-assurance.yml']
+  pull_request:
+    paths: ['api/**', 'core/**', 'analyzer/**', 'agent_runtime/**', 'contracts/**', 'db/migrations/**', 'scripts/quality/**', '.github/workflows/quality-assurance.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: jd-quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  protocol-state:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:17.11-alpine
+        env: {POSTGRES_USER: drop_quality, POSTGRES_PASSWORD: ci-ephemeral-quality-password, POSTGRES_DB: drop_quality}
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U drop_quality -d drop_quality"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: {go-version: '1.26.10', cache-dependency-path: api/go.sum}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Bounded synthetic parser properties and fail-closed risk gate
+        run: |
+          python -m unittest discover -s scripts/quality/protocol -p 'test_*.py' -v
+          PYTHONPATH=analyzer python -m unittest discover -s analyzer/tests -p test_parser_properties.py -v
+      - name: Real PostgreSQL randomized lifecycle and existing races
+        working-directory: api
+        env:
+          TEST_DATABASE_URL: postgresql://drop_quality:ci-ephemeral-quality-password@localhost:5432/drop_quality?sslmode=disable
+          TEST_MIGRATIONS_DIR: ${{ github.workspace }}/db/migrations
+          TEST_TASK_KINDS_FILE: ${{ github.workspace }}/contracts/task-kinds.json
+          GOMAXPROCS: '2'
+        run: |
+          mkdir -p ../.local/quality-protocol
+          go test -race -json -count=1 -timeout=180s -coverprofile=../.local/quality-protocol/repository.cover -run 'TestPostgresLifecycleRandomizedProperties|TestPostgresCancelIsIdempotentForConcurrentAndTerminalRequests|TestPostgresExhaustedDispatchCannotOverwriteConcurrentLifecycle' ./internal/repository > ../.local/quality-protocol/repository-events.jsonl
+      - name: Real HTTP routes and PostgreSQL denial side-effect matrix
+        working-directory: api
+        env:
+          TEST_DATABASE_URL: postgresql://drop_quality:ci-ephemeral-quality-password@localhost:5432/drop_quality?sslmode=disable
+          TEST_MIGRATIONS_DIR: ${{ github.workspace }}/db/migrations
+          TEST_TASK_KINDS_FILE: ${{ github.workspace }}/contracts/task-kinds.json
+          GOMAXPROCS: '2'
+        run: |
+          go test -race -json -count=1 -timeout=120s -run '^TestPostgresJDSecurityMatrixDenialsHaveNoBusinessSideEffects$' ./internal/httpapi > ../.local/quality-protocol/security-events.jsonl
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          events = [json.loads(line) for line in Path('../.local/quality-protocol/security-events.jsonl').read_text().splitlines()]
+          name = 'TestPostgresJDSecurityMatrixDenialsHaveNoBusinessSideEffects'
+          assert any(row.get('Test') == name and row.get('Action') == 'pass' for row in events), 'security matrix must execute'
+          assert not any(row.get('Action') in {'fail', 'skip'} for row in events), 'failure or skipped security matrix'
+          print('Real isolated PostgreSQL HTTP security matrix executed without skips.')
+          PY
+      - name: Require executed scenarios and measured critical function floors
+        run: python scripts/quality/protocol/check_risks.py --events .local/quality-protocol/repository-events.jsonl --coverage .local/quality-protocol/repository.cover --output .local/quality-protocol/risk-report.json
+      - name: Native Go Fuzz, three independent ten-second budgets
+        working-directory: api
+        env: {GOMAXPROCS: '2'}
+        run: |
+          go test ./internal/domain -run '^$' -fuzz '^FuzzTaskNormalizeAndValidate$' -fuzztime=10s -parallel=1 -timeout=60s
+          go test ./internal/service -run '^$' -fuzz '^FuzzDiagnosisObservationObject$' -fuzztime=10s -parallel=1 -timeout=60s
+          go test ./internal/service -run '^$' -fuzz '^FuzzDiagnosisExactScalar$' -fuzztime=10s -parallel=1 -timeout=60s
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: critical-lifecycle-risk-report
+          path: .local/quality-protocol/risk-report.json
+          if-no-files-found: warn
+  bounded-business-and-agent-regressions:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: agent_runtime/requirements.lock
+      - name: Pinned official AgentScope SDK and reviewed transitive dependencies
+        run: |
+          python -m pip install --only-binary=:all: --require-hashes -r agent_runtime/requirements.lock
+          python -m pip check
+      - name: Business plan, immutable oracle and native SDK MockTransport regressions
+        # CI不持有CRM源码/数据/密钥；这里执行有界计划与SDK适配测试，不冒称真实CRM验收。
+        run: python -m unittest discover -s scripts/quality/business/tests -v
+      - name: Agent scoring, provenance, HTTP runner and security-entry regressions
+        # 使用导入的合成回执，不访问部署服务器，也不调用真实模型。
+        run: |
+          python -m unittest discover -s scripts/quality/agent -p 'test_*.py' -v
+          python -m unittest discover -s scripts/quality/security -p 'test_*.py' -v
+      - name: Performance measurement, fixed HTTP workload and negative-control regressions
+        # 统计/门禁与自有本机HTTP目标测试；不将这些单测标成真实py-spy扰动实验。
+        run: python -m unittest discover -s scripts/quality/performance -p 'test_*.py' -v
+  memory-and-live-sampling:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: C++ ASan, UBSan, Werror and seeded protocol mutations
+        run: docker build --target sanitizer -f core/Dockerfile -t drop-core-sanitizer .
+      - name: Current C++ Runner and controlled workload
+        run: docker build --target build -f core/Dockerfile -t drop-core-test .
+      - name: Folded-only Analyzer test image, production dependency lock
+        run: docker build -f scripts/quality/protocol/analyzer.Dockerfile -t drop-analyzer:quality .
+      - name: Pinned MinIO fixture
+        run: docker build --platform linux/amd64 --build-arg TARGETARCH=amd64 -t minio/minio:RELEASE.2025-07-23T15-54-02Z -f deploy/minio/Dockerfile .
+      - name: Fresh real Runner to S3 to Analyzer, no model or production endpoint
+        run: |
+          mkdir -p .local/quality-protocol
+          sudo env DROP_CORE_TEST_IMAGE=drop-core-test ANALYZER_TEST_IMAGE=drop-analyzer:quality bash scripts/quality/protocol/run-live-chain.sh | tee .local/quality-protocol/live-chain-receipt.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fresh-sampling-analysis-receipt
+          # 不上传 RAW、进程名、数据库连接、私有日志或临时 URL。
+          path: .local/quality-protocol/live-chain-receipt.json
+          if-no-files-found: warn

@@ -6,6 +6,8 @@
 
 新增实现入口：[Agent八项扩展](docs/AGENT_EXPANSION.md)说明结构化事实校验、动态补证、业务信号与拓扑、版本方法库、持久检查点及评测边界；[实时双服务演示](integrations/observability-demo/README.md)和[通用Python接入](integrations/generic-python/README.md)分别提供真实HTTP遥测与独立红绿回归/补丁交付。实现说明不代替下方线上版本和发布验收记录。
 
+面试质量主线见 [JD质量实验](docs/JD_QUALITY_LAB.md) 与 [测试工具包](scripts/quality/README.md)：真实CRM联系人接口、固定oracle与变异负控、原生AgentScope测试计划、HTTP安全矩阵、状态机随机序列、Fuzz、C++消毒器、心跳及采样扰动、真实采样分析门禁。实际运行与合成范围分别记录，独立人工语义指标保持真实边界。
+
 ## 全量实现与验收状态
 
 当前平台已部署至 **[https://82.157.81.79](https://82.157.81.79)**，API 为 **20261021.9**，AgentScope runtime 为 **20261021.4**，Web 为 **20261021.6**，Analyzer 为 **20261021.2（0.2.5）**，官方 AgentScope SDK **2.0.10**、SQL **10**、**29** 个运行容器；Agent 与 Helper 保持版本3。新增八项诊断扩展和两个实时遥测演示服务，规划、诊断和源码修复使用真实 AgentScope ReAct，Go 保留权限、状态与验收。详见[本次发布与验收](docs/releases/20261021-agent-expansion.md)、[实际部署](docs/evidence/agent-expansion-20261021/deployment-r10.json)与[面试步骤](docs/INTERVIEW_DEMO.md)。旧120.24.187.205属于历史部署。

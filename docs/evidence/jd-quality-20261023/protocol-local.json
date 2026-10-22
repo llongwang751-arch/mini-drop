@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "recorded_client_date": "2026-10-23",
+  "passed": true,
+  "provenance": "actual local Windows execution; fresh loopback PostgreSQL 17 and synthetic bounded protocol inputs; no production access or model calls",
+  "checks": {
+    "postgres_lifecycle_and_races": {
+      "passed": true,
+      "go_version": "go1.26.10",
+      "database": "fresh isolated loopback PostgreSQL17, all ten authoritative migrations",
+      "provider": "no real model calls; imported fixtures for provider and protocol tests",
+      "tests_passed_including_subtests": 10,
+      "tests_skipped_including_subtests": 0,
+      "failed_tests": [],
+      "skipped_tests": [],
+      "elapsed_seconds": 18.33,
+      "log_sha256": "4c768cd7446440e8df444b3a3ce95e2d010eb53183540d2d9501f2d3566d8c13"
+    },
+    "critical_function_risk_gate": {
+      "schema_version": 1,
+      "passed": true,
+      "coverage_scope": "selected production function statement coverage, not branch coverage or whole-repository coverage",
+      "required_scenarios": {
+        "TestPostgresLifecycleRandomizedProperties": "pass",
+        "TestPostgresLifecycleRandomizedProperties/seed_7": "pass",
+        "TestPostgresLifecycleRandomizedProperties/seed_1984": "pass",
+        "TestPostgresLifecycleRandomizedProperties/seed_20261023": "pass",
+        "TestPostgresLifecycleRandomizedProperties/seed_922337": "pass",
+        "TestPostgresCancelIsIdempotentForConcurrentAndTerminalRequests": "pass",
+        "TestPostgresExhaustedDispatchCannotOverwriteConcurrentLifecycle": "pass"
+      },
+      "checks": [
+        {
+          "risk_id": "LIFECYCLE-CANCEL-ATOMIC",
+          "function": "Cancel",
+          "statement_coverage_percent": 72.0,
+          "minimum_percent": 70.0,
+          "passed": true
+        },
+        {
+          "risk_id": "LIFECYCLE-RETRY-FENCE",
+          "function": "Retry",
+          "statement_coverage_percent": 75.0,
+          "minimum_percent": 73.0,
+          "passed": true
+        },
+        {
+          "risk_id": "LIFECYCLE-STALE-OUTBOX",
+          "function": "DispatchOne",
+          "statement_coverage_percent": 65.1,
+          "minimum_percent": 63.0,
+          "passed": true
+        }
+      ],
+      "tests_passed_including_subtests": 10,
+      "tests_skipped_including_subtests": 0,
+      "note": "Scenario presence plus measured production function statements; this is not proof of all branches or semantic completeness"
+    },
+    "native_go_fuzz": {
+      "configured_seconds_per_target": 5,
+      "workers_per_target": 1,
+      "targets": [
+        {
+          "name": "FuzzTaskNormalizeAndValidate",
+          "executions": 99340,
+          "passed": true
+        },
+        {
+          "name": "FuzzDiagnosisObservationObject",
+          "executions": 13581,
+          "passed": true
+        },
+        {
+          "name": "FuzzDiagnosisExactScalar",
+          "executions": 6183,
+          "passed": true
+        }
+      ],
+      "total_executions": 119104,
+      "skipped": 0
+    },
+    "python_parser_properties": {
+      "tests_passed": 3,
+      "skipped": 0,
+      "valid_stack_groups": 128,
+      "bounded_arbitrary_byte_inputs": 1024,
+      "malformed_tail_cases": 32
+    },
+    "risk_gate_regressions": {
+      "tests_passed": 3,
+      "skipped": 0
+    },
+    "analyzer_runner_ownership_and_capture_mount": {
+      "tests_passed": 5,
+      "skipped": 0
+    },
+    "go_vet": {
+      "packages": [
+        "internal/domain",
+        "internal/repository",
+        "internal/service"
+      ],
+      "passed": true
+    },
+    "syntax": {
+      "python_py_compile": true,
+      "bash_n_live_chain": true,
+      "bash_n_isolated_analyzer": true,
+      "quality_workflow_yaml_parse": true
+    }
+  },
+  "pending_external_checks": [
+    "Linux ASan/UBSan/Werror execution",
+    "fresh real C++ Runner -> MinIO -> Analyzer chain"
+  ],
+  "workspace_source_bytes_sha256": {
+    "api/internal/domain/task_fuzz_test.go": "6bf7d68d3a8224465ec1772eddcd8183c2720d90510feb3b8a19d118c431cd20",
+    "api/internal/service/diagnosis_fuzz_test.go": "16a26fba4b9199b14d3c73029a7d3908d20589216892e4f811c92b4f1a3a74b3",
+    "api/internal/repository/lifecycle_property_integration_test.go": "d3315d94f2e6ac5ec68e30931f09b3f3e86e1dde940ab2be4aa21884d54b196c",
+    "analyzer/tests/test_parser_properties.py": "72d24029e3751ab3f8662f4a70876ce2b28574832a6c6fb85e895e99d19e8dfd",
+    "analyzer/tests/test_live_collection_chain.py": "4b484943d1cf6779e77e9a3eb6b3c31ce23c9bdef83e6183462f0fe00705ea19",
+    "analyzer/scripts/run-isolated-integration.sh": "3bc2feba5ac47f21634d6487a6ffa666d30d5907d1d386348ee046b098e17642",
+    "analyzer/scripts/test_integration_runner.py": "aae72c865f7d6e4777c6de778e16e172b0d3698768a790dd292c9dd43e96da17",
+    "core/CMakeLists.txt": "7f8131eede95e0dee30a48743f8c80ed9f7a3de04cdcddd2e545b9bef3e8d3ee",
+    "core/Dockerfile": "d2c0b0c74a1e537cff7a63cdef1d39b874908fcfa263ade28905c51adeb977de",
+    "core/tests/protocol_property_test.cpp": "6c921271b4db360412e4322325643339d13b0156daf62369bc6a053b6a572210",
+    "scripts/quality/protocol/check_risks.py": "e303833bd859d9f736d59f35c5bcaa458d98690c1e21c5575db9bed02085a2a6",
+    "scripts/quality/protocol/risk-policy.json": "9e0c4de6cbe158d456aa8598de37374e070b30d64d890ceb893b9af648a18c32",
+    "scripts/quality/protocol/test_risk_gate.py": "5280dbaa872b4938ab91432129f4062ee8b1ea56ea37b3cf775eee32a5f53c4a",
+    "scripts/quality/protocol/run-live-chain.sh": "5844dc448eb124557c8f4d37e762dbbd972d7750ff4c73da4898c25fd770047f",
+    "scripts/quality/protocol/analyzer.Dockerfile": "2dab35392d3d21ebad272d7b1310b4b199ad7959243ef7a2fff8a497a9153086"
+  },
+  "limitations": [
+    "Function statement coverage is not branch or full-repository coverage.",
+    "Go randomized sequence is a real Repository/PostgreSQL state test, not a live collector/model test.",
+    "ASan and real chain results must be supplied separately by the Linux isolation runner.",
+    "Live sampling chain excludes Go HTTP task creation, Agent gRPC and browser."
+  ]
+}

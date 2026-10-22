@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "tests_passed": 10,
+  "tests_skipped": 0,
+  "provenance": "local synthetic Docker subprocess fault injection; no Docker or real sampler launched by these tests",
+  "command": "python -m unittest discover -s scripts/quality/performance -p test_isolation.py -v",
+  "covered_failures": [
+    "collector timeout",
+    "docker inspect timeout",
+    "control command failure",
+    "invalid inspect JSON",
+    "driver I/O failure",
+    "foreign owner before and after apparent success",
+    "cleanup timeout/control failure",
+    "nonzero child exit with a success report",
+    "OOM with a success report",
+    "isolation setting mismatch",
+    "missing report",
+    "false or non-boolean gate",
+    "atomic rename failure and temporary-file cleanup"
+  ],
+  "source_sha256": {
+    "scripts/quality/performance/run_isolated.py": "f1945e073b127c25abf3ff0bf18f27ba2e73d0588b57f45aa34303372ccd2c1c",
+    "scripts/quality/performance/test_isolation.py": "1c0df9b2bb6d4084077275aeff8cf3cadd3b5294e45ffb6962ecf8a7aa4c380b"
+  },
+  "real_measurement_status": "Final driver needs a fresh isolated perturbation run; prior actual data must remain preserved."
+}

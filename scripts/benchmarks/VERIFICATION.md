@@ -1,5 +1,15 @@
 # Local preparation record — 2026-10-18
 
+## Later execution — 2026-10-23 (UTC+8)
+
+The unchanged bounded tool was rebuilt with Go1.26.10 after its tests and vet
+passed, then actually ran in fresh resource-capped Linux containers. All850
+measured heartbeats succeeded across10/25/50 identities. The client binary
+SHA256 is `b7446d2a81b1d88b168902c5574be1302534759de92cc4b8c2bda4f38f6b0de0`.
+See [the actual baseline](../../docs/evidence/jd-quality-20261023/core-heartbeat.json)
+and [resource inspection](../../docs/evidence/jd-quality-20261023/server-validation.json).
+The original preparation-only notes below remain a historical record.
+
 Actual local checks used Go1.26.9 on Windows/amd64:
 
 - TDD statistics tests first failed to compile because `sample`/`summarize` did
