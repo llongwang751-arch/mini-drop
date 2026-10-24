@@ -2,6 +2,29 @@
 
 基于《Drop 性能诊断系统架构与复刻指南》的独立实现，使用 C++20 gRPC Server/Agent、Go Gin/GORM API、Python Analyzer、React/TypeScript Web、PostgreSQL 和私有 MinIO。该工程不是腾讯内部源码，也不声称与其内部系统完全等同。
 
+## 项目来源：腾讯 Mini 项目
+
+本仓库基于腾讯 Mini 项目课程中的 **「Mini-Drop 性能诊断系统」** 题目进行个人复刻与扩展。基础链路参考导师提供的《Drop 性能诊断系统架构与复刻指南》，在采集与分析能力之上扩展 AgentScope AI 诊断、复测与测试工具。具体实现及验收结果见本仓库代码与交付记录。
+
+以下为活动现场照片，展示 Mini-Drop 题目介绍及课程背景。
+
+**Mini-Drop 性能诊断系统：项目题目与目标介绍**
+
+![Mini-Drop 性能诊断系统项目题目与目标介绍](docs/assets/tencent-mini-project/mini-drop-topic.jpg)
+
+<details>
+<summary>展开查看课程背景与同场专项介绍（另两张现场照片）</summary>
+
+**腾讯 Mini 项目课程背景与往届成果介绍**
+
+![腾讯 Mini 项目课程背景与往届成果介绍，现场投影片标有深圳技术大学](docs/assets/tencent-mini-project/tencent-mini-course-background.jpg)
+
+**同场专项：性能工程 skill 评估，作为课程相关方向参考**
+
+![同场介绍的性能工程 skill 评估专项](docs/assets/tencent-mini-project/performance-skill-evaluation.jpg)
+
+</details>
+
 阅读源码可从 [中文注释阅读路线](docs/CODE_READING_GUIDE.md) 开始，先追一条采集任务，再看 AgentScope 工具循环、自动复测和隔离修复。注释重点解释上下游、设计原因和失败边界，不逐行复述代码。
 
 新增实现入口：[Agent八项扩展](docs/AGENT_EXPANSION.md)说明结构化事实校验、动态补证、业务信号与拓扑、版本方法库、持久检查点及评测边界；[实时双服务演示](integrations/observability-demo/README.md)和[通用Python接入](integrations/generic-python/README.md)分别提供真实HTTP遥测与独立红绿回归/补丁交付。实现说明不代替下方线上版本和发布验收记录。
