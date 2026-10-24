@@ -1,61 +1,122 @@
-# Drop · 分布式性能诊断工作空间
+# Mini-Drop · 分布式性能诊断与 AI 调查平台
 
-基于《Drop 性能诊断系统架构与复刻指南》的独立实现，使用 C++20 gRPC Server/Agent、Go Gin/GORM API、Python Analyzer、React/TypeScript Web、PostgreSQL 和私有 MinIO。该工程不是腾讯内部源码，也不声称与其内部系统完全等同。
+Mini-Drop 面向 Linux 后台服务的性能排查，将**远程采集、性能分析、可视化、AI 调查和复测验证**放在同一个工作空间中。开发和测试人员可以从“这个服务为什么变慢了”开始，选择授权进程，查看线程与函数热点、内存或 I/O 数据，再结合复测和回归测试判断优化是否有效。
 
-## 项目来源：腾讯 Mini 项目
+项目提供两种使用方式：熟悉性能工具的用户直接创建采集任务；需要辅助排查的用户用自然语言描述问题，由 **AgentScope + DeepSeek** 读取节点能力、提出采集计划并调用诊断工具。关联已登记的 Python 源码后，还可以定位代码行、生成候选补丁，并在隔离副本中验证。
 
-本仓库基于腾讯 Mini 项目课程中的 **「Mini-Drop 性能诊断系统」** 题目进行个人复刻与扩展。基础链路参考导师提供的《Drop 性能诊断系统架构与复刻指南》，在采集与分析能力之上扩展 AgentScope AI 诊断、复测与测试工具。具体实现及验收结果见本仓库代码与交付记录。
+[演示工作空间](https://82.157.81.79) · [面试演示步骤](docs/INTERVIEW_DEMO.md) · [本地开发说明](docs/LOCAL_DEVELOPMENT.md)
 
-以下为活动现场照片（人物已打码），展示 Mini-Drop 题目介绍及课程背景。人物头部已遮挡，投影内容保留原样。
+## 解决什么问题
 
-**Mini-Drop 性能诊断系统：项目题目与目标介绍**
+性能排查通常需要分别登录机器、选择采集工具、整理原始文件、生成火焰图，再手工记录优化前后的差别。Mini-Drop 把这些步骤组织成有状态的任务，保留采集参数、执行过程、原始制品、分析结果和诊断依据，让一次调查可以回看、比较和复核。
 
-![Mini-Drop 性能诊断系统项目题目与目标介绍](docs/assets/tencent-mini-project/mini-drop-topic.png)
+| 排查场景 | 在平台中可以做什么 |
+| --- | --- |
+| CPU 占用升高 | 按运行语言选择采集器，查看线程或函数热点，沿火焰图调查耗时路径 |
+| 内存占用增长 | 查看堆快照、对象引用、分配记录或原生内存事件，按对应数据类型分析 |
+| 接口响应变慢 | 在已登记业务信号的服务上，关联性能数据、延迟指标、结构化日志、Trace 与变更记录 |
+| 优化后是否有效 | 用可比参数复采并再次诊断；已接入的 Python 项目还可执行冻结回归、输出一致性检查和 CPU A/B 对照 |
 
-<details>
-<summary>展开查看课程背景与同场专项介绍（另两张现场照片）</summary>
+## 核心能力
 
-**腾讯 Mini 项目课程背景与往届成果介绍**
+| 能力 | 实现与使用结果 |
+| --- | --- |
+| 多语言性能采集 | 覆盖 C/C++、Java、Go、Python 的 CPU、堆与分配分析，以及锁、I/O、资源快照和 BOLT 等任务；契约包含 18 类任务，其中 16 类具有现场采集 Runner，按节点实际能力开放 |
+| 分析与可视化 | 独立 Analyzer 解析原始格式，提供火焰图、热点、堆对象图与类型专属结果；支持原始文件导入、制品下载和 SHA 校验 |
+| 自然语言调查 | 官方 AgentScope 执行 ReAct 工具循环，依据真实观测提出假设、补证计划及验证建议；采集计划经过用户确认后执行 |
+| 复测与证据比较 | 编排复采、解析、再次诊断和结果比较，保留两次执行的参数与来源；追加采集草案另行确认 |
+| Python 源码定位与修复 | 绑定登记源码的版本与 SHA，结合 cProfile 定位代码行；候选补丁在隔离副本中执行回归和性能对照，生成可审阅的代码与测试 diff |
+| 诊断知识复用 | 内置诊断 Skill、版本化个人/团队/项目方法库及个人历史案例；方法经审阅发布，使用记录可追溯 |
+| 任务管理与协作 | 节点能力自检、任务取消与重试、事件时间线、组权限和共享、定时任务及综合 DAG 编排 |
+| 测试与质量记录 | 单元、接口、安全、协议、并发和恢复验证；AI 生成受限业务测试输入，由独立断言判定；质量页展示保留历史失败的不可变运行摘要 |
 
-![腾讯 Mini 项目课程背景与往届成果介绍，现场投影片标有深圳技术大学](docs/assets/tencent-mini-project/tencent-mini-course-background.png)
+采集能力取决于目标语言、工具、内核和授权配置。平台分别保留 CPU 样本、CPU ticks、分配事件和字节等单位，不将不同来源的数据直接当成同一项指标。
 
-**同场专项：性能工程 skill 评估，作为课程相关方向参考**
+## 一次性能调查怎样完成
 
-![同场介绍的性能工程 skill 评估专项](docs/assets/tencent-mini-project/performance-skill-evaluation.png)
+```mermaid
+flowchart LR
+    A[描述问题与选择授权目标] --> B[创建任务或确认 AI 采集计划]
+    B --> C[现场采集或文件导入]
+    C --> D[解析与可视化]
+    D --> E[工具诊断与证据查看]
+    E --> F[复测与再次诊断]
+    F --> G[比较结果与形成结论]
+    G --> H[可选：隔离源码修复与回归]
+```
 
-</details>
+1. **选择目标与采集方式。** 查看节点实际支持的工具，指定授权进程、采集时长和参数；也可先让 AI 提出计划，再审阅确认。
+2. **查看真实执行与分析结果。** 平台显示采集、上传和分析状态；完成后查看火焰图、热点及对应原始制品。离线文件导入会明确标记来源。
+3. **调查与补充证据。** 智能体读取热点、采样质量及已登记的业务信号，输出带来源的事实和待验证假设。需要追加采集时先提出草案。
+4. **复测并比较。** 在授权范围内创建复测，完成后自动再次诊断，比较参数、数据质量和结果；热点重复出现本身不能确认根因。
+5. **验证候选修改。** 对已经接入的 Python 源码，可继续定位、生成补丁、运行隔离测试与性能对照，最后下载补丁和验证结果。
 
-阅读源码可从 [中文注释阅读路线](docs/CODE_READING_GUIDE.md) 开始，先追一条采集任务，再看 AgentScope 工具循环、自动复测和隔离修复。注释重点解释上下游、设计原因和失败边界，不逐行复述代码。
+## AI Agent 是怎么做的
 
-新增实现入口：[Agent八项扩展](docs/AGENT_EXPANSION.md)说明结构化事实校验、动态补证、业务信号与拓扑、版本方法库、持久检查点及评测边界；[实时双服务演示](integrations/observability-demo/README.md)和[通用Python接入](integrations/generic-python/README.md)分别提供真实HTTP遥测与独立红绿回归/补丁交付。实现说明不代替下方线上版本和发布验收记录。
+智能体使用 **官方 AgentScope 2.0.10 + DeepSeek**。它通过 ReAct 循环选择工具、接收执行观测，再决定补充调查还是提交报告。例如，`inspect_hotspots` 读取热点，`check_collection_quality` 检查采样质量，`compare_profiles` 比较两次采集。
 
-面试质量主线见 [JD质量实验](docs/JD_QUALITY_LAB.md) 与 [测试工具包](scripts/quality/README.md)：真实CRM联系人接口、固定oracle与变异负控、原生AgentScope测试计划、HTTP安全矩阵、状态机随机序列、Fuzz、C++消毒器、心跳及采样扰动、真实采样分析门禁。实际运行与合成范围分别记录，独立人工语义指标保持真实边界。
+Go API 负责身份、目标、工具参数、调用预算、状态和证据校验；独立 Python runtime 负责模型与工具循环。模型只能使用已开放的工具，不能把自由文本直接变成宿主命令。指标、日志、Trace 和拓扑来自管理员登记的数据源，诊断 Skill 与历史案例用于提供排查方法和先验。
 
-后续[测试深度补强](docs/JD_QUALITY_DEPTH.md)加入完整PROC_CPU浏览器整链、隔离故障恢复、真实CRM数据库/RLS、新数据序列生成、因果干预评测和管理员只读[质量验证](https://82.157.81.79/quality)。窗口修复前API的30分钟实际60/60窗口通过；当前API23.2另通过核心整链及三类故障，持续预算为零，不能合称新API通过30分钟。修复后的六组因果评测12诊断执行成功、综合2/6，尚不能声称可靠自动根因。
+报告将**程序核对的结构化事实**与**模型提出的业务解释**分开展示。事实引用通过校验，仍不代表解释或因果关系已经成立，需要结合复测、干预和人工复核。
 
-功能提交 `2d413e4a4abd` 的两个GitHub工作流共10项检查已跨attempt全部成功：基线7项、JD协议/内存与真实采样/业务与Agent回归3项。前端job首次因系统依赖下载耗尽外层时限而取消，仅该job重跑成功；协议与采样job复用原成功执行，不计作再次测试。普通未插桩整链通过5个成功任务、20份制品SHA、3类恢复与网页取消重试；Linux Fuzz实际600011次。取消历史、重跑及版本绑定见[最终CI收据](docs/evidence/jd-depth-20261023/ci/github-ci.json)，不能解释为首次attempt全绿或AI语义通过。
+源码执行目前提供通用 **Python** 接入，以及 CRM/Saber 的专用接入。补丁只应用于无网络、无业务凭据的隔离副本，原回归与性能门槛由平台控制；通过后交付 diff 供审阅，不自动发布原业务仓库。
 
-## 全量实现与验收状态
+实现细节见 [AgentScope 接入](docs/AGENTSCOPE_INTEGRATION.md)、[诊断能力扩展](docs/AGENT_EXPANSION.md) 和 [诊断知识层](docs/DIAGNOSTIC_KNOWLEDGE.md)。
 
-当前平台已部署至 **[https://82.157.81.79](https://82.157.81.79)**，API 为 **20261023.2**，AgentScope runtime 为 **20261021.4**，Web 为 **20261023.1**，Analyzer 为 **20261021.2（0.2.5）**，官方 AgentScope SDK **2.0.10**、SQL **10**、**29** 个运行容器；Agent 与 Helper 保持版本3。规划、诊断和源码修复使用真实 AgentScope ReAct，Go 保留权限、状态与验收。此次仅替换API/Web，其他27容器、数据卷与原项目快照保持；内部API就绪与公网API JSON通过，初始13条加新因果1条共**14条记录**逐SHA核对，桌面/手机、历史失败与导出真实浏览器通过，见[实际部署](docs/evidence/jd-depth-20261023/release/deployment.json)、[公网验收](docs/evidence/jd-depth-20261023/release/public-browser.json)与[面试步骤](docs/INTERVIEW_DEMO.md)。旧120.24.187.205属于历史部署。
+## 可以演示什么
 
-功能提交 `2d413e4a4abd` 的12份工具、门禁与契约源码已按Git blob逐SHA同步服务器；收尾只读核验为29容器健康、API就绪、7监控up、14条不可变记录与仓库字节一致。此后工具/文档同步不重建应用、不重启、不执行SQL或模型，不能当作新的长稳或模型评测，见[工具同步](docs/evidence/jd-depth-20261023/release/source-tools-sync-2d413e4a4abd.json)与[最终只读核验](docs/evidence/jd-depth-20261023/release/final-readonly.json)。
+| 场景 | 可查看或操作的内容 |
+| --- | --- |
+| Python CRM | 受控品牌配色计算的采集、热点分析、源码定位及隔离优化；联系人测试另接真实 PostgreSQL、PostgREST 与 RLS |
+| Python Saber | 受控 FTS5 搜索组件的采集、诊断、复测与隔离修复流程 |
+| 通用 Python 项目 | 通过管理员 manifest 登记冻结源码与验证命令，演示独立回归生成、候选补丁及性能正负对照 |
+| 双服务业务信号 | 在仓库自有合成业务中制造 CPU、慢 SQL、超时等现象，查看已登记指标、日志、Trace 及服务关系 |
+| 质量验证页 | 查看真实执行记录、失败时间线、来源哈希、未知指标与 JSON 导出；该页面只读展示记录 |
 
-原 CRM/Saber 演示和16类 Runner/20个真实任务、BOLT、malloc证据保留。上一轮 Saber 调查11共76.4秒，修复9通过原2+冻结6测试、384例和6组fresh对照，CPU中位1.5587倍，仅限受控查询基准。上一轮将这份既有结果登记为案例3，关联任务86/诊断29，没有重新执行该基准。历史见[AgentScope发布](docs/releases/20261020-agentscope.md)、[AgentScope接入](docs/AGENTSCOPE_INTEGRATION.md)与[Saber范围](docs/SABER_INTEGRATION.md)。
+入口：[智能调查](https://82.157.81.79/investigations) · [诊断知识](https://82.157.81.79/knowledge) · [质量验证](https://82.157.81.79/quality)。使用已配置账号，现场操作顺序与各场景范围见 [演示文档](docs/INTERVIEW_DEMO.md)。演示使用合成负载和明确接入的组件，单个函数的优化结果不等于整个业务系统的性能收益。
 
-- 18 类任务契约、16 类 Agent Runner 与通用导入；Java/Go/Python/native 堆和 CPU、BPF I/O/内存、资源、受控脚本及 BOLT。工具、目标权限和内核能力按真实探测展示。
-- mTLS 注册与版本协商；PID/UID/starttime/namespace 校验、宿主与容器目标策略；持久化双状态机、attempt/lease fencing、事务事件与 Outbox、取消重试及恢复。
-- 独立分析进程与资源预算、原生格式解析、堆对象图/支配树/引用路径、类型专属结果、制品 SHA/大小校验；100,000 节点火焰树边界及 Worker 可视化。
-- 资源组与共享权限、本地账户、Cron/IANA 时区、最多16节点复合DAG、版本化规则与反馈。企业登录和异地备份展示保持移除。DeepSeek Agent新增持久化调查、能力感知计划、自动复测比较、真实源码SHA/行号、隔离补丁及功能/性能对照，见[实现与演示说明](docs/DIAGNOSIS_AGENT_V2.md)。
-- 浅色精密仪表台、动态参数表单、SSE、结果证据、节点工具元数据、响应式和键盘操作。
-- 诊断知识：4份 `v1.0.0` Skill（CPU热点、分配/GC、锁/IO、采样质量），本人90天有效、可撤销的案例检索；`off` / `skills` / `experience` 三种模式及固定合成评测。方法和经验只作先验，不能替代当前证据；入口为[诊断知识](https://82.157.81.79/knowledge)。
-- 最小权限数据库身份与审计追加权限；对象保留及完整性维护；监控告警/追踪、证书轮换、备份恢复、Kubernetes 与供应链发布流程。
+## 技术架构
 
-上一轮诊断知识验收完成四次真实 DeepSeek 诊断运行：任务90的诊断34/35、任务91的诊断36/37，分别对照 `off` 与 `experience`；启用经验的35/37各命中案例1/2。输入是明确标注的合成导入数据，不是实时 CPU/分配采集，也没有执行复测。引用校验通过不保证解释正确：诊断37误称“唯一叶帧”，实际有70%/30%两个正权重叶帧；诊断35还将60秒/99Hz归因于未返回这些参数的E7。详见[Agent语义复审](docs/evidence/diagnostic-knowledge-20261021/agent-review.json)。这属于 `agent_review`，不是独立人工准确率；[真实调用评测](docs/evidence/diagnostic-knowledge-20261021/evaluation-live.json)的根因类别、拒答与误报等语义指标保持 `NULL`，不能据两组样例声称经验提升准确率。
+| 层次 | 技术 | 职责 |
+| --- | --- | --- |
+| Web 工作空间 | React、TypeScript、Vite | 任务、火焰图、调查、知识与质量记录界面 |
+| HTTP 与业务编排 | Go、Gin、GORM | 身份权限、任务生命周期、事件、调查与工具校验 |
+| 调度与采集 | C++20、gRPC、mTLS | 节点注册、任务派发、目标身份核对和受控采集 |
+| 结果分析 | Python Analyzer | 格式解析、异步分析、类型专属结果与制品生成 |
+| 智能体运行时 | Python、AgentScope、DeepSeek | 采集规划、工具诊断、知识调用与补丁生成 |
+| 状态与制品 | PostgreSQL、私有 MinIO | 任务/attempt/分析租约/事件，以及原始文件与分析制品 |
 
-已完成与待验收证据逐项见 [交付范围矩阵](docs/DELIVERY_MATRIX.md)，过程见 [开发日志](DEVELOPMENT_LOG.md)。不能把实现列表理解为所有环境验收均已通过。
+C++ **采集 Agent** 与 Python **AI Agent** 承担不同职责：前者执行采集工具，后者调用平台提供的调查工具。数据库保存执行状态，MinIO 保存文件；采集进程和浏览器不持有长期存储密钥。
 
-剩余验收和外部配置见 [全量实现的剩余验收](docs/CAPABILITY_GAPS.md)。企业登录与异地备份展示不列为待办；AI按用户后续要求已接通。当前新机4核8GB单机，最终镜像统一安全扫描、完整容量/长期稳定性及物理多节点容灾仍有验收边界。
+工程实现包含独立的采集/分析状态、attempt 与租约栅栏、事务事件、Outbox、幂等请求和恢复机制。任务失败、取消或重试后保留原执行记录，方便排查平台自身的问题。
+
+## 测试与验证
+
+项目配有 [质量工具包](scripts/quality/README.md)，覆盖真实 PostgreSQL 状态与权限、HTTP 拒绝矩阵、并发竞争、Go Fuzz、C++ ASan/UBSan，以及浏览器到采集、存储、分析的整链与故障恢复。AI 生成的业务数据和操作序列交给独立需求断言执行，并用受控变异检查测试能否检出错误。
+
+2026-10-23 功能提交 `2d413e4a4abd` 的两套 CI 共 10 项检查跨 attempt 成功；其中前端 job 曾因依赖下载超时取消，仅该项重跑，原记录保留。普通未插桩 PROC_CPU 整链通过 5 个任务、20 份制品 SHA 及 3 类恢复，Linux Fuzz 实报 600011 次。具体版本与执行范围见 [CI 收据](docs/evidence/jd-depth-20261023/ci/github-ci.json)。
+
+AI 效果单独评测：已记录的一组六轮因果实验中，12 次诊断执行成功，但综合判定仅 **2/6**，SQL/超时方向仍有缺口，独立人工语义评分尚未完成。程序测试通过不能代替根因准确率；当前适合展示可追溯的调查与验证流程，不能宣称可靠的通用自动根因定位。
+
+完整验收、历史失败、版本绑定与剩余范围见 [交付矩阵](docs/DELIVERY_MATRIX.md)、[测试深度说明](docs/JD_QUALITY_DEPTH.md)、[能力边界](docs/CAPABILITY_GAPS.md) 及 [开发日志](DEVELOPMENT_LOG.md)。不同版本、不同采集器和不同评测的结果分别记录。
+
+## 快速开始
+
+本地开发使用独立环境，不读取生产 `.env`、Secret 或数据卷。需要 Python 3.11+、Docker 的 Linux 容器环境和 Compose 2.24.4+：
+
+```sh
+python scripts/dev.py doctor
+# 首次环境如缺少旧版 MinIO 缓存，先从官方同版本二进制及固定 SHA 构建依赖。
+docker build -t minio/minio:RELEASE.2025-07-23T15-54-02Z -f deploy/minio/Dockerfile .
+python scripts/dev.py up
+python scripts/dev.py smoke
+```
+
+上述 MinIO 构建使用官方固定版本二进制，来源、SHA 和缓存镜像说明见 [MinIO 构建说明](deploy/minio/README.md)。
+
+打开 `http://127.0.0.1:18080`。账号文件位置由启动器输出，口令不打印。停止执行 `python scripts/dev.py stop`，保留本地数据；状态/日志分别使用 `status` / `logs`。前端热更新执行 `cd web`、`npm ci`、`npm run dev:local`。Windows也可使用 `powershell -File scripts/dev.ps1 up`。默认Agent只采集自己的受控真实进程，未开放宿主PID、Docker socket或BPF额外权限。更多说明见 [开发与验证](docs/LOCAL_DEVELOPMENT.md)。
+
+生产部署、权限覆盖、已有数据的升级和回滚见 [运维手册](docs/RUNBOOK.md)。模型接入、专用采集工具及外部业务源码需要各自配置；本地默认环境使用受控进程。
 
 ## 工程结构
 
@@ -72,46 +133,39 @@
 | ops           | 对象生命周期、完整性维护、监控状态与告警审计           |
 | docs          | 协议、部署、验收与范围说明                             |
 
-GitHub 当前工程以 tx-drop 为准；旧项目文件由新的完整快照替换，旧提交仍可回退。[项目上下文](docs/PROJECT_CONTEXT.md) · [文档索引](docs/README.md) · [发布方式与公开范围](docs/GITHUB_PUBLICATION.md)。
+## 文档导航
 
-## 构建与启动
+阅读源码可从 [中文注释阅读路线](docs/CODE_READING_GUIDE.md) 开始，先追一条采集任务，再看 AgentScope 工具循环、自动复测和隔离修复。注释重点解释上下游、设计原因和失败边界，不逐行复述代码。
 
-本地开发使用独立环境，不读取生产 `.env`、Secret 或数据卷。需要 Python 3.11+、Docker 的 Linux 容器环境和 Compose 2.24.4+：
+| 想了解的内容 | 文档 |
+| --- | --- |
+| 本地开发与日常检查 | [本地开发](docs/LOCAL_DEVELOPMENT.md) |
+| 任务、状态和接口契约 | [实现契约](docs/CONTRACT.md) |
+| Agent 框架与平台分工 | [AgentScope 接入](docs/AGENTSCOPE_INTEGRATION.md) |
+| 业务信号与通用源码接入 | [双服务演示](integrations/observability-demo/README.md)、[通用 Python](integrations/generic-python/README.md) |
+| 测试工具及岗位对应能力 | [质量实验](docs/JD_QUALITY_LAB.md)、[测试工具包](scripts/quality/README.md) |
+| 部署、备份、恢复与发布 | [运维手册](docs/RUNBOOK.md)、[公开范围](docs/GITHUB_PUBLICATION.md) |
+| 更多设计和验收记录 | [文档索引](docs/README.md) |
 
-```sh
-python scripts/dev.py doctor
-# 首次环境如缺少旧版 MinIO 缓存，先从官方同版本二进制及固定 SHA 构建依赖。
-docker build -t minio/minio:RELEASE.2025-07-23T15-54-02Z -f deploy/minio/Dockerfile .
-python scripts/dev.py up
-python scripts/dev.py smoke
-```
+## 项目来源：腾讯 Mini 项目
 
-MinIO 原容器仓库当前不能匿名拉取；上述依赖重建使用官方固定版本二进制，详细来源、SHA 和与生产缓存镜像的区别见 [MinIO 构建说明](deploy/minio/README.md)。
+本仓库基于腾讯 Mini 项目课程中的 **「Mini-Drop 性能诊断系统」** 题目进行个人复刻与扩展。基础链路参考导师提供的《Drop 性能诊断系统架构与复刻指南》，在采集与分析能力之上扩展 AgentScope AI 诊断、复测与测试工具。本仓库代码为个人实现，非腾讯内部源码；具体能力及验收结果见代码与交付记录。
 
-打开 `http://127.0.0.1:18080`。账号文件位置由启动器输出，口令不打印。停止执行 `python scripts/dev.py stop`，保留本地数据；状态/日志分别使用 `status` / `logs`。前端热更新执行 `cd web`、`npm ci`、`npm run dev:local`。Windows也可使用 `powershell -File scripts/dev.ps1 up`。默认Agent只采集自己的受控真实进程，未开放宿主PID、Docker socket或BPF额外权限。更多说明见 [开发与验证](docs/LOCAL_DEVELOPMENT.md)。
+以下为活动现场照片（人物已打码），展示 Mini-Drop 题目介绍及课程背景。人物头部已遮挡，投影内容保留原样。
 
-生产已配置，使用稳定入口与冻结镜像，不重复生成或覆盖现有Secret：
+<details>
+<summary>查看三张活动现场照片（人物已打码）</summary>
 
-```sh
-cd /opt/drop-current/deploy
-docker compose up -d --no-build --pull never
-bash reload-proxies.sh
-```
+**Mini-Drop 性能诊断系统：项目题目与目标介绍**
 
-服务器`.env`已选择tools/helper/BPF、HTTPS、监控、小内存和冻结release覆盖。helper在Agent重建后须重新创建以加入其PID namespace；完整步骤见发布说明。全新环境按[运维手册](docs/RUNBOOK.md)选择覆盖并初始化，不能把旧Compose整套覆盖到已加密生产存储。小服务器串行构建和验收，保留所有命名发布镜像与数据卷。
+![Mini-Drop 性能诊断系统项目题目与目标介绍](docs/assets/tencent-mini-project/mini-drop-topic.png)
 
-启动顺序包含 owner migration、`permission-init`、`storage-permission-init` 和私有 bucket 初始化。API/Server/Analyzer 使用共享 `drop_app` 运行期角色，只授予项目表 DML 和序列使用权限；迁移使用独立 owner DSN。`pg_dump` 不包含全局数据库角色，迁移到新主机恢复后须重新执行 bootstrap 和 `permission-init`，见运维手册。
+**腾讯 Mini 项目课程背景与往届成果介绍**
 
-perf 覆盖配置向受控 Agent 增加 CAP_PERFMON 及 `perf_event_open`。全工具、BPF、监控、HTTPS 等覆盖文件的选择与额外权限见运维手册；它们不是默认全部启用。普通业务 Agent 默认不启动受控负载，Compose 示例显式开启用于验收。MinIO backend 使用 UID 10001、全部 capability 移除及只读根目录；新增 SSE-S3 主密钥须单独离线托管。首次转换既有数据卷须安排维护，不能在写入中直接递归改 owner。
+![腾讯 Mini 项目课程背景与往届成果介绍，现场投影片标有深圳技术大学](docs/assets/tencent-mini-project/tencent-mini-course-background.png)
 
-下面的测试分别从项目根目录进入对应模块执行：
+**同场专项：性能工程 skill 评估，作为课程相关方向参考**
 
-```bash
-cd api && go test ./... && go vet ./...
-cd web && npm ci && npm test && npm run build
-cd analyzer && python -m unittest discover -s tests -v
-```
+![同场介绍的性能工程 skill 评估专项](docs/assets/tencent-mini-project/performance-skill-evaluation.png)
 
-C++ 的 Linux 严格编译与 CTest 包含在 `core/Dockerfile` 的构建阶段；真实PG/S3集成测试见各模块 README / DEVELOPMENT.md。
-
-运行、备份、恢复、升级和回滚见 [运维手册](docs/RUNBOOK.md)。
+</details>
