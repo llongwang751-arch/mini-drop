@@ -1,5 +1,30 @@
 # Mini-Drop · 分布式性能诊断与 AI 调查平台
 
+## 项目来源：腾讯 Mini 项目
+
+本仓库基于腾讯 Mini 项目课程中的 **「Mini-Drop 性能诊断系统」** 题目进行个人复刻与扩展。基础链路参考导师提供的《Drop 性能诊断系统架构与复刻指南》，在采集与分析能力之上扩展 AgentScope AI 诊断、复测与测试工具。本仓库代码为个人实现，非腾讯内部源码；具体能力及验收结果见代码与交付记录。
+
+以下为活动现场照片（人物已打码），展示 Mini-Drop 题目介绍及课程背景。人物头部已遮挡，投影内容保留原样。
+
+<details>
+<summary>查看三张活动现场照片（人物已打码）</summary>
+
+**Mini-Drop 性能诊断系统：项目题目与目标介绍**
+
+![Mini-Drop 性能诊断系统项目题目与目标介绍](docs/assets/tencent-mini-project/mini-drop-topic.png)
+
+**腾讯 Mini 项目课程背景与往届成果介绍**
+
+![腾讯 Mini 项目课程背景与往届成果介绍，现场投影片标有深圳技术大学](docs/assets/tencent-mini-project/tencent-mini-course-background.png)
+
+**同场专项：性能工程 skill 评估，作为课程相关方向参考**
+
+![同场介绍的性能工程 skill 评估专项](docs/assets/tencent-mini-project/performance-skill-evaluation.png)
+
+</details>
+
+## 项目简介
+
 Mini-Drop 面向 Linux 后台服务的性能排查，将**远程采集、性能分析、可视化、AI 调查和复测验证**放在同一个工作空间中。开发和测试人员可以从“这个服务为什么变慢了”开始，选择授权进程，查看线程与函数热点、内存或 I/O 数据，再结合复测和回归测试判断优化是否有效。
 
 项目提供两种使用方式：熟悉性能工具的用户直接创建采集任务；需要辅助排查的用户用自然语言描述问题，由 **AgentScope + DeepSeek** 读取节点能力、提出采集计划并调用诊断工具。关联已登记的 Python 源码后，还可以定位代码行、生成候选补丁，并在隔离副本中验证。
@@ -146,26 +171,3 @@ python scripts/dev.py smoke
 | 测试工具及岗位对应能力 | [质量实验](docs/JD_QUALITY_LAB.md)、[测试工具包](scripts/quality/README.md) |
 | 部署、备份、恢复与发布 | [运维手册](docs/RUNBOOK.md)、[公开范围](docs/GITHUB_PUBLICATION.md) |
 | 更多设计和验收记录 | [文档索引](docs/README.md) |
-
-## 项目来源：腾讯 Mini 项目
-
-本仓库基于腾讯 Mini 项目课程中的 **「Mini-Drop 性能诊断系统」** 题目进行个人复刻与扩展。基础链路参考导师提供的《Drop 性能诊断系统架构与复刻指南》，在采集与分析能力之上扩展 AgentScope AI 诊断、复测与测试工具。本仓库代码为个人实现，非腾讯内部源码；具体能力及验收结果见代码与交付记录。
-
-以下为活动现场照片（人物已打码），展示 Mini-Drop 题目介绍及课程背景。人物头部已遮挡，投影内容保留原样。
-
-<details>
-<summary>查看三张活动现场照片（人物已打码）</summary>
-
-**Mini-Drop 性能诊断系统：项目题目与目标介绍**
-
-![Mini-Drop 性能诊断系统项目题目与目标介绍](docs/assets/tencent-mini-project/mini-drop-topic.png)
-
-**腾讯 Mini 项目课程背景与往届成果介绍**
-
-![腾讯 Mini 项目课程背景与往届成果介绍，现场投影片标有深圳技术大学](docs/assets/tencent-mini-project/tencent-mini-course-background.png)
-
-**同场专项：性能工程 skill 评估，作为课程相关方向参考**
-
-![同场介绍的性能工程 skill 评估专项](docs/assets/tencent-mini-project/performance-skill-evaluation.png)
-
-</details>
