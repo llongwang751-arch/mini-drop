@@ -4,9 +4,6 @@
 
 本仓库基于腾讯 Mini 项目课程中的 **「Mini-Drop 性能诊断系统」** 题目进行个人复刻与扩展。基础链路参考导师提供的《Drop 性能诊断系统架构与复刻指南》，在采集与分析能力之上扩展 AgentScope AI 诊断、复测与测试工具。本仓库代码为个人实现，非腾讯内部源码；具体能力及验收结果见代码与交付记录。
 
-<details>
-<summary>什么都没有，不要打开哦😮</summary>
-
 以下为活动现场照片，展示 Mini-Drop 题目介绍及课程背景。人物头部已遮挡，投影内容保留原样。
 
 **Mini-Drop 性能诊断系统：项目题目与目标介绍**
@@ -20,8 +17,6 @@
 **同场专项：性能工程 skill 评估，作为课程相关方向参考**
 
 ![同场介绍的性能工程 skill 评估专项](docs/assets/tencent-mini-project/performance-skill-evaluation.png)
-
-</details>
 
 ## 项目简介
 
