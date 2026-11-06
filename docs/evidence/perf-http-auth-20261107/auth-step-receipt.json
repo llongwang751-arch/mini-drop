@@ -1,0 +1,396 @@
+{
+  "gates": [
+    {
+      "actual": 0,
+      "id": "no_5xx",
+      "passed": true,
+      "rule": "服务端 5xx 计数为 0"
+    },
+    {
+      "actual": 0.0,
+      "id": "error_rate",
+      "passed": true,
+      "rule": "失败率 ≤ 1%"
+    },
+    {
+      "actual": 200.0,
+      "id": "client_p95",
+      "passed": true,
+      "rule": "各端点 P95 ≤ 800ms（含公网 RTT）"
+    },
+    {
+      "actual": 260.0,
+      "id": "client_p99",
+      "passed": true,
+      "rule": "各端点 P99 ≤ 2000ms（含公网 RTT）"
+    }
+  ],
+  "generated_at": "2026-11-07T02:20:46+08:00",
+  "generator": {
+    "cpu_count": 24,
+    "host": "LAPTOP-BTHCSF99",
+    "location": "developer workstation, public internet",
+    "os": "Windows 11",
+    "python": "3.14.0"
+  },
+  "load_model": {
+    "duration_seconds": 110,
+    "http_protocol": "HTTP/1.1 (Locust/requests)",
+    "scenario": "api",
+    "sessions": 4,
+    "tls_verify": false,
+    "virtual_users": 20,
+    "writes_enabled": false
+  },
+  "not_measured": [
+    "服务端 CPU / 内存 / IO 采样（本机没有该主机的 SSH 凭据）",
+    "PostgreSQL 连接数、锁等待与慢查询统计",
+    "SSE 长连接并发（需单独的有界客户端，不在本套件内）",
+    "真实浏览器 JS 执行后的 Core Web Vitals（另有 Lighthouse 证据）",
+    "容量上限与拐点（本套件只做有界阶梯，不找饱和点）"
+  ],
+  "profile": "api-step",
+  "schema": "drop.loadtest.receipt/1",
+  "target": "https://82.157.81.79",
+  "totals": {
+    "aggregate_rps": 6.978,
+    "error_rate": 0.0,
+    "failures": 0,
+    "p95_ms_worst_endpoint": 200.0,
+    "p99_ms_worst_endpoint": 260.0,
+    "requests": 773
+  },
+  "verdict": "pass",
+  "workload": {
+    "bytes_total": 15479248,
+    "endpoints": [
+      {
+        "avg_bytes": 855.0,
+        "avg_ms": 49.0,
+        "failures": 0,
+        "max_ms": 203.9,
+        "median_ms": 42.0,
+        "method": "GET",
+        "min_ms": 41.1,
+        "name": "GET /",
+        "p50_ms": 42.0,
+        "p90_ms": 46.0,
+        "p95_ms": 50.0,
+        "p99_ms": 200.0,
+        "requests": 27,
+        "rps": 0.244
+      },
+      {
+        "avg_bytes": 855.0,
+        "avg_ms": 156.5,
+        "failures": 0,
+        "max_ms": 156.5,
+        "median_ms": 156.5,
+        "method": "GET",
+        "min_ms": 156.5,
+        "name": "GET / (asset discovery)",
+        "p50_ms": 160.0,
+        "p90_ms": 160.0,
+        "p95_ms": 160.0,
+        "p99_ms": 160.0,
+        "requests": 1,
+        "rps": 0.009
+      },
+      {
+        "avg_bytes": 855.0,
+        "avg_ms": 45.4,
+        "failures": 0,
+        "max_ms": 98.0,
+        "median_ms": 44.0,
+        "method": "GET",
+        "min_ms": 39.7,
+        "name": "GET / (authed)",
+        "p50_ms": 44.0,
+        "p90_ms": 49.0,
+        "p95_ms": 49.0,
+        "p99_ms": 98.0,
+        "requests": 36,
+        "rps": 0.325
+      },
+      {
+        "avg_bytes": 855.0,
+        "avg_ms": 47.7,
+        "failures": 0,
+        "max_ms": 106.2,
+        "median_ms": 44.0,
+        "method": "GET",
+        "min_ms": 40.9,
+        "name": "GET /<spa-route>",
+        "p50_ms": 44.0,
+        "p90_ms": 51.0,
+        "p95_ms": 110.0,
+        "p99_ms": 110.0,
+        "requests": 16,
+        "rps": 0.144
+      },
+      {
+        "avg_bytes": 19033.4,
+        "avg_ms": 53.2,
+        "failures": 0,
+        "max_ms": 256.4,
+        "median_ms": 47.0,
+        "method": "GET",
+        "min_ms": 43.6,
+        "name": "GET /api/v1/agents",
+        "p50_ms": 47.0,
+        "p90_ms": 64.0,
+        "p95_ms": 68.0,
+        "p99_ms": 260.0,
+        "requests": 67,
+        "rps": 0.605
+      },
+      {
+        "avg_bytes": 318.0,
+        "avg_ms": 54.0,
+        "failures": 0,
+        "max_ms": 170.0,
+        "median_ms": 45.0,
+        "method": "GET",
+        "min_ms": 41.4,
+        "name": "GET /api/v1/auth/me",
+        "p50_ms": 45.0,
+        "p90_ms": 63.0,
+        "p95_ms": 120.0,
+        "p99_ms": 170.0,
+        "requests": 26,
+        "rps": 0.235
+      },
+      {
+        "avg_bytes": 173.0,
+        "avg_ms": 46.2,
+        "failures": 0,
+        "max_ms": 59.7,
+        "median_ms": 46.0,
+        "method": "GET",
+        "min_ms": 41.7,
+        "name": "GET /api/v1/auth/providers",
+        "p50_ms": 46.0,
+        "p90_ms": 49.0,
+        "p95_ms": 60.0,
+        "p99_ms": 60.0,
+        "requests": 14,
+        "rps": 0.126
+      },
+      {
+        "avg_bytes": 4489.0,
+        "avg_ms": 60.9,
+        "failures": 0,
+        "max_ms": 231.2,
+        "median_ms": 52.0,
+        "method": "GET",
+        "min_ms": 45.7,
+        "name": "GET /api/v1/overview",
+        "p50_ms": 52.0,
+        "p90_ms": 74.0,
+        "p95_ms": 160.0,
+        "p99_ms": 230.0,
+        "requests": 79,
+        "rps": 0.713
+      },
+      {
+        "avg_bytes": 50257.0,
+        "avg_ms": 123.3,
+        "failures": 0,
+        "max_ms": 219.4,
+        "median_ms": 110.0,
+        "method": "GET",
+        "min_ms": 91.9,
+        "name": "GET /api/v1/quality/runs",
+        "p50_ms": 110.0,
+        "p90_ms": 190.0,
+        "p95_ms": 200.0,
+        "p99_ms": 220.0,
+        "requests": 26,
+        "rps": 0.235
+      },
+      {
+        "avg_bytes": 741.0,
+        "avg_ms": 56.8,
+        "failures": 0,
+        "max_ms": 244.0,
+        "median_ms": 47.0,
+        "method": "GET",
+        "min_ms": 41.3,
+        "name": "GET /api/v1/schedules",
+        "p50_ms": 47.0,
+        "p90_ms": 62.0,
+        "p95_ms": 120.0,
+        "p99_ms": 240.0,
+        "requests": 28,
+        "rps": 0.253
+      },
+      {
+        "avg_bytes": 47129.0,
+        "avg_ms": 57.4,
+        "failures": 0,
+        "max_ms": 97.7,
+        "median_ms": 50.0,
+        "method": "GET",
+        "min_ms": 44.1,
+        "name": "GET /api/v1/task-kinds",
+        "p50_ms": 50.0,
+        "p90_ms": 85.0,
+        "p95_ms": 92.0,
+        "p99_ms": 98.0,
+        "requests": 31,
+        "rps": 0.28
+      },
+      {
+        "avg_bytes": 13513.3,
+        "avg_ms": 56.6,
+        "failures": 0,
+        "max_ms": 227.3,
+        "median_ms": 48.0,
+        "method": "GET",
+        "min_ms": 42.5,
+        "name": "GET /api/v1/tasks",
+        "p50_ms": 48.0,
+        "p90_ms": 65.0,
+        "p95_ms": 90.0,
+        "p99_ms": 180.0,
+        "requests": 165,
+        "rps": 1.489
+      },
+      {
+        "avg_bytes": 156.0,
+        "avg_ms": 56.1,
+        "failures": 0,
+        "max_ms": 206.0,
+        "median_ms": 45.0,
+        "method": "GET",
+        "min_ms": 41.3,
+        "name": "GET /api/v1/tasks (401 path)",
+        "p50_ms": 45.0,
+        "p90_ms": 60.0,
+        "p95_ms": 150.0,
+        "p99_ms": 210.0,
+        "requests": 25,
+        "rps": 0.226
+      },
+      {
+        "avg_bytes": 14625.1,
+        "avg_ms": 61.6,
+        "failures": 0,
+        "max_ms": 210.8,
+        "median_ms": 54.0,
+        "method": "GET",
+        "min_ms": 45.7,
+        "name": "GET /api/v1/tasks/:id",
+        "p50_ms": 54.0,
+        "p90_ms": 89.0,
+        "p95_ms": 110.0,
+        "p99_ms": 210.0,
+        "requests": 96,
+        "rps": 0.866
+      },
+      {
+        "avg_bytes": 3688.4,
+        "avg_ms": 50.8,
+        "failures": 0,
+        "max_ms": 87.3,
+        "median_ms": 49.0,
+        "method": "GET",
+        "min_ms": 42.3,
+        "name": "GET /api/v1/tasks/:id/events",
+        "p50_ms": 49.0,
+        "p90_ms": 59.0,
+        "p95_ms": 69.0,
+        "p99_ms": 87.0,
+        "requests": 71,
+        "rps": 0.641
+      },
+      {
+        "avg_bytes": 4305.6,
+        "avg_ms": 50.1,
+        "failures": 0,
+        "max_ms": 92.7,
+        "median_ms": 49.0,
+        "method": "GET",
+        "min_ms": 42.8,
+        "name": "GET /api/v1/tasks/:id/result",
+        "p50_ms": 49.0,
+        "p90_ms": 54.0,
+        "p95_ms": 56.0,
+        "p99_ms": 93.0,
+        "requests": 38,
+        "rps": 0.343
+      },
+      {
+        "avg_bytes": 256250.9,
+        "avg_ms": 126.0,
+        "failures": 0,
+        "max_ms": 201.9,
+        "median_ms": 92.0,
+        "method": "GET",
+        "min_ms": 82.9,
+        "name": "GET /assets/*",
+        "p50_ms": 92.0,
+        "p90_ms": 190.0,
+        "p95_ms": 200.0,
+        "p99_ms": 200.0,
+        "requests": 27,
+        "rps": 0.244
+      }
+    ],
+    "status_counts": {
+      "GET /": {
+        "200": 27
+      },
+      "GET / (asset discovery)": {
+        "200": 1
+      },
+      "GET / (authed)": {
+        "200": 36
+      },
+      "GET /<spa-route>": {
+        "200": 16
+      },
+      "GET /api/v1/agents": {
+        "200": 67
+      },
+      "GET /api/v1/auth/me": {
+        "200": 26
+      },
+      "GET /api/v1/auth/providers": {
+        "200": 14
+      },
+      "GET /api/v1/overview": {
+        "200": 79
+      },
+      "GET /api/v1/quality/runs": {
+        "200": 26
+      },
+      "GET /api/v1/schedules": {
+        "200": 28
+      },
+      "GET /api/v1/task-kinds": {
+        "200": 31
+      },
+      "GET /api/v1/tasks": {
+        "200": 165
+      },
+      "GET /api/v1/tasks (401 path)": {
+        "401": 25
+      },
+      "GET /api/v1/tasks/:id": {
+        "200": 96
+      },
+      "GET /api/v1/tasks/:id/events": {
+        "200": 71
+      },
+      "GET /api/v1/tasks/:id/result": {
+        "200": 38
+      },
+      "GET /assets/*": {
+        "200": 27
+      }
+    },
+    "throttled_429": 0,
+    "top_failures": []
+  }
+}

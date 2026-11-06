@@ -1,0 +1,463 @@
+{
+  "schema_version": 1,
+  "kind": "controlled_causal_intervention_scoring",
+  "plan_sha256": "a93d84fabe25355b1baed32fbde22114ef767023f5a9e78fb15b053114c6f096",
+  "manifest_sha256": "6874050733a5739461a3352322ae58cff19867fde3443828076f79e26c630347",
+  "environment_sha256": "7a9560f64b6b1bc1c6c52071d974ffd931b98d014eeab4985f550d579232bb99",
+  "metrics": {
+    "controlled_intervention_verified": {
+      "numerator": 6,
+      "denominator": 6,
+      "rate": 1.0
+    },
+    "fault_supported_direction_top3": {
+      "numerator": 2,
+      "denominator": 6,
+      "rate": 0.3333333333333333
+    },
+    "normal_after_direction_top3": {
+      "numerator": 5,
+      "denominator": 6,
+      "rate": 0.8333333333333334
+    },
+    "exact_root_cause_accuracy": null,
+    "independent_human_reviews": 0,
+    "semantic_false_positive_rate": null,
+    "semantic_abstention_accuracy": null
+  },
+  "rounds": [
+    {
+      "case_id": "c01",
+      "replicate": 2,
+      "controlled_effect": {
+        "passed": true,
+        "checks": {
+          "all_windows_measured": true,
+          "normal_controls_have_no_measured_errors": true,
+          "same_target_and_environment": true,
+          "phase_order": true,
+          "bounded_load_completed_and_stopped": true,
+          "fault_recovery_window_separated": true,
+          "latency_changes_and_recovers": true,
+          "actual_cpu_sample_changes_and_recovers": true,
+          "real_same_parameter_collection_pair": true
+        },
+        "measurements": {
+          "normal_before": {
+            "p95_ms": 1.932016,
+            "error_rate": 0.0,
+            "response_count": 3,
+            "http_504_rate": 0.0
+          },
+          "fault": {
+            "p95_ms": 235.473431,
+            "error_rate": 0.0,
+            "response_count": 152,
+            "http_504_rate": 0.0
+          },
+          "normal_after": {
+            "p95_ms": 4.036547,
+            "error_rate": 0.0,
+            "response_count": 1797,
+            "http_504_rate": 0.0
+          }
+        },
+        "causal_scope": "fixed_python_cpu_loop_request_path",
+        "arbitrary_root_cause_accuracy": false
+      },
+      "fault_direction": {
+        "observed": true,
+        "matched": true,
+        "kinds": [
+          "cpu_hotspot",
+          "insufficient_evidence"
+        ],
+        "run_id": "132",
+        "task_id": "152",
+        "analysis_sha256": "ea2703937f1c313608284060239e656564d86a7a271e34c596376957f43e34ef",
+        "report_sha256": "d2566411f9d12972ef02f8e2054d5a402de7c9217f333290db09b8c1f8390152",
+        "semantic_root_cause_verified": false,
+        "fact_values_revalidated": false
+      },
+      "after_direction": {
+        "observed": true,
+        "matched": true,
+        "kinds": [
+          "cpu_hotspot",
+          "insufficient_evidence"
+        ],
+        "run_id": "133",
+        "task_id": "153",
+        "analysis_sha256": "fc8b05c9f272921e44ea295f0dcbac53146c24217d743abc65856387a87427ec",
+        "report_sha256": "dc4f11cab0b87bc0a3d1caa5208b1ff6a7c9d26de3368ba2493ef86ffde9f151",
+        "semantic_root_cause_verified": false,
+        "fact_values_revalidated": false
+      }
+    },
+    {
+      "case_id": "c03",
+      "replicate": 1,
+      "controlled_effect": {
+        "passed": true,
+        "checks": {
+          "all_windows_measured": true,
+          "normal_controls_have_no_measured_errors": true,
+          "same_target_and_environment": true,
+          "phase_order": true,
+          "bounded_load_completed_and_stopped": true,
+          "fault_recovery_window_separated": true,
+          "actual_gateway_deadline": true,
+          "actual_downstream_work": true,
+          "gateway_timeout_waited_for_correlated_downstream": true,
+          "real_same_parameter_collection_pair": true
+        },
+        "measurements": {
+          "normal_before": {
+            "p95_ms": 1.697974,
+            "error_rate": 0.0,
+            "response_count": 3,
+            "http_504_rate": 0.0
+          },
+          "fault": {
+            "p95_ms": 53.482395,
+            "error_rate": 1.0,
+            "response_count": 16,
+            "http_504_rate": 1.0
+          },
+          "normal_after": {
+            "p95_ms": 3.892304,
+            "error_rate": 0.0,
+            "response_count": 1703,
+            "http_504_rate": 0.0
+          }
+        },
+        "causal_scope": "combined_twelve_sqlite_aggregations_and_50ms_gateway_deadline",
+        "arbitrary_root_cause_accuracy": false
+      },
+      "fault_direction": {
+        "observed": true,
+        "matched": false,
+        "kinds": [
+          "cpu_hotspot",
+          "insufficient_evidence"
+        ],
+        "run_id": "134",
+        "task_id": "154",
+        "analysis_sha256": "4430fd7a7c8590a78450f644d494a4969bedd461485017dec193af719defaa69",
+        "report_sha256": "16b41e86b8f262419a6539fffcdb54c104e7d93a40f39db9eeee4456707afc5c",
+        "semantic_root_cause_verified": false,
+        "fact_values_revalidated": false
+      },
+      "after_direction": {
+        "observed": true,
+        "matched": true,
+        "kinds": [
+          "cpu_hotspot",
+          "lock_io",
+          "insufficient_evidence"
+        ],
+        "run_id": "135",
+        "task_id": "155",
+        "analysis_sha256": "cf3e5767551bda9ee75c4e49658ef7d7ea0dd330f199fa5fdff4027b46223e90",
+        "report_sha256": "381b7f74c4c89a48439ccd9ed989259c587ffc50457c7d7cf450a77e893b88b2",
+        "semantic_root_cause_verified": false,
+        "fact_values_revalidated": false
+      }
+    },
+    {
+      "case_id": "c02",
+      "replicate": 1,
+      "controlled_effect": {
+        "passed": true,
+        "checks": {
+          "all_windows_measured": true,
+          "normal_controls_have_no_measured_errors": true,
+          "same_target_and_environment": true,
+          "phase_order": true,
+          "bounded_load_completed_and_stopped": true,
+          "fault_recovery_window_separated": true,
+          "latency_changes_and_recovers": true,
+          "actual_fixed_sql_path": true,
+          "real_same_parameter_collection_pair": true
+        },
+        "measurements": {
+          "normal_before": {
+            "p95_ms": 1.513626,
+            "error_rate": 0.0,
+            "response_count": 3,
+            "http_504_rate": 0.0
+          },
+          "fault": {
+            "p95_ms": 1226.942344,
+            "error_rate": 0.0,
+            "response_count": 33,
+            "http_504_rate": 0.0
+          },
+          "normal_after": {
+            "p95_ms": 4.028972,
+            "error_rate": 0.0,
+            "response_count": 1815,
+            "http_504_rate": 0.0
+          }
+        },
+        "causal_scope": "four_fixed_sqlite_cross_join_aggregations_instead_of_primary_key_lookup",
+        "arbitrary_root_cause_accuracy": false
+      },
+      "fault_direction": {
+        "observed": true,
+        "matched": false,
+        "kinds": [
+          "cpu_hotspot",
+          "insufficient_evidence"
+        ],
+        "run_id": "136",
+        "task_id": "156",
+        "analysis_sha256": "0ef62e8f068ab9e22614aaf325048f1a5943c08f47b6f517e07980f9b34ef714",
+        "report_sha256": "ec50d78fbd3a25fe18d24b45b05f6881deda5b8327e8f58d9fa7efc43c8d2c01",
+        "semantic_root_cause_verified": false,
+        "fact_values_revalidated": false
+      },
+      "after_direction": {
+        "observed": true,
+        "matched": true,
+        "kinds": [
+          "lock_io",
+          "insufficient_evidence"
+        ],
+        "run_id": "137",
+        "task_id": "157",
+        "analysis_sha256": "4d4feff6c5740f94969d8a8b5b560d1099c98190aff19d293482ea859a6b9673",
+        "report_sha256": "fee5aab30f2260697163ddf3832909ea6e23debedd4fcad5ac81966cf5a91ec9",
+        "semantic_root_cause_verified": false,
+        "fact_values_revalidated": false
+      }
+    },
+    {
+      "case_id": "c01",
+      "replicate": 1,
+      "controlled_effect": {
+        "passed": true,
+        "checks": {
+          "all_windows_measured": true,
+          "normal_controls_have_no_measured_errors": true,
+          "same_target_and_environment": true,
+          "phase_order": true,
+          "bounded_load_completed_and_stopped": true,
+          "fault_recovery_window_separated": true,
+          "latency_changes_and_recovers": true,
+          "actual_cpu_sample_changes_and_recovers": true,
+          "real_same_parameter_collection_pair": true
+        },
+        "measurements": {
+          "normal_before": {
+            "p95_ms": 2.198116,
+            "error_rate": 0.0,
+            "response_count": 3,
+            "http_504_rate": 0.0
+          },
+          "fault": {
+            "p95_ms": 240.473213,
+            "error_rate": 0.0,
+            "response_count": 153,
+            "http_504_rate": 0.0
+          },
+          "normal_after": {
+            "p95_ms": 3.944012,
+            "error_rate": 0.0,
+            "response_count": 1706,
+            "http_504_rate": 0.0
+          }
+        },
+        "causal_scope": "fixed_python_cpu_loop_request_path",
+        "arbitrary_root_cause_accuracy": false
+      },
+      "fault_direction": {
+        "observed": true,
+        "matched": true,
+        "kinds": [
+          "cpu_hotspot",
+          "insufficient_evidence"
+        ],
+        "run_id": "138",
+        "task_id": "158",
+        "analysis_sha256": "910c97d1f2d2a59de917950d92d03cdde53d1451a70ae2b66061fcf2559320c1",
+        "report_sha256": "796a41c1c406168fe6b37cbd88bd8d8e65851efef4a3873cb1ac9f8b0d8819e9",
+        "semantic_root_cause_verified": false,
+        "fact_values_revalidated": false
+      },
+      "after_direction": {
+        "observed": true,
+        "matched": false,
+        "kinds": [
+          "cpu_hotspot",
+          "lock_io",
+          "business_latency",
+          "insufficient_evidence"
+        ],
+        "run_id": "139",
+        "task_id": "159",
+        "analysis_sha256": "5a924de44b46a17541c450af5d515a834adb2171d5277c44b7e1706e04051864",
+        "report_sha256": "eff639507c855e7ef9f797f869c3daece5e91f7fab6f0498bfed7412fd3c8f66",
+        "semantic_root_cause_verified": false,
+        "fact_values_revalidated": false
+      }
+    },
+    {
+      "case_id": "c02",
+      "replicate": 2,
+      "controlled_effect": {
+        "passed": true,
+        "checks": {
+          "all_windows_measured": true,
+          "normal_controls_have_no_measured_errors": true,
+          "same_target_and_environment": true,
+          "phase_order": true,
+          "bounded_load_completed_and_stopped": true,
+          "fault_recovery_window_separated": true,
+          "latency_changes_and_recovers": true,
+          "actual_fixed_sql_path": true,
+          "real_same_parameter_collection_pair": true
+        },
+        "measurements": {
+          "normal_before": {
+            "p95_ms": 1.811528,
+            "error_rate": 0.0,
+            "response_count": 3,
+            "http_504_rate": 0.0
+          },
+          "fault": {
+            "p95_ms": 1219.477605,
+            "error_rate": 0.0,
+            "response_count": 36,
+            "http_504_rate": 0.0
+          },
+          "normal_after": {
+            "p95_ms": 4.010628,
+            "error_rate": 0.0,
+            "response_count": 1708,
+            "http_504_rate": 0.0
+          }
+        },
+        "causal_scope": "four_fixed_sqlite_cross_join_aggregations_instead_of_primary_key_lookup",
+        "arbitrary_root_cause_accuracy": false
+      },
+      "fault_direction": {
+        "observed": true,
+        "matched": false,
+        "kinds": [
+          "cpu_hotspot",
+          "insufficient_evidence"
+        ],
+        "run_id": "140",
+        "task_id": "160",
+        "analysis_sha256": "f4905924db0275b018297ef5b77706702938f525d267e4cfb6a7b5f28e06e609",
+        "report_sha256": "e8ecfe60fa063e787933574ed819509d8c95e510f71d5702676eea372135bdca",
+        "semantic_root_cause_verified": false,
+        "fact_values_revalidated": false
+      },
+      "after_direction": {
+        "observed": true,
+        "matched": true,
+        "kinds": [
+          "cpu_hotspot",
+          "normal_load",
+          "insufficient_evidence"
+        ],
+        "run_id": "141",
+        "task_id": "161",
+        "analysis_sha256": "bf71817c630036a645b7af9e1f0cd4e7dd2fdafc724d3d75a98e3e35d5318781",
+        "report_sha256": "ddc09f6ed815ea7ca9b0a9c69ab233b54c72ae2257974598ccfde3ecf3f9d3c6",
+        "semantic_root_cause_verified": false,
+        "fact_values_revalidated": false
+      }
+    },
+    {
+      "case_id": "c03",
+      "replicate": 2,
+      "controlled_effect": {
+        "passed": true,
+        "checks": {
+          "all_windows_measured": true,
+          "normal_controls_have_no_measured_errors": true,
+          "same_target_and_environment": true,
+          "phase_order": true,
+          "bounded_load_completed_and_stopped": true,
+          "fault_recovery_window_separated": true,
+          "actual_gateway_deadline": true,
+          "actual_downstream_work": true,
+          "gateway_timeout_waited_for_correlated_downstream": true,
+          "real_same_parameter_collection_pair": true
+        },
+        "measurements": {
+          "normal_before": {
+            "p95_ms": 5.576192,
+            "error_rate": 0.0,
+            "response_count": 3,
+            "http_504_rate": 0.0
+          },
+          "fault": {
+            "p95_ms": 54.593177,
+            "error_rate": 1.0,
+            "response_count": 18,
+            "http_504_rate": 1.0
+          },
+          "normal_after": {
+            "p95_ms": 4.279586,
+            "error_rate": 0.0,
+            "response_count": 1722,
+            "http_504_rate": 0.0
+          }
+        },
+        "causal_scope": "combined_twelve_sqlite_aggregations_and_50ms_gateway_deadline",
+        "arbitrary_root_cause_accuracy": false
+      },
+      "fault_direction": {
+        "observed": true,
+        "matched": false,
+        "kinds": [
+          "cpu_hotspot",
+          "insufficient_evidence"
+        ],
+        "run_id": "142",
+        "task_id": "162",
+        "analysis_sha256": "dfea6fd96f6909213252b5aa3ab6dbbe646389e15b56da664d5b7e3583987c42",
+        "report_sha256": "50631d437bd515ec43abd1c72e70b8990afbf3185693be48e72150082d0e05c9",
+        "semantic_root_cause_verified": false,
+        "fact_values_revalidated": false
+      },
+      "after_direction": {
+        "observed": true,
+        "matched": true,
+        "kinds": [
+          "cpu_hotspot",
+          "normal_load",
+          "insufficient_evidence"
+        ],
+        "run_id": "143",
+        "task_id": "163",
+        "analysis_sha256": "dade4559dcc4dfee65385b87dcf5ff26ba878ce52c8a9203aff19b58724c237c",
+        "report_sha256": "232543e25a364dcb2791c295e8adee59fdfff4b176294280a152191bbaec2f86",
+        "semantic_root_cause_verified": false,
+        "fact_values_revalidated": false
+      }
+    }
+  ],
+  "budget": {
+    "accounted_model_calls": 39,
+    "accounted_tool_calls": 48,
+    "unknown_runs_charged_worst_case": 0,
+    "model_limit": 60,
+    "tool_limit": 80
+  },
+  "limitations": [
+    "只能证明这三条固定合成路径的受控干预效果，不代表任意业务RCA。",
+    "timeout同时改变查询强度和deadline，是组合干预，不隔离单一因素。",
+    "hypotheses.kind只表示模型支持方向，不能区分精确SQL或deadline根因。",
+    "before为独立HTTP观测；fault与after各有同参数实际采集和新诊断。",
+    "失败、超时、缺失及预算停止保留在预注册分母，不重试挑优。",
+    "v2使用同参数20秒99Hz采样和50ms最小间隔闭环请求；timeout收到504后先观察同Trace目录完成，再发下一请求。",
+    "人工评审与模型方向标签分列，未把模型文字或kind当成精确根因。",
+    "故障前后为相同固定工作负载的闭环客户端，并非固定到达率SLA压测。",
+    "环境摘要是控制器提供的冻结来源绑定，不是远端可信执行证明。"
+  ]
+}

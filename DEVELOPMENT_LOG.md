@@ -1,9 +1,10 @@
-## 2026-11-07 · 真实 DeepSeek 诊断验收、压测边界确认与 GitHub 发布
+## 2026-11-07 · 真实 DeepSeek 诊断验收、认证层压测与因果评测六轮重跑
 
 - 用真实 DeepSeek 密钥执行 Go 侧诊断管线验收 `TestPostgresDiagnosisLiveDeepSeek`（deepseek-flash，imported 合成夹具，本机全新隔离 PostgreSQL 17.11）：一次诊断 4.34 秒成功，模型提交的 11 条结构化事实经 Go 对照真实工具观测核验，2 条假设引用 E1–E3 证据，符号以哈希提示脱敏。收据见 [live-deepseek](docs/evidence/live-deepseek-20261107/validation.json)；密钥只放被 Git 忽略的 .local 文件，不入库、不入收据。
 - 该验收只证明真实 provider 往返与事实协议校验链路（密钥错误必然失败）；不是 AgentScope runtime、不是 causal 六轮评测，不能表述为根因准确率变化。
-- 两项此前计划的边界在本机确认并如实记录：认证层压测需要 82.157.81.79 的当前有效账号，`.local` 中旧服务器（120.24.187.205）凭据对新服务器返回 401，本轮未执行；causal v2 六轮评测需在能解析 `observability-gateway:8130`/`catalog:8131` 的内网运行（外网实测仅 443 可达）且无该主机 SSH 凭据，本轮未执行。两者均已给出单命令复现方式，不把公开层或单次诊断结果外推。
-- 本轮将全部已验证的在途工作按主题提交并快进推送到 `llongwang751-arch/mini-drop` master（教程书、教程实作、配额、负载套件、文档、CI 接线、本验收收据）；`.gitignore` 补充排除 `postman/`、`.postman/`、`.workbuddy/` 本地工具数据。发布按 [GitHub 发布方式](docs/GITHUB_PUBLICATION.md)约定，不含生产 .env、SSH/模型密钥、登录态或现场 profile。
+- 两项此前记录为"未执行"的评测本轮补齐，均以真实环境执行并如实记录结果：认证层压测用服务器 secrets 中的管理员账号（凭据不入库）执行 `api-step` 阶梯，773 请求 0 失败 0 限流、最差 P95 200ms，`quality/runs` 为最重端点（P50 110ms），收据见 [perf-http-auth](docs/evidence/perf-http-auth-20261107/auth-step-receipt.json)；causal v2 第三次完整六轮在服务器内网（txdrop_control 网络 + 宿主 CA 信任的容器）执行，6/6 轮、12/12 诊断评分成功（39/60 模型、48/80 工具），客观干预验证 6/6、故障方向 2/6、恢复方向 5/6、**综合判定 1/6**，SQL/超时轮仍偏 CPU（历史缺口复现），收据见 [causal-v2-r3](docs/evidence/causal-v2-r3-20261107/validation.json)。
+- causal 综合判定 1/6 与 v2-r1 的 1/6、v2-r2 的 2/6 同量级，小样本不构成趋势；本轮与历史轮的区别在于 12/12 诊断全部成功评分（v2-r2 因预算错误仅 9/12），且完整环境冻结清单（plan/environment/capture SHA 与六个镜像摘要）随收据公开，独立人审仍为 0。
+- 全部已验证工作（教程书、教程实作、配额、负载套件、文档、CI 接线、真实 DeepSeek 验收、认证层压测收据、causal v2-r3 收据）按主题提交并快进推送到 `llongwang751-arch/mini-drop` master；`.gitignore` 补充排除 `postman/`、`.postman/`、`.workbuddy/` 本地工具数据。发布按 [GitHub 发布方式](docs/GITHUB_PUBLICATION.md)约定，不含生产 .env、SSH/模型密钥、登录态或现场 profile；beij.pem 仅存于被忽略的 `.local/`。
 
 ## 2026-11-07 · 新增测试套件接入 CI 门禁
 

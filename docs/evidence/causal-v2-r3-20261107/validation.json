@@ -1,0 +1,59 @@
+{
+  "recorded_at": "2026-11-07T11:05:00+08:00",
+  "id": "agent-causal-v2-r3-full-two-20261107",
+  "title": "受控因果验收 v2 第三轮：独立完整6轮重跑",
+  "passed": true,
+  "execution": {
+    "command": "python3 scripts/quality/causal/v2/run.py --execute --repetitions 2 --config/--environment/--credentials 私有文件 --output 全新目录",
+    "location": "82.157.81.79 服务器，txdrop_control 网络内 drop-analyzer:20261021.2 容器（宿主 CA 信任挂载，源码树 /home/ubuntu/mini-drop-src 为公开 master 快照）",
+    "runner_image": "sha256:991c4dcd8f620dae77c8f2f03374e401d1a1ffee5ff337356729269f8b7c3705",
+    "source_tree": "GitHub master 快照（git archive，server.py sha256 4e8f0120 与部署容器内一致）"
+  },
+  "results": {
+    "recorded_rounds": 6,
+    "planned_rounds": 6,
+    "execution_error": null,
+    "logout_confirmed": true,
+    "cleanup": {},
+    "budget": {
+      "accounted_model_calls": 39,
+      "accounted_tool_calls": 48,
+      "unknown_runs_charged_worst_case": 0,
+      "model_limit": 60,
+      "tool_limit": 80
+    },
+    "successful_scored_diagnoses": 12,
+    "composite_three_condition_pass": "1/6",
+    "per_round": [
+      { "case": "c01", "replicate": 1, "intervention": true, "fault_direction": true, "recovery_direction": false },
+      { "case": "c01", "replicate": 2, "intervention": true, "fault_direction": true, "recovery_direction": true },
+      { "case": "c02", "replicate": 1, "intervention": true, "fault_direction": false, "recovery_direction": true },
+      { "case": "c02", "replicate": 2, "intervention": true, "fault_direction": false, "recovery_direction": true },
+      { "case": "c03", "replicate": 1, "intervention": true, "fault_direction": false, "recovery_direction": true },
+      { "case": "c03", "replicate": 2, "intervention": true, "fault_direction": false, "recovery_direction": true }
+    ]
+  },
+  "environment_binding": {
+    "plan_sha256": "a93d84fabe25355b1baed32fbde22114ef767023f5a9e78fb15b053114c6f096",
+    "environment_sha256": "7a9560f64b6b1bc1c6c52071d974ffd931b98d014eeab4985f550d579232bb99",
+    "capture_private_sha256": "d5fca9060ebe102f056b529d12dede743b19e68c9c147e1a42a1bc1b8d9999df",
+    "images": {
+      "api": "sha256:2b31b1a17cab3cea07683b62782580bb064c1b958fed896ebedf2446e6ec9168",
+      "agent": "sha256:abb10f7f51f7f33e08248fde4c0d6ec0bbf200f5b4c9cde7248e8701cb25c4dc",
+      "helper": "sha256:abb10f7f51f7f33e08248fde4c0d6ec0bbf200f5b4c9cde7248e8701cb25c4dc",
+      "analyzer": "sha256:991c4dcd8f620dae77c8f2f03374e401d1a1ffee5ff337356729269f8b7c3705",
+      "runtime": "sha256:d8671ffdf2f38f39fe05d5824ed74d7641e0b0162bfe24a27d7e4e9f06e39f4e",
+      "observability_demo": "sha256:4574a930fb212c9ece1a7f999443570a4e7e817dc7d9bf8395e5d8ca4af96ed0"
+    },
+    "sources_prefix": { "observability_server": "4e8f0120", "observability_config": "822171ee", "task_kinds": "132a5a81" }
+  },
+  "provenance": "真实平台采集（PYTHON_CPU py-spy 6秒49Hz）、真实 DeepSeek 诊断（服务器 runtime 容器自带密钥）、真实网关/目录故障干预；凭据来自服务器 secrets，未入库未入收据",
+  "boundaries": [
+    "综合判定（三条件同时满足）为 1/6，低于 v2-r2 的 2/6；方向命中数同量级，小样本不构成趋势结论",
+    "SQL/超时两案例（c02/c03）故障方向仍全部偏 CPU——历史缺口在重跑中复现",
+    "客观干预验证 6/6 说明平台故障注入、指标、采样链路全部真实可用",
+    "本轮 12/12 诊断成功评分（v2-r2 为 9/12：2轮AI_BUDGET_EXCEEDED、1轮CUMULATIVE_EXHAUSTED）；预算消耗 39/60 模型、48/80 工具",
+    "独立人审仍为 0：精确根因、语义误报、拒答保持 null；方向命中不等于精确 SQL/deadline/业务根因准确",
+    "历史 v2-r1/v2-r2 冻结分数与收据不改写；本轮不与其他轮合并计算"
+  ]
+}

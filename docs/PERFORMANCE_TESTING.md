@@ -154,8 +154,8 @@ load average、`iowait`、磁盘 IOPS、网络收发、打开的文件描述符�
   400 RPS 已经远超需求，容量不是风险；真正值得知道的是**墙在网关 CPU 配额上**，
   它是个可配置项，而不是代码结构问题。
 
-仍未测：登录后业务读路径（需要账号，会碰 PostgreSQL 的 0.5 CPU，容量只会更低）、
-SSE 长连接并发、长时间稳定性。
+仍未测：登录后业务读路径的容量阶梯（已测 20 用户交互式量级，见 6.1）、
+服务器本机发压与指标采样、SSE 长连接并发、长时间稳定性。
 
 ## 6. 认证层怎么跑
 
@@ -171,7 +171,39 @@ python scripts/quality/loadtest/run.py --host https://82.157.81.79 \
 
 要拿到服务端 CPU 与 PostgreSQL 指标，需要在 82.157.81.79 本机发压
 （`--host http://127.0.0.1:18080` 或反向代理内的服务名），同时采 `docker stats`、
-`cgroup cpu.stat` 与 `pg_stat_activity`。本机没有该主机的 SSH 凭据，这一步未执行。
+`cgroup cpu.stat` 与 `pg_stat_activity`。SSH 凭据已于 2026-11-07 具备，但本轮认证层
+仍在工作站侧发压（与公开层同源、可对比），服务器本机发压与指标采样仍未执行。
+
+### 6.1 认证层实测（2026-11-07）
+
+使用管理员账号（来自服务器 secrets，凭据不入库）执行同一 `api-step` 阶梯
+（2→5→10→20 虚拟用户，20/30/30/30 秒，4 个预登录会话轮转复用，只读接口）：
+
+| 路径 | P50 | P95 | P99 | 最慢 |
+| --- | --- | --- | --- | --- |
+| `GET /api/v1/overview` | 52ms | 160ms | 230ms | 231ms |
+| `GET /api/v1/tasks` | 48ms | 90ms | 180ms | 227ms |
+| `GET /api/v1/tasks/:id` | 54ms | 110ms | 210ms | 211ms |
+| `GET /api/v1/tasks/:id/events` | 49ms | 69ms | 87ms | 87ms |
+| `GET /api/v1/tasks/:id/result` | 49ms | 56ms | 93ms | 93ms |
+| `GET /api/v1/quality/runs` | **110ms** | **200ms** | 220ms | 219ms |
+| `GET /api/v1/agents` | 47ms | 68ms | 260ms | 256ms |
+| 其余（auth/me、schedules、providers、401 路径等） | 45–47ms | 60–150ms | 60–240ms | ≤244ms |
+
+合计 773 请求、6.98 RPS、**0 失败、0 个 5xx、0 次限流**，最差端点 P95 200ms、P99 260ms，
+四项门槛（无 5xx、失败率 ≤1%、P95 ≤800ms、P99 ≤2000ms）全部通过。收据
+[auth-step](evidence/perf-http-auth-20261107/auth-step-receipt.json)、[负载模型](evidence/perf-http-auth-20261107/auth-step-meta.json)。
+
+怎么读：
+
+- 登录后读接口 P50（45–54ms）与公开层同级——认证中间件加 PostgreSQL 单查询的开销
+  在 20 并发下仍小于测量分辨率（公网 RTT 主导）。
+- `quality/runs` 是唯一 P50 过百的端点（110ms/20 用户）：它按 SHA 逐条读回 14 条质量摘要，
+  是明确的 PostgreSQL 重查询端点，也是后续加压时最先值得单独看的一个。
+- 结论仍只覆盖"20 个带思考时间的虚拟用户"量级；登录后路径没有做 25/50/100 用户容量阶梯，
+  不能把公开层的 400 RPS 结论外推到认证层——它碰 PostgreSQL（`cpus: 0.5`），墙只会更低。
+- 服务器本机采样（`docker stats`、`nr_throttled`、`pg_stat_activity`）仍未执行，
+  延迟不能归因到具体容器配额。
 
 认证链路的**工具**本身已用本机 mock 端到端验证过（换 2 个会话、轮转复用、读 9 类接口、
 `409 RESULT_NOT_READY` 按契约计为通过、收据正常合成），所以缺的只是账号和服务器指标，

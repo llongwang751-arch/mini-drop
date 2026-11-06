@@ -1,13 +1,13 @@
 # 全量交付与验收矩阵
 
-## 真实模型验收与发布（2026-11-07，本地验收 + GitHub 发布）
+## 真实模型验收与发布（2026-11-07，本地/服务器验收 + GitHub 发布）
 
 | 范围 | 本次内容与实际检查 | 边界 |
 | --- | --- | --- |
 | DeepSeek 诊断验收 | `TestPostgresDiagnosisLiveDeepSeek` 真实往返：deepseek-flash 一次诊断 4.34 秒成功，11 条事实经 Go 核验、2 假设引用 E1–E3；本机全新隔离 PG 17.11；[收据](evidence/live-deepseek-20261107/validation.json) | 单条合成夹具诊断，不是 AgentScope runtime 或 causal 六轮，不代表根因准确率；usage 未记录、费用 null |
-| 认证层压测 | 未执行：`.local` 旧服务器（120.24.187.205）凭据对新服务器 401 | 仍缺 82.157.81.79 当前有效测试账号；公开层结果不外推认证层 |
-| causal v2 六轮 | 未执行：外网实测 8130/8131 不可达（仅 443），无该主机 SSH 凭据 | 需在能解析内网 hostname 的环境运行并取得当前环境冻结清单；旧 2/6 分数保持不变 |
-| GitHub 发布 | 全部已验证在途工作按主题提交并快进推送 master；`.gitignore` 排除 postman/`.postman`/`.workbuddy` 本地工具数据 | 不含生产 .env、SSH/模型密钥、登录态或现场 profile；远端 CI 状态以 Actions 为准 |
+| 认证层压测 | `api-step` 阶梯（2→5→10→20 用户、4 会话轮转、只读）：773 请求、0 失败、0 5xx、0 限流，最差 P95 200ms/P99 260ms；`quality/runs` 为最重端点（P50 110ms）；[收据](evidence/perf-http-auth-20261107/auth-step-receipt.json) | 20 用户交互式量级，未做认证层容量阶梯；服务器本机采样仍缺，延迟不归因到容器配额 |
+| causal v2 六轮（r3） | 服务器内网真实执行：6/6 轮、12/12 诊断评分成功（39/60 模型、48/80 工具）、客观干预验证 6/6；故障方向 2/6、恢复方向 5/6、**综合判定 1/6**；[评分](evidence/causal-v2-r3-20261107/score.json)、[收据](evidence/causal-v2-r3-20261107/validation.json) | SQL/超时轮仍偏 CPU（历史缺口复现）；综合 1/6 低于 v2-r2 的 2/6，小样本不构成趋势；独立人审仍为 0，语义指标 null |
+| GitHub 发布 | 全部已验证工作按主题提交并快进推送 master；`.gitignore` 排除 postman/`.postman`/`.workbuddy` 本地工具数据 | 不含生产 .env、SSH/模型密钥、登录态或现场 profile；远端 CI 状态以 Actions 为准 |
 
 ## 新增测试套件接入 CI（2026-11-07，仅 CI 与文档）
 
