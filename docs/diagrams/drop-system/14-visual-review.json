@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-10-24",
+  "id": "14-platform-observability",
+  "diagram_type": "architecture",
+  "evidence_kind": "image-capable-review",
+  "reviewer": "Codex subagent diagram_states",
+  "specification": {
+    "path": "14-platform-observability.json",
+    "sha256": "c93961d29d176aefc923d1d30e6c50d7895edbcd7ef8ea675393e7873ceaa79e",
+    "bytes": 4409
+  },
+  "artifact": {
+    "path": "14-platform-observability.html",
+    "sha256": "65095b19a43ce2943bdb633b9c71e82e9ec7ab68cbc00e05201919f10a038b3a",
+    "bytes": 809051
+  },
+  "validation": {
+    "checksPassed": 9,
+    "checkCount": 9,
+    "compositionProfile": "showcase",
+    "compositionStatus": "pass",
+    "errors": 0,
+    "warnings": 0
+  },
+  "browser_evidence": {
+    "status": "passed",
+    "receipt": "14-platform-observability.visual-check.json",
+    "artifact_sha256": "65095b19a43ce2943bdb633b9c71e82e9ec7ab68cbc00e05201919f10a038b3a",
+    "viewports": [
+      {
+        "width": 1440,
+        "height": 900,
+        "theme": "light",
+        "scrollWidth": 1440,
+        "scrollHeight": 900,
+        "ok": true
+      },
+      {
+        "width": 1600,
+        "height": 1000,
+        "theme": "light",
+        "scrollWidth": 1600,
+        "scrollHeight": 1000,
+        "ok": true
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "theme": "light",
+        "scrollWidth": 1920,
+        "scrollHeight": 1080,
+        "ok": true
+      },
+      {
+        "width": 2048,
+        "height": 1320,
+        "theme": "light",
+        "scrollWidth": 2048,
+        "scrollHeight": 1320,
+        "ok": true
+      }
+    ]
+  },
+  "visual_review": "passed",
+  "correction_rounds": 0,
+  "method": "逐张通过 view_image 检查工具原始 PNG；没有改写交付 HTML 或截取截图来掩盖溢出。",
+  "screenshots": [
+    {
+      "path": "14-platform-observability.visual-check.1440x900.light.png",
+      "sha256": "a7002e55f46ea9a3dc4c274966550906b96a6ff1f05a35d33863e7e258ac7f30",
+      "bytes": 129030,
+      "actually_inspected": true
+    },
+    {
+      "path": "14-platform-observability.visual-check.1440x900.dark.png",
+      "sha256": "8a3f56a31b97c69a2d687d13384f5efbe3284164f63ad97d31413122bdf51ed8",
+      "bytes": 130069,
+      "actually_inspected": true
+    },
+    {
+      "path": "14-platform-observability.visual-check.2048x1320.light.png",
+      "sha256": "f58220a4a3a3b672077ae138dea473b92aaf248ebb6144e53e7808065d1dd00a",
+      "bytes": 169121,
+      "actually_inspected": true
+    },
+    {
+      "path": "14-platform-observability.visual-check.2048x1320.dark.png",
+      "sha256": "8bad602d0a5d01f603f73e59730702aeb219146bff9b199b8b38f331f0be38ca",
+      "bytes": 170371,
+      "actually_inspected": true
+    }
+  ],
+  "observations": [
+    "两层边界分别写明被监控平台与可选 compose.observability.yml；七个节点完整显示。",
+    "OTLP HTTP 到 Collector/Tempo 的上报、Prometheus 主动 GET /metrics、Grafana 的两类查询方向清楚，箭头未穿过无关节点。",
+    "Maintenance 的指标抓取线与带授权 POST /alerts 的告警线分离，标签没有盖住另一条线。",
+    "浅深主题下边界、节点、正文和两张结论卡可辨；1440 首屏无裁切，2048 大屏主体与卡片占用均衡。",
+    "结论卡明确区分 health、节点心跳、真实采集成功，并说明 trace_id 不单独证明业务根因。"
+  ],
+  "limitations": [
+    "本记录验证默认 READ/Still 截图与自动收据，不另行声明点击、搜索、导出交互或真实监控部署已验收。"
+  ]
+}

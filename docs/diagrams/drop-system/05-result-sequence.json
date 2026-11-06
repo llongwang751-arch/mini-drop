@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "结果怎样变成你看到的火焰图",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "viewBox": [
+      1080,
+      580
+    ]
+  },
+  "participants": [
+    {
+      "id": "react",
+      "type": "frontend",
+      "label": "React 页面",
+      "sublabel": "任务详情与交互"
+    },
+    {
+      "id": "go",
+      "type": "backend",
+      "label": "Go API",
+      "sublabel": "授权查询与事件流"
+    },
+    {
+      "id": "pg",
+      "type": "database",
+      "label": "PostgreSQL",
+      "sublabel": "状态与结果索引"
+    },
+    {
+      "id": "profile",
+      "type": "frontend",
+      "label": "Profile Worker",
+      "sublabel": "下载、解压与校验"
+    },
+    {
+      "id": "objects",
+      "type": "cloud",
+      "label": "对象代理 / 存储",
+      "sublabel": "Nginx → MinIO"
+    },
+    {
+      "id": "layout",
+      "type": "frontend",
+      "label": "Layout Worker",
+      "sublabel": "计算图形位置"
+    }
+  ],
+  "messages": [
+    {
+      "id": "detail",
+      "from": "react",
+      "to": "go",
+      "y": 160,
+      "label": "GET /api/v1/tasks/:id",
+      "variant": "emphasis",
+      "note": "当前登录会话；返回任务、attempts、文件索引、事件等。成功分析后另取 /result 的摘要、Top函数、规则建议和内联树。"
+    },
+    {
+      "id": "state",
+      "from": "go",
+      "to": "pg",
+      "y": 188,
+      "label": "权限核验后读取当前状态与结果",
+      "note": "Go读PG，不让浏览器直连数据库。完整树制品仅从最新COLLECTED轮次、analysis=SUCCESS、ready且可下载的RESULT中选。"
+    },
+    {
+      "id": "details",
+      "from": "go",
+      "to": "react",
+      "y": 216,
+      "label": "JSON · 状态、结果摘要、制品身份",
+      "variant": "return",
+      "note": "ID保持十进制字符串；完整树缓存绑定 task + attempt_id + artifact_id + sha256 元数据，避免同名旧轮次混入。这个缓存身份绑定不等于复算文件SHA。"
+    },
+    {
+      "id": "sse",
+      "from": "react",
+      "to": "go",
+      "y": 244,
+      "label": "GET /events/stream · Last-Event-ID",
+      "note": "完整路径 /api/v1/tasks/:id/events/stream；fetch携带同源会话，断线后按指数退避、携已提交游标重连。Go每秒从PG查游标之后事件，每15秒心跳，并持续重验权限。"
+    },
+    {
+      "id": "event",
+      "from": "go",
+      "to": "react",
+      "y": 272,
+      "label": "SSE：id + task_status + data JSON",
+      "variant": "dashed",
+      "note": "空行封口后才推进游标，忽略重复ID；半帧断线不丢事件。事件仅触发详情缓存失效，实际状态再通过REST重读。非终态时保留5秒基础轮询兜底，完成后停止。"
+    },
+    {
+      "id": "load",
+      "from": "react",
+      "to": "profile",
+      "y": 300,
+      "label": "op:artifact · 任务/制品ID与登记大小",
+      "variant": "emphasis",
+      "note": "页面只传身份与expectedSize，由专用Worker在当前会话重新获取下载授权；路由退出、超时或取消会终止Worker。/result的JSON解析也在Profile Worker执行。"
+    },
+    {
+      "id": "downloadgrant",
+      "from": "profile",
+      "to": "go",
+      "y": 328,
+      "label": "GET 制品 /download · 会话授权",
+      "variant": "security",
+      "note": "/api/v1/tasks/:id/artifacts/:artifact_id/download；Go核任务权限、归属、ready、download_allowed与保留期，签发最多5分钟下载URL并审计。"
+    },
+    {
+      "id": "url",
+      "from": "go",
+      "to": "profile",
+      "y": 356,
+      "label": "同源 /objects/ URL + expires_at",
+      "variant": "return",
+      "note": "Worker只接受同源 /objects/、无用户名密码/片段/反斜杠的短期地址；URL仅临时使用，不进入错误详情或日志。签名过期最多刷新一次。"
+    },
+    {
+      "id": "download",
+      "from": "profile",
+      "to": "objects",
+      "y": 384,
+      "label": "GET · omit Cookie · 禁重定向",
+      "note": "前端Nginx只读代理剥除Cookie/Authorization并保留签名Host，经存储网关到MinIO；identity响应编码被签名，防止HTTP提前解压。"
+    },
+    {
+      "id": "gzip",
+      "from": "objects",
+      "to": "profile",
+      "y": 412,
+      "label": "flamegraph.json.gz · 原始压缩字节",
+      "variant": "return",
+      "note": "总期限30秒；压缩最多16MiB，实际长度必须等于登记大小；gzip魔数、解压最多32MiB、严格UTF-8、JSON、树权重/节点/深度均核验。当前浏览器未复算SHA-256。"
+    },
+    {
+      "id": "tree",
+      "from": "profile",
+      "to": "react",
+      "y": 440,
+      "label": "通过校验的完整调用树",
+      "variant": "return",
+      "note": "结构：name / value / self / children。失败仅返回受控错误码和request_id；不回传签名URL、对象错误正文或RAW。"
+    },
+    {
+      "id": "layoutinput",
+      "from": "react",
+      "to": "layout",
+      "y": 468,
+      "label": "root + 筛选/排序/线程视图选项",
+      "variant": "emphasis",
+      "note": "另一个 flame.worker.ts 使用d3 hierarchy/partition，以self累加inclusive总权重并计算矩形；切换输入会终止旧Worker，防迟到布局覆盖。"
+    },
+    {
+      "id": "rects",
+      "from": "layout",
+      "to": "react",
+      "y": 496,
+      "label": "矩形 rects + 深度 rows + 总权重",
+      "variant": "return",
+      "note": "React只绘制可见深度的SVG；细帧可暂不绘制，但仍留在完整布局中用于搜索和键盘定位。点击聚焦、搜索和缩放只改变视图，不重新采集。"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "SSE 是通知",
+      "items": [
+        "事件只触发重读；关闭页面不会取消采集。"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "两个 Worker 各做一件事",
+      "items": [
+        "Profile下载和校验；Layout计算矩形位置。"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "如实说明完整性边界",
+      "items": [
+        "浏览器校验大小/结构；RAW的SHA由Analyzer复核。"
+      ]
+    }
+  ]
+}

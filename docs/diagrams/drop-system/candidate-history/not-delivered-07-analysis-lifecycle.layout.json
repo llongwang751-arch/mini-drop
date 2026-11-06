@@ -1,0 +1,278 @@
+{
+  "contract": "readable-v2",
+  "viewBox": [
+    768,
+    528
+  ],
+  "requiredViewBox": [
+    768,
+    528
+  ],
+  "columns": [
+    94,
+    214,
+    334,
+    454,
+    574,
+    694
+  ],
+  "nodes": [
+    {
+      "id": "pending",
+      "lane": "main",
+      "col": 0,
+      "x": 48,
+      "y": 93,
+      "width": 92,
+      "height": 52
+    },
+    {
+      "id": "running",
+      "lane": "main",
+      "col": 2,
+      "x": 288,
+      "y": 93,
+      "width": 92,
+      "height": 52
+    },
+    {
+      "id": "success",
+      "lane": "main",
+      "col": 4,
+      "x": 528,
+      "y": 93,
+      "width": 92,
+      "height": 52
+    },
+    {
+      "id": "retry",
+      "lane": "retrying",
+      "col": 2,
+      "x": 288,
+      "y": 217,
+      "width": 92,
+      "height": 52
+    },
+    {
+      "id": "canceled",
+      "lane": "terminal",
+      "col": 0,
+      "x": 48,
+      "y": 341,
+      "width": 92,
+      "height": 52
+    },
+    {
+      "id": "failed",
+      "lane": "terminal",
+      "col": 4,
+      "x": 528,
+      "y": 341,
+      "width": 92,
+      "height": 52
+    }
+  ],
+  "edges": [
+    {
+      "id": "cancel-analysis",
+      "from": "pending",
+      "to": "canceled",
+      "points": [
+        [
+          48,
+          119
+        ],
+        [
+          32,
+          119
+        ],
+        [
+          32,
+          228
+        ],
+        [
+          156,
+          228
+        ],
+        [
+          156,
+          367
+        ],
+        [
+          140,
+          367
+        ]
+      ]
+    },
+    {
+      "id": "claim-pending",
+      "from": "pending",
+      "to": "running",
+      "points": [
+        [
+          140,
+          119
+        ],
+        [
+          288,
+          119
+        ]
+      ]
+    },
+    {
+      "id": "claim-retry",
+      "from": "retry",
+      "to": "running",
+      "points": [
+        [
+          380,
+          243
+        ],
+        [
+          396,
+          243
+        ],
+        [
+          396,
+          166
+        ],
+        [
+          334,
+          166
+        ],
+        [
+          334,
+          145
+        ]
+      ]
+    },
+    {
+      "id": "fatal-or-exhausted",
+      "from": "running",
+      "to": "failed",
+      "points": [
+        [
+          380,
+          119
+        ],
+        [
+          477,
+          119
+        ],
+        [
+          477,
+          325
+        ],
+        [
+          574,
+          325
+        ],
+        [
+          574,
+          341
+        ]
+      ]
+    },
+    {
+      "id": "publish-success",
+      "from": "running",
+      "to": "success",
+      "points": [
+        [
+          334,
+          93
+        ],
+        [
+          334,
+          77
+        ],
+        [
+          574,
+          77
+        ],
+        [
+          574,
+          93
+        ]
+      ]
+    },
+    {
+      "id": "transient-error",
+      "from": "running",
+      "to": "retry",
+      "points": [
+        [
+          288,
+          119
+        ],
+        [
+          272,
+          119
+        ],
+        [
+          272,
+          296
+        ],
+        [
+          334,
+          296
+        ],
+        [
+          334,
+          269
+        ]
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "edge": "cancel-analysis",
+      "label": "取消未完成任务",
+      "x": 94,
+      "y": 218,
+      "width": 77.2,
+      "height": 14
+    },
+    {
+      "edge": "claim-pending",
+      "label": "claim：分析轮次 +1",
+      "x": 214,
+      "y": 109,
+      "width": 96.39999999999999,
+      "height": 14
+    },
+    {
+      "edge": "claim-retry",
+      "label": "到时重新 claim",
+      "x": 365,
+      "y": 156,
+      "width": 77.2,
+      "height": 14
+    },
+    {
+      "edge": "fatal-or-exhausted",
+      "label": "不可重试或预算耗尽",
+      "x": 428.5,
+      "y": 109,
+      "width": 96.39999999999999,
+      "height": 14
+    },
+    {
+      "edge": "publish-success",
+      "label": "原子提交完整结果",
+      "x": 454,
+      "y": 67,
+      "width": 86.8,
+      "height": 14
+    },
+    {
+      "edge": "transient-error",
+      "label": "可重试错误；退避",
+      "x": 303,
+      "y": 286,
+      "width": 86.8,
+      "height": 14
+    }
+  ],
+  "diagnostics": []
+}

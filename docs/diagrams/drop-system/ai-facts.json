@@ -1,0 +1,392 @@
+{
+  "schema_version": 1,
+  "scope": "Current repository facts for diagrams 08/09/10; read-only inspection, no production/model/collector invocation.",
+  "authored_date": "2026-10-24",
+  "diagrams": [
+    {
+      "name": "08-ai-tool-sequence",
+      "type": "sequence",
+      "status": "delivered-showcase"
+    },
+    {
+      "name": "09-investigation-sequence",
+      "type": "sequence",
+      "status": "delivered-showcase"
+    },
+    {
+      "name": "10-repair-workflow",
+      "type": "workflow-v2",
+      "status": "delivered-showcase"
+    }
+  ],
+  "facts": [
+    {
+      "id": "ai-backend-selection",
+      "statement": "Source default AI_AGENT_BACKEND is legacy (Go internal bounded model loop). Only explicitly configured agentscope backend invokes the independent Python AgentScope runtime; diagrams 08 and expanded AI lane in 09 describe that configurable branch, not inferred live deployment.",
+      "sources": [
+        {
+          "path": "api/internal/config/config.go",
+          "line": 58
+        }
+      ]
+    },
+    {
+      "id": "ai-transport",
+      "statement": "Go calls independent Python AgentScope with HTTP/1.1 over private runner Unix socket POST /v1/run. Runner callbacks use separate Go Unix socket POST /v1/callback/{run_id}. Go orchestration and tool gateway are roles within the same Go process, not two independently deployed services.",
+      "sources": [
+        {
+          "path": "contracts/agent-runtime-v1.json",
+          "line": 4
+        },
+        {
+          "path": "api/internal/service/agent_runtime.go",
+          "line": 141
+        },
+        {
+          "path": "api/internal/service/agent_runtime.go",
+          "line": 620
+        },
+        {
+          "path": "agent_runtime/drop_agent_runtime/wire.py",
+          "line": 239
+        }
+      ]
+    },
+    {
+      "id": "ai-auth",
+      "statement": "Both sides verify real process UID using SO_PEERCRED. Public run_id differs from per-run random >=192-bit capability. Capability stays in control connection/memory, is not model-visible, and is revoked on cancellation/completion. Socket dirs have separate owners 10001/10002, group10003 mode2750 and consumer read-only mounts.",
+      "sources": [
+        {
+          "path": "contracts/agent-runtime-v1.json",
+          "line": 5
+        },
+        {
+          "path": "api/internal/service/agent_runtime.go",
+          "line": 215
+        },
+        {
+          "path": "agent_runtime/drop_agent_runtime/wire.py",
+          "line": 147
+        },
+        {
+          "path": "docs/CONTRACT.md",
+          "line": 168
+        }
+      ]
+    },
+    {
+      "id": "ai-payload",
+      "statement": "Run request contains phase/model/system_prompt/messages/tools/budget and optional checkpoint. Ordinary diagnosis sends user problem plus redacted summary and pseudonymized bounded tool observations. Runner uses server-side configured HTTPS model endpoint/key; no RAW profile, storage URLs, cookies, or tool/executor credentials are model observations. Explicit source repair consent separately permits enrolled source excerpts.",
+      "sources": [
+        {
+          "path": "contracts/agent-runtime-v1.json",
+          "line": 15
+        },
+        {
+          "path": "api/internal/service/diagnosis_agentscope.go",
+          "line": 25
+        },
+        {
+          "path": "api/internal/service/diagnosis_tools.go",
+          "line": 126
+        },
+        {
+          "path": "api/internal/service/diagnosis_tools.go",
+          "line": 183
+        },
+        {
+          "path": "api/internal/service/diagnosis_tools.go",
+          "line": 388
+        },
+        {
+          "path": "docs/CONTRACT.md",
+          "line": 156
+        }
+      ]
+    },
+    {
+      "id": "ai-budget-validation",
+      "statement": "Before each actual provider attempt Go reserves a model round. Tool callback carries type/round/call_id/name/arguments; Go independently validates name/schema/authorization/source/current attempt/lease/budget. Finish validates required hotspot/quality/comparison tools and exact evidence reference/path/value/unit; hypotheses remain bounded interpretations. Go-accepted result, rather than arbitrary model body, is returned and committed.",
+      "sources": [
+        {
+          "path": "api/internal/service/agent_runtime.go",
+          "line": 303
+        },
+        {
+          "path": "api/internal/service/diagnosis_agentscope.go",
+          "line": 42
+        },
+        {
+          "path": "api/internal/service/diagnosis_facts.go",
+          "line": 66
+        },
+        {
+          "path": "api/internal/service/diagnosis_facts.go",
+          "line": 575
+        },
+        {
+          "path": "api/internal/service/diagnosis_facts.go",
+          "line": 1012
+        }
+      ]
+    },
+    {
+      "id": "ai-checkpoint",
+      "statement": "PostgreSQL holds only bounded visible checkpoints, counters, accepted JSON and tool receipts, not hidden chain of thought or capability. Pending receipt is committed before action; exact completed call replays can reuse response. Ambiguous pending tool state fails recovery rather than blindly repeating unknown external effects. New sessions retain cumulative budgets.",
+      "sources": [
+        {
+          "path": "contracts/agent-runtime-v1.json",
+          "line": 182
+        },
+        {
+          "path": "docs/CONTRACT.md",
+          "line": 253
+        },
+        {
+          "path": "docs/CONTRACT.md",
+          "line": 264
+        }
+      ]
+    },
+    {
+      "id": "investigation-quota",
+      "statement": "Each account can keep 10 nonterminal investigations, including awaiting confirmation. Same key/same canonical input replays existing record; success/failed/canceled release capacity. Source limit is current 10, independent diagnosis and repair quotas were not raised.",
+      "sources": [
+        {
+          "path": "api/internal/service/investigation.go",
+          "line": 22
+        },
+        {
+          "path": "api/internal/service/investigation.go",
+          "line": 162
+        },
+        {
+          "path": "docs/CONTRACT.md",
+          "line": 147
+        },
+        {
+          "path": "docs/DELIVERY_MATRIX.md",
+          "line": 3
+        }
+      ]
+    },
+    {
+      "id": "investigation-plan",
+      "statement": "POST /investigations binds goal, authorized agent/target identity, consent, idempotency and optional code/telemetry binding. Planner lists actual collectors and proposes valid kind/duration/frequency/options/rationale. Planning does not collect. User POST /confirm permits original collection and at most one automatic verification, each <=60 seconds. Missing required collector-specific configuration may stop at manual_configuration_required.",
+      "sources": [
+        {
+          "path": "api/internal/service/investigation.go",
+          "line": 25
+        },
+        {
+          "path": "api/internal/service/investigation.go",
+          "line": 504
+        },
+        {
+          "path": "api/internal/service/investigation.go",
+          "line": 739
+        },
+        {
+          "path": "docs/CONTRACT.md",
+          "line": 147
+        }
+      ]
+    },
+    {
+      "id": "investigation-comparison",
+      "statement": "Original collection/analysis success triggers diagnosis; viable plan triggers fresh verification task, analysis and re-diagnosis. Comparison checks kind/agent/full target identity/source/unit. Top self percentage changes are observations, not business latency or causal proof; repeated sampling root_cause_status remains not_tested.",
+      "sources": [
+        {
+          "path": "api/internal/service/investigation.go",
+          "line": 705
+        },
+        {
+          "path": "api/internal/service/investigation.go",
+          "line": 745
+        },
+        {
+          "path": "api/internal/service/diagnosis_verify.go",
+          "line": 56
+        },
+        {
+          "path": "api/internal/service/diagnosis_verify.go",
+          "line": 80
+        }
+      ]
+    },
+    {
+      "id": "investigation-followups",
+      "statement": "propose_followup_collection returns only a proposed plan and requires_confirmation=true. At most two follow-up branch records per root investigation; each decision requires human confirmation, quota/authorization/source checks and audit. Accepted branches create independent collection and diagnosis records; not unconditional automatic supplement collection.",
+      "sources": [
+        {
+          "path": "api/internal/service/investigation_followups.go",
+          "line": 113
+        },
+        {
+          "path": "api/internal/service/investigation_followups.go",
+          "line": 142
+        },
+        {
+          "path": "api/internal/service/investigation_followups.go",
+          "line": 167
+        },
+        {
+          "path": "api/internal/service/investigation_followups.go",
+          "line": 203
+        },
+        {
+          "path": "api/internal/service/investigation_followup_worker.go",
+          "line": 24
+        },
+        {
+          "path": "api/internal/service/investigation_followup_worker.go",
+          "line": 180
+        }
+      ]
+    },
+    {
+      "id": "repair-binding",
+      "statement": "Source repair is admin-only and needs explicit consent. Enrolled manifest fixes project revision, readable/editable/frozen files, language/preset/commands/image ID. Linked live investigation additionally matches agent/PID/UID/start_time_ticks/source revision. Standalone enrolled projects without runtime binding cannot pretend to match a live target.",
+      "sources": [
+        {
+          "path": "api/internal/service/investigation_code.go",
+          "line": 15
+        },
+        {
+          "path": "api/internal/service/investigation_code.go",
+          "line": 27
+        },
+        {
+          "path": "api/internal/service/investigation.go",
+          "line": 108
+        },
+        {
+          "path": "ops/code_executor.py",
+          "line": 338
+        },
+        {
+          "path": "docs/CONTRACT.md",
+          "line": 270
+        }
+      ]
+    },
+    {
+      "id": "repair-tools",
+      "statement": "Only three model-visible repair tools: profile_business_flow returns actual cProfile hotspots and source lines/SHA on enrolled workload; read_source returns <=160 enrolled lines with SHA; test_patch uses <=6 edits with original SHA and unique nonoverlapping contexts. Runtime budget <=8 model rounds,12 tool calls,2 actual sandbox tests,420 seconds.",
+      "sources": [
+        {
+          "path": "api/internal/service/code_repair.go",
+          "line": 237
+        },
+        {
+          "path": "api/internal/service/code_repair.go",
+          "line": 246
+        },
+        {
+          "path": "ops/code_executor.py",
+          "line": 268
+        },
+        {
+          "path": "ops/code_executor.py",
+          "line": 371
+        },
+        {
+          "path": "contracts/agent-runtime-v1.json",
+          "line": 173
+        }
+      ]
+    },
+    {
+      "id": "repair-isolation",
+      "statement": "Go invokes type-bounded POST /rpc over executor UDS with action/project_id/source_revision/execution_id/arguments. Root broker owns enrolled source/image policy. Go API does not receive Docker socket or host source. Fresh container has network none, no credentials, UID10001, cap_drop ALL, no-new-privileges, read-only root,512MiB,1CPU,64 process,240s hard cap. These are separate from collector Agent namespaces.",
+      "sources": [
+        {
+          "path": "api/internal/service/code_executor.go",
+          "line": 39
+        },
+        {
+          "path": "api/internal/service/code_executor.go",
+          "line": 52
+        },
+        {
+          "path": "ops/code_executor.py",
+          "line": 354
+        },
+        {
+          "path": "ops/code_executor.py",
+          "line": 505
+        },
+        {
+          "path": "docs/CONTRACT.md",
+          "line": 155
+        }
+      ]
+    },
+    {
+      "id": "repair-tests",
+      "statement": "manifest-python-v1 requires independent new unittest regressions on unchanged baseline and candidate: original must fail by assertion, candidate passes; syntax/import errors and skips do not count. Then original frozen checks and type/value/mutable-output parity, six alternating baseline/candidate CPU pairs and identical-frozen-baseline sham stability check. Original CRM/Saber presets retain their own prior regression/output/six-pair protocols; do not attribute new red-green/sham to every historical preset.",
+      "sources": [
+        {
+          "path": "integrations/generic-python/harness/run_job.py",
+          "line": 84
+        },
+        {
+          "path": "integrations/generic-python/harness/run_job.py",
+          "line": 98
+        },
+        {
+          "path": "integrations/generic-python/harness/run_job.py",
+          "line": 107
+        },
+        {
+          "path": "api/internal/service/code_repair.go",
+          "line": 239
+        },
+        {
+          "path": "api/internal/service/code_repair_recovery.go",
+          "line": 91
+        },
+        {
+          "path": "docs/CONTRACT.md",
+          "line": 274
+        }
+      ]
+    },
+    {
+      "id": "repair-delivery",
+      "statement": "Go accepts only genuine successful/accepted test receipt and valid evidence IDs and source lines. Returned unified-diff patch_bundle includes source_revision/content/sha256/code_files/test_files/applied_to=isolated_snapshot/production_deployed=false. Browser verifies SHA before download. Human reviews, merges and deploys separately. CPU claims apply only to registered synthetic component benchmark, not whole production service P95/P99.",
+      "sources": [
+        {
+          "path": "api/internal/service/code_repair.go",
+          "line": 373
+        },
+        {
+          "path": "api/internal/service/investigation_code.go",
+          "line": 89
+        },
+        {
+          "path": "ops/code_executor.py",
+          "line": 157
+        },
+        {
+          "path": "docs/CONTRACT.md",
+          "line": 276
+        }
+      ]
+    }
+  ],
+  "failed_candidate": {
+    "file": "09-investigation-workflow.json",
+    "diagnostic": "09-investigation-workflow.failed-diagnostic.json",
+    "status": "not-delivered",
+    "reason": "Two focused geometry repairs could not resolve extra-confirm routing; superseded by separately authored 09-investigation-sequence. No stale workflow HTML accepted."
+  },
+  "checks": {
+    "scope": "All three delivered candidates passed 9 deterministic showcase checks with 0 composition errors and warnings; see each .receipt.json. Root agent performs unified browser and perceptual review separately.",
+    "production_actions": false,
+    "model_requests": 0,
+    "collector_runs": 0,
+    "browser_evidence": "All 3 final delivered artifacts pass actual visual-check, 4 viewport containment plus 4 light/dark screenshots each; see final .visual-check.json. Original overflow receipts retained under failed-before-compact.",
+    "independent_visual_review": "Passed after actual tools.view_image inspection of all 12 final screenshots; see ai-visual-review.json with final artifact/specification hashes."
+  }
+}

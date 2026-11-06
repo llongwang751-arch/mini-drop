@@ -1,0 +1,202 @@
+{
+  "review_date": "2026-10-25",
+  "mode": "read_only_cross_review",
+  "inputs": {
+    "collection-analysis-web.md": {
+      "sha256": "c9f7412a030647c2fba5a045080111d4c80f5c84886b68e5e67eb92b253a6350",
+      "bytes": 56034,
+      "relative_links_checked": 64,
+      "missing_links": []
+    },
+    "testing.md": {
+      "sha256": "10e73e8176b65d6a9fd82ffe37d206346c36cc1494b1f8cc6d33196b74a49819",
+      "bytes": 49378,
+      "relative_links_checked": 65,
+      "missing_links": []
+    }
+  },
+  "scope": [
+    "生命周期与重启交付恢复",
+    "Analyzer claim/lease/run 与 collection attempt 身份",
+    "历史 UTC 与北京时间边界",
+    "Fuzz 与 CI 物理执行及业务分母",
+    "HPROF idom/retained 算法与限制",
+    "int64 SSE 游标与 SHA 字符长度",
+    "HTTP 延迟和 profile 权重分离",
+    "setrlimit 返回值的静态限制表述"
+  ],
+  "outcome": "未发现阻断合并的技术事实错误；一处术语精度建议修正，并保留 SSE 的跨稿边界。",
+  "required_wording_corrections": [
+    {
+      "id": "SHA-HEX-CHARACTERS",
+      "severity": "low",
+      "draft": "collection-analysis-web.md",
+      "section": "7. 上传文件与登记成功之间，还有哪些检查？",
+      "quote": "字符串长64位且十六进制",
+      "replacement": "长度为64个十六进制字符（对应256 bit）",
+      "reason": "这里检查 SHA-256 十六进制文本长度，不是64bit散列；避免与另节int64游标混淆。",
+      "source": [
+        {
+          "path": "core/src/server.cpp",
+          "symbols": [
+            "Services::NotifyResult"
+          ],
+          "observed": "SHA 字段做64字符十六进制形状检查；不在Server重新下载完整文件复算内容摘要。"
+        }
+      ]
+    }
+  ],
+  "merge_boundaries": [
+    {
+      "id": "SSE-COMMIT-ORDER",
+      "drafts": [
+        "collection-analysis-web.md 第15节",
+        "testing.md 测试问题15",
+        "backend.md SSE节"
+      ],
+      "action": "保留后端稿关于 bigserial 与提交顺序的具体边界，不把前端完整帧推进、BigInt和REST收敛概括为全链无丢/exactly-once。",
+      "confirmed": "前端只有封口完整帧才发出事件，并用十进制字符串/BigInt检查int64范围；重复或较小游标不触发新通知。",
+      "not_proven": "所有同Task事件都按sequence提交。Suggestions.process失败闭包和processDiagnosis租约耗尽恢复分支没有先串行锁Task。",
+      "source": [
+        {
+          "path": "web/src/event-stream.ts",
+          "symbols": [
+            "EventStreamDecoder",
+            "validCursor",
+            "subscribeTaskEvents"
+          ]
+        },
+        {
+          "path": "api/internal/httpapi/resources.go",
+          "symbols": [
+            "Server.stream"
+          ]
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.Events"
+          ]
+        },
+        {
+          "path": "api/internal/service/suggestions.go",
+          "symbols": [
+            "Suggestions.process"
+          ]
+        },
+        {
+          "path": "api/internal/service/diagnosis.go",
+          "symbols": [
+            "Suggestions.processDiagnosis"
+          ]
+        }
+      ],
+      "runtime_reproduced": false
+    }
+  ],
+  "confirmed_checks": [
+    {
+      "topic": "采集恢复",
+      "status": "consistent",
+      "detail": "稿中区分上传同一份RAW/回执重放与新attempt重采；task.pb而无result.pb不被说成默认重新采样；恢复故障实验的AGENT_RESTARTED是正确失败而非采样自动成功。",
+      "sources": [
+        "core/src/agent.cpp",
+        "docs/evidence/jd-depth-20261023/system/system-run-005/summary.json"
+      ]
+    },
+    {
+      "topic": "Analyzer claim字段",
+      "status": "consistent",
+      "detail": "claim锁Job和Task；分析attempt递增区别于collection_attempt；lease_owner/分析轮次/未过期/当前采集身份约束发布。对象键包含task、采集轮次、analysis job与run，稿中未混同计数。",
+      "sources": [
+        "analyzer/drop_analyzer/repository.py",
+        "analyzer/drop_analyzer/worker.py"
+      ]
+    },
+    {
+      "topic": "HPROF算法",
+      "status": "consistent",
+      "detail": "当前确为有界SQLite索引、迭代DFS逆后序、Cooper/Harvey/Kennedy idom链相交、逆序retained累加；非保存全部支配集合。默认32MiB/10万对象/100万边、256轮与2000万步描述匹配。共享菱形固定测试96/8/72字节与源码断言一致。",
+      "sources": [
+        "analyzer/drop_analyzer/hprof.py",
+        "analyzer/tests/test_hprof_native.py"
+      ]
+    },
+    {
+      "topic": "HPROF权重范围",
+      "status": "consistent",
+      "detail": "稿中已说明HPROF权重不含VM头/压缩引用差异/对齐、referent非强引用、类间retained不可直接相加、候选不是泄漏判决。",
+      "sources": [
+        "analyzer/drop_analyzer/hprof.py"
+      ]
+    },
+    {
+      "topic": "HTTP与profile权重",
+      "status": "consistent",
+      "detail": "pprof按实际selected sample type/unit解释，total_samples兼容名不必是观测次数；CPU/bytes不能推导HTTP P95/P99；业务HTTP计时、独立profiler开销与控制面heartbeat实验分列。Java alloc/lock folded当前公开单位samples限制没有被美化为bytes/ns。",
+      "sources": [
+        "analyzer/drop_analyzer/pprof.py",
+        "analyzer/drop_analyzer/stacks.py",
+        "core/src/runner.cpp",
+        "scripts/quality/performance/benchmark.py"
+      ]
+    },
+    {
+      "topic": "int64和浏览器",
+      "status": "consistent",
+      "detail": "前端十进制字符串保存id、BigInt比较不超过9223372036854775807；未声称把64bit ID转number安全。完整帧和UTF-8/CRLF分块说明与实现一致。",
+      "sources": [
+        "web/src/event-stream.ts",
+        "web/src/event-stream.test.ts"
+      ]
+    },
+    {
+      "topic": "setrlimit返回值",
+      "status": "correctly_limited_static_observation",
+      "detail": "execute确有多项setrlimit调用未逐项检查返回值；稿中明确这只是源码完善点，没有声称注入复现、发生概率或所有平台限制可靠生效。无需更改实现。",
+      "sources": [
+        "core/src/process.cpp"
+      ]
+    },
+    {
+      "topic": "Fuzz分母",
+      "status": "consistent",
+      "detail": "最终2d413e4a4abd实报200011+200000+200000=600011，预算每目标200000；原文不猜11次差异原因，不合并旧版本计数，明确seed执行与动态Fuzz区别。",
+      "sources": [
+        "docs/evidence/jd-depth-20261023/ci/github-ci.json",
+        "api/internal/domain/task_fuzz_test.go",
+        "api/internal/service/diagnosis_fuzz_test.go"
+      ]
+    },
+    {
+      "topic": "CI与系统分母",
+      "status": "consistent",
+      "detail": "最终10个唯一物理job跨attempt成功；两个展示复用不计新执行；成功任务5/实际下载校验制品20/故障3/持续0与收据一致。004的30分钟、60窗口、65成功/260制品未归属005或最终CI。",
+      "sources": [
+        "docs/evidence/jd-depth-20261023/ci/github-ci.json",
+        "docs/evidence/jd-depth-20261023/system/system-run-004/summary.json",
+        "docs/evidence/jd-depth-20261023/system/system-run-005/summary.json"
+      ]
+    },
+    {
+      "topic": "UTC与归档日期",
+      "status": "consistent",
+      "detail": "最终CI started_at=2026-10-22T21:22:05Z、finished_at=2026-10-22T21:57:49Z，对应北京时间10月23日；protocol-local明确recorded_client_date=2026-10-23。稿未把归档日期当成所有收据的统一UTC日期。",
+      "sources": [
+        "docs/evidence/jd-depth-20261023/ci/github-ci.json",
+        "docs/evidence/jd-quality-20261023/protocol-local.json"
+      ]
+    },
+    {
+      "topic": "本地链接",
+      "status": "passed_static_check",
+      "detail": "collection-analysis-web.md 64个、testing.md 65个相对链接按最终docs目录解析均存在。",
+      "sources": []
+    }
+  ],
+  "verification_limits": [
+    "本轮只读源码、文档与已有JSON收据；未运行测试、CI、服务、采集或模型。",
+    "未修改两个被审稿、app、数据库或生产状态。",
+    "复核不证明历史实验独立发生，只确认稿中数字与当前可读收据、实现边界一致。"
+  ]
+}

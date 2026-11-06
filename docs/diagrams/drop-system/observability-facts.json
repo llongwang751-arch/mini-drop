@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-10-24",
+  "id": "14-platform-observability",
+  "diagram_type": "architecture",
+  "scope": "只读核对当前仓库配置和实现；没有连接生产监控、启动叠加部署、调用模型或执行现场采集。",
+  "portal_metadata": {
+    "title": "平台自监控",
+    "eyebrow": "可选监控层",
+    "description": "这一层给 Drop 自己做体检：看任务有没有积压、哪个组件报错、一次请求经过了哪些阶段。它与给业务程序采 CPU、堆和 I/O 的诊断链路分开。",
+    "reading_steps": [
+      "先看左侧四个工作进程：Prometheus 每 15 秒主动抓取它们的 /metrics；平台 trace 由进程通过 OTLP HTTP 发给 OTel Collector，再批量送到 Tempo。",
+      "再看 Grafana：它分别查询 Prometheus 的指标和 Tempo 的链路。当前 OTel 配置只有 traces 流水线，不是指标中转站。",
+      "最后看下方告警：Prometheus 评估规则，Alertmanager 分组后向 Maintenance 的 /alerts 发送带授权通知，Maintenance 把受限告警字段写进审计。"
+    ],
+    "watch": [
+      "监控来自可选 compose.observability.yml 叠加文件；源码有配置不代表所有环境已经启用。管理端口只绑定宿主机 loopback，按部署说明从本机或 SSH 隧道访问。",
+      "health、心跳、指标、trace 分别证明不同事情。trace_id 和 span links 帮助串联平台调用，不能代替业务采样与受控复测，也不能单独证明业务根因。"
+    ]
+  },
+  "facts": [
+    {
+      "statement": "compose.observability.yml 需要与基础 compose.yml 和所选 Agent 配置合并，不是默认每个环境都独立运行的主链路。它为四个工作服务设置指标监听或 OTLP 导出，并增加 Maintenance、Prometheus、Alertmanager、Grafana、OTel Collector、Tempo。",
+      "sources": [{"path":"deploy/compose.observability.yml","line":1},{"path":"deploy/compose.observability.yml","line":4},{"path":"deploy/compose.observability.yml","line":26}]
+    },
+    {
+      "statement": "Prometheus 的 scrape_interval 和 evaluation_interval 都为 15 秒。实际目标为 api:8080、analyzer:9102、drop-server:9101、maintenance:9105、agent:9103，以及 Prometheus 自身和 Tempo。未显式覆盖 metrics_path，使用 /metrics。图中左侧把 API/Server/Agent/Analyzer 聚合成被监控的四个进程，不把它们当成一个真实新服务。",
+      "sources": [{"path":"deploy/observability/prometheus.yml","line":1},{"path":"deploy/observability/prometheus.yml","line":8}]
+    },
+    {
+      "statement": "Go API 导出真实 HTTP/gRPC 计数与耗时、Go/进程指标，以及查询数据库得到的队列、Outbox、分析租约、制品过期、心跳年龄和证书到期等平台指标。SQL 指标读取失败会导出 drop_metrics_collection_error；不能把缺数据解释为正常。",
+      "sources": [{"path":"api/internal/telemetry/telemetry.go","line":37},{"path":"api/internal/telemetry/telemetry.go","line":81},{"path":"api/internal/httpapi/observability.go","line":29}]
+    },
+    {
+      "statement": "C++ Server 和 Agent 的指标监听由 METRICS_LISTEN 控制，GET /metrics 返回有界内存指标；OTLP endpoint 缺省为空时不导出 trace。Python Analyzer 另有 /metrics HTTP 端点和可选 OTLP HTTP exporter。Go API 未配置 endpoint 时 Configure 只返回空关闭函数，不证明已上报。",
+      "sources": [{"path":"core/src/telemetry.cpp","line":44},{"path":"core/src/telemetry.cpp","line":91},{"path":"analyzer/drop_analyzer/telemetry.py","line":40},{"path":"analyzer/drop_analyzer/telemetry.py","line":56},{"path":"api/internal/telemetry/telemetry.go","line":53}]
+    },
+    {
+      "statement": "Collector 同时配置 OTLP gRPC :4317 和 HTTP :4318 接收器，但当前应用导出配置走 HTTP /v1/traces。Collector 当前仅有 traces pipeline，经过 memory_limiter 和 batch 后，以 OTLP HTTP 送 Tempo；没有配置 metrics 或 logs pipeline。",
+      "sources": [{"path":"deploy/observability/otel.yml","line":1},{"path":"deploy/observability/otel.yml","line":8},{"path":"deploy/compose.observability.yml","line":4}]
+    },
+    {
+      "statement": "Grafana 的受管数据源为 http://prometheus:9090 和 http://tempo:3200，access=proxy。Tempo 接收 OTLP traces，存储在本地持久卷目录 /var/tempo。此配置没有 Loki 或其他集中日志服务，不能把容器 json-file 日志冒充 Loki 上报。",
+      "sources": [{"path":"deploy/observability/grafana/datasources/drop.yml","line":1},{"path":"deploy/observability/tempo.yml","line":1},{"path":"deploy/compose.observability.yml","line":102}]
+    },
+    {
+      "statement": "Prometheus 向 alertmanager:9093 发送规则告警。Alertmanager 按 alertname/job 分组，并通过凭据文件提供 Bearer 授权，POST 到 http://maintenance:9105/alerts；Maintenance 常量时间比较授权，限定正文和批次，只提取 alertname/severity/job/instance 与 firing/resolved 写 MONITORING_ALERT 审计。",
+      "sources": [{"path":"deploy/observability/prometheus.yml","line":5},{"path":"deploy/observability/alertmanager.yml","line":1},{"path":"ops/maintenance.py","line":228},{"path":"ops/maintenance.py","line":266}]
+    },
+    {
+      "statement": "Maintenance 还提供 /metrics 和 /healthz，指标包括对象对账状态、磁盘容量及有界读取的外部运维状态；/healthz 用近期 maintenance 成功时刻判断。监控图把它放在可选叠加层，因为该服务由叠加文件增加。",
+      "sources": [{"path":"deploy/compose.observability.yml","line":26},{"path":"ops/maintenance.py","line":203},{"path":"ops/maintenance.py","line":275}]
+    },
+    {
+      "statement": "API /health/live 仅返回进程活着；/health/ready 在有界超时内核对数据库、S3 bucket 可达和 mTLS Control.Ping。它不运行 profiler、不验证实际 Agent 心跳，也不等价于一次真实采集成功。",
+      "sources": [{"path":"api/internal/httpapi/server.go","line":61},{"path":"api/internal/httpapi/server.go","line":288},{"path":"api/internal/repository/queries.go","line":155},{"path":"api/internal/storage/minio.go","line":37},{"path":"api/internal/control/client.go","line":52}]
+    },
+    {
+      "statement": "Agent 心跳是 C++ Agent 与 C++ Server 的既有控制协议，更新 last_seen_at、资源状态并领取任务。Prometheus 抓取 /metrics 是另外的观测请求，不是节点心跳，也不能代替目标身份复核、RAW size/SHA 和分析结果验收。",
+      "sources": [{"path":"core/src/agent.cpp","line":208},{"path":"core/src/server.cpp","line":192},{"path":"core/src/server.cpp","line":207},{"path":"core/src/server.cpp","line":873},{"path":"deploy/tls/README.md","line":18}]
+    },
+    {
+      "statement": "TraceContext、task/attempt 属性和异步 span links 仅用于执行关联。Go API 配置采样；C++ trace 生成自身 traceId 并以 links 关联有效父上下文，Analyzer 也用 links 关联任务 traceparent，因此不能承诺每个异步阶段始终共用一个 trace_id，更不能把 trace 当作租约、权限或业务根因凭据。",
+      "sources": [{"path":"api/internal/telemetry/telemetry.go","line":53},{"path":"api/internal/telemetry/telemetry.go","line":159},{"path":"core/src/telemetry.cpp","line":181},{"path":"analyzer/drop_analyzer/telemetry.py","line":101}]
+    },
+    {
+      "statement": "监控管理端口在叠加文件中分别绑定 127.0.0.1:9090、9093、3000、3200；Collector 没有宿主机 ports 映射。图里的 HTTP 是控制网络内的监控协议，不改变 Drop 任务控制面原有的 mTLS gRPC。",
+      "sources": [{"path":"deploy/compose.observability.yml","line":1},{"path":"deploy/compose.observability.yml","line":54},{"path":"deploy/compose.observability.yml","line":66},{"path":"deploy/compose.observability.yml","line":85},{"path":"deploy/compose.observability.yml","line":106}]
+    }
+  ],
+  "key_sources": [
+    {"path":"deploy/compose.observability.yml","line":1,"label":"可选叠加与组件监听"},
+    {"path":"deploy/observability/prometheus.yml","line":1,"label":"真实抓取目标与告警路由"},
+    {"path":"deploy/observability/otel.yml","line":1,"label":"仅 traces 的 Collector 流水线"},
+    {"path":"deploy/observability/grafana/datasources/drop.yml","line":1,"label":"Grafana 的两个实际数据源"},
+    {"path":"api/internal/httpapi/server.go","line":288,"label":"API ready 的真实检查范围"},
+    {"path":"ops/maintenance.py","line":228,"label":"授权告警接收与审计"}
+  ]
+}

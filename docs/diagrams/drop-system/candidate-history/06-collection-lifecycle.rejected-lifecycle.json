@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "采集状态：一次 attempt 怎样走到原始文件",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1030,
+      710
+    ]
+  },
+  "lanes": [
+    {
+      "id": "main",
+      "label": "正常采集路径"
+    },
+    {
+      "id": "terminal",
+      "label": "本次采集终态"
+    }
+  ],
+  "states": [
+    {
+      "id": "created",
+      "type": "start",
+      "label": "CREATED",
+      "sublabel": "API 已保存任务与派发意图",
+      "lane": "main",
+      "col": 0
+    },
+    {
+      "id": "queued",
+      "type": "waiting",
+      "label": "QUEUED",
+      "sublabel": "Server 接受，等待 Agent",
+      "lane": "main",
+      "col": 1
+    },
+    {
+      "id": "delivered",
+      "type": "active",
+      "label": "DELIVERED",
+      "sublabel": "心跳把任务下发给 Agent",
+      "lane": "main",
+      "col": 2
+    },
+    {
+      "id": "running",
+      "type": "active",
+      "label": "RUNNING",
+      "sublabel": "Agent 正在执行采集器",
+      "lane": "main",
+      "col": 3
+    },
+    {
+      "id": "uploading",
+      "type": "active",
+      "label": "UPLOADING",
+      "sublabel": "PUT 原始数据至对象存储",
+      "lane": "main",
+      "col": 4
+    },
+    {
+      "id": "canceled",
+      "type": "neutral",
+      "label": "CANCELED",
+      "sublabel": "用户取消，旧回调不得覆盖",
+      "lane": "terminal",
+      "col": 0
+    },
+    {
+      "id": "failed",
+      "type": "failure",
+      "label": "FAILED",
+      "sublabel": "失败或超时，本次采集结束",
+      "lane": "terminal",
+      "col": 1
+    },
+    {
+      "id": "collected",
+      "type": "success",
+      "label": "COLLECTED",
+      "sublabel": "文件元数据入库，分析排队",
+      "lane": "terminal",
+      "col": 2
+    }
+  ],
+  "transitions": [
+    {
+      "id": "cancel-example",
+      "from": "delivered",
+      "to": "canceled",
+      "label": "取消当前 attempt",
+      "labelDy": 24
+    },
+    {
+      "id": "fail-example",
+      "from": "running",
+      "to": "failed",
+      "label": "采集失败 / 超时",
+      "variant": "security",
+      "labelDy": 24
+    },
+    {
+      "id": "notify-success",
+      "from": "uploading",
+      "to": "collected",
+      "label": "NotifyResult 校验成功",
+      "variant": "emphasis",
+      "labelDy": 24
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "COLLECTED 只表示采集完成",
+      "items": [
+        "原始文件已经上传；火焰图等分析结果仍须等待 Analyzer。",
+        "导入文件可直接进入 COLLECTED，不经过 Agent 采集路径。"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "失败、取消与重试",
+      "items": [
+        "图中展示退出箭头的典型位置；失败或取消可结束尚未完成的采集。",
+        "手动重试新增 attempt；旧 attempt 的文件、事件和终态继续保留。"
+      ]
+    }
+  ]
+}

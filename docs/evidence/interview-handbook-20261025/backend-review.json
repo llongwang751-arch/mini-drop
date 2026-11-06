@@ -1,0 +1,411 @@
+{
+  "schema_version": 1,
+  "reviewed_file": ".local/interview_drafts/backend.md",
+  "review_scope": [
+    "普通任务实际执行链",
+    "Task/采集attempt/分析run字段与状态",
+    "Outbox行锁、RPC与ACK边界",
+    "取消与迟到结果",
+    "Analyzer领取/续租/发布租约",
+    "SSE提交顺序风险是否明确静态推导"
+  ],
+  "method": "只读对照当前生产代码和契约；相对源码链接存在性检查；未修改被审文件或应用代码",
+  "status": "无阻断性事实错误；建议两处明确分析状态字段",
+  "tests_run": [],
+  "runtime_reproduction": false,
+  "production_actions": [],
+  "findings": [
+    {
+      "id": "explicit-analysis-running",
+      "priority": "P3",
+      "classification": "字段表述需明确，不是执行机制错误",
+      "location": {
+        "heading": "Analyzer 租约、自动重试与管理员重分析",
+        "line": 232,
+        "quote": "在同一事务把 Task 标为 RUNNING"
+      },
+      "reason": "Task同时有collection_status与analysis_status。此处只修改analysis_status，采集状态仍COLLECTED。面向初学者时笼统Task RUNNING容易与采集RUNNING混淆。",
+      "suggested_text": "在同一事务把 tasks.analysis_status 标为 RUNNING、写开始事件；collection_status 仍为 COLLECTED。",
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/repository.py",
+          "symbol": "Repository.claim",
+          "lines": [
+            137,
+            152
+          ]
+        }
+      ]
+    },
+    {
+      "id": "explicit-analysis-success",
+      "priority": "P3",
+      "classification": "字段表述需明确，不是执行机制错误",
+      "location": {
+        "heading": "Analyzer 租约、自动重试与管理员重分析",
+        "line": 268,
+        "quote": "Job.success、Task.SUCCESS 和事件"
+      },
+      "reason": "Task没有独立SUCCESS字段，成功写入的是tasks.analysis_status='SUCCESS'；analysis_jobs.status='success'是另一张表的小写状态。前文已讲两轴，此处宜保持精确。",
+      "suggested_text": "在 complete 的事务里登记制品、建议、analysis_jobs.status=success、tasks.analysis_status=SUCCESS 和事件。",
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/repository.py",
+          "symbol": "Repository.complete",
+          "lines": [
+            429,
+            450
+          ]
+        }
+      ]
+    }
+  ],
+  "confirmed": [
+    {
+      "id": "create-flow",
+      "observation": "创建事务保存Task、首attempt、事件、审计和可选Outbox；Core CreateTask核对现存当前轮次，只在CREATED推进tasks.collection_status=QUEUED。草稿没有误说Core重建任务。",
+      "sources": [
+        {
+          "path": "api/internal/service/tasks.go",
+          "symbols": [
+            "Tasks.Create"
+          ]
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.CreateTask"
+          ]
+        },
+        {
+          "path": "core/src/server.cpp",
+          "symbols": [
+            "Services::CreateTask"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "outbox-lock",
+      "observation": "DispatchOne对Outbox使用FOR UPDATE OF outbox SKIP LOCKED；fn网络回调在该事务中，持Outbox锁跨RPC；初次只普通读Task/attempt，RPC期间不持Task行锁。最终耗尽DISPATCH失败时才锁Task、重读最新attempt并再次Dispatchable。",
+      "sources": [
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.DispatchOne"
+          ],
+          "lines": [
+            355,
+            417
+          ]
+        },
+        {
+          "path": "api/internal/service/tasks.go",
+          "symbols": [
+            "Tasks.dispatch"
+          ],
+          "lines": [
+            306,
+            352
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ack-lost-convergence",
+      "observation": "草稿正确按Core已经提交QUEUED这一具体前提说明ACK丢失：下一轮Dispatchable要求task/attempt均CREATED，因此重读后发布旧Outbox而非必然再次RPC；Core仍需自身幂等。4秒回调context、平方退避封顶60秒、最多10次均匹配源码。",
+      "sources": [
+        {
+          "path": "api/internal/repository/fencing.go",
+          "symbols": [
+            "Dispatchable"
+          ]
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.DispatchOne"
+          ]
+        },
+        {
+          "path": "api/internal/service/tasks.go",
+          "symbols": [
+            "Tasks.dispatch"
+          ]
+        },
+        {
+          "path": "core/src/server.cpp",
+          "symbols": [
+            "Services::CreateTask"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "state-axes-and-terminal",
+      "observation": "采集COLLECTED不等于分析成功。Task.Terminal判断与文中一致；Job状态没有canceled，API取消活动分析把Job标failed、TASK_CANCELED，Task两轴CANCELED。Task.version并未被误述为全部写入统一version-CAS。",
+      "sources": [
+        {
+          "path": "api/internal/domain/task.go",
+          "symbols": [
+            "Task.Terminal"
+          ]
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.Cancel",
+            "Repository.Retry"
+          ]
+        },
+        {
+          "path": "db/migrations/001_initial.sql",
+          "symbols": []
+        }
+      ]
+    },
+    {
+      "id": "cancel-stale-log",
+      "observation": "旧CANCEL和NotifyResult受最新采集attempt约束。终态允许先前授权且受限的runner.log在120秒内补交，重试成为旧轮次则不再接纳；不是终态接受新RAW。草稿保留了这一例外且没有误说原始上传对象已被立即物理撤回。",
+      "sources": [
+        {
+          "path": "core/src/server.cpp",
+          "symbols": [
+            "Services::CancelTask",
+            "Services::current",
+            "Services::NotifyResult",
+            "Services::store_log_artifacts"
+          ]
+        },
+        {
+          "path": "api/internal/repository/upload_grants.go",
+          "symbols": [
+            "TerminalLogGrace",
+            "TerminalUploadMetadata"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "analysis-lease",
+      "observation": "claim锁候选Job/Task并增加analysis_jobs.attempt，默认60秒租约10秒续租；过期running可以直接接管，不必先retry。renew/_lock_owned/complete使用current collection attempt、owner、run及实时clock_timestamp租约条件；旧Worker连失败也无权写回。草稿未把租约本身说成能暂停远端进程。",
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/repository.py",
+          "symbols": [
+            "Repository.claim",
+            "Repository.renew",
+            "Repository._lock_owned",
+            "Repository.complete",
+            "Repository.fail"
+          ]
+        },
+        {
+          "path": "analyzer/drop_analyzer/config.py",
+          "symbols": [
+            "Config"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reanalyze",
+      "observation": "平台管理员重分析需COLLECTED、当前Job success/failed、可用RAW；归档现run，清result/错误/租约、旧建议superseded、max_attempts=attempt+3，不重置轮次。当前/result只取最新采集attempt的成功Job，重分析pending时不回退旧成功报告。",
+      "sources": [
+        {
+          "path": "api/internal/service/administration.go",
+          "symbols": [
+            "Tasks.Reanalyze"
+          ]
+        },
+        {
+          "path": "api/internal/repository/queries.go",
+          "symbols": [
+            "Repository.Result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "import-boundary",
+      "observation": "导入先稳定Task/attempt身份，上传主文件和附件，再ImportWithAux原子发布RAW/COLLECTED/Job/events。中途对象可能存在但数据库未ready；CREATED原键恢复与IMPORT_TIMEOUT收尾均存在。没有把对象存储和SQL写成一个事务。",
+      "sources": [
+        {
+          "path": "api/internal/service/tasks.go",
+          "symbols": [
+            "Tasks.Create"
+          ]
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.ImportWithAux"
+          ]
+        },
+        {
+          "path": "api/internal/repository/import_recovery.go",
+          "symbols": [
+            "Repository.SweepStaleImport"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sse-mechanics",
+      "observation": "Server.stream查询sequence>after按升序500条，每次fmt.Fprintf成功后推进本连接after，每秒poll、15秒keepalive，持续重读会话与任务授权。草稿正确说成功写出，不把Flush等同端到端确认；客户端自己的已提交ID决定重连。",
+      "sources": [
+        {
+          "path": "api/internal/httpapi/resources.go",
+          "symbols": [
+            "Server.stream"
+          ]
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.Events"
+          ]
+        },
+        {
+          "path": "web/src/event-stream.ts",
+          "symbols": [
+            "EventStreamDecoder",
+            "subscribeTaskEvents"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sse-static-risk-label",
+      "observation": "backend第364–366行已明确静态代码推导、没有运行并发复现、交错需继续验证，不把风险包装成已观察丢事件。两条具体写者确实未先串行锁Task：Suggestions.process的fail闭包更新ai_requests后插入SUGGESTION_FAILED，processDiagnosis的过期耗尽恢复更新diagnosis_runs后插入DIAGNOSIS_FAILED。bigserial序号不是提交水位，ORDER BY本身不能证明任意交错完整性。",
+      "evidence_level": "静态源码事实及条件化并发推导；不是运行故障证据",
+      "sources": [
+        {
+          "path": "api/internal/service/suggestions.go",
+          "symbols": [
+            "Suggestions.process"
+          ],
+          "lines": [
+            161,
+            173
+          ]
+        },
+        {
+          "path": "api/internal/service/diagnosis.go",
+          "symbols": [
+            "Suggestions.processDiagnosis"
+          ],
+          "lines": [
+            223,
+            235
+          ]
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.Events"
+          ]
+        }
+      ]
+    }
+  ],
+  "not_claimed": [
+    "未证明极端并发时序发生频率",
+    "未跑SSE并发复现",
+    "未做全应用审计或漏洞利用",
+    "未重新执行原有测试",
+    "未修改backend草稿或应用代码"
+  ],
+  "notes": [
+    "标题与行号对应reviewed_snapshot，根合并后请按引用原句定位。",
+    "两处findings建议为教学精度修改；其余重点链路无阻断事实问题。"
+  ],
+  "reviewed_snapshot": {
+    "sha256": "5f2c16e84df16e4b8fd9397cdc32233cbe11149afe566a3cb5676c2694133811",
+    "bytes": 52818,
+    "relative_links": 54,
+    "missing_links": []
+  },
+  "source_snapshots": [
+    {
+      "path": "analyzer/drop_analyzer/config.py",
+      "sha256": "4b905c3682a9e0f4510cdb779ef7583fb06f83aba1aedbf521a613f83aec9188",
+      "bytes": 6432
+    },
+    {
+      "path": "analyzer/drop_analyzer/repository.py",
+      "sha256": "3f48724a4d5e3232bfba95cdf03d0e3ff35e786ad2ffc027c4af7c9aaff942f5",
+      "bytes": 23415
+    },
+    {
+      "path": "api/internal/domain/task.go",
+      "sha256": "d98a3e3e88a1f24953ef02661d799a91b1452d55a6277c60b0034088de31b74b",
+      "bytes": 14765
+    },
+    {
+      "path": "api/internal/httpapi/resources.go",
+      "sha256": "e211cf3409a64dedc8a5bbe073ee2bfea435586503ca4050779da9d8ffc1db91",
+      "bytes": 10861
+    },
+    {
+      "path": "api/internal/repository/fencing.go",
+      "sha256": "3066cdadbde25b81a32421f5a4b8c6ed82b60376aeadc871e7900de183e1473d",
+      "bytes": 759
+    },
+    {
+      "path": "api/internal/repository/import_recovery.go",
+      "sha256": "a0213efff10956611d3df1bd4d12e6b95db3f712f6bda1bb5ae94d41237e6b23",
+      "bytes": 2019
+    },
+    {
+      "path": "api/internal/repository/postgres.go",
+      "sha256": "7b588a984b78bbf099b8b202e8d407018a90c352ccf85dc322613da1be119eae",
+      "bytes": 21846
+    },
+    {
+      "path": "api/internal/repository/queries.go",
+      "sha256": "693a6d43d2a069369192c27ddef70740565842588b321da9129a64396a5a51a2",
+      "bytes": 7802
+    },
+    {
+      "path": "api/internal/repository/upload_grants.go",
+      "sha256": "f8e372f42d499781d64dbe460e8872fcb6d25c907006267098860161317a09c6",
+      "bytes": 4965
+    },
+    {
+      "path": "api/internal/service/administration.go",
+      "sha256": "67e1c02aba2c11029431583d845fbd18418607b932d4d4b3bb3f3474e3805520",
+      "bytes": 5516
+    },
+    {
+      "path": "api/internal/service/diagnosis.go",
+      "sha256": "c9d575e70715aa2becb852530336700933f98337e0bddab0a26e1c17093f4118",
+      "bytes": 19022
+    },
+    {
+      "path": "api/internal/service/suggestions.go",
+      "sha256": "7987fca65569ab6bab0732a4075ac32103639eabfc969ee2443b9e1b14c9a0b0",
+      "bytes": 11248
+    },
+    {
+      "path": "api/internal/service/tasks.go",
+      "sha256": "f4f6a6af717f1862200bbea917ae2c367c62fa40942ff82aac77e38cecc0562c",
+      "bytes": 14513
+    },
+    {
+      "path": "core/src/server.cpp",
+      "sha256": "84eaf594db6c2e2ce4ef9d65bfcb7d0567ec653666bdab24e70ec7337b5ce533",
+      "bytes": 54133
+    },
+    {
+      "path": "db/migrations/001_initial.sql",
+      "sha256": "1a1f906899b3e604b3b2d5f0f25b8fe46812e8aeebbbe7c9f29da00af982c37f",
+      "bytes": 7611
+    },
+    {
+      "path": "web/src/event-stream.ts",
+      "sha256": "4d5f55991cca344fcc4ee770aaf1883c0df5c715a5ad185d1cb46b5d81df6c57",
+      "bytes": 9479
+    }
+  ]
+}

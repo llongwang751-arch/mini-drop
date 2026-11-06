@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "两条路：任务指令与采样文件",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      860,
+      520
+    ]
+  },
+  "stages": [
+    {
+      "label": "提出问题 / 观察现场"
+    },
+    {
+      "label": "持久记录 / 原始文件"
+    },
+    {
+      "label": "执行指令 / 解析证据"
+    },
+    {
+      "label": "回执 / 人能读的结果"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "form-input",
+      "type": "frontend",
+      "label": "页面提交检查意图",
+      "sublabel": "kind / target / duration / options",
+      "stage": 0,
+      "row": 0,
+      "width": 136,
+      "height": 76
+    },
+    {
+      "id": "durable-intent",
+      "type": "database",
+      "label": "Go + PostgreSQL",
+      "sublabel": "task / attempt / event / Outbox",
+      "stage": 1,
+      "row": 0,
+      "width": 136,
+      "height": 76
+    },
+    {
+      "id": "dispatch-payload",
+      "type": "backend",
+      "label": "C++ 收到 TaskDesc",
+      "sublabel": "目标身份 / 参数 / 预算 / 上传授权",
+      "stage": 2,
+      "row": 0,
+      "width": 136,
+      "height": 76
+    },
+    {
+      "id": "durable-status",
+      "type": "database",
+      "label": "状态与制品元数据",
+      "sublabel": "task / attempt / size / SHA",
+      "stage": 3,
+      "row": 0,
+      "width": 136,
+      "height": 76
+    },
+    {
+      "id": "measured-source",
+      "type": "external",
+      "label": "目标 + 固定采集工具",
+      "sublabel": "调用栈 / 线程计账 / 对象 / 事件",
+      "stage": 0,
+      "row": 2,
+      "width": 136,
+      "height": 76
+    },
+    {
+      "id": "stored-raw",
+      "type": "cloud",
+      "label": "MinIO 中的原始证据",
+      "sublabel": "RAW；按类型附 ELF / 清单 / 日志",
+      "stage": 1,
+      "row": 2,
+      "width": 136,
+      "height": 76
+    },
+    {
+      "id": "typed-analysis",
+      "type": "backend",
+      "label": "Python 生成分析结果",
+      "sublabel": "summary / top_functions / sections",
+      "stage": 2,
+      "row": 2,
+      "width": 136,
+      "height": 76
+    },
+    {
+      "id": "human-view",
+      "type": "frontend",
+      "label": "浏览器呈现证据",
+      "sublabel": "热点 / 图 / 表 / 事件 / 有界说明",
+      "stage": 3,
+      "row": 2,
+      "width": 136,
+      "height": 76
+    }
+  ],
+  "flows": [
+    {
+      "id": "submit-intent",
+      "from": "form-input",
+      "to": "durable-intent",
+      "label": "HTTPS JSON",
+      "variant": "emphasis"
+    },
+    {
+      "id": "dispatch-intent",
+      "from": "durable-intent",
+      "to": "dispatch-payload",
+      "label": "mTLS gRPC",
+      "variant": "emphasis"
+    },
+    {
+      "id": "report-metadata",
+      "from": "dispatch-payload",
+      "to": "durable-status",
+      "label": "NotifyResult",
+      "variant": "emphasis"
+    },
+    {
+      "id": "upload-evidence",
+      "from": "measured-source",
+      "to": "stored-raw",
+      "label": "签名 PUT",
+      "classification": "网关转发文件",
+      "labelAt": [
+        208,
+        340
+      ]
+    },
+    {
+      "id": "parse-evidence",
+      "from": "stored-raw",
+      "to": "typed-analysis",
+      "label": "GET + SHA",
+      "classification": "下载复算后解析",
+      "labelAt": [
+        423,
+        340
+      ]
+    },
+    {
+      "id": "view-result",
+      "from": "typed-analysis",
+      "to": "human-view",
+      "label": "JSON / gzip",
+      "classification": "API摘要 + 授权下载",
+      "labelAt": [
+        638,
+        446
+      ]
+    },
+    {
+      "id": "status-refresh",
+      "from": "durable-status",
+      "to": "human-view",
+      "label": "SSE + GET",
+      "classification": "事件触发重新读取",
+      "labelDy": 24
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "指令体很小",
+      "items": [
+        "任务指令描述采谁、怎样采与预算；gRPC 回执报告元数据。"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "证据文件单独保存",
+      "items": [
+        "RAW 的格式按采集器变化；完整调用树另存，SQL 保存有界结果。"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "AI 接收另一路投影",
+      "items": [
+        "普通诊断读取脱敏统计；原始 profile 不作为模型输入。"
+      ]
+    }
+  ]
+}

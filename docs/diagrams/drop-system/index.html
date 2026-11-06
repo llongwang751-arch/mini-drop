@@ -1,0 +1,2986 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="Drop 系统架构、数据流、时序与状态图，附采集器、协议字段和实际操作链路。"
+    />
+    <title>Drop 系统图解 · 从点击到证据</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --paper: #f5f6f8;
+        --card: #fff;
+        --ink: #172a3b;
+        --muted: #50677c;
+        --line: #d8e1e9;
+        --blue: #165ec8;
+        --tint: #eaf1fc;
+        --green: #087d6b;
+        --code: #eff3f7;
+      }
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --paper: #101822;
+        --card: #172330;
+        --ink: #e7eff7;
+        --muted: #b0c1d2;
+        --line: #344759;
+        --blue: #91beff;
+        --tint: #223750;
+        --green: #7ddbc5;
+        --code: #12202c;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+        line-height: 1.8;
+      }
+      a {
+        color: var(--blue);
+        text-underline-offset: 3px;
+      }
+      button,
+      input {
+        font: inherit;
+      }
+      button,
+      a,
+      input,
+      summary {
+        -webkit-tap-highlight-color: transparent;
+      }
+      button {
+        cursor: pointer;
+      }
+      :focus-visible {
+        outline: 3px solid var(--blue);
+        outline-offset: 3px;
+      }
+      .skip {
+        position: fixed;
+        z-index: 20;
+        left: 12px;
+        top: -100px;
+        background: var(--card);
+        padding: 8px 14px;
+      }
+      .skip:focus {
+        top: 10px;
+      }
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px 32px;
+        border-bottom: 1px solid var(--line);
+        background: var(--card);
+      }
+      .brand {
+        color: var(--ink);
+        font-weight: 750;
+        text-decoration: none;
+        font-size: 21px;
+        letter-spacing: -0.7px;
+      }
+      .brand span {
+        color: var(--blue);
+      }
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 14px;
+      }
+      .quiet-button {
+        background: var(--card);
+        color: var(--ink);
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        padding: 6px 12px;
+      }
+      .shell {
+        display: grid;
+        grid-template-columns: 246px minmax(0, 1fr);
+        max-width: 1900px;
+        margin: auto;
+      }
+      .sidebar {
+        padding: 26px 17px;
+        border-right: 1px solid var(--line);
+      }
+      .side-inner {
+        position: sticky;
+        top: 18px;
+        max-height: calc(100vh - 30px);
+        overflow-y: auto;
+        scrollbar-width: thin;
+        padding-bottom: 12px;
+      }
+      .side-heading {
+        margin: 15px 12px 7px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+      }
+      .side-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: var(--muted);
+        padding: 8px 12px;
+        margin: 3px 0;
+        border-radius: 6px;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .side-link:hover {
+        background: var(--card);
+        color: var(--ink);
+      }
+      .side-link[aria-current="page"] {
+        background: var(--tint);
+        color: var(--blue);
+        font-weight: 650;
+      }
+      .num {
+        font-size: 11px;
+        font-family: Consolas, monospace;
+        color: var(--muted);
+        min-width: 21px;
+      }
+      .side-note {
+        border-top: 1px solid var(--line);
+        margin: 22px 12px 0;
+        padding-top: 14px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      main {
+        min-width: 0;
+        padding: 30px 34px 72px;
+      }
+      .intro {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 28px;
+        padding-bottom: 24px;
+        margin-bottom: 26px;
+        border-bottom: 1px solid var(--line);
+      }
+      .eyebrow {
+        font-size: 12px;
+        color: var(--green);
+        margin: 0 0 6px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(27px, 3vw, 39px);
+        letter-spacing: -1.2px;
+        line-height: 1.35;
+      }
+      .intro p:last-child {
+        margin: 10px 0 0;
+        color: var(--muted);
+        max-width: 760px;
+      }
+      .count {
+        white-space: nowrap;
+        text-align: right;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .count strong {
+        color: var(--ink);
+        font-size: 27px;
+        font-weight: 550;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.5;
+        margin: 0 0 8px;
+        letter-spacing: -0.5px;
+      }
+      h3 {
+        font-size: 17px;
+        margin: 0 0 8px;
+      }
+      p {
+        margin: 8px 0 16px;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .panel-head {
+        margin-bottom: 20px;
+      }
+      .panel-head p {
+        color: var(--muted);
+        max-width: 960px;
+      }
+      .figure-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 12px;
+      }
+      .figure-head h2 {
+        margin: 0;
+      }
+      .figure-type {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .figure-links {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        font-size: 14px;
+      }
+      .figure-wrap {
+        background: #f8fafc;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+      }
+      iframe {
+        display: block;
+        width: 100%;
+        height: 850px;
+        border: 0;
+        border-radius: 10px;
+        background: #f8fafc;
+      }
+      .figure-caption {
+        padding: 14px 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .explain {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 24px 26px;
+        margin: 12px 0 22px;
+      }
+      .explain > p {
+        max-width: 1050px;
+      }
+      .cols {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 26px;
+      }
+      ol,
+      ul {
+        padding-left: 22px;
+        margin: 8px 0 12px;
+      }
+      li {
+        margin: 7px 0;
+      }
+      .source-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 20px;
+        padding-top: 14px;
+        margin-top: 16px;
+        border-top: 1px solid var(--line);
+        font-size: 12px;
+        overflow-wrap: anywhere;
+      }
+      .next {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 24px 0 0;
+      }
+      .note {
+        border-left: 3px solid var(--green);
+        padding: 10px 18px;
+        background: var(--tint);
+        margin: 18px 0;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 22px;
+      }
+      .card p {
+        margin: 6px 0 12px;
+      }
+      dl {
+        margin: 12px 0;
+      }
+      dt {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 650;
+        margin-top: 12px;
+      }
+      dd {
+        margin: 2px 0 8px;
+        overflow-wrap: anywhere;
+      }
+      .table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        margin: 18px 0;
+        background: var(--card);
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        text-align: left;
+        font-size: 14px;
+      }
+      th {
+        font-weight: 650;
+        color: var(--muted);
+        font-size: 12px;
+        white-space: nowrap;
+        background: var(--code);
+      }
+      th,
+      td {
+        padding: 15px 17px;
+        vertical-align: top;
+        border-bottom: 1px solid var(--line);
+      }
+      tr:last-child td {
+        border-bottom: 0;
+      }
+      td {
+        min-width: 130px;
+        overflow-wrap: anywhere;
+      }
+      .route {
+        font-weight: 650;
+        min-width: 200px;
+      }
+      .protocol {
+        display: block;
+        margin-top: 5px;
+        font-size: 12px;
+        color: var(--green);
+        font-weight: 500;
+      }
+      .search {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin: 24px 0 16px;
+      }
+      .search input {
+        width: min(100%, 510px);
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--ink);
+        padding: 10px 14px;
+        border-radius: 7px;
+      }
+      .collector {
+        margin: 12px 0;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--card);
+      }
+      .collector summary {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        list-style: none;
+        cursor: pointer;
+        padding: 18px 21px;
+      }
+      .collector summary::-webkit-details-marker {
+        display: none;
+      }
+      .collector summary::after {
+        content: "＋";
+        color: var(--blue);
+        font-size: 21px;
+        margin-left: auto;
+      }
+      .collector[open] summary::after {
+        content: "−";
+      }
+      .collector-name {
+        min-width: 210px;
+      }
+      .collector-name strong {
+        display: block;
+        font-size: 16px;
+      }
+      .collector-name code {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .collector-summary {
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .collector-body {
+        border-top: 1px solid var(--line);
+        padding: 22px;
+      }
+      .collector-body ul {
+        font-size: 14px;
+      }
+      .raw {
+        background: var(--code);
+        padding: 14px 17px;
+        border-radius: 6px;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+      }
+      code,
+      pre {
+        font-family: Consolas, "Cascadia Code", monospace;
+      }
+      code {
+        overflow-wrap: anywhere;
+      }
+      pre {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        background: var(--code);
+        padding: 18px;
+        border-radius: 7px;
+        font-size: 13px;
+        line-height: 1.65;
+      }
+      .journey {
+        display: grid;
+        grid-template-columns: 36px minmax(0, 1fr);
+        gap: 10px 17px;
+        padding: 22px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .stepnum {
+        color: var(--blue);
+        font:
+          500 24px/1.7 Consolas,
+          monospace;
+      }
+      .journey h3 {
+        margin: 0 0 7px;
+      }
+      .journey p {
+        margin: 0 0 7px;
+      }
+      .mobile-nav {
+        display: none;
+      }
+      .footer {
+        margin-top: 38px;
+        font-size: 12px;
+        color: var(--muted);
+        border-top: 1px solid var(--line);
+        padding-top: 16px;
+      }
+      @media (min-width: 1650px) {
+        main {
+          padding-left: 46px;
+          padding-right: 46px;
+        }
+      }
+      @media (max-width: 960px) {
+        .shell {
+          grid-template-columns: 205px minmax(0, 1fr);
+        }
+        main {
+          padding: 25px 22px 50px;
+        }
+        .sidebar {
+          padding: 22px 10px;
+        }
+        .side-link {
+          font-size: 13px;
+          padding: 8px;
+        }
+        .cols,
+        .cards {
+          grid-template-columns: 1fr;
+        }
+        .count {
+          display: none;
+        }
+        .collector summary {
+          flex-wrap: wrap;
+          gap: 3px 10px;
+        }
+        .collector-summary {
+          width: calc(100% - 35px);
+        }
+        .collector summary::after {
+          position: absolute;
+          right: 18px;
+          top: 23px;
+        }
+        .collector summary {
+          position: relative;
+          padding-right: 42px;
+        }
+      }
+      @media (max-width: 680px) {
+        .top {
+          padding: 14px 18px;
+        }
+        .top-actions {
+          gap: 10px;
+          font-size: 12px;
+        }
+        .top-actions .evidence-top {
+          display: none;
+        }
+        .shell {
+          display: block;
+        }
+        .sidebar {
+          display: none;
+        }
+        .sidebar.open {
+          display: block;
+          border-bottom: 1px solid var(--line);
+        }
+        .side-inner {
+          position: static;
+          max-height: none;
+          overflow: visible;
+        }
+        .sidebar nav {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+        }
+        .side-heading,
+        .side-note {
+          grid-column: 1/-1;
+        }
+        main {
+          padding: 22px 17px 45px;
+        }
+        .mobile-nav {
+          display: inline-block;
+        }
+        .intro {
+          padding-bottom: 19px;
+          margin-bottom: 21px;
+        }
+        .intro p:last-child {
+          font-size: 14px;
+        }
+        .figure-head {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 8px;
+        }
+        h2 {
+          font-size: 21px;
+        }
+        .explain,
+        .card,
+        .collector-body {
+          padding: 18px;
+        }
+        iframe {
+          height: 1040px;
+        }
+        .figure-caption {
+          font-size: 12px;
+        }
+        .figure-links {
+          font-size: 13px;
+        }
+        .journey {
+          grid-template-columns: 27px minmax(0, 1fr);
+          gap: 12px;
+        }
+        .stepnum {
+          font-size: 21px;
+        }
+      }
+      @media print {
+        .sidebar,
+        .top,
+        .intro,
+        iframe,
+        .figure-links,
+        .next,
+        .search {
+          display: none !important;
+        }
+        .shell {
+          display: block;
+        }
+        main {
+          padding: 0;
+        }
+        .panel {
+          display: block !important;
+        }
+        .card,
+        .explain,
+        .collector {
+          break-inside: avoid;
+        }
+        body {
+          background: white;
+          color: black;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#main">跳到内容</a>
+    <header class="top">
+      <a class="brand" href="#diagram/01">drop<span>.</span> 系统图解</a>
+      <div class="top-actions">
+        <button
+          class="quiet-button mobile-nav"
+          id="menu"
+          aria-controls="sidebar"
+          aria-expanded="false"
+        >
+          目录
+        </button>
+        <a class="evidence-top" href="validation.json">验证记录</a>
+        <button
+          class="quiet-button"
+          id="theme"
+          aria-label="切换图册说明的深浅色"
+        >
+          切换深浅色
+        </button>
+      </div>
+    </header>
+    <div class="shell">
+      <aside class="sidebar" id="sidebar">
+        <div class="side-inner">
+          <nav aria-label="图册目录" id="navigation"></nav>
+          <p class="side-note">
+            源码快照 · 2026-10-24<br />每张图可独立打开、缩放、查看说明和导出。图的主题可在图内单独切换。
+          </p>
+        </div>
+      </aside>
+      <main id="main" tabindex="-1">
+        <div class="intro">
+          <div>
+            <p class="eyebrow">代码里的链路，一张张讲清楚</p>
+            <h1>从一次点击，到一份证据。</h1>
+            <p>
+              谁接单、谁采集、文件去哪、模型看到了什么。先看图，再对照字段和真实采集内容。
+            </p>
+          </div>
+          <div class="count">
+            <strong id="diagram-count"></strong> 张图 ·
+            <strong>16</strong> 种现场采集<br />含通信契约、操作链路与源码入口
+          </div>
+        </div>
+        <section
+          class="panel"
+          id="panel-diagram"
+          aria-labelledby="figure-title"
+        >
+          <div class="figure-head">
+            <div>
+              <h2 id="figure-title"></h2>
+              <span class="figure-type" id="figure-type"></span>
+            </div>
+            <div class="figure-links">
+              <a id="open-diagram" target="_blank" rel="noopener">独立打开 ↗</a
+              ><a id="read-png" download>阅读版 PNG ↓</a
+              ><a id="open-json" target="_blank" rel="noopener">图的源文件</a>
+            </div>
+          </div>
+          <div class="figure-wrap">
+            <iframe
+              id="diagram"
+              title="系统图"
+              loading="eager"
+              allow="fullscreen"
+            ></iframe>
+          </div>
+          <div class="figure-caption">
+            时序图从上往下看；点消息查看详细字段。右下角可缩放和搜索。“阅读版
+            PNG”保存清楚的主图；标准导出会展开细注，部分长注释时序图会重叠。
+          </div>
+          <div id="diagram-explanation"></div>
+          <div class="next" id="diagram-next"></div>
+        </section>
+        <section class="panel" id="panel-gallery" hidden>
+          <div class="panel-head">
+            <p class="eyebrow">保存和对照</p>
+            <h2>全部阅读版静态图</h2>
+            <p>
+              这里使用经过验证的 READ
+              视图，保留主图和图例，去掉浏览器工具栏。每张可直接下载；详细字段和补充结论在交互图与下方说明里查看。
+            </p>
+          </div>
+          <div class="cards" id="gallery"></div>
+        </section>
+        <section class="panel" id="panel-modules" hidden>
+          <div class="panel-head">
+            <p class="eyebrow">认清角色</p>
+            <h2>每个模块到底在忙什么</h2>
+            <p>
+              “采集 Agent”和“AI Agent”是两种角色。Go 编排与 Go
+              工具网关则是同一个服务中的不同职责。
+            </p>
+          </div>
+          <div class="cards" id="modules"></div>
+        </section>
+        <section class="panel" id="panel-contracts" hidden>
+          <div class="panel-head">
+            <p class="eyebrow">通信契约</p>
+            <h2>连线里传的是什么</h2>
+            <p>
+              这张表展开真实通信跳点。总览里的逻辑箭头，可能需要经过
+              API、数据库与对象授权才能完成。
+            </p>
+          </div>
+          <div class="note">
+            用户入口经 HTTPS；gRPC 使用 mTLS；Agent 到私有存储的默认内部链路是
+            S3 HTTP；AI 运行、回调和源码执行分别使用用途受限的 Unix
+            socket。公网对象代理只读。
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>谁联系谁 / 协议</th>
+                  <th>传递内容</th>
+                  <th>为了什么</th>
+                </tr>
+              </thead>
+              <tbody id="communications"></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="panel" id="panel-collectors" hidden>
+          <div class="panel-head">
+            <p class="eyebrow">采集内容对照</p>
+            <h2>采集到的东西究竟是什么</h2>
+            <p>
+              CPU
+              抽样、线程计账、分配记录、堆快照和事件不是同一种数据。展开每项，看具体工具、RAW
+              文件、单位、前提和能回答的问题。
+            </p>
+          </div>
+          <div class="search">
+            <label class="sr-label" for="collector-search">筛选采集器</label
+            ><input
+              type="search"
+              id="collector-search"
+              placeholder="搜 Python、CPU、内存、pprof、bytes…"
+            /><span
+              id="collector-count"
+              class="muted"
+              role="status"
+              aria-live="polite"
+            ></span>
+          </div>
+          <div id="collector-empty" class="note" hidden>
+            没有匹配项，换个关键词试试。
+          </div>
+          <div id="collectors"></div>
+          <h3 style="margin-top: 28px">另外两种入口</h3>
+          <div id="special-cases"></div>
+          <details class="collector">
+            <summary>
+              <span class="collector-name"
+                ><strong>所有采集器共同的边界</strong></span
+              >
+            </summary>
+            <div class="collector-body" id="collector-common"></div>
+          </details>
+        </section>
+        <section class="panel" id="panel-walkthrough" hidden>
+          <div class="panel-head">
+            <p class="eyebrow">跟着点一遍</p>
+            <h2>从普通采集跑到调查、修复和编排</h2>
+            <p>
+              以你有权限使用且具备相应能力的 Linux
+              节点为前提。下面是一条操作说明，不表示本次已经替你执行这些动作。
+            </p>
+          </div>
+          <div id="walkthrough"></div>
+        </section>
+        <section class="panel" id="panel-data" hidden>
+          <div class="panel-head">
+            <p class="eyebrow">字段与文件</p>
+            <h2>编号、单位和证据分别放哪</h2>
+            <p>先把这些名字认熟，再读消息字段会容易很多。</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>字段</th>
+                  <th>用人话讲</th>
+                  <th>为什么要有</th>
+                </tr>
+              </thead>
+              <tbody id="fields"></tbody>
+            </table>
+          </div>
+          <h2 style="margin-top: 32px">数据保存在哪里</h2>
+          <div class="cards" id="storage"></div>
+          <div class="explain" id="example" style="margin-top: 26px"></div>
+        </section>
+        <section class="panel" id="panel-about" hidden>
+          <div class="panel-head">
+            <p class="eyebrow">怎么读、如何核对</p>
+            <h2>图册的范围和证据</h2>
+          </div>
+          <div class="explain" id="about"></div>
+          <div class="note">
+            图册是在本地生成的代码说明，未部署线上，也没有触发现场采集、模型调用或生产故障注入。图表校验、浏览器测量和图片视觉审阅分别记录。
+          </div>
+          <div class="figure-links">
+            <a href="validation.json">查看完整交付收据</a
+            ><a href="source-manifest.json">源码 SHA 清单</a
+            ><a href="collectors.json">采集器原始对照表</a
+            ><a href="ai-facts.json">AI 事实依据</a
+            ><a href="state-facts.json">状态与恢复依据</a>
+          </div>
+        </section>
+        <footer class="footer">
+          基于当前工作区的静态图解。源文件和证据随图册保留；外部模型、数据库和生产环境不会因打开此页被调用。
+        </footer>
+      </main>
+    </div>
+    <script id="atlas-data" type="application/json">
+      {
+        "atlas": {
+          "title": "Drop 系统图解",
+          "description": "从你点下新建诊断开始，跟着任务指令和采样文件走完一圈。",
+          "date": "2026-10-24",
+          "scope": "按当前工作区代码绘制。图中的示例仅用于讲解，不代表本次执行了采集、模型调用或生产测试。",
+          "diagrams": [
+            {
+              "id": "01",
+              "file": "01-system-architecture",
+              "type": "architecture",
+              "title": "系统总览",
+              "question": "这几个服务各管什么？",
+              "explanation": "把它想成一次体检：React 是你填单、看报告的窗口；Go API 负责核对权限、登记任务；C++ Server 联系现场的 C++ Agent；Agent 用受控工具采样。原始文件放进 MinIO，Python Analyzer 读取并解析，页面再把结果画出来。PostgreSQL 记录这次检查进行到哪一步。",
+              "steps": [
+                "沿上排从左向右看：页面 → Go → C++ Server → C++ Agent。",
+                "看右下角：被检查的业务程序是目标，和采集 Agent 是两个不同进程。",
+                "看下排：文件去 MinIO，执行事实去 PostgreSQL，Analyzer 把原始文件变成结果。"
+              ],
+              "watch": [
+                "C++ Agent 负责现场采集；Python AgentScope 负责模型对话，名字相似、职责不同。",
+                "Go、Core Server、Analyzer 都有各自的受限数据库访问；浏览器和采集 Agent 不直连 PostgreSQL。"
+              ],
+              "sources": [
+                { "path": "contracts/drop.proto", "line": 86 },
+                { "path": "api/internal/service/tasks.go", "line": 306 },
+                { "path": "core/src/server.cpp", "line": 512 },
+                { "path": "analyzer/drop_analyzer/worker.py", "line": 230 }
+              ]
+            },
+            {
+              "id": "02",
+              "file": "02-control-data-flow",
+              "type": "dataflow",
+              "title": "指令与文件怎么流转",
+              "question": "各条线上究竟传了什么？",
+              "explanation": "上排是安排工作的小消息：采谁、采多久、用什么采集器、这次是哪一轮。下排是检查得到的证据：调用栈、计账、对象或事件文件。任务状态和文件位置在数据库中登记；完整原始文件另存在对象存储。图里的 C++ 框合并了 Server 和 Agent 两个角色，精确调用方向看第 03、04 张图。",
+              "steps": [
+                "上排先走一遍，认清 kind、target、task_id、attempt_id。",
+                "下排再走一遍，认清 RAW → 分析结果 → 图表。",
+                "最后看右侧 SSE：通知页面状态变化，再由页面重新查询事实。"
+              ],
+              "watch": [
+                "普通 Agent 采样文件通过受控 S3 PUT 上传，不把整份 RAW 塞进 gRPC 回执。",
+                "导入任务有自己的 HTTP 导入入口，不要把现场 Agent 的上传路径套给导入。"
+              ],
+              "sources": [
+                { "path": "contracts/drop.proto", "line": 86 },
+                { "path": "core/src/artifact.cpp", "line": 149 },
+                { "path": "api/internal/storage/minio.go", "line": 56 },
+                { "path": "api/internal/httpapi/resources.go", "line": 338 }
+              ]
+            },
+            {
+              "id": "03",
+              "file": "03-collection-sequence",
+              "type": "sequence",
+              "title": "点新建后怎么开始采集",
+              "question": "谁先说话，谁再干活？",
+              "explanation": "从上往下读，一根竖线代表一个参与者。页面提交结构化表单；Go 在同一个数据库事务里登记任务、执行轮次、事件和待下发记录。Outbox 后台工作器再通过 Control.CreateTask 把指令交给 Core Server。现场 Agent 用心跳或拉取响应领任务，在目标身份和预算检查通过后运行工具。",
+              "steps": [
+                "先看 POST /tasks 和原子登记，页面拿到 ID 不代表现场已经开始。",
+                "再看 Outbox → CreateTask：网络发送和数据库事务分开处理。",
+                "最后看 Agent 领单和目标检查：PID 之外还核对启动时间、UID 等绑定。"
+              ],
+              "watch": [
+                "task_id 是这件事的编号；attempt_id 是某次实际执行的编号。重试会产生新轮次。",
+                "旧轮次迟到的回执不能覆盖当前轮次。"
+              ],
+              "sources": [
+                { "path": "api/internal/repository/postgres.go", "line": 119 },
+                { "path": "api/internal/control/client.go", "line": 67 },
+                { "path": "core/src/server.cpp", "line": 871 },
+                { "path": "contracts/drop.proto", "line": 171 }
+              ]
+            },
+            {
+              "id": "04",
+              "file": "04-artifact-sequence",
+              "type": "sequence",
+              "title": "采样文件怎么变成分析结果",
+              "question": "上传了什么，谁验证，谁解析？",
+              "explanation": "Agent 先把工具输出落到本地文件，再按本轮授权上传 RAW 和该类型需要的附件，最后向 Core Server 报告制品信息。Core 检查授权、轮次和元数据，原子登记采集完成及分析任务。Analyzer 领取带租约的分析任务，下载 RAW、复算 SHA-256、选择对应解析器，上传结果文件，再提交结果引用。",
+              "steps": [
+                "看 PUT：真正传文件字节。",
+                "看 NotifyResult：传 object_key、size、sha256、format 等登记信息。",
+                "看 Analyzer：下载校验、解析、上传结果，最后由当前租约持有者发布成功。"
+              ],
+              "watch": [
+                "Core 接回执时不重新下载 RAW 验哈希；Analyzer 下载后才复算真实文件 SHA。",
+                "对象上传与 SQL 提交不是一个事务。上传成功、发布失败会留下待维护对账的孤立对象。"
+              ],
+              "sources": [
+                { "path": "core/src/agent.cpp", "line": 942 },
+                { "path": "core/src/server.cpp", "line": 317 },
+                { "path": "analyzer/drop_analyzer/worker.py", "line": 230 },
+                { "path": "analyzer/drop_analyzer/repository.py", "line": 343 }
+              ]
+            },
+            {
+              "id": "05",
+              "file": "05-result-sequence",
+              "type": "sequence",
+              "title": "浏览器怎么画出结果",
+              "question": "火焰图是模型画的吗？",
+              "explanation": "火焰图来自分析结果里的调用树。页面通过 REST 取摘要与文件索引，专门的 Profile Worker 获取短期下载授权、下载 gzip 调用树并校验结构。另一个 Layout Worker 算每个方块的位置，再由 React 展示。模型诊断是另一条可选链路。",
+              "steps": [
+                "先看 REST + SSE：SSE 触发重新查询，不代替最终状态。",
+                "再看 Profile Worker：下载、解压、解析放到工作线程。",
+                "最后看 Layout Worker：根据树的权重计算宽度，点击节点可以放大查看。"
+              ],
+              "watch": [
+                "当前浏览器用 SHA 元数据绑定缓存身份，但没有复算采样制品 SHA；它检查长度、gzip、解压限额和树结构。",
+                "获授权用户可以下载 RAW；不能把“普通模型不接收 RAW”理解成“用户不能下载 RAW”。"
+              ],
+              "sources": [
+                { "path": "web/src/views/TaskDetail.tsx", "line": 106 },
+                { "path": "web/src/event-stream.ts", "line": 194 },
+                { "path": "web/src/profile.worker.ts", "line": 108 },
+                { "path": "web/src/components/flame.worker.ts", "line": 73 }
+              ]
+            },
+            {
+              "id": "06",
+              "file": "06-collection-lifecycle",
+              "type": "lifecycle",
+              "title": "采集状态怎么变化",
+              "question": "创建、排队、采完有什么区别？",
+              "explanation": "创建是系统记下了需求；排队是等待下发；运行是现场正在检查；COLLECTED 表示原始采集完成。失败、取消和超时各有自己的原因。采集成功后还需要分析，才能看到相应的分析结果。",
+              "steps": [
+                "从 CREATED 沿主路径看到 COLLECTED。",
+                "再看失败、取消、超时分支。",
+                "把状态与当前 attempt 绑定起来看；重新执行是新 attempt。"
+              ],
+              "watch": [
+                "COLLECTED 和 analysis=SUCCESS 是两条不同的状态轴。",
+                "同一 task 可以有历史失败轮次和当前成功轮次，不能只看一条旧事件。"
+              ],
+              "sources": [
+                { "path": "api/internal/domain/task.go", "line": 1 },
+                { "path": "core/src/server.cpp", "line": 317 },
+                { "path": "db/migrations/001_initial.sql", "line": 1 }
+              ]
+            },
+            {
+              "id": "07",
+              "file": "07-analysis-lifecycle",
+              "type": "lifecycle",
+              "title": "分析状态与租约",
+              "question": "两个分析器抢同一份任务怎么办？",
+              "explanation": "Analyzer 从数据库领取分析任务并拿到租约，相当于有时间限制的处理资格。活着就续租；进程失联后，其他 Worker 可以接管。提交结果时重新核对轮次、分析 run 和租约，防止旧进程醒来后把新结果覆盖。 这张用状态迁移时序展开；成功发布、重试、接管、取消分别阅读。",
+              "steps": [
+                "区分 Task 的大写 analysis_status 和 AnalysisJob 的小写 status。",
+                "看 claim、续租和过期接管。",
+                "最后看带条件提交：文件已生成不等于这名 Worker 仍有资格发布。"
+              ],
+              "watch": [
+                "Task 创建时即有 PENDING；AnalysisJob 到采集 COLLECTED 后才创建。",
+                "租约过期的 running 可以直接被重新领取、run 递增，不必先写 retry。",
+                "第 07 图下方的 retry、租约接管和取消是不同分支，不是成功之后继续执行；Job 没有 canceled 状态。"
+              ],
+              "sources": [
+                { "path": "analyzer/drop_analyzer/repository.py", "line": 1 },
+                { "path": "analyzer/drop_analyzer/worker.py", "line": 230 },
+                { "path": "db/migrations/001_initial.sql", "line": 1 }
+              ]
+            },
+            {
+              "id": "08",
+              "file": "08-ai-tool-sequence",
+              "type": "sequence",
+              "title": "AI 怎么读证据、调工具",
+              "question": "模型是不是能随便操作服务器？",
+              "explanation": "在启用 AI_AGENT_BACKEND=agentscope 时，Go 把受限问题、统计投影和工具定义交给独立的 Python AgentScope。模型提出工具调用意图后，AgentScope 回调同一个 Go 进程里的工具网关。Go 重新验证工具名、参数、权限、当前轮次、租约和预算，查询真实证据，再返回有界观察。模型提交报告后，Go 还会校验证据引用、数值和单位。",
+              "steps": [
+                "区分 Go 编排与 Go 工具网关：两个角色，属于同一个服务进程。",
+                "看两个私有 Unix socket：运行请求与工具回调分别走。",
+                "最后看 finish：只有通过证据校验的结果才能提交。"
+              ],
+              "watch": [
+                "普通诊断给模型的是脱敏、有界统计，不是整份 RAW、存储密钥或下载 URL。",
+                "源码修复另有明确同意，允许发送登记项目的受限源码片段，不能笼统说所有模式都不发送源码。",
+                "源码默认 legacy，使用 Go 内模型循环；本图专门展开独立 AgentScope 后端，不代表所有配置都经过 Python。"
+              ],
+              "sources": [
+                { "path": "contracts/agent-runtime-v1.json", "line": 4 },
+                {
+                  "path": "api/internal/service/agent_runtime.go",
+                  "line": 141
+                },
+                {
+                  "path": "api/internal/service/diagnosis_tools.go",
+                  "line": 183
+                },
+                {
+                  "path": "api/internal/service/diagnosis_facts.go",
+                  "line": 575
+                }
+              ]
+            },
+            {
+              "id": "09",
+              "file": "09-investigation-sequence",
+              "type": "sequence",
+              "title": "智能调查与自动复测",
+              "question": "说一句“CPU 高”，之后发生什么？",
+              "explanation": "系统先根据真实节点能力生成采集计划，让你检查。你确认后才执行原采集、分析和诊断；有可执行复测方案时，最多再采一次并比较。模型若想补充另一类证据，会提出单独分支，仍需要你确认。每账号最多保留 10 个未结束调查，等待确认也占一个。",
+              "steps": [
+                "先看计划返回和人工确认，规划本身不采集。",
+                "再看原采集 → 分析 → 诊断 → 至多一次复测。",
+                "最后看可选补证和源码修复分支，注意各自前提。"
+              ],
+              "watch": [
+                "缺少某采集器的必要配置可能停在 manual_configuration_required。",
+                "复采结果接近只能增加观察一致性；不能直接证明已找到因果根因或业务延迟改善。"
+              ],
+              "sources": [
+                { "path": "api/internal/service/investigation.go", "line": 22 },
+                {
+                  "path": "api/internal/service/investigation.go",
+                  "line": 504
+                },
+                {
+                  "path": "api/internal/service/diagnosis_verify.go",
+                  "line": 56
+                },
+                {
+                  "path": "api/internal/service/investigation_followups.go",
+                  "line": 142
+                }
+              ]
+            },
+            {
+              "id": "10",
+              "file": "10-repair-workflow",
+              "type": "workflow",
+              "title": "源码定位与隔离修复",
+              "question": "AI 改了代码，会改到正在跑的业务吗？",
+              "explanation": "管理员选择已登记的项目并明确同意后，系统把修复放在独立副本里做。模型只能读取允许的源码片段、提出受限修改、调用登记好的验证流程。Go 通过 Unix socket 联系专用执行 Broker；Broker 创建限资源、无网络的新容器执行。最后返回带版本和 SHA 的补丁包供人审阅。",
+              "steps": [
+                "先看项目登记、源码版本和目标身份绑定。",
+                "再看 profile_business_flow、read_source、test_patch 三个受限工具。",
+                "最后看测试收据和补丁包，补丁只应用在隔离副本。"
+              ],
+              "watch": [
+                "通用 Python 适配器有新红绿回归、6 组 CPU 对照和 sham；旧 CRM/Saber 预设有各自验证协议。",
+                "CPU 对照只描述登记组件的受控工作负载，不能自动扩展成生产 P95/P99 改善。补丁不自动部署业务。"
+              ],
+              "sources": [
+                { "path": "api/internal/service/code_repair.go", "line": 237 },
+                { "path": "api/internal/service/code_executor.go", "line": 39 },
+                { "path": "ops/code_executor.py", "line": 505 },
+                {
+                  "path": "integrations/generic-python/harness/run_job.py",
+                  "line": 84
+                }
+              ]
+            },
+            {
+              "id": "11",
+              "file": "11-recovery-sequence",
+              "type": "sequence",
+              "title": "回执丢了怎样恢复",
+              "question": "服务收到了任务，回包却丢了，会采两次吗？",
+              "explanation": "网络超时只表示发送方不知道结果。Core 可能已经把任务推进到 QUEUED。Outbox 退避后会重新读当前状态：如果已经推进，就把待发送记录确认完成；只有仍满足下发条件时才发送。接收端和状态更新也有幂等与轮次约束。",
+              "steps": [
+                "先看 Core 已落库、Go 没拿到 ACK 的时间窗口。",
+                "再看 Outbox 下一轮重读数据库。",
+                "最后看 published_at 收尾与 Agent 领任务。"
+              ],
+              "watch": [
+                "这个场景通常重读后直接确认 Outbox，不是必然再发一次 CreateTask。",
+                "幂等解决重复操作，attempt 约束解决旧轮次，两者作用不同。"
+              ],
+              "sources": [
+                { "path": "api/internal/repository/fencing.go", "line": 8 },
+                { "path": "api/internal/repository/postgres.go", "line": 355 },
+                { "path": "core/src/server.cpp", "line": 512 }
+              ]
+            },
+            {
+              "id": "12",
+              "file": "12-schedule-composite",
+              "type": "workflow",
+              "title": "定时任务与复合诊断",
+              "question": "多项检查和定时检查怎么组织？",
+              "explanation": "定时任务负责到时间产生一次执行；复合诊断负责把多项检查按依赖关系排起来。每个可运行子项仍走普通采集与分析链。汇总器等子项结束后，区分全部成功、部分成功和失败。",
+              "steps": [
+                "从定时触发入口看 next_run_at 和本轮记录。",
+                "从复合入口看 DAG 依赖、可执行子项和子任务。",
+                "沿普通采集/分析完成回到汇总结果。"
+              ],
+              "watch": [
+                "每轮处理一个已到期时点，下次以当前时间推算；不会逐个补发所有历史时点。",
+                "必选子项失败不等于立即取消其他子项；最终汇总要等 waiting/running 归零。"
+              ],
+              "sources": [
+                { "path": "api/internal/repository/postgres.go", "line": 448 },
+                { "path": "api/internal/domain/platform.go", "line": 197 },
+                { "path": "api/internal/service/composites.go", "line": 19 }
+              ]
+            },
+            {
+              "id": "13",
+              "file": "13-business-signals",
+              "type": "architecture",
+              "title": "关联业务信号",
+              "question": "CPU 高的时候，业务到底有没有变慢？",
+              "explanation": "解释调查表单里的“关联业务信号”：Go 怎样按服务权限和本次采集窗口查询已登记监控源，再把有界、脱敏的指标与日志/调用链摘要交给诊断。",
+              "steps": [
+                "从左上看：页面选择已登记业务服务，Go 校验服务和一跳依赖，只把固定别名 S1…S8 暴露给工具。",
+                "看中间时钟和右侧：从当前 attempt 的有效采集起止确定 window，再用登记查询访问可选遥测源。",
+                "沿下方向左看：校验身份、时间、单位与数量后形成 E 编号观测，供报告、复测和按需补证引用。"
+              ],
+              "watch": [
+                "这是可选数据源接入：Prometheus/Loki/Tempo 或 Drop adapter 按管理员登记配置选择，不表示全部已部署。",
+                "无源、坏时钟、空结果不能当正常；CPU 样本不能换算业务延迟，同时段关联和拓扑均不证明根因。"
+              ],
+              "sources": [
+                {
+                  "path": "api/internal/service/diagnostic_signal_query.go",
+                  "line": 85
+                },
+                {
+                  "path": "api/internal/service/diagnostic_signal_query.go",
+                  "line": 139
+                },
+                {
+                  "path": "api/internal/service/diagnostic_signal_query.go",
+                  "line": 252
+                },
+                {
+                  "path": "api/internal/service/diagnostic_signal_fence.go",
+                  "line": 1
+                }
+              ]
+            },
+            {
+              "id": "14",
+              "file": "14-platform-observability",
+              "type": "architecture",
+              "title": "平台自身怎么监控",
+              "question": "给 Drop 自己做体检，用的是哪条链？",
+              "explanation": "这一层给 Drop 自己做体检：看任务有没有积压、哪个组件报错、一次请求经过了哪些阶段。它与给业务程序采 CPU、堆和 I/O 的诊断链路分开。",
+              "steps": [
+                "先看左侧四个工作进程：Prometheus 每 15 秒主动抓取它们的 /metrics；平台 trace 由进程通过 OTLP HTTP 发给 OTel Collector，再批量送到 Tempo。",
+                "再看 Grafana：它分别查询 Prometheus 的指标和 Tempo 的链路。当前 OTel 配置只有 traces 流水线，不是指标中转站。",
+                "最后看下方告警：Prometheus 评估规则，Alertmanager 分组后向 Maintenance 的 /alerts 发送带授权通知，Maintenance 把受限告警字段写进审计。"
+              ],
+              "watch": [
+                "监控来自可选 compose.observability.yml 叠加文件；源码有配置不代表所有环境已经启用。管理端口只绑定宿主机 loopback，按部署说明从本机或 SSH 隧道访问。",
+                "health、心跳、指标、trace 分别证明不同事情。trace_id 和 span links 帮助串联平台调用，不能代替业务采样与受控复测，也不能单独证明业务根因。"
+              ],
+              "sources": [
+                {
+                  "path": "deploy/compose.observability.yml",
+                  "line": 1,
+                  "label": "可选叠加与组件监听"
+                },
+                {
+                  "path": "deploy/observability/prometheus.yml",
+                  "line": 1,
+                  "label": "真实抓取目标与告警路由"
+                },
+                {
+                  "path": "deploy/observability/otel.yml",
+                  "line": 1,
+                  "label": "仅 traces 的 Collector 流水线"
+                },
+                {
+                  "path": "deploy/observability/grafana/datasources/drop.yml",
+                  "line": 1,
+                  "label": "Grafana 的两个实际数据源"
+                },
+                {
+                  "path": "api/internal/httpapi/server.go",
+                  "line": 288,
+                  "label": "API ready 的真实检查范围"
+                },
+                {
+                  "path": "ops/maintenance.py",
+                  "line": 228,
+                  "label": "授权告警接收与审计"
+                }
+              ]
+            }
+          ],
+          "modules": [
+            {
+              "name": "React 工作台",
+              "role": "把你的选择变成结构化请求，再把状态、表格和调用树展示出来。",
+              "input": "表单、当前会话、API JSON、事件、授权制品",
+              "output": "REST 请求、SSE 连接、Worker 消息、图表",
+              "path": "web/src/views/TaskDetail.tsx"
+            },
+            {
+              "name": "Go API / 编排",
+              "role": "检查谁能采谁，登记事实，安排采集、分析、调查和修复。",
+              "input": "HTTP JSON、数据库记录、AgentScope 回调",
+              "output": "gRPC 指令、短期上传下载授权、受限模型上下文、状态 JSON",
+              "path": "api/internal/service/tasks.go"
+            },
+            {
+              "name": "C++ Core Server",
+              "role": "接收采集任务，管理节点连接，向现场 Agent 发指令并收回执。",
+              "input": "CreateTask、注册/心跳、采集结果元数据",
+              "output": "待执行指令、取消轮次、采集状态与制品记录",
+              "path": "core/src/server.cpp"
+            },
+            {
+              "name": "C++ Agent / Runner",
+              "role": "在目标机器上检查身份，调用允许的工具，收集文件并上传。",
+              "input": "TaskDesc、目标身份、预算、短期 PUT 授权",
+              "output": "RAW/附件文件、进度、NotifyResult、节点心跳",
+              "path": "core/src/agent.cpp"
+            },
+            {
+              "name": "Python Analyzer",
+              "role": "把不同采集器的文件解析成可以查、可以画的结果。",
+              "input": "数据库分析租约、RAW、部分类型的 ELF 等附件",
+              "output": "有界摘要、热点表、typed sections、调用树 gzip、分析清单",
+              "path": "analyzer/drop_analyzer/worker.py"
+            },
+            {
+              "name": "PostgreSQL",
+              "role": "记工作账：哪个用户、哪项任务、哪一轮、哪个状态，以及事件和结果引用。",
+              "input": "参数化 SQL / 事务",
+              "output": "任务事实、授权、Outbox、分析任务/租约、调查与工具收据",
+              "path": "db/migrations/001_initial.sql"
+            },
+            {
+              "name": "MinIO + storage-gateway",
+              "role": "放证据文件。内部网关把受控 S3 请求转到私有存储。",
+              "input": "RAW、附件、分析制品的 PUT",
+              "output": "授权读取的文件字节；浏览器经同源只读 /objects 代理取文件",
+              "path": "deploy/storage-gateway.conf"
+            },
+            {
+              "name": "Python AgentScope",
+              "role": "在启用 agentscope 后端时管理与模型的多轮对话，把模型的工具意图交回 Go 校验执行；源码默认另有 Go 内 legacy 后端。",
+              "input": "phase、model、messages、tools、budget、可见 checkpoint",
+              "output": "工具回调、受约束报告、模型轮次记账请求",
+              "path": "agent_runtime/drop_agent_runtime/wire.py"
+            },
+            {
+              "name": "模型供应方",
+              "role": "根据允许看到的上下文提出解释、计划或修改建议。",
+              "input": "问题、脱敏统计、受限工具观察；修复需另获同意后可有源码片段",
+              "output": "文本、结构化工具调用或结构化结论；最终仍由 Go 验收",
+              "path": "api/internal/service/diagnosis_agentscope.go"
+            },
+            {
+              "name": "源码执行 Broker + 沙箱",
+              "role": "核对已登记项目与允许动作，在隔离容器里测补丁。",
+              "input": "受限 /rpc 动作、项目/版本、执行 ID、结构化补丁",
+              "output": "有界执行/测试收据、对照结果、补丁包",
+              "path": "ops/code_executor.py"
+            },
+            {
+              "name": "诊断规则 / 诊断知识",
+              "role": "规则提供可配置判据；知识保存诊断方法、经复核的经验和 Playbook。",
+              "input": "受权限控制的规则修改、案例复核、方法选择",
+              "output": "规则建议、诊断方法目录、合格且仍有权限的案例参考",
+              "path": "api/internal/httpapi/diagnostic_knowledge.go"
+            },
+            {
+              "name": "质量验证页",
+              "role": "读取已经执行并审阅发布的质量报告。",
+              "input": "管理员 GET 请求、离线发布目录里的有界 JSON",
+              "output": "执行记录与证据摘要；点击查询不会执行任意测试命令",
+              "path": "api/internal/httpapi/quality.go"
+            },
+            {
+              "name": "业务信号适配与登记",
+              "role": "把已授权业务服务在本次采集窗口里的表现接进诊断。按登记配置查询固定指标、日志类别和Trace摘要，缺数据保持未知。",
+              "input": "service_ref、signal、当前采集window；管理员配置的源/查询/凭据文件",
+              "output": "固定单位的P95/错误率/吞吐，受限日志/Trace/变更观测与证据引用",
+              "path": "api/internal/service/diagnostic_signal_query.go"
+            },
+            {
+              "name": "Prometheus（可选监控层）",
+              "role": "定时主动读取Drop各组件的/metrics，保存指标并评估告警。业务诊断也可以单独登记某个Prometheus作为业务指标源，授权与查询范围仍需另配。",
+              "input": "HTTP /metrics响应、受管规则",
+              "output": "时序查询、告警到Alertmanager",
+              "path": "deploy/observability/prometheus.yml"
+            },
+            {
+              "name": "OTel Collector / Tempo（可选）",
+              "role": "接收并保存平台执行链路。当前Collector只配traces流水线，指标由Prometheus直接抓。",
+              "input": "工作进程OTLP HTTP /v1/traces",
+              "output": "Collector批量转Tempo；Tempo提供Trace查询",
+              "path": "deploy/observability/otel.yml"
+            },
+            {
+              "name": "Grafana（可选）",
+              "role": "把监控数据画成面板，是看平台运行情况的另一个入口。",
+              "input": "查询Prometheus和Tempo的结果",
+              "output": "监控仪表盘与链路检索",
+              "path": "deploy/observability/grafana/datasources/drop.yml"
+            },
+            {
+              "name": "Alertmanager / Maintenance（可选）",
+              "role": "对平台告警分组并受控记录。Maintenance还做制品维护与对账；这里只画告警和监控职责。",
+              "input": "Prometheus规则告警；带Bearer授权的/alerts受限通知",
+              "output": "MONITORING_ALERT审计、有界维护指标与健康状态",
+              "path": "ops/maintenance.py"
+            }
+          ],
+          "communications": [
+            {
+              "from": "浏览器",
+              "to": "Go API",
+              "protocol": "同源 HTTPS / REST",
+              "payload": "GET /task-kinds、/agents；POST /tasks：name、kind、target_agent_id、parameters、visibility 等；写请求携会话、CSRF 和相应幂等键。",
+              "why": "列出能选的项目，提交任务并返回 task/attempt。",
+              "source": { "path": "api/internal/httpapi/server.go", "line": 76 }
+            },
+            {
+              "from": "Go API",
+              "to": "Core Server",
+              "protocol": "gRPC + mTLS",
+              "payload": "Control.CreateTask(TaskDesc)：task_id、attempt_id、kind、target、parameters、budget、deadline、upload_targets、格式、pipeline 等；返回 Ack。",
+              "why": "告诉采集控制面本轮要做什么。",
+              "source": { "path": "contracts/drop.proto", "line": 86 }
+            },
+            {
+              "from": "现场 Agent",
+              "to": "Core Server",
+              "protocol": "gRPC + mTLS",
+              "payload": "InitAgent.Init 的 AgentInfo；HealthCheck.Do 的 agent_id、CPU/内存/负载、running_attempt_ids、resources_json；响应带 tasks 与 cancel_attempt_ids。",
+              "why": "报在线、报实际能力、领任务、领取消。箭头表示 Agent 发起 RPC。",
+              "source": { "path": "contracts/drop.proto", "line": 171 }
+            },
+            {
+              "from": "Agent / Runner",
+              "to": "被采集的进程",
+              "protocol": "固定 argv 子进程、attach、procfs 或已配置 profile 端点",
+              "payload": "PID/启动时间/UID、时长、频率、允许的类型选项；具体工具和输出见采集表。",
+              "why": "取得现场证据，不接受任意 shell 命令。",
+              "source": { "path": "core/src/runner.cpp", "line": 1 }
+            },
+            {
+              "from": "Agent",
+              "to": "storage-gateway → MinIO",
+              "protocol": "S3 PUT / 短期预签名授权",
+              "payload": "RAW 及按种类允许的 BINARY、MANIFEST、LOG 等文件字节。内部默认网络是 HTTP S3，不等于公网 HTTPS。",
+              "why": "让大文件独立存储；Agent 不持有长期存储凭证。",
+              "source": { "path": "core/src/artifact.cpp", "line": 149 }
+            },
+            {
+              "from": "Agent",
+              "to": "Core Server",
+              "protocol": "Hotmethod.NotifyResult / gRPC",
+              "payload": "ResultRequest：agent/task/attempt、success、exit_code、error_code、受限去敏的 error_message、runner_metadata_json；ArtifactInfo 带 object_key、size、sha256、name、format、content_type、kind。",
+              "why": "登记采到了哪些文件或为什么失败，回执不是完整采样文件。",
+              "source": { "path": "contracts/drop.proto", "line": 134 }
+            },
+            {
+              "from": "Go / Core / Analyzer",
+              "to": "PostgreSQL",
+              "protocol": "各自受限数据库身份 / SQL 事务",
+              "payload": "task、attempt、events、artifacts、Outbox、analysis_job、lease/run、结果与授权等。各服务只访问职责需要的对象。",
+              "why": "原子保存状态和事件，靠条件写入挡住迟到轮次及失效租约。",
+              "source": { "path": "db/migrations/001_initial.sql", "line": 1 }
+            },
+            {
+              "from": "Analyzer",
+              "to": "MinIO",
+              "protocol": "内部 S3 GET / PUT",
+              "payload": "GET RAW 与解析附件，下载后复算 SHA；PUT summary、调用树 gzip、manifest 等分析制品。",
+              "why": "将原始证据加工成可展示结果；SQL 最后发布可见引用。",
+              "source": {
+                "path": "analyzer/drop_analyzer/worker.py",
+                "line": 230
+              }
+            },
+            {
+              "from": "页面",
+              "to": "Go API",
+              "protocol": "SSE + REST 重读",
+              "payload": "GET /tasks/:id/events/stream，重连携 Last-Event-ID；服务器发送 id、event:task_status、data JSON；完整帧后推进游标。",
+              "why": "让页面及时更新。ID/游标作为十进制字符串避免大整数精度丢失。",
+              "source": { "path": "web/src/event-stream.ts", "line": 194 }
+            },
+            {
+              "from": "Profile Worker",
+              "to": "Go → 同源 /objects → MinIO",
+              "protocol": "授权 REST + 只读 GET / HEAD",
+              "payload": "先按 task/artifact ID 获取最多 5 分钟且受保留期约束的 URL，再取 gzip 调用树；Nginx 保留内部签名所需 Host。获授权 RAW 由任务详情的普通下载按钮另行申请授权、跳转下载。",
+              "why": "浏览器凭短期授权读取文件；公网对象代理不提供上传。",
+              "source": { "path": "api/internal/storage/minio.go", "line": 67 }
+            },
+            {
+              "from": "React",
+              "to": "Layout Worker",
+              "protocol": "浏览器 Web Worker postMessage",
+              "payload": "消息实际是 {root, options}：调用树与布局选项；返回各节点布局。页面通过终止旧 Worker 隔离旧布局任务。",
+              "why": "下载、解压、树解析与布局分到工作线程，减少主页面卡顿。",
+              "source": {
+                "path": "web/src/components/flame.worker.ts",
+                "line": 73
+              }
+            },
+            {
+              "from": "Go 编排",
+              "to": "Python AgentScope",
+              "protocol": "私有 Unix socket / HTTP POST /v1/run（启用 agentscope 后端）",
+              "payload": "phase、model、system_prompt、messages、tools、budget、可见 checkpoint。每次运行有独立私有 capability，与公开 run_id 不同。",
+              "why": "运行受限模型会话；两端用 SO_PEERCRED 核实际进程 UID。 源码默认 legacy 后端，使用 Go 内模型循环；本图展开 AI_AGENT_BACKEND=agentscope 分支，不推断当前生产配置。",
+              "source": {
+                "path": "api/internal/service/agent_runtime.go",
+                "line": 141
+              }
+            },
+            {
+              "from": "AgentScope",
+              "to": "Go 工具网关（同一 Go 进程）",
+              "protocol": "另一私有 Unix socket / POST /v1/callback/{run_id}",
+              "payload": "type、round、call_id、name、arguments 与控制面 capability；响应为校验后的有界工具观察。capability 不给模型。",
+              "why": "模型只能提议调用；Go 负责权限、预算、事实与执行边界。",
+              "source": {
+                "path": "api/internal/service/agent_runtime.go",
+                "line": 620
+              }
+            },
+            {
+              "from": "AgentScope",
+              "to": "模型供应方",
+              "protocol": "服务端配置的 HTTPS 模型 API",
+              "payload": "受限 messages 与 tools；普通诊断是脱敏统计投影，源码修复需另获同意。",
+              "why": "模型推理；不传普通 RAW、存储 URL、Cookie 或执行器凭证。",
+              "source": {
+                "path": "api/internal/service/diagnosis_tools.go",
+                "line": 183
+              }
+            },
+            {
+              "from": "Go 修复编排",
+              "to": "专用执行 Broker",
+              "protocol": "第三条用途独立的 Unix socket / POST /rpc",
+              "payload": "action、project_id、source_revision、execution_id、arguments；Broker 再按固定镜像/命令/目录策略创建临时容器。",
+              "why": "API 不拿 Docker socket，模型不获得宿主任意执行权限。",
+              "source": {
+                "path": "api/internal/service/code_executor.go",
+                "line": 39
+              }
+            },
+            {
+              "from": "Go业务信号工具",
+              "to": "管理员登记的业务遥测源",
+              "protocol": "固定HTTP API / 有界时间窗",
+              "payload": "只接service_ref和signal；Go据登记配置选择Prometheus/Loki/Tempo或轻量adapter，查询本次有效window。模型不提供URL、查询语言或凭据。",
+              "why": "把固定单位和数量上限的观测与采样证据并列，原日志正文和真实Trace ID不进入模型。",
+              "source": {
+                "path": "api/internal/service/diagnostic_signal_query.go",
+                "line": 139
+              }
+            },
+            {
+              "from": "Prometheus（可选）",
+              "to": "API / Core / Agent / Analyzer等/metrics",
+              "protocol": "HTTP GET /metrics，每15秒拉取",
+              "payload": "平台HTTP/gRPC、进程、队列、Outbox、租约等计数、耗时与状态；具体目标按部署配置。",
+              "why": "观察平台自身是否健康和积压，与Agent领任务心跳不同。",
+              "source": {
+                "path": "deploy/observability/prometheus.yml",
+                "line": 1
+              }
+            },
+            {
+              "from": "工作进程（启用OTLP时）",
+              "to": "OTel Collector → Tempo",
+              "protocol": "OTLP HTTP /v1/traces",
+              "payload": "有界平台span、有效上下文和异步span links；Collector配置memory_limiter、batch，只转发traces。",
+              "why": "串联执行链路；并不承诺异步阶段始终共用同一个trace_id，更不能代替权限或因果证明。",
+              "source": { "path": "deploy/observability/otel.yml", "line": 1 }
+            },
+            {
+              "from": "Grafana（可选）",
+              "to": "Prometheus / Tempo",
+              "protocol": "受管HTTP数据源 / proxy",
+              "payload": "监控面板的指标查询与平台Trace查询；当前受管配置没有Loki。",
+              "why": "给运维人员查看平台监控。业务信号的可选Loki接入是另一条登记链。",
+              "source": {
+                "path": "deploy/observability/grafana/datasources/drop.yml",
+                "line": 1
+              }
+            },
+            {
+              "from": "Prometheus → Alertmanager",
+              "to": "Maintenance /alerts → PostgreSQL审计",
+              "protocol": "内网HTTP告警 + Bearer受限接收",
+              "payload": "规则告警经分组，Maintenance限定正文/批次并提取固定alertname、severity、job、instance和firing/resolved字段。",
+              "why": "保存受限MONITORING_ALERT审计；不开放任意命令执行入口。",
+              "source": { "path": "ops/maintenance.py", "line": 228 }
+            }
+          ],
+          "fields": [
+            {
+              "name": "task_id",
+              "meaning": "这件检查工作的编号，像工单号。",
+              "reason": "查详情、权限、历史轮次、结果都围绕它。"
+            },
+            {
+              "name": "attempt_id",
+              "meaning": "某一次实际执行的编号。像同一工单第几次上门。",
+              "reason": "重试用新轮次，旧回执不能改新一轮。"
+            },
+            {
+              "name": "kind / analysis_pipeline",
+              "meaning": "用哪种采集器、交给哪种分析流程。",
+              "reason": "folded、HPROF、pprof、事件 JSON 不能混着解析。"
+            },
+            {
+              "name": "target",
+              "meaning": "被检查的进程/容器/主机的结构化身份。",
+              "reason": "只用 PID 会认错重启后复用编号的进程；启动时间、UID 等提供额外绑定。"
+            },
+            {
+              "name": "duration / frequency",
+              "meaning": "采多久、每秒尝试采多少次。",
+              "reason": "采样有开销与误差，频率不是请求吞吐量。实际输出还取决于工具与权限。"
+            },
+            {
+              "name": "budget / deadline",
+              "meaning": "文件、内存、CPU、进程数、并发和到期时间的边界。",
+              "reason": "采集任务需要限制开销，模型或表单不能越过服务器策略。"
+            },
+            {
+              "name": "object_key",
+              "meaning": "证据文件在存储桶里的地址标识。",
+              "reason": "它不是文件正文，也不是永久公开下载地址。"
+            },
+            {
+              "name": "size / sha256 / format",
+              "meaning": "多大、文件指纹是什么、应该按什么格式读。",
+              "reason": "元数据核对、实际下载完整性检查、解析器选择和缓存身份各有自己的作用。"
+            },
+            {
+              "name": "lease / analysis run",
+              "meaning": "某个分析器这段时间的处理资格，以及分析的当前轮次。",
+              "reason": "旧进程不能凭旧资格发布新结果。"
+            },
+            {
+              "name": "event sequence",
+              "meaning": "同一事件流里的顺序号。",
+              "reason": "断线从上次完整帧之后续读；事件用于通知，最终事实仍重读数据库。"
+            },
+            {
+              "name": "run_id / call_id / capability",
+              "meaning": "模型会话号、工具调用号、私有运行授权是三个东西。",
+              "reason": "公开 ID 方便追踪，私有授权控制回调；持久化的可见收据用来防止盲目重复动作。"
+            },
+            {
+              "name": "unit / self / total",
+              "meaning": "单位、函数自身权重、含子调用的累计权重。",
+              "reason": "samples、bytes、ticks、ns 的比例不能互当。火焰图宽度反映权重，默认不是时间轴。"
+            }
+          ],
+          "storage": [
+            {
+              "place": "PostgreSQL",
+              "data": "用户/组/授权；task/attempt；状态/事件/Outbox；分析任务与租约；有界结果；调查、工具收据与知识条目。",
+              "readers": "Go、Core Server、Analyzer 按职责访问。"
+            },
+            {
+              "place": "私有 MinIO",
+              "data": "RAW；类型允许的 ELF/二进制/采集清单/日志；分析摘要、完整调用树 gzip、分析 manifest 等制品。",
+              "readers": "Agent 持短期 PUT 授权上传；Analyzer 使用服务端身份；用户经 Go 授权下载。"
+            },
+            {
+              "place": "Agent 本地工作目录",
+              "data": "工具临时输出、helper/上传恢复需要的受控状态与待上传文件。",
+              "readers": "现场 Agent/受控 helper；不提供任意本地路径给浏览器读取。"
+            },
+            {
+              "place": "Browser Worker / 页面内存",
+              "data": "当前结果、下载解压后的调用树、布局、绑定 task/attempt/artifact/SHA 元数据的缓存。",
+              "readers": "当前授权页面；退出或取消时终止相应 Worker。"
+            },
+            {
+              "place": "修复隔离副本",
+              "data": "登记源码的本轮副本、候选修改、有界测试输出、对照结果和补丁。",
+              "readers": "Broker 创建的限资源、无网络容器。原业务不自动替换。"
+            },
+            {
+              "place": "模型请求 / 可见 checkpoint",
+              "data": "普通诊断只含受限问题与脱敏投影；checkpoint 保存可见消息、计数和工具收据。",
+              "readers": "AgentScope 和受控 Go 编排；不保存私有 capability 或隐藏思维链。"
+            }
+          ],
+          "walkthrough": [
+            {
+              "title": "1. 先确定要查谁",
+              "text": "打开“接入节点”，选一个你有权限使用且在线的节点，查看进程和实际采集能力。以一个已授权的 Python 进程为例：节点需有可用 py-spy 及对应 attach 权限，记住当前 PID/启动身份。",
+              "diagram": "01"
+            },
+            {
+              "title": "2. 创建一次具体采集",
+              "text": "点“新建诊断”，选“Python CPU 调用栈”，选刚才的节点/进程，设置 20 秒、99 Hz，“包含原生调用栈”保持关闭后提交。系统向 Go 提交的是结构化参数；这个表单不会上传整份业务源码。",
+              "diagram": "03"
+            },
+            {
+              "title": "3. 看它是否真的开始",
+              "text": "进入任务详情，沿状态、事件观察创建、排队和采集。此时 Go 已有工单，Core/Agent 再安排现场工作。若权限、工具或目标身份不满足，查看明确错误原因，别把失败当作零开销。",
+              "diagram": "06"
+            },
+            {
+              "title": "4. 等原始证据与分析",
+              "text": "py-spy 输出 python.folded。Agent 上传并登记回执，Analyzer 下载验 SHA 后按 folded 解析。采集 COLLECTED 后，分析仍可能在 PENDING/RUNNING；等 analysis=SUCCESS 再看分析结果。",
+              "diagram": "04"
+            },
+            {
+              "title": "5. 读热点与火焰图",
+              "text": "打开结果，先看样本量、单位和质量提示，再看 Top 函数与调用路径。宽的是权重高的路径，横向不是请求的先后时间。可以放大节点、搜索函数，也可以按当前权限下载制品核查。",
+              "diagram": "05"
+            },
+            {
+              "title": "6. 让 AI 解释已有证据",
+              "text": "在任务的诊断区域发起诊断并按提示同意。模型通过受限工具读热点、质量和证据引用；Go 验收结论中的数值与单位。模型提出假设不等于已经证明根因。",
+              "diagram": "08"
+            },
+            {
+              "title": "7. 再走智能调查入口",
+              "text": "到“智能性能调查”描述问题、选目标，点生成采集计划。先看它打算用什么采集器、采多久，确认后执行。系统最多自动复测一次；额外补证分支需另确认。未结束调查最多 10 个。",
+              "diagram": "09"
+            },
+            {
+              "title": "关联业务信号，再核对业务表现",
+              "text": "在调查表单的“关联业务信号”中选择已登记且有权读取的业务服务；没有可用数据源时保留“仅使用采集证据”。确认计划后，系统按本次有效采集时间窗查询。看真实P95/错误率/吞吐的单位与证据；缺数据保持未知，不能由CPU样本代算业务延迟。",
+              "diagram": "13"
+            },
+            {
+              "title": "8. 有登记项目再做源码修复",
+              "text": "管理员在“源码定位与修复”选已登记项目并明确同意。系统在隔离副本中定位、改动、回归和对照；完成后下载补丁包、人审后自行合并部署。没有登记与绑定的项目不能直接套用在线目标修复。",
+              "diagram": "10"
+            },
+            {
+              "title": "9. 扩展到定时与多项检查",
+              "text": "想周期执行，去“计划任务”配置已授权目标；想联合 CPU/内存等检查，去“复合诊断”配置子项与依赖。它们复用前面的普通采集分析链，不能绕过工具与目标权限。",
+              "diagram": "12"
+            },
+            {
+              "title": "10. 最后看管理和质量",
+              "text": "“权限组”管谁能看、谁能使用节点；“诊断规则”管规则判据；“诊断知识”管方法和经复核经验；“质量验证”读取已经发布的执行证据。总览只把这些事实汇总显示。",
+              "diagram": "01"
+            },
+            {
+              "title": "查看平台自监控（可选配置）",
+              "text": "若管理员已启用监控叠加配置，按部署说明从本机或SSH隧道访问Grafana等管理入口，查看平台队列、错误、Outbox和链路。总览里的节点在线来自心跳；health/ready、监控指标和一次实际采集成功是不同证据。",
+              "diagram": "14"
+            }
+          ],
+          "example": {
+            "title": "用两行示例看懂：文件怎样变成图",
+            "notice": "以下是手写的合成教学数据，不是本次或线上真实采样结果。",
+            "raw": "api;decode;parse 5\napi;lookup 15\n",
+            "explanation": "一行是一条调用路径，末尾是权重。这里共 20 个样本权重：api 累计 20；decode 累计 5；parse 自身 5；lookup 自身 15。lookup 占 15/20=75%，parse 占 25%。父函数的累计值包含子调用，不要把所有层的累计值相加。",
+            "result": "{\n  \"name\": \"api\", \"self\": 0, \"total\": 20,\n  \"children\": [\n    {\"name\":\"decode\", \"self\":0, \"total\":5,\n     \"children\":[{\"name\":\"parse\",\"self\":5,\"total\":5}]},\n    {\"name\":\"lookup\",\"self\":15,\"total\":15}\n  ]\n}\n",
+            "result_notice": "这是解释 self/total 的简化树，不是平台完整响应 schema。普通折叠栈按路径累计后，Analyzer 再生成正式有界摘要与完整树制品。",
+            "limits": [
+              "75% 是这份样本的权重占比，不等于服务器 CPU 使用率 75%，也不等于请求花了 75% 的墙钟时间。",
+              "这份 folded 没有每个请求的完整时间线，无法直接算 P95/P99；内存类与事件类采集也应按自己的单位读。",
+              "空事件窗口可能没有事件；零字节、不完整或质量不合格的 RAW 需要按具体解析/错误语义处理，不能一概补成零开销。"
+            ]
+          },
+          "reading": [
+            "看总览先认角色；看数据流分清消息和文件；看时序从上往下找先后；看状态图理解等待、成功和失败。",
+            "点图上的消息或节点可以查看说明；用右下角缩放、路径、地图、搜索探索。标准导出在部分长注释时序图会展开细注，可能重叠；要保存清楚的静态图，优先下载图册提供的“阅读版 PNG”。需要单独交互查看时点“独立打开”。",
+            "图与说明按当前工作区源码绘制，基础 Git revision 与被引用文件 SHA 记录在证据清单中。本地修改也计入来源，不能只把基准提交当成全部文件内容。"
+          ]
+        },
+        "collectors": {
+          "schema_version": 1,
+          "title": "Drop 具体采集了什么",
+          "scope": "依据当前工作区源码与任务类型契约整理；说明实现能力与前提，不表示每个生产节点都已安装工具或完成现场验收。",
+          "counts": {
+            "agent_runner_kinds": 16,
+            "import_only_kinds": 1,
+            "orchestration_kinds": 1,
+            "total_catalog_kinds": 18
+          },
+          "common": [
+            "采集检查正在运行的目标程序。先选授权节点和进程，Agent固定PID、进程启动时刻及目标身份，Runner只把类型化参数变成固定argv、固定HTTP路径、固定模板或受控本地socket请求。",
+            "RAW是采样器原始输出，可能含函数名、文件路径、内存地址、堆对象或诊断文本；不同类型的RAW并不是同一种文件，不能全部当作折叠调用栈解析。",
+            "所有16种现场类型的契约支持Linux amd64/arm64；实际可用性取决于节点能力探测、工具完整性、目标授权、内核和目标运行环境。节点离线或能力未就绪时不能仅靠选中类型完成采集。",
+            "task_id标记一次业务任务，attempt_id标记其中一轮采集；原始制品、SHA、解析输出、事件与重试都绑定该轮。重试不会把旧轮次制品冒充新证据。",
+            "Agent计算RAW大小/SHA，经内部存储网关短期签名PUT到MinIO；NotifyResult向C++ Server报告元数据，Server核当前轮次和授权后入分析队列。Analyzer下载精确存储字节并复算SHA，再按pipeline解析。",
+            "常规分析制品包括flamegraph.json.gz、top.json、report.json和独立manifest.json。文件格式一致不代表单位相同：横向权重可能是samples、cpu_ticks、nanoseconds、bytes或count，必须读summary.unit和专属section。",
+            "total_samples是历史统一字段名，在某些类型中实际代表选定单位的总权重，不能把内存字节数或CPU纳秒数叫成采样次数。observation_count仅在确有相应观测时提供。",
+            "采集成功、分析成功、模型返回和根因已验证是不同事情。CPU权重不等于请求延迟，结束时仍存活的内存不等于泄漏；未知、缺失或没有采到的数据不能补成正常零值。",
+            "目录里的max_file_bytes是类型契约上限；实际还受任务预算、Analyzer总下载/临时磁盘/内存/时间及专用解析器上限约束。大文件允许上传不保证满足分析预算。",
+            "原始profile不外发模型；AI通过Go受限工具获得经授权、限额与去敏的聚合投影。业务指标/日志/trace来自另行登记授权的数据源，不由这些profile采集器自动推断。"
+          ],
+          "collectors": [
+            {
+              "id": "PERF_CPU",
+              "what": "隔一小段时间观察一次：目标进程的哪些函数正在使用CPU。",
+              "tool_and_input": "Agent以固定argv运行perf record，附加已授权PID；事件只选cpu-clock、cycles、instructions，调用栈只选fp或dwarf。采完运行perf script，保留线程、时间、事件、符号和动态库等信息。",
+              "data_and_units": [
+                "函数调用栈及每条样本的comm/pid/tid/time/event/ip/sym/dso；分析主权重为samples。",
+                "时间戳为CLOCK_MONOTONIC纳秒。原生perf记录扫描可提供样本记录数、lost_records与hardware_lost_samples，但含义分开。"
+              ],
+              "analysis_outputs": [
+                "函数火焰树、self/inclusive热点表。",
+                "perf专属线程、时间分布、事件与丢样证据；支持perf_script及导入perf_data/folded。"
+              ],
+              "prerequisites": [
+                "节点perf就绪且可执行，目标PID/UID/容器在授权范围，满足PERFMON及内核perf策略。",
+                "需要相应栈展开条件；fp依赖可用帧指针，dwarf有独立栈采样开销和限制。"
+              ],
+              "cannot_infer": [
+                "samples不是CPU纳秒、精确指令数或请求延迟，cycles/instructions采样也不直接等于硬件事件总数。",
+                "PERF_RECORD_LOST是丢失记录数，不能一律当丢失样本数；没有文本lost行不能证明零丢样。",
+                "旧协议只上传folded，会失去原生perf的线程/时间等详细证据。"
+              ],
+              "label": "CPU 火焰图 · perf",
+              "runner": "perf",
+              "analysis_pipeline": "folded_v1",
+              "raw": {
+                "name": "profile.perf-script",
+                "format": "perf_script",
+                "accepted_formats": ["perf_script", "perf_data", "folded"],
+                "content_type": "text/plain",
+                "catalog_max_bytes": 33554432
+              },
+              "supported_targets": ["process", "container"],
+              "required_capabilities": ["PERFMON"],
+              "sources": [
+                {
+                  "path": "contracts/task-kinds.json",
+                  "line": 3,
+                  "reason": "任务类型、runner、RAW格式/大小和参数白名单真源"
+                },
+                {
+                  "path": "core/src/runner.cpp",
+                  "line": 1220,
+                  "reason": "现场perf采集与perf script转换"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/perf.py",
+                  "line": 79,
+                  "reason": "样本解析、线程/时间和丢样边界"
+                }
+              ]
+            },
+            {
+              "id": "PROC_CPU",
+              "what": "看进程里哪个线程用了较多CPU，不深入到线程里面的函数。",
+              "tool_and_input": "不启动外部profiler；定期读取/proc/PID/task/TID的CPU计数，计算相邻快照增量，输出进程→线程两层折叠行。",
+              "data_and_units": [
+                "线程用户态与内核态CPU tick累计差；公开summary.unit为cpu_ticks。",
+                "每行类似process:PID (procfs);thread:名称 [TID] 权重；最多10Hz。"
+              ],
+              "analysis_outputs": [
+                "两层进程/线程火焰树与热点表；源明确为procfs。"
+              ],
+              "prerequisites": [
+                "允许读取授权进程的/proc线程统计；采样窗口内有可观测CPU增量。",
+                "循环中核对进程启动身份，防止PID被复用；没有正增量会报NO_SAMPLES。"
+              ],
+              "cannot_infer": [
+                "没有函数调用栈，不能定位某个业务函数或把它称为perf采样。",
+                "tick不是一次采样或一次函数调用，也不是请求耗时。",
+                "底层通用folded聚合表仍使用samples字段/单位；对本类型应以公开summary的cpu_ticks语义解释，不能套用CPU采样次数。"
+              ],
+              "label": "线程 CPU 诊断 · procfs",
+              "runner": "procfs",
+              "analysis_pipeline": "folded_v1",
+              "raw": {
+                "name": "profile.folded",
+                "format": "folded",
+                "accepted_formats": ["folded"],
+                "content_type": "text/plain",
+                "catalog_max_bytes": 33554432
+              },
+              "supported_targets": ["process", "container"],
+              "required_capabilities": [],
+              "sources": [
+                {
+                  "path": "contracts/task-kinds.json",
+                  "line": 206,
+                  "reason": "任务类型、runner、RAW格式/大小和参数白名单真源"
+                },
+                {
+                  "path": "core/src/runner.cpp",
+                  "line": 1284,
+                  "reason": "实际/proc增量与输出"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/result.py",
+                  "line": 113,
+                  "reason": "公开CPU tick单位覆盖"
+                }
+              ]
+            },
+            {
+              "id": "JAVA_CPU",
+              "what": "查看Java函数的CPU热点，也可切换到分配或锁相关的采样权重。",
+              "tool_and_input": "以asprof（async-profiler）附加授权JVM；固定-e cpu/alloc/lock、-d时长、-j 127、-o collapsed。受限环境可用同UID的ctimer CPU计时路径。",
+              "data_and_units": [
+                "现场RAW是折叠栈java.folded：调用路径和工具输出的整数权重。",
+                "当前通用folded解析标unit=samples，保存requested_event但没有按alloc/lock重新标注为bytes/ns；这三种事件不能混作同一种物理量。",
+                "导入JFR时只读取受支持的ExecutionSample/NativeMethodSample事件，每个执行采样权重1。"
+              ],
+              "analysis_outputs": [
+                "折叠栈或JFR执行事件形成火焰树、函数热点和规则相关信号。",
+                "runner_metadata保留requested_event与sampling_engine，ctimer路径说明不采内核perf事件栈。"
+              ],
+              "prerequisites": [
+                "节点asprof就绪，目标为可附加JVM并有JVM_ATTACH权限，目标身份与命名空间匹配。",
+                "导入JFR需Analyzer可用OpenJDK jfr工具。"
+              ],
+              "cannot_infer": [
+                "当前alloc/lock折叠结果不能直接对外声称为精确分配字节或锁等待纳秒；需结合工具原始语义与进一步度量。",
+                "表单frequency_hz不证明此分支按该频率运行：当前asprof argv没有传频率/间隔选项。",
+                "JFR导入不会自动分析整份录制中的所有事件，也不等于完整GC、锁或请求时序报告。"
+              ],
+              "label": "Java CPU / 分配 / 锁分析",
+              "runner": "async-profiler",
+              "analysis_pipeline": "java_cpu_v1",
+              "raw": {
+                "name": "java.folded",
+                "format": "folded",
+                "accepted_formats": ["folded", "jfr"],
+                "content_type": "text/plain",
+                "catalog_max_bytes": 33554432
+              },
+              "supported_targets": ["process", "container"],
+              "required_capabilities": ["JVM_ATTACH"],
+              "sources": [
+                {
+                  "path": "contracts/task-kinds.json",
+                  "line": 374,
+                  "reason": "任务类型、runner、RAW格式/大小和参数白名单真源"
+                },
+                {
+                  "path": "core/src/runner.cpp",
+                  "line": 535,
+                  "reason": "实际asprof argv"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/folded.py",
+                  "line": 133,
+                  "reason": "folded权重单位"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/external.py",
+                  "line": 70,
+                  "reason": "JFR支持事件的实际范围"
+                }
+              ]
+            },
+            {
+              "id": "GO_CPU",
+              "what": "让Go程序把自己运行时记录的CPU调用栈交出来。",
+              "tool_and_input": "Agent确认登记端口确实属于目标进程，再HTTP GET固定/debug/pprof/profile?seconds=时长；不是访问用户随意输入的URL，也不启动shell。",
+              "data_and_units": [
+                "Go pprof protobuf样本、调用位置、函数名、标签、采集起止/时长、period及sample_type向量。",
+                "优先选cpu列，其单位来自文件sample_type（常见nanoseconds）；也可选samples列，单位常见count。"
+              ],
+              "analysis_outputs": [
+                "所选权重的火焰树、Top函数；保留sample_types、profile_type、实际过滤条件和过滤样本数。",
+                "确有samples/count列时另提供observation_count，避免把CPU纳秒当次数。"
+              ],
+              "prerequisites": [
+                "目标Go程序已暴露授权pprof端口，节点可验证端口的目标归属和可达地址。",
+                "TARGET_PPROF_ENDPOINT能力就绪；路径、port和sample_type符合白名单。"
+              ],
+              "cannot_infer": [
+                "frequency_hz表单值不会通过此HTTP请求改变Go runtime CPU采样率。",
+                "pprof CPU权重不是请求响应时间，也不自动关联某条业务请求。",
+                "带负选定权重的差分pprof会被拒绝，不能把它按普通正权重火焰图展示。"
+              ],
+              "label": "Go CPU pprof",
+              "runner": "pprof-http",
+              "analysis_pipeline": "pprof_cpu_v1",
+              "raw": {
+                "name": "cpu.pprof",
+                "format": "pprof",
+                "accepted_formats": ["pprof"],
+                "content_type": "application/octet-stream",
+                "catalog_max_bytes": 33554432
+              },
+              "supported_targets": ["process", "container"],
+              "required_capabilities": ["TARGET_PPROF_ENDPOINT"],
+              "sources": [
+                {
+                  "path": "contracts/task-kinds.json",
+                  "line": 566,
+                  "reason": "任务类型、runner、RAW格式/大小和参数白名单真源"
+                },
+                {
+                  "path": "core/src/runner.cpp",
+                  "line": 894,
+                  "reason": "目标端口归属与固定HTTP路径"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/pprof.py",
+                  "line": 90,
+                  "reason": "pprof列选择、单位、标签与过滤"
+                }
+              ]
+            },
+            {
+              "id": "GO_HEAP",
+              "what": "看Go内存主要分配在哪些调用路径，或哪些分配仍在使用。",
+              "tool_and_input": "验证目标pprof端口归属后GET固定/debug/pprof/heap；可选gc=true请求采前GC。",
+              "data_and_units": [
+                "pprof中的分配调用栈和alloc_space/alloc_objects/inuse_space/inuse_objects列。",
+                "space列单位通常bytes；objects列通常count，以文件实际声明和所选sample_type为准。"
+              ],
+              "analysis_outputs": [
+                "选定内存列的火焰树、热点；heap section列出各sample_type总量、过滤信息。",
+                "classes、dominators、leak_paths明确为空，避免伪造对象图结果。"
+              ],
+              "prerequisites": [
+                "目标已接入pprof并通过端口归属验证，具备TARGET_PPROF_ENDPOINT。",
+                "单次heap请求是快照，不会因为duration_seconds填10就产生10秒逐次分配事件流。"
+              ],
+              "cannot_infer": [
+                "分配栈采样没有完整对象引用关系，不能计算Java式支配树或精确retained size。",
+                "alloc累计分配和inuse存活占用含义不同；单个快照不能确认泄漏。",
+                "GC前后口径、sample_type或过滤条件不同的结果不能直接当作相同测量条件。"
+              ],
+              "label": "Go Heap pprof",
+              "runner": "pprof-http",
+              "analysis_pipeline": "pprof_heap_v1",
+              "raw": {
+                "name": "heap.pprof",
+                "format": "pprof",
+                "accepted_formats": ["pprof"],
+                "content_type": "application/octet-stream",
+                "catalog_max_bytes": 33554432
+              },
+              "supported_targets": ["process", "container"],
+              "required_capabilities": ["TARGET_PPROF_ENDPOINT"],
+              "sources": [
+                {
+                  "path": "contracts/task-kinds.json",
+                  "line": 785,
+                  "reason": "任务类型、runner、RAW格式/大小和参数白名单真源"
+                },
+                {
+                  "path": "core/src/runner.cpp",
+                  "line": 894,
+                  "reason": "固定heap请求与gc选项"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/pprof.py",
+                  "line": 275,
+                  "reason": "heap输出和对象图边界"
+                }
+              ]
+            },
+            {
+              "id": "PYTHON_CPU",
+              "what": "定时偷看Python进程正在执行的函数栈，找CPU相关热点。",
+              "tool_and_input": "固定argv运行py-spy record --format raw --pid PID --duration 秒 --rate Hz；native=true时额外--native。py-spy所谓raw输出在任务契约中归为folded文本。",
+              "data_and_units": [
+                "Python函数调用路径及采样权重，单位samples；native启用时可包含原生帧。",
+                "实际可信py-spy现场来源的空栈/空帧会以固定未知占位符保留权重，并产生sampling_quality统计。"
+              ],
+              "analysis_outputs": [
+                "完整调用树、函数热点、self/inclusive占比和采样质量；来源py-spy。"
+              ],
+              "prerequisites": [
+                "节点py-spy就绪，目标Python版本兼容，具备SYS_PTRACE和相应目标权限。",
+                "目标在采集窗口运行且身份持续匹配；native栈能否展开取决于运行环境与符号。"
+              ],
+              "cannot_infer": [
+                "采样占比不等于业务请求延迟、精确调用次数或根因。",
+                "未知栈占比不能被自动归到某个具体函数，也不能作为已确认CPU热点依据。",
+                "导入文件自称py-spy不能获得可信现场空栈适配的身份。"
+              ],
+              "label": "Python CPU 调用栈",
+              "runner": "py-spy",
+              "analysis_pipeline": "python_cpu_v1",
+              "raw": {
+                "name": "python.folded",
+                "format": "folded",
+                "accepted_formats": ["folded"],
+                "content_type": "text/plain",
+                "catalog_max_bytes": 33554432
+              },
+              "supported_targets": ["process", "container"],
+              "required_capabilities": ["SYS_PTRACE"],
+              "sources": [
+                {
+                  "path": "contracts/task-kinds.json",
+                  "line": 1006,
+                  "reason": "任务类型、runner、RAW格式/大小和参数白名单真源"
+                },
+                {
+                  "path": "core/src/runner.cpp",
+                  "line": 552,
+                  "reason": "实际py-spy命令"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/pyspy_raw.py",
+                  "line": 48,
+                  "reason": "空栈/空帧保留与质量统计"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/pyspy_raw.py",
+                  "line": 18,
+                  "reason": "现场来源身份约束"
+                }
+              ]
+            },
+            {
+              "id": "PYTHON_MEMORY",
+              "what": "记录Python程序在采集期间的分配和释放，找内存高水位来自哪里。",
+              "tool_and_input": "固定argv运行memray attach --method gdb --output allocations.bin --duration 秒 PID，可选--native。Analyzer用memray.FileReader解码。",
+              "data_and_units": [
+                "分配记录、调用栈、高水位分配、捕获结束未释放记录、内存快照；主树为高水位分配栈，单位bytes。",
+                "全事件格式可计算观测到的allocated/freed和次数；聚合格式缺少的总量为null。"
+              ],
+              "analysis_outputs": [
+                "高水位火焰树、memory section的allocated/freed/live/peak、结束存活分配候选和RSS/live时序。"
+              ],
+              "prerequisites": [
+                "目标Python环境本身能导入兼容memray；Agent安装memray不能替代目标环境准备。",
+                "memray、gdb及附加权限就绪；跨UID停止/恢复目标线程还需要相应信号权限。Analyzer也需memray FileReader。"
+              ],
+              "cannot_infer": [
+                "捕获结束仍存活标记unfreed_at_capture_end，不等于内存泄漏。",
+                "memray不提供page fault统计；未知字段不能补零。",
+                "聚合文件没有逐次alloc/free事件流，不能补造累计量或时间线。"
+              ],
+              "label": "Python Memory / 分配追踪",
+              "runner": "memray",
+              "analysis_pipeline": "memray_v1",
+              "raw": {
+                "name": "allocations.bin",
+                "format": "memray",
+                "accepted_formats": ["memray"],
+                "content_type": "application/octet-stream",
+                "catalog_max_bytes": 268435456
+              },
+              "supported_targets": ["process", "container"],
+              "required_capabilities": ["SYS_PTRACE"],
+              "sources": [
+                {
+                  "path": "contracts/task-kinds.json",
+                  "line": 1193,
+                  "reason": "任务类型、runner、RAW格式/大小和参数白名单真源"
+                },
+                {
+                  "path": "core/src/runner.cpp",
+                  "line": 564,
+                  "reason": "memray attach固定argv"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/external.py",
+                  "line": 128,
+                  "reason": "高水位、存活候选、聚合格式边界"
+                },
+                {
+                  "path": "core/src/runner.cpp",
+                  "line": 794,
+                  "reason": "跨UID附加前检查信号权限"
+                },
+                {
+                  "path": "docs/CONTRACT.md",
+                  "line": 19,
+                  "reason": "目标memray环境与CAP_KILL约束"
+                }
+              ]
+            },
+            {
+              "id": "JAVA_HEAP",
+              "what": "拍一张Java堆的对象关系照片，找哪些对象把大量内存留住。",
+              "tool_and_input": "通过asprof原生jattach的受控jcmd子命令执行GC.heap_dump，输出heap.hprof；live选项控制是否带-all。并不是执行用户提供的任意jcmd命令。",
+              "data_and_units": [
+                "HPROF对象、类、数组载荷、GC roots与对象引用图。",
+                "shallow/retained单位bytes，但权重采用HPROF字段与数组载荷大小，不含VM对象头、压缩引用差异和对齐。"
+              ],
+              "analysis_outputs": [
+                "类直方图、对象计数、可达/不可达对象、支配对象、保留路径候选；支持有界磁盘索引和恢复。",
+                "普通火焰树按类的shallow权重聚合，支配关系另在heap section呈现。"
+              ],
+              "prerequisites": [
+                "JVM允许附加，asprof/jattach就绪且有JVM_ATTACH，目标/输出路径身份和预算有效。",
+                "堆转储可能暂停或影响目标，且需足够RAW磁盘、Analyzer下载/内存/索引预算。"
+              ],
+              "cannot_infer": [
+                "这里的retained不是包含所有VM开销的精确进程RSS。",
+                "java.lang.ref.Reference.referent不当作强引用；候选需跨时间堆对比才能确认泄漏。",
+                "不同类retained可能重叠，不能直接跨类相加。"
+              ],
+              "label": "Java Heap / 支配树",
+              "runner": "asprof-jcmd",
+              "analysis_pipeline": "hprof_v1",
+              "raw": {
+                "name": "heap.hprof",
+                "format": "hprof",
+                "accepted_formats": ["hprof"],
+                "content_type": "application/octet-stream",
+                "catalog_max_bytes": 268435456
+              },
+              "supported_targets": ["process", "container"],
+              "required_capabilities": ["JVM_ATTACH"],
+              "sources": [
+                {
+                  "path": "contracts/task-kinds.json",
+                  "line": 1390,
+                  "reason": "任务类型、runner、RAW格式/大小和参数白名单真源"
+                },
+                {
+                  "path": "core/src/runner.cpp",
+                  "line": 575,
+                  "reason": "真实GC.heap_dump附加路径"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/hprof.py",
+                  "line": 123,
+                  "reason": "HPROF解析与支配计算"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/hprof.py",
+                  "line": 575,
+                  "reason": "对象大小权重及限制"
+                }
+              ]
+            },
+            {
+              "id": "IO_TRACE",
+              "what": "记录目标进程的读写事件，看看传了多少字节、每次等了多久。",
+              "tool_and_input": "bpftrace执行固定受PID/命名空间限制的模板；category=syscalls跟踪read/write进出，vfs跟踪vfs_read/vfs_write，block跟踪submit_bio_noacct到bio_endio。",
+              "data_and_units": [
+                "JSONL事件的time_ns、pid/tid、bytes、duration_ns、operation和实际用户栈；vfs可有inode/device，block可有device/sector。",
+                "字节以bytes，时长/时间戳以ns；阈值min_duration_us在采集端换算为ns。"
+              ],
+              "analysis_outputs": [
+                "主火焰树按观测字节bytes加权。",
+                "io section提供操作数、错误数、吞吐、IOPS、p50/p95/p99延迟、设备/进程/文件热点、按秒时序和观测区间重叠估计队列深度。"
+              ],
+              "prerequisites": [
+                "节点bpftrace、BPF/PERFMON/TRACEFS_READ及内核探针/BTF条件就绪；目标在窗口里确实发生对应类别I/O。",
+                "受max_events、时长、最小时长、栈深和文件上限约束，不能要求任意脚本或无界追踪。"
+              ],
+              "cannot_infer": [
+                "syscalls/VFS/block是不同层，不能把系统调用耗时一概称为磁盘硬件延迟。",
+                "队列深度来自已观察起止区间的重叠，不等于读取了设备真实硬件队列。",
+                "文件路径或设备名未观测到时保持unknown；采样/丢失/阈值过滤后的数据不代表所有I/O。"
+              ],
+              "label": "I/O 延迟与调用链",
+              "runner": "bpftrace",
+              "analysis_pipeline": "io_trace_v1",
+              "raw": {
+                "name": "io.jsonl",
+                "format": "jsonl",
+                "accepted_formats": ["jsonl"],
+                "content_type": "application/x-ndjson",
+                "catalog_max_bytes": 67108864
+              },
+              "supported_targets": ["process", "container"],
+              "required_capabilities": ["BPF", "PERFMON", "TRACEFS_READ"],
+              "sources": [
+                {
+                  "path": "contracts/task-kinds.json",
+                  "line": 1582,
+                  "reason": "任务类型、runner、RAW格式/大小和参数白名单真源"
+                },
+                {
+                  "path": "core/src/runner.cpp",
+                  "line": 355,
+                  "reason": "固定三类I/O探针与用户栈输出"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/events.py",
+                  "line": 77,
+                  "reason": "IOPS/延迟/队列推导及输出"
+                }
+              ]
+            },
+            {
+              "id": "MEMORY_TRACE",
+              "what": "分别观察缺页、原生分配释放，或mmap映射解除事件。",
+              "tool_and_input": "bpftrace固定模板：pagefault用software:page-faults，alloc挂目标映射中的分配器库ma*lloc/fr*ee探针，mmap配对系统调用进出。每条事件带目标身份和有界用户栈。",
+              "data_and_units": [
+                "pagefault：时间、pid/tid和事件计数；现场默认事件不区分major/minor，归unknown。",
+                "alloc/free：地址、大小bytes和时间ns；mmap/munmap：地址范围、长度bytes和时间ns。"
+              ],
+              "analysis_outputs": [
+                "memory section给观测分配/释放/live/peak、未知free、缺页计数、未释放候选和时序。",
+                "分配/映射主树按分配字节bytes；pagefault-only可能没有正权重函数树，但section仍有缺页观测。"
+              ],
+              "prerequisites": [
+                "bpftrace及内核BPF/PERFMON/TRACEFS_READ条件就绪；alloc模式还需安全解析、冻结和验证目标分配器库。",
+                "必须按category解释，仅覆盖窗口内实际附着的探针及事件。"
+              ],
+              "cannot_infer": [
+                "pagefault-only没有分配事件，不能把allocated/live零或空树当成目标没有内存开销。",
+                "末尾仍存活不等于泄漏；采前分配或漏失事件会形成unknown_frees。",
+                "alloc模板不是所有内存API的完整记录；mmap长度也不是物理驻留RSS。"
+              ],
+              "label": "虚拟内存 / 页故障 / 分配追踪",
+              "runner": "bpftrace",
+              "analysis_pipeline": "memory_trace_v1",
+              "raw": {
+                "name": "memory.jsonl",
+                "format": "jsonl",
+                "accepted_formats": ["jsonl"],
+                "content_type": "application/x-ndjson",
+                "catalog_max_bytes": 67108864
+              },
+              "supported_targets": ["process", "container"],
+              "required_capabilities": ["BPF", "PERFMON", "TRACEFS_READ"],
+              "sources": [
+                {
+                  "path": "contracts/task-kinds.json",
+                  "line": 1792,
+                  "reason": "任务类型、runner、RAW格式/大小和参数白名单真源"
+                },
+                {
+                  "path": "core/src/runner.cpp",
+                  "line": 355,
+                  "reason": "pagefault/alloc/mmap模板与有界输出"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/events.py",
+                  "line": 203,
+                  "reason": "事件配对、未知释放、缺页和候选"
+                }
+              ]
+            },
+            {
+              "id": "GPERF_CPU",
+              "what": "让已接入gperftools的C/C++程序导出自己的CPU采样。",
+              "tool_and_input": "不是对任意C++进程自动注入profiler。Runner连接目标登记的本地Unix socket，以schema_version=2发送start/stop与mode=cpu，校验SO_PEERCRED的PID/UID，并按长度读取返回profile。",
+              "data_and_units": [
+                "gperftools CPU二进制profile包含采样计数、程序计数器调用栈、采样周期period_us及映射文本。",
+                "主权重samples；可选target.elf用于Analyzer addr2line符号化。"
+              ],
+              "analysis_outputs": [
+                "地址或已符号化函数的火焰树和热点；保留period_us和符号化信息。"
+              ],
+              "prerequisites": [
+                "目标已集成gperftools及受控profiler socket，TARGET_NATIVE_PROFILER_CONTROL就绪，socket所有者/peer身份匹配。",
+                "本地私有、有容量限制的输出文件系统；符号化还需匹配ELF和Analyzer addr2line工具。"
+              ],
+              "cannot_infer": [
+                "CPU采样次数不是函数实际调用次数或请求耗时。",
+                "只有地址且缺少匹配符号时，不能猜出函数名和源码行。",
+                "Agent无长期存储密钥，Unix socket也不能作为任意命令执行入口。"
+              ],
+              "label": "gperftools CPU",
+              "runner": "native-profiler-control",
+              "analysis_pipeline": "gperf_cpu_v1",
+              "raw": {
+                "name": "native.profile",
+                "format": "gperf_cpu",
+                "accepted_formats": ["gperf_cpu"],
+                "content_type": "application/octet-stream",
+                "catalog_max_bytes": 268435456
+              },
+              "supported_targets": ["process", "container"],
+              "required_capabilities": ["TARGET_NATIVE_PROFILER_CONTROL"],
+              "sources": [
+                {
+                  "path": "contracts/task-kinds.json",
+                  "line": 1997,
+                  "reason": "任务类型、runner、RAW格式/大小和参数白名单真源"
+                },
+                {
+                  "path": "core/src/runner.cpp",
+                  "line": 193,
+                  "reason": "受控Unix socket协议和peer验证"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/native.py",
+                  "line": 16,
+                  "reason": "gperftools CPU格式和单位"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/external.py",
+                  "line": 256,
+                  "reason": "可选ELF符号化"
+                }
+              ]
+            },
+            {
+              "id": "GPERF_HEAP",
+              "what": "导出已接入gperftools的原生程序的分配栈和内存计数。",
+              "tool_and_input": "通过同一受控Unix socket发送start/stop，mode=heap；目标自身生成gperftools heap profile并返回，Agent按预算保存native.profile。",
+              "data_and_units": [
+                "每条分配栈的inuse_objects、inuse_space、alloc_objects、alloc_space及映射信息。",
+                "当前默认以inuse_space按bytes画树；对象计数口径为count；解析器核行计数与profile总计一致。"
+              ],
+              "analysis_outputs": [
+                "分配栈火焰树、heap sample_types及总量，可附target.elf符号化。",
+                "没有完整引用图时classes/dominators/leak_paths保持空。"
+              ],
+              "prerequisites": [
+                "目标预接入gperftools及可信控制socket；受控目标权限和私有有界文件系统满足要求。",
+                "在线请求schema只公开mode/include_binary；解析器拥有其他选列能力不代表页面或现场请求开放了全部sample_type参数。"
+              ],
+              "cannot_infer": [
+                "分配栈统计不是对象引用图，不能算精确retained size。",
+                "inuse与累计alloc不等价，单份profile不能确认持续泄漏。",
+                "没有匹配ELF/符号时保留地址，不能伪造业务函数。"
+              ],
+              "label": "gperftools Heap",
+              "runner": "native-profiler-control",
+              "analysis_pipeline": "gperf_heap_v1",
+              "raw": {
+                "name": "native.profile",
+                "format": "gperf_heap",
+                "accepted_formats": ["gperf_heap"],
+                "content_type": "application/octet-stream",
+                "catalog_max_bytes": 268435456
+              },
+              "supported_targets": ["process", "container"],
+              "required_capabilities": ["TARGET_NATIVE_PROFILER_CONTROL"],
+              "sources": [
+                {
+                  "path": "contracts/task-kinds.json",
+                  "line": 2186,
+                  "reason": "任务类型、runner、RAW格式/大小和参数白名单真源"
+                },
+                {
+                  "path": "core/src/runner.cpp",
+                  "line": 193,
+                  "reason": "mode=heap与受控协议"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/native.py",
+                  "line": 77,
+                  "reason": "分配栈四种口径与引用图边界"
+                }
+              ]
+            },
+            {
+              "id": "JEPROF_HEAP",
+              "what": "导出启用jemalloc profiling的原生程序的堆采样。",
+              "tool_and_input": "目标需预接入jemalloc及受控Unix socket，Runner使用mode=jemalloc的start/stop协议获得native.profile；Analyzer解析heap_v2文本。",
+              "data_and_units": [
+                "jemalloc采样分配栈、inuse/alloc对象和空间计数、采样率、映射信息。",
+                "默认inuse_space为bytes；对象口径为count；解析器按jeprof Poisson公式做采样校正，属于估计值。"
+              ],
+              "analysis_outputs": [
+                "校正后的分配栈火焰树、heap各sample_type总量与sampling_adjusted标记；可选ELF符号化。"
+              ],
+              "prerequisites": [
+                "目标使用并启用兼容jemalloc profiling，可信socket/UID/PID及TARGET_NATIVE_PROFILER_CONTROL能力就绪。",
+                "输入须为受支持heap_v2且计数一致；ELF与符号工具仅用于还原地址名。"
+              ],
+              "cannot_infer": [
+                "校正后的字节和对象数是采样估计，不是逐对象精确清点。",
+                "没有对象引用图，不能计算精确dominator/retained或确认泄漏。",
+                "采样率或统计口径不同的profile不能直接拿绝对值宣称优化幅度。"
+              ],
+              "label": "jemalloc Heap / jeprof",
+              "runner": "native-profiler-control",
+              "analysis_pipeline": "jeprof_heap_v1",
+              "raw": {
+                "name": "native.profile",
+                "format": "jeprof_heap",
+                "accepted_formats": ["jeprof_heap"],
+                "content_type": "application/octet-stream",
+                "catalog_max_bytes": 268435456
+              },
+              "supported_targets": ["process", "container"],
+              "required_capabilities": ["TARGET_NATIVE_PROFILER_CONTROL"],
+              "sources": [
+                {
+                  "path": "contracts/task-kinds.json",
+                  "line": 2375,
+                  "reason": "任务类型、runner、RAW格式/大小和参数白名单真源"
+                },
+                {
+                  "path": "core/src/runner.cpp",
+                  "line": 193,
+                  "reason": "jemalloc受控导出"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/native.py",
+                  "line": 77,
+                  "reason": "heap_v2、Poisson校正、估计边界"
+                }
+              ]
+            },
+            {
+              "id": "BOLT_PROFILE",
+              "what": "为原生可执行文件收集布局优化输入，必要时生成一份优化后的二进制。",
+              "tool_and_input": "perf record以cycles:u采样授权进程；核目标可执行文件SHA、MMAP设备/inode与build-id后，perf2bolt -nl -aggregate-only生成no_lbr文本fdata；必须附匹配target.elf。",
+              "data_and_units": [
+                "现场当前输出基本采样no_lbr fdata，主权重samples；导入的兼容分支fdata可为branches。",
+                "目标binary SHA/build-id、原始perf摘要及映射身份验证结果；这些来源信息不能由路径相同替代。"
+              ],
+              "analysis_outputs": [
+                "binary section的函数/分支/内存访问统计及fdata模式。",
+                "允许optimize且有ELF时Analyzer调用llvm-bolt生成optimized.elf；上传ELF用于转换，不会作为业务程序执行。"
+              ],
+              "prerequisites": [
+                "perf、perf2bolt及PERFMON能力就绪，二进制满足BOLT处理/重定位条件且和现场映射严格匹配。",
+                "优化分支需Analyzer llvm-bolt就绪，原始与附件均满足文件、下载与计算预算。"
+              ],
+              "cannot_infer": [
+                "当前现场是no-LBR基本采样，不能宣称真实采集了硬件LBR完整分支轨迹。",
+                "分支计数不等于函数调用次数。生成optimized.elf不证明业务正确或性能变快，还需独立回归和受控A/B。",
+                "该步骤不会自动替换线上可执行文件或重启业务。"
+              ],
+              "label": "BOLT 采样与二进制优化",
+              "runner": "perf+perf2bolt",
+              "analysis_pipeline": "bolt_v1",
+              "raw": {
+                "name": "profile.fdata",
+                "format": "bolt_fdata",
+                "accepted_formats": ["bolt_fdata"],
+                "content_type": "text/plain",
+                "catalog_max_bytes": 268435456
+              },
+              "supported_targets": ["process", "container"],
+              "required_capabilities": ["PERFMON"],
+              "sources": [
+                {
+                  "path": "contracts/task-kinds.json",
+                  "line": 2564,
+                  "reason": "任务类型、runner、RAW格式/大小和参数白名单真源"
+                },
+                {
+                  "path": "core/src/runner.cpp",
+                  "line": 1426,
+                  "reason": "perf、映射校验、perf2bolt no_lbr"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/native.py",
+                  "line": 204,
+                  "reason": "基本样本/分支口径"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/external.py",
+                  "line": 317,
+                  "reason": "优化文件生成而不执行业务"
+                }
+              ]
+            },
+            {
+              "id": "SCRIPT",
+              "what": "用固定的系统检查清单读进程信息，例如资源限制和打开的文件。",
+              "tool_and_input": "当前Runner直接读/proc实现固定模板，名称虽叫SCRIPT，不允许输入shell。白名单：process_status、process_limits、open_files、mapped_libraries、network_counters。",
+              "data_and_units": [
+                "JSON信封：schema_version、template、exit_code、stdout、stderr、duration_ms；stdout内是固定/proc文本或fd列表。",
+                "时长为ms，其余各字段按原始/proc说明解释；统一空树占位单位operations不表示真的采到操作次数。"
+              ],
+              "analysis_outputs": [
+                "script section展示模板名、退出码、stdout/stderr和执行耗时；没有函数火焰证据。"
+              ],
+              "prerequisites": [
+                "目标为授权进程且/proc信息可读取；固定模板ID有效。",
+                "open_files最多列1024项，其他读取另有字节上限；必须注意截断与缺失。"
+              ],
+              "cannot_infer": [
+                "不是任意诊断脚本执行器或终端，不能追加命令。",
+                "一次status/maps/fd快照不提供函数CPU热点或长期趋势。",
+                "network_counters读取目标网络命名空间接口计数，不能称为该进程独占网络流量。"
+              ],
+              "label": "受控诊断模板",
+              "runner": "native-templates",
+              "analysis_pipeline": "script_v1",
+              "raw": {
+                "name": "script.json",
+                "format": "json",
+                "accepted_formats": ["json"],
+                "content_type": "application/json",
+                "catalog_max_bytes": 33554432
+              },
+              "supported_targets": ["process", "container"],
+              "required_capabilities": [],
+              "sources": [
+                {
+                  "path": "contracts/task-kinds.json",
+                  "line": 2774,
+                  "reason": "任务类型、runner、RAW格式/大小和参数白名单真源"
+                },
+                {
+                  "path": "core/src/runner.cpp",
+                  "line": 1378,
+                  "reason": "五种固定/proc模板实际读取"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/events.py",
+                  "line": 520,
+                  "reason": "固定模板结果信封解析"
+                }
+              ]
+            },
+            {
+              "id": "RESOURCE_SNAPSHOT",
+              "what": "每隔一段时间给进程或机器记一次CPU、内存等体征，画出走势。",
+              "tool_and_input": "Runner周期读取/proc；进程使用stat/status/io/fd，宿主使用meminfo/loadavg/stat；网络读取对应网络命名空间的接口累计计数，并记录采集器自身开销及有权限时的受限内核日志。",
+              "data_and_units": [
+                "timestamp_ns；cpu_ticks与由相邻快照推导的cpu_percent；rss/vms/read/write/network以bytes；线程/fd/上下文切换为count；采集器CPU为seconds。",
+                "进程CPU可因多核超过100%；首个样本没有前一时间点时CPU百分比可能缺失。"
+              ],
+              "analysis_outputs": [
+                "resources section的原始有界samples、sample_count、CPU/RSS/VMS/线程/fd/可见内存峰值、网络范围、上下文切换范围、collector_overhead与dmesg状态。",
+                "这是资源时序页面的输入；通用空树bytes单位不代表函数分配字节。"
+              ],
+              "prerequisites": [
+                "授权目标的/proc字段可读；host范围需明确授权。实际采样最多10Hz，字段不可得时保留缺失/不可用。",
+                "容器观察到的宿主/proc视图与整容器资源配额并非同一概念，须结合部署范围。"
+              ],
+              "cannot_infer": [
+                "相邻采样间的短暂峰值可能漏掉，单次峰值不能证明持续压力。",
+                "目标网络命名空间接口累计量不是该进程独占流量；进程上下文切换是主线程口径，非全线程汇总。",
+                "没有函数调用栈，也不能从资源升高直接确认某个函数、数据库或请求是根因。"
+              ],
+              "label": "资源快照与差分",
+              "runner": "procfs-resources",
+              "analysis_pipeline": "resources_v1",
+              "raw": {
+                "name": "resources.json",
+                "format": "json",
+                "accepted_formats": ["json"],
+                "content_type": "application/json",
+                "catalog_max_bytes": 33554432
+              },
+              "supported_targets": ["process", "container", "host"],
+              "required_capabilities": [],
+              "sources": [
+                {
+                  "path": "contracts/task-kinds.json",
+                  "line": 2952,
+                  "reason": "任务类型、runner、RAW格式/大小和参数白名单真源"
+                },
+                {
+                  "path": "core/src/runner.cpp",
+                  "line": 1075,
+                  "reason": "进程/宿主各字段和单位"
+                },
+                {
+                  "path": "core/src/runner.cpp",
+                  "line": 1327,
+                  "reason": "周期采样、百分比推导、网络范围"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/events.py",
+                  "line": 360,
+                  "reason": "时序和峰值输出"
+                }
+              ]
+            }
+          ],
+          "special_cases": [
+            {
+              "id": "IMPORT_COLLAPSED",
+              "what": "上传别人已经采好的折叠调用栈，再由平台分析；这一类型本身不去节点采集。",
+              "tool_and_input": "浏览器提交collapsed_text或导入文件；Go按大小/格式校验，写MinIO，原子登记RAW并创建分析Job；不创建现场采集Outbox，不需要Agent或PID。",
+              "data_and_units": [
+                "每行形如主调用;子调用;叶函数 整数权重；公开默认samples只是折叠数据权重标签，无法证明采样实际含义。"
+              ],
+              "analysis_outputs": [
+                "folded_v1生成调用树、Top热点、规则信号及import来源标记。"
+              ],
+              "prerequisites": [
+                "文件格式、体积和折叠栈语法在上限内；用户拥有创建权限。"
+              ],
+              "cannot_infer": [
+                "无法核实原始目标、采样环境、频率、时长、丢样和线程/时间信息。",
+                "不能因为填写了duration/frequency就把导入声明变为可信现场参数。"
+              ],
+              "label": "导入折叠调用栈",
+              "runner": "import",
+              "analysis_pipeline": "folded_v1",
+              "raw": {
+                "name": "profile.folded",
+                "format": "folded",
+                "accepted_formats": ["folded"],
+                "content_type": "text/plain",
+                "catalog_max_bytes": 33554432
+              },
+              "supported_targets": ["import"],
+              "required_capabilities": [],
+              "sources": [
+                {
+                  "path": "contracts/task-kinds.json",
+                  "line": 3121,
+                  "reason": "任务类型、runner、RAW格式/大小和参数白名单真源"
+                },
+                {
+                  "path": "api/internal/service/tasks.go",
+                  "line": 58,
+                  "reason": "导入跳过现场派发、清空现场参数、写对象与入队"
+                },
+                {
+                  "path": "analyzer/drop_analyzer/registry.py",
+                  "line": 153,
+                  "reason": "导入provenance/source保留"
+                }
+              ]
+            },
+            {
+              "id": "COMPOSITE",
+              "what": "把多次检查排成一张执行清单，有的并行，有的等前一步成功后再开始。",
+              "tool_and_input": "Go API编排器管理DAG和步骤模板；满足依赖时为每步创建独立普通Task，再汇总各步状态。COMPOSITE没有Agent runner，也不是单一采样文件解析器。",
+              "data_and_units": [
+                "节点key、depends_on、required、子task_id、步骤状态、整体截止时间及allow_partial_success。",
+                "每个子任务保留自己的RAW、单位、attempt与分析结果，不能把CPU样本和内存字节直接相加。"
+              ],
+              "analysis_outputs": [
+                "复合运行状态与summary、各步骤链接；具体图表来自子任务结果。"
+              ],
+              "prerequisites": [
+                "步骤构成有效无环依赖，各子任务自身目标权限/采样器/参数就绪；满足整体截止时间。"
+              ],
+              "cannot_infer": [
+                "目录中的runner=api-orchestrator、input_format=composite、raw_name=manifest.json是类型描述，不表示Agent真的生成一份综合profile或Analyzer运行composite_v1。",
+                "前置失败可使依赖步骤SKIPPED；部分成功与整体成功需按required及allow_partial_success规则解释。"
+              ],
+              "label": "综合诊断 / DAG 编排",
+              "runner": "api-orchestrator",
+              "analysis_pipeline": "composite_v1",
+              "raw": {
+                "name": "manifest.json",
+                "format": "composite",
+                "accepted_formats": ["composite"],
+                "content_type": "application/json",
+                "catalog_max_bytes": 33554432
+              },
+              "supported_targets": ["orchestration"],
+              "required_capabilities": [],
+              "sources": [
+                {
+                  "path": "contracts/task-kinds.json",
+                  "line": 3288,
+                  "reason": "任务类型、runner、RAW格式/大小和参数白名单真源"
+                },
+                {
+                  "path": "api/internal/service/composites.go",
+                  "line": 214,
+                  "reason": "依赖满足后创建普通子任务"
+                },
+                {
+                  "path": "api/internal/service/composites.go",
+                  "line": 162,
+                  "reason": "汇总各步骤状态"
+                }
+              ]
+            }
+          ],
+          "import_note": "除了IMPORT_COLLAPSED专用类型，其他16种非COMPOSITE类型也支持按其契约格式导入已有RAW及必要附件。导入绕过现场采集但仍经过格式/完整性/预算检查，并保持source=import，不能冒充现场采样。",
+          "source_policy": "每项sources的行号由当前工作区文件中精确定位生成；这些是本地源码证据，不构成线上部署或现场运行收据。",
+          "catalog_sha256": "92b0b23111bc57da00b01feeebc5f654b1bd8bdcc42b69d63bbf60075001c5ac",
+          "common_sources": [
+            {
+              "path": "analyzer/drop_analyzer/result.py",
+              "line": 91,
+              "reason": "统一字段与具体单位区分"
+            },
+            {
+              "path": "analyzer/drop_analyzer/worker.py",
+              "line": 231,
+              "reason": "逐项完整性、预算和生命周期处理"
+            },
+            {
+              "path": "analyzer/drop_analyzer/registry.py",
+              "line": 32,
+              "reason": "kind/pipeline/format严格匹配"
+            },
+            {
+              "path": "analyzer/drop_analyzer/pipeline.py",
+              "line": 99,
+              "reason": "结果制品组装"
+            },
+            {
+              "path": "core/src/runner.cpp",
+              "line": 1160,
+              "reason": "16 runner现场分派"
+            },
+            {
+              "path": "api/internal/service/tasks.go",
+              "line": 58,
+              "reason": "导入创建和source标记"
+            }
+          ]
+        },
+        "types": {
+          "01-system-architecture": "architecture",
+          "02-control-data-flow": "dataflow",
+          "03-collection-sequence": "sequence",
+          "04-artifact-sequence": "sequence",
+          "05-result-sequence": "sequence",
+          "06-collection-lifecycle": "workflow",
+          "07-analysis-lifecycle": "sequence",
+          "08-ai-tool-sequence": "sequence",
+          "09-investigation-sequence": "sequence",
+          "10-repair-workflow": "workflow",
+          "11-recovery-sequence": "sequence",
+          "12-schedule-composite": "workflow",
+          "13-business-signals": "architecture",
+          "14-platform-observability": "architecture"
+        },
+        "dimensions": {
+          "01": [1320.0, 620.0],
+          "02": [860.0, 520.0],
+          "03": [1080.0, 580.0],
+          "04": [1080.0, 560.0],
+          "05": [1080.0, 580.0],
+          "06": [920.0, 404.0],
+          "07": [1080.0, 580.0],
+          "08": [1080.0, 530.0],
+          "09": [1200.0, 560.0],
+          "10": [1083.0, 528.0],
+          "11": [1030.0, 540.0],
+          "12": [1074.0, 652.0],
+          "13": [1100.0, 540.0],
+          "14": [1320.0, 680.0]
+        }
+      }
+    </script>
+    <script>
+      (() => {
+        const data = JSON.parse(
+          document.getElementById("atlas-data").textContent,
+        );
+        const a = data.atlas,
+          catalog = data.collectors;
+        const $ = (id) => document.getElementById(id);
+        const e = (v) =>
+          String(v ?? "").replace(
+            /[&<>"']/g,
+            (c) =>
+              ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;",
+              })[c],
+          );
+        const list = (rows, ordered = false) =>
+          `<${ordered ? "ol" : "ul"}>${rows.map((x) => `<li>${e(x)}</li>`).join("")}</${ordered ? "ol" : "ul"}>`;
+        const refs = (sources) =>
+          `<div class="source-list">${sources.map((s) => `<a href="sources/${e(s.path)}.html#L${e(s.line || 1)}" target="_blank" rel="noopener" title="${e(s.reason || s.role || "当前工作区源码快照")}">${e(s.path)}:${e(s.line || 1)}</a>`).join("")}</div>`;
+        const types = {
+          architecture: "架构图",
+          dataflow: "数据流图",
+          sequence: "时序图",
+          workflow: "流程 / 状态图",
+          lifecycle: "状态图",
+        };
+        const pages = [
+          ["gallery", "全部静态图 / 下载"],
+          ["modules", "每个模块干什么"],
+          ["contracts", "模块通信与字段"],
+          ["collectors", "具体采集了什么"],
+          ["walkthrough", "实际怎么点"],
+          ["data", "文件、编号和单位"],
+          ["about", "阅读与验证说明"],
+        ];
+        $("navigation").innerHTML =
+          `<p class="side-heading">${a.diagrams.length} 张图，沿链路读</p>${a.diagrams.map((d) => `<a class="side-link" href="#diagram/${d.id}"><span class="num">${d.id}</span>${e(d.title)}</a>`).join("")}<p class="side-heading">查细节</p>${pages.map(([id, label]) => `<a class="side-link" href="#${id}">${e(label)}</a>`).join("")}`;
+        $("diagram-count").textContent = a.diagrams.length;
+        $("gallery").innerHTML = a.diagrams
+          .map(
+            (d) =>
+              `<article class="card"><h3>${d.id} · ${e(d.title)}</h3><a href="#diagram/${d.id}"><img src="read-png/${e(d.file)}.png" alt="${e(d.title)}" loading="lazy" style="display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:5px;margin:15px 0;background:white"></a><div class="figure-links"><a href="#diagram/${d.id}">查看交互图</a><a href="read-png/${e(d.file)}.png" download>下载 PNG ↓</a></div></article>`,
+          )
+          .join("");
+        $("modules").innerHTML = a.modules
+          .map(
+            (m) =>
+              `<article class="card"><h3>${e(m.name)}</h3><p>${e(m.role)}</p><dl><dt>收到什么</dt><dd>${e(m.input)}</dd><dt>交出什么</dt><dd>${e(m.output)}</dd></dl>${refs([{ path: m.path, line: 1 }])}</article>`,
+          )
+          .join("");
+        $("communications").innerHTML = a.communications
+          .map(
+            (c) =>
+              `<tr><td class="route">${e(c.from)} → ${e(c.to)}<span class="protocol">${e(c.protocol)}</span></td><td>${e(c.payload)}${refs([c.source])}</td><td>${e(c.why)}</td></tr>`,
+          )
+          .join("");
+        $("fields").innerHTML = a.fields
+          .map(
+            (f) =>
+              `<tr><td><code>${e(f.name)}</code></td><td>${e(f.meaning)}</td><td>${e(f.reason)}</td></tr>`,
+          )
+          .join("");
+        $("storage").innerHTML = a.storage
+          .map(
+            (s) =>
+              `<article class="card"><h3>${e(s.place)}</h3><p>${e(s.data)}</p><p class="muted">${e(s.readers)}</p></article>`,
+          )
+          .join("");
+        const x = a.example;
+        $("example").innerHTML =
+          `<h2>${e(x.title)}</h2><p class="muted">${e(x.notice)}</p><div class="cols"><div><h3>简化的 folded 原文</h3><pre>${e(x.raw)}</pre><p>${e(x.explanation)}</p></div><div><h3>按路径累计成树</h3><pre>${e(x.result)}</pre><p class="muted">${e(x.result_notice)}</p></div></div>${list(x.limits)}`;
+        function collector(c) {
+          const raw = c.raw || {};
+          return `<details class="collector" data-collector="${e(c.id)}"><summary><span class="collector-name"><strong>${e(c.label || c.id)}</strong><code>${e(c.id)} · ${e(c.runner || "编排 / 导入")}</code></span><span class="collector-summary">${e(c.what)}</span></summary><div class="collector-body"><h3>怎么取，取到了什么</h3><p>${e(c.tool_and_input)}</p><div class="cols"><div><h3>数据和单位</h3>${list(c.data_and_units || [])}<h3>分析后能看见</h3>${list(c.analysis_outputs || [])}</div><div><h3>使用前提</h3>${list(c.prerequisites || [])}<h3>据此还不能下什么结论</h3>${list(c.cannot_infer || [])}</div></div><div class="raw"><strong>RAW</strong> · ${e(raw.name || "见具体子任务 / 导入格式")}<br />格式：${e(raw.format || "按子任务 / 导入选择")}；分析流程：<code>${e(c.analysis_pipeline || "按子任务")}</code><br />可接受格式：${e((raw.accepted_formats || []).join(" / ") || "见该入口约定")}${raw.catalog_max_bytes ? `；目录文件上限：${e(raw.catalog_max_bytes.toLocaleString())} bytes` : ""}</div>${refs(c.sources || [])}</div></details>`;
+        }
+        $("collectors").innerHTML = catalog.collectors.map(collector).join("");
+        $("special-cases").innerHTML = catalog.special_cases
+          .map(collector)
+          .join("");
+        const common = catalog.common;
+        $("collector-common").innerHTML =
+          list(
+            common.map((v) => (typeof v === "string" ? v : JSON.stringify(v))),
+          ) +
+          `<p>${e(catalog.import_note)}</p>` +
+          refs(catalog.common_sources || []);
+        function filter() {
+          const q = $("collector-search").value.trim().toLocaleLowerCase();
+          let shown = 0;
+          catalog.collectors.forEach((c, i) => {
+            const show =
+              !q || JSON.stringify(c).toLocaleLowerCase().includes(q);
+            $("collectors").children[i].hidden = !show;
+            if (show) shown++;
+          });
+          $("collector-count").textContent =
+            `${shown} / ${catalog.collectors.length} 种现场采集`;
+          $("collector-empty").hidden = shown > 0;
+        }
+        $("collector-search").addEventListener("input", filter);
+        filter();
+        $("walkthrough").innerHTML = a.walkthrough
+          .map(
+            (w, i) =>
+              `<article class="journey"><div class="stepnum">${String(i + 1).padStart(2, "0")}</div><div><h3>${e(w.title.replace(/^\d+\.\s*/, ""))}</h3><p>${e(w.text)}</p><a href="#diagram/${w.diagram}">对照第 ${w.diagram} 张图 →</a></div></article>`,
+          )
+          .join("");
+        $("about").innerHTML =
+          `<p>${e(a.scope)}</p>${list(a.reading)}<p>每张图保留可编辑 JSON、独立 HTML、确定性校验收据、浏览器尺寸测量和深浅色截图。源码 SHA 清单以本地文件内容为准。</p>`;
+        let current = "";
+        function resizeFigure() {
+          const f = $("diagram");
+          if ($("panel-diagram").hidden) return;
+          const [width, height] = data.dimensions[current] || [1200, 600];
+          const diagramHeight = (f.clientWidth * height) / width;
+          f.style.height =
+            Math.ceil(
+              Math.max(innerWidth < 681 ? 1040 : 760, diagramHeight + 250),
+            ) + "px";
+        }
+        function route() {
+          const hash = location.hash.slice(1) || "diagram/01";
+          let [page, id] = hash.split("/");
+          if (page !== "diagram" && !pages.some(([p]) => p === page))
+            page = "diagram";
+          const d = a.diagrams.find((d) => d.id === id) || a.diagrams[0];
+          document
+            .querySelectorAll(".panel")
+            .forEach((p) => (p.hidden = p.id !== `panel-${page}`));
+          const canonical = page === "diagram" ? `diagram/${d.id}` : page;
+          document.querySelectorAll(".side-link").forEach((link) => {
+            if (link.getAttribute("href") === `#${canonical}`)
+              link.setAttribute("aria-current", "page");
+            else link.removeAttribute("aria-current");
+          });
+          if (page === "diagram" && current !== d.id) {
+            current = d.id;
+            $("figure-title").textContent = `${d.id} · ${d.title}`;
+            $("figure-type").textContent =
+              `${types[data.types[d.file] || d.type]} · ${d.question}`;
+            $("open-diagram").href = d.file + ".html";
+            $("open-json").href = d.file + ".json";
+            $("read-png").href = "read-png/" + d.file + ".png";
+            const f = $("diagram");
+            f.title = d.title;
+            f.style.height = innerWidth < 681 ? "1040px" : "850px";
+            f.src = d.file + ".html";
+            $("diagram-explanation").innerHTML =
+              `<article class="explain"><h3>这张图在讲什么</h3><p>${e(d.explanation)}</p><div class="cols"><div><h3>跟着这样读</h3>${list(d.steps, true)}</div><div><h3>读的时候留意</h3>${list(d.watch)}</div></div>${refs(d.sources)}</article>`;
+            const n = a.diagrams.indexOf(d);
+            $("diagram-next").innerHTML =
+              `${n > 0 ? `<a href="#diagram/${a.diagrams[n - 1].id}">← ${e(a.diagrams[n - 1].title)}</a>` : "<span></span>"}${n < a.diagrams.length - 1 ? `<a href="#diagram/${a.diagrams[n + 1].id}">${e(a.diagrams[n + 1].title)} →</a>` : `<a href="#collectors">继续看具体采集内容 →</a>`}`;
+          }
+          document.title = `${page === "diagram" ? d.title : pages.find(([p]) => p === page)?.[1] || "图册"} · Drop 系统图解`;
+          $("sidebar").classList.remove("open");
+          $("menu").setAttribute("aria-expanded", "false");
+          window.scrollTo({ top: 0, behavior: "instant" });
+          setTimeout(resizeFigure, 150);
+        }
+        $("diagram").addEventListener("load", () => {
+          resizeFigure();
+          setTimeout(resizeFigure, 400);
+        });
+        window.addEventListener("hashchange", route);
+        window.addEventListener("resize", resizeFigure);
+        $("menu").addEventListener("click", () => {
+          const open = $("sidebar").classList.toggle("open");
+          $("menu").setAttribute("aria-expanded", String(open));
+        });
+        $("theme").addEventListener("click", () => {
+          const dark = document.documentElement.dataset.theme !== "dark";
+          document.documentElement.dataset.theme = dark ? "dark" : "light";
+          try {
+            localStorage.setItem("drop-atlas-theme", dark ? "dark" : "light");
+          } catch {}
+        });
+        try {
+          const theme = localStorage.getItem("drop-atlas-theme");
+          if (theme === "dark") document.documentElement.dataset.theme = "dark";
+        } catch {}
+        route();
+      })();
+    </script>
+  </body>
+</html>

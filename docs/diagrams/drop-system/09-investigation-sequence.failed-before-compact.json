@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "09 · 智能调查：哪一步要你确认，之后怎样自动推进",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "viewBox": [
+      1080,
+      860
+    ]
+  },
+  "participants": [
+    {
+      "id": "person",
+      "type": "frontend",
+      "label": "你与页面",
+      "sublabel": "问题、目标、同意"
+    },
+    {
+      "id": "investigation",
+      "type": "backend",
+      "label": "Go 调查编排",
+      "sublabel": "状态、权限、幂等"
+    },
+    {
+      "id": "planner",
+      "type": "backend",
+      "label": "AI 规划与诊断",
+      "sublabel": "同一 AgentScope 服务"
+    },
+    {
+      "id": "pipeline",
+      "type": "backend",
+      "label": "采集分析链",
+      "sublabel": "C++ / 对象存储 / Python"
+    },
+    {
+      "id": "repair",
+      "type": "security",
+      "label": "隔离源码修复",
+      "sublabel": "登记项目，独立容器"
+    }
+  ],
+  "segments": [
+    {
+      "from": 150,
+      "to": 310,
+      "label": "先规划，再由你确认"
+    },
+    {
+      "from": 322,
+      "to": 578,
+      "label": "原采集 → 诊断 → 至多一次复测"
+    },
+    {
+      "from": 590,
+      "to": 795,
+      "label": "可选分支与结果"
+    }
+  ],
+  "messages": [
+    {
+      "id": "submit",
+      "from": "person",
+      "to": "investigation",
+      "y": 165,
+      "label": "POST /investigations：问题/目标/同意",
+      "variant": "emphasis"
+    },
+    {
+      "id": "plan",
+      "from": "investigation",
+      "to": "planner",
+      "y": 202,
+      "label": "实际目录与能力 → propose_collection",
+      "variant": "emphasis"
+    },
+    {
+      "id": "review",
+      "from": "investigation",
+      "to": "person",
+      "y": 247,
+      "label": "计划：采集器、时长、频率、理由",
+      "variant": "return"
+    },
+    {
+      "id": "confirmation",
+      "from": "person",
+      "to": "investigation",
+      "y": 290,
+      "label": "POST /confirm：你确认后才执行",
+      "variant": "security"
+    },
+    {
+      "id": "collect",
+      "from": "investigation",
+      "to": "pipeline",
+      "y": 335,
+      "label": "原任务：目标身份 + 固定采集参数",
+      "variant": "emphasis"
+    },
+    {
+      "id": "baseline",
+      "from": "pipeline",
+      "to": "investigation",
+      "y": 375,
+      "label": "采集/分析完成；结果哈希与版本",
+      "variant": "return"
+    },
+    {
+      "id": "diagnosis",
+      "from": "investigation",
+      "to": "planner",
+      "y": 415,
+      "label": "工具诊断：热点、质量、待验证方向",
+      "variant": "emphasis"
+    },
+    {
+      "id": "recollect",
+      "from": "investigation",
+      "to": "pipeline",
+      "y": 455,
+      "label": "最多一次自动复测；需要可执行草案",
+      "variant": "emphasis"
+    },
+    {
+      "id": "candidate",
+      "from": "pipeline",
+      "to": "investigation",
+      "y": 495,
+      "label": "复测成功；固定关联原任务",
+      "variant": "return"
+    },
+    {
+      "id": "rediagnose",
+      "from": "investigation",
+      "to": "planner",
+      "y": 540,
+      "label": "再次诊断 + compare_profiles",
+      "variant": "emphasis"
+    },
+    {
+      "id": "extra-proposal",
+      "from": "investigation",
+      "to": "person",
+      "y": 605,
+      "label": "按需：动态补证计划，等待你确认",
+      "variant": "dashed"
+    },
+    {
+      "id": "extra-consent",
+      "from": "person",
+      "to": "investigation",
+      "y": 645,
+      "label": "可选确认 → 最多 2 个独立补证分支",
+      "variant": "security"
+    },
+    {
+      "id": "linked-repair",
+      "from": "investigation",
+      "to": "repair",
+      "y": 690,
+      "label": "可选：已登记版本 + 额外源码同意",
+      "variant": "security"
+    },
+    {
+      "id": "repair-receipt",
+      "from": "repair",
+      "to": "investigation",
+      "y": 733,
+      "label": "隔离验证与补丁；不自动部署原业务",
+      "variant": "return"
+    },
+    {
+      "id": "result",
+      "from": "investigation",
+      "to": "person",
+      "y": 776,
+      "label": "保存并展示事实、对比及证据边界",
+      "variant": "return"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "名额与确认",
+      "items": [
+        "每账号最多 10 个未终态调查；等待确认也占名额。",
+        "计划生成时不采集；确认后，每次采集最多 60 秒。"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "自动推进有条件",
+      "items": [
+        "原诊断必须形成可执行复测草案；缺少配置时停止并提示人工处理。",
+        "比较前核对类型、节点、完整目标身份、来源及单位。"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "看懂分支与结论",
+      "items": [
+        "虚线补证按证据需要出现，每个分支单独确认；主线不会无条件补采。",
+        "单纯重复采样的 root_cause_status 仍为 not_tested；源码修改仅隔离副本。"
+      ]
+    }
+  ]
+}

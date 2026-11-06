@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "validate",
+  "stage": "render",
+  "type": "workflow",
+  "input": "E:\\tx-drop\\docs\\diagrams\\drop-system\\09-investigation-workflow.json",
+  "error": "Workflow edge \"extra-confirm\" cannot satisfy route preset \"return-left\" under readable-v2 constraints (minimum 8px endpoint stubs, 16px interior turns, and 28px direct clearance).",
+  "diagnostics": [
+    {
+      "code": "workflow/route-preset-conflict",
+      "severity": "error",
+      "message": "Workflow edge \"extra-confirm\" cannot satisfy route preset \"return-left\" under readable-v2 constraints (minimum 8px endpoint stubs, 16px interior turns, and 28px direct clearance).",
+      "subject": {
+        "diagramType": "workflow",
+        "edge": "extra-confirm",
+        "from": "followup-confirm",
+        "to": "followup",
+        "route": "return-left"
+      },
+      "evidence": {
+        "attemptedCandidateFamily": "return-left",
+        "points": [
+          [
+            408,
+            119
+          ],
+          [
+            380,
+            119
+          ],
+          [
+            380,
+            367
+          ],
+          [
+            408,
+            367
+          ]
+        ],
+        "fromSide": "left",
+        "toSide": "left",
+        "requiredEndpointStubPx": 8,
+        "requiredInteriorSegmentPx": 16,
+        "requiredDirectClearancePx": 28
+      },
+      "supportedFixes": []
+    }
+  ]
+}

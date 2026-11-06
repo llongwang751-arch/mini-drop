@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "分析状态：任务摘要与 worker 作业分开记账",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1030,
+      740
+    ]
+  },
+  "lanes": [
+    {
+      "id": "main",
+      "label": "任务 analysis_status / 作业 status"
+    },
+    {
+      "id": "recovery",
+      "label": "可重试等待"
+    },
+    {
+      "id": "terminal",
+      "label": "分析终态"
+    }
+  ],
+  "states": [
+    {
+      "id": "pending",
+      "type": "start",
+      "label": "PENDING",
+      "sublabel": "Job.pending",
+      "lane": "main",
+      "col": 0,
+      "width": 118
+    },
+    {
+      "id": "running",
+      "type": "active",
+      "label": "RUNNING",
+      "sublabel": "Job.running",
+      "lane": "main",
+      "col": 2,
+      "width": 118
+    },
+    {
+      "id": "success",
+      "type": "success",
+      "label": "SUCCESS",
+      "sublabel": "Job.success",
+      "lane": "main",
+      "col": 4,
+      "width": 118
+    },
+    {
+      "id": "retry",
+      "type": "failure",
+      "label": "RETRY",
+      "sublabel": "Job.retry",
+      "lane": "recovery",
+      "col": 0,
+      "width": 118
+    },
+    {
+      "id": "failed",
+      "type": "failure",
+      "label": "FAILED",
+      "sublabel": "Job.failed",
+      "lane": "terminal",
+      "col": 1,
+      "width": 118
+    },
+    {
+      "id": "canceled",
+      "type": "neutral",
+      "label": "CANCELED",
+      "sublabel": "Job.failed",
+      "lane": "terminal",
+      "col": 2,
+      "width": 118,
+      "yOffset": 90
+    }
+  ],
+  "transitions": [
+    {
+      "id": "transient-error",
+      "from": "running",
+      "to": "retry",
+      "label": "可重试错误；进入等待",
+      "variant": "security",
+      "labelAt": [
+        402,
+        250
+      ]
+    },
+    {
+      "id": "claim-retry",
+      "from": "retry",
+      "to": "running",
+      "label": "到时重新 claim；分析轮次 +1",
+      "variant": "emphasis",
+      "route": "left-channel"
+    },
+    {
+      "id": "fatal-or-exhausted",
+      "from": "running",
+      "to": "failed",
+      "label": "不可重试 / 预算耗尽",
+      "variant": "security",
+      "labelAt": [
+        479,
+        380
+      ]
+    },
+    {
+      "id": "cancel-analysis",
+      "from": "pending",
+      "to": "canceled",
+      "label": "取消当前任务，回收租约",
+      "fromSide": "bottom",
+      "toSide": "left",
+      "via": [
+        [
+          94,
+          569
+        ]
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "两个字段，不是同一套枚举",
+      "items": [
+        "大写为 tasks.analysis_status，Job 为 analysis_jobs.status；采集完成后才生成 Job。",
+        "Job 没有 canceled；图示从 PENDING 取消，也可取消其他未结束分析：Task.CANCELED / Job.failed。"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "租约到期可以直接接管 running",
+      "items": [
+        "可重试错误设置 available_at 后等待；到期且有预算的 running 也可直接重新 claim。",
+        "续租和发布同时核对 owner、分析轮次、实时期限、当前采集 attempt；旧 owner 被拒写。"
+      ]
+    }
+  ]
+}

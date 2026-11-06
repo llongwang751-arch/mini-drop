@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "原始文件与结果文件怎样交付",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "viewBox": [
+      1080,
+      560
+    ]
+  },
+  "participants": [
+    {
+      "id": "agent",
+      "type": "backend",
+      "label": "Agent",
+      "sublabel": "持有本地 RAW"
+    },
+    {
+      "id": "core",
+      "type": "backend",
+      "label": "Core Server",
+      "sublabel": "验收采集身份"
+    },
+    {
+      "id": "pg",
+      "type": "database",
+      "label": "PostgreSQL",
+      "sublabel": "登记文件索引"
+    },
+    {
+      "id": "objects",
+      "type": "cloud",
+      "label": "存储网关 / MinIO",
+      "sublabel": "保存实际字节"
+    },
+    {
+      "id": "analyzer",
+      "type": "backend",
+      "label": "Analyzer",
+      "sublabel": "校验并分析"
+    },
+    {
+      "id": "go",
+      "type": "backend",
+      "label": "Go API",
+      "sublabel": "授权下载"
+    },
+    {
+      "id": "browser",
+      "type": "frontend",
+      "label": "浏览器",
+      "sublabel": "按权限取文件"
+    }
+  ],
+  "messages": [
+    {
+      "id": "grant",
+      "from": "core",
+      "to": "agent",
+      "y": 160,
+      "label": "TaskDesc · 短期 PUT 授权",
+      "variant": "security",
+      "note": "Go Outbox 用存储客户端生成10分钟上传授权并写PG，经Core下发；RAW及每份附件均有固定object_key、种类和大小上限。Agent没有长期S3密钥。"
+    },
+    {
+      "id": "putraw",
+      "from": "agent",
+      "to": "objects",
+      "y": 188,
+      "label": "签名 PUT · RAW / BINARY",
+      "variant": "emphasis",
+      "note": "先核本地普通文件、大小与SHA-256；HTTP上传到内部 minio:9000 的 storage-gateway，再转发 storage-backend:9000。不是经Go API暂存，也不是经公网 /objects 上传。"
+    },
+    {
+      "id": "receipt",
+      "from": "objects",
+      "to": "agent",
+      "y": 216,
+      "label": "HTTP 2xx · opaque ETag",
+      "variant": "return",
+      "note": "ETag只作不透明回执，不宣称内容哈希。Agent持久化成功标记与恢复日志；断网重试上传/NotifyResult，不为补成功重新采样。"
+    },
+    {
+      "id": "manifest",
+      "from": "agent",
+      "to": "objects",
+      "y": 244,
+      "label": "PUT collection-manifest.json",
+      "note": "仅支持collection_manifest_version=1且获授权时：数据PUT后生成一次，记录起止、工具/Agent版本、去敏参数、对象键、大小、SHA和ETag；最多64KiB，不记URL、凭据、私有路径、原始stderr或自身哈希。"
+    },
+    {
+      "id": "notify",
+      "from": "agent",
+      "to": "core",
+      "y": 272,
+      "label": "NotifyResult · ArtifactInfo 清单",
+      "variant": "emphasis",
+      "note": "主RAW使用artifact；辅助BINARY/LOG/MANIFEST使用artifacts。消息包含key、size、sha256、name、format、content_type，不传RAW文件正文。"
+    },
+    {
+      "id": "register",
+      "from": "core",
+      "to": "pg",
+      "y": 300,
+      "label": "当前 attempt → 原子登记与入队",
+      "variant": "emphasis",
+      "note": "核状态、当前轮次、目标Agent、已授权键/种类/格式/大小及SHA语法。Core不下载RAW复算哈希；采集COLLECTED、文件索引、分析Job和事件一起提交。"
+    },
+    {
+      "id": "verify",
+      "from": "objects",
+      "to": "analyzer",
+      "y": 328,
+      "label": "GET RAW · 长度与 SHA 复核",
+      "variant": "return",
+      "note": "Analyzer使用内部存储客户端、保留精确存储字节（禁自动Content-Encoding解码）；核大小和实际SHA，错误则不发布成功分析。"
+    },
+    {
+      "id": "outputs",
+      "from": "analyzer",
+      "to": "objects",
+      "y": 356,
+      "label": "PUT 完整树、报告、manifest",
+      "variant": "emphasis",
+      "note": "pipeline生成 flamegraph.json.gz、其他已登记输出和独立的 manifest.json；每份结果计算大小/SHA。按 task/attempt/job/run 独立目录保存，避免旧run覆盖新对象。"
+    },
+    {
+      "id": "commit",
+      "from": "analyzer",
+      "to": "pg",
+      "y": 384,
+      "label": "有效租约 → 发布结果文件索引",
+      "note": "文件上传与SQL不是同一事务；租约失效不能发布成功引用，未引用孤立对象由维护对账。采集manifest与分析manifest不能互相覆盖。"
+    },
+    {
+      "id": "request",
+      "from": "browser",
+      "to": "go",
+      "y": 412,
+      "label": "GET 制品 /download",
+      "variant": "security",
+      "note": "完整路径 /api/v1/tasks/:id/artifacts/:artifact_id/download。Go重新核会话、任务权限、制品归属、ready状态、保留期和download_allowed，并记录审计。"
+    },
+    {
+      "id": "url",
+      "from": "go",
+      "to": "browser",
+      "y": 440,
+      "label": "短期 /objects/ URL + expires_at",
+      "variant": "return",
+      "note": "有效期最多5分钟且不超过制品剩余保留期；签名覆盖 response-content-encoding=identity，防止浏览器自动解码改变存储字节语义。"
+    },
+    {
+      "id": "download",
+      "from": "objects",
+      "to": "browser",
+      "y": 468,
+      "label": "经同源只读代理返回实际字节",
+      "variant": "return",
+      "note": "浏览器GET同源 /objects/，前端Nginx仅允许GET/HEAD，去Cookie/Authorization，保留签名Host后经存储网关到MinIO。Worker对象请求credentials:omit、拒绝重定向。"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "谁能碰 RAW",
+      "items": [
+        "Agent、存储、Analyzer；授权用户可下载RAW。"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "SHA 的实际位置",
+      "items": [
+        "Agent计算，Analyzer复算；浏览器当前不复算。"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "不要画成另一套实现",
+      "items": [
+        "上传内网签名PUT；浏览器同源只读代理。"
+      ]
+    }
+  ]
+}

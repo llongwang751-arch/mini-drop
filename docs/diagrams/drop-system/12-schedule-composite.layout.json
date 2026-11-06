@@ -1,0 +1,485 @@
+{
+  "contract": "readable-v2",
+  "viewBox": [
+    1074,
+    652
+  ],
+  "requiredViewBox": [
+    1074,
+    652
+  ],
+  "columns": [
+    94,
+    252,
+    438.8,
+    644.8,
+    831.5999999999999,
+    999.1999999999999
+  ],
+  "nodes": [
+    {
+      "id": "timer",
+      "lane": "schedule",
+      "col": 0,
+      "x": 48,
+      "y": 93,
+      "width": 92,
+      "height": 52
+    },
+    {
+      "id": "schedule-guard",
+      "lane": "schedule",
+      "col": 1,
+      "x": 206,
+      "y": 93,
+      "width": 92,
+      "height": 52
+    },
+    {
+      "id": "create-task",
+      "lane": "execution",
+      "col": 2,
+      "x": 392.8,
+      "y": 217,
+      "width": 92,
+      "height": 52
+    },
+    {
+      "id": "pipeline",
+      "lane": "execution",
+      "col": 3,
+      "x": 598.8,
+      "y": 217,
+      "width": 92,
+      "height": 52
+    },
+    {
+      "id": "task-result",
+      "lane": "execution",
+      "col": 4,
+      "x": 785.5999999999999,
+      "y": 217,
+      "width": 92,
+      "height": 52
+    },
+    {
+      "id": "success",
+      "lane": "execution",
+      "col": 5,
+      "x": 953.1999999999999,
+      "y": 217,
+      "width": 92,
+      "height": 52
+    },
+    {
+      "id": "manual",
+      "lane": "composite",
+      "col": 0,
+      "x": 48,
+      "y": 341,
+      "width": 92,
+      "height": 52
+    },
+    {
+      "id": "validate-dag",
+      "lane": "composite",
+      "col": 1,
+      "x": 206,
+      "y": 341,
+      "width": 92,
+      "height": 52
+    },
+    {
+      "id": "dependencies",
+      "lane": "composite",
+      "col": 2,
+      "x": 392.8,
+      "y": 341,
+      "width": 92,
+      "height": 52
+    },
+    {
+      "id": "aggregate",
+      "lane": "composite",
+      "col": 4,
+      "x": 785.5999999999999,
+      "y": 341,
+      "width": 92,
+      "height": 52
+    },
+    {
+      "id": "failed",
+      "lane": "composite",
+      "col": 5,
+      "x": 953.1999999999999,
+      "y": 341,
+      "width": 92,
+      "height": 52
+    },
+    {
+      "id": "partial",
+      "lane": "outcomes",
+      "col": 5,
+      "x": 953.1999999999999,
+      "y": 465,
+      "width": 92,
+      "height": 52
+    }
+  ],
+  "edges": [
+    {
+      "id": "all-success",
+      "from": "aggregate",
+      "to": "success",
+      "points": [
+        [
+          831.5999999999999,
+          341
+        ],
+        [
+          831.5999999999999,
+          290
+        ],
+        [
+          999.1999999999999,
+          290
+        ],
+        [
+          999.1999999999999,
+          269
+        ]
+      ]
+    },
+    {
+      "id": "collect-composite",
+      "from": "task-result",
+      "to": "aggregate",
+      "points": [
+        [
+          785.5999999999999,
+          243
+        ],
+        [
+          769.5999999999999,
+          243
+        ],
+        [
+          769.5999999999999,
+          420
+        ],
+        [
+          831.5999999999999,
+          420
+        ],
+        [
+          831.5999999999999,
+          393
+        ]
+      ]
+    },
+    {
+      "id": "define-dag",
+      "from": "manual",
+      "to": "validate-dag",
+      "points": [
+        [
+          140,
+          367
+        ],
+        [
+          206,
+          367
+        ]
+      ]
+    },
+    {
+      "id": "normal-work",
+      "from": "create-task",
+      "to": "pipeline",
+      "points": [
+        [
+          484.8,
+          243
+        ],
+        [
+          598.8,
+          243
+        ]
+      ]
+    },
+    {
+      "id": "optional-failed",
+      "from": "aggregate",
+      "to": "partial",
+      "points": [
+        [
+          877.5999999999999,
+          367
+        ],
+        [
+          893.5999999999999,
+          367
+        ],
+        [
+          893.5999999999999,
+          414
+        ],
+        [
+          999.1999999999999,
+          414
+        ],
+        [
+          999.1999999999999,
+          465
+        ]
+      ]
+    },
+    {
+      "id": "persist-and-tick",
+      "from": "validate-dag",
+      "to": "dependencies",
+      "points": [
+        [
+          298,
+          367
+        ],
+        [
+          392.8,
+          367
+        ]
+      ]
+    },
+    {
+      "id": "ready-node",
+      "from": "dependencies",
+      "to": "create-task",
+      "points": [
+        [
+          438.8,
+          341
+        ],
+        [
+          438.8,
+          269
+        ]
+      ]
+    },
+    {
+      "id": "required-failed",
+      "from": "aggregate",
+      "to": "failed",
+      "points": [
+        [
+          831.5999999999999,
+          341
+        ],
+        [
+          831.5999999999999,
+          325
+        ],
+        [
+          999.1999999999999,
+          325
+        ],
+        [
+          999.1999999999999,
+          341
+        ]
+      ]
+    },
+    {
+      "id": "save-result",
+      "from": "pipeline",
+      "to": "task-result",
+      "points": [
+        [
+          644.8,
+          217
+        ],
+        [
+          644.8,
+          201
+        ],
+        [
+          831.5999999999999,
+          201
+        ],
+        [
+          831.5999999999999,
+          217
+        ]
+      ]
+    },
+    {
+      "id": "scheduled-create",
+      "from": "schedule-guard",
+      "to": "create-task",
+      "points": [
+        [
+          252,
+          145
+        ],
+        [
+          252,
+          243
+        ],
+        [
+          392.8,
+          243
+        ]
+      ]
+    },
+    {
+      "id": "skip-dependent",
+      "from": "dependencies",
+      "to": "aggregate",
+      "points": [
+        [
+          484.8,
+          367
+        ],
+        [
+          785.5999999999999,
+          367
+        ]
+      ]
+    },
+    {
+      "id": "standalone-success",
+      "from": "task-result",
+      "to": "success",
+      "points": [
+        [
+          877.5999999999999,
+          236
+        ],
+        [
+          953.1999999999999,
+          236
+        ]
+      ]
+    },
+    {
+      "id": "time-lock",
+      "from": "timer",
+      "to": "schedule-guard",
+      "points": [
+        [
+          140,
+          119
+        ],
+        [
+          206,
+          119
+        ]
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "edge": "all-success",
+      "label": "全部成功",
+      "x": 915.3999999999999,
+      "y": 280,
+      "width": 48.4,
+      "height": 14
+    },
+    {
+      "edge": "collect-composite",
+      "label": "属于 DAG 的子任务",
+      "x": 800.5999999999999,
+      "y": 410,
+      "width": 91.6,
+      "height": 14
+    },
+    {
+      "edge": "define-dag",
+      "label": "节点与依赖",
+      "x": 173,
+      "y": 357,
+      "width": 58,
+      "height": 14
+    },
+    {
+      "edge": "normal-work",
+      "label": "任务与派发意图同事务",
+      "x": 541.8,
+      "y": 233,
+      "width": 106,
+      "height": 14
+    },
+    {
+      "edge": "optional-failed",
+      "label": "允许部分成功",
+      "x": 946.3999999999999,
+      "y": 404,
+      "width": 67.6,
+      "height": 14
+    },
+    {
+      "edge": "persist-and-tick",
+      "label": "持久化后后台推进",
+      "x": 345.4,
+      "y": 357,
+      "width": 86.8,
+      "height": 14
+    },
+    {
+      "edge": "ready-node",
+      "label": "全部依赖成功",
+      "x": 438.8,
+      "y": 331,
+      "width": 67.6,
+      "height": 14
+    },
+    {
+      "edge": "required-failed",
+      "label": "失败条件成立",
+      "x": 915.3999999999999,
+      "y": 315,
+      "width": 67.6,
+      "height": 14
+    },
+    {
+      "edge": "save-result",
+      "label": "状态与事件持久化",
+      "x": 738.1999999999999,
+      "y": 191,
+      "width": 86.8,
+      "height": 14
+    },
+    {
+      "edge": "scheduled-create",
+      "label": "时点唯一 + 子任务幂等键",
+      "x": 322.4,
+      "y": 233,
+      "width": 120.39999999999999,
+      "height": 14
+    },
+    {
+      "edge": "skip-dependent",
+      "label": "依赖失败：本节点 SKIPPED",
+      "x": 635.1999999999999,
+      "y": 357,
+      "width": 125.19999999999999,
+      "height": 14
+    },
+    {
+      "edge": "standalone-success",
+      "label": "分析成功",
+      "x": 915.3999999999999,
+      "y": 226,
+      "width": 48.4,
+      "height": 14
+    },
+    {
+      "edge": "time-lock",
+      "label": "到时推进",
+      "x": 173,
+      "y": 109,
+      "width": 48.4,
+      "height": 14
+    }
+  ],
+  "diagnostics": []
+}

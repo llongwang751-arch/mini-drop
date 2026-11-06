@@ -1,0 +1,391 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-10-24",
+  "evidence_kind": "image-capable-review",
+  "reviewer": "Codex subagent diagram_states",
+  "method": "逐张通过 view_image 查看工具生成的原始 PNG；未改动已交付 HTML。",
+  "scope": "默认 READ / Still；1440×900 与 2048×1320 的浅色、深色共每图四张截图。DOM 视口测量来自单独自动收据，不能由图片目视替代。",
+  "limitations": [
+    "未另外执行搜索、焦点、演示、导出或下载交互；本记录不声明这些操作已经验收。",
+    "自动 visual-check 与人工/图像审阅状态独立；本记录不会覆盖自动收据。"
+  ],
+  "diagrams": [
+    {
+      "id": "06-collection-lifecycle",
+      "diagram_type": "workflow",
+      "specification": {
+        "path": "06-collection-lifecycle.json",
+        "sha256": "cdc47888dc67f9648649747981a3a1d08bb8b6ef0081d74fc4979d897970b167",
+        "bytes": 3681
+      },
+      "artifact": {
+        "path": "06-collection-lifecycle.html",
+        "sha256": "693397526f97853cccedd3c7d96ed5f4f7a9a6040017df05161856d64f168c68",
+        "bytes": 808792
+      },
+      "validation": {
+        "checksPassed": 9,
+        "checkCount": 9,
+        "compositionProfile": "showcase",
+        "compositionStatus": "pass",
+        "errors": 0,
+        "warnings": 0
+      },
+      "browser_evidence": {
+        "status": "passed",
+        "receipt": "06-collection-lifecycle.visual-check.json",
+        "artifact_sha256": "693397526f97853cccedd3c7d96ed5f4f7a9a6040017df05161856d64f168c68",
+        "viewports": [
+          {
+            "width": 1440,
+            "height": 900,
+            "theme": "light",
+            "scrollWidth": 1440,
+            "scrollHeight": 900,
+            "ok": true
+          },
+          {
+            "width": 1600,
+            "height": 1000,
+            "theme": "light",
+            "scrollWidth": 1600,
+            "scrollHeight": 1000,
+            "ok": true
+          },
+          {
+            "width": 1920,
+            "height": 1080,
+            "theme": "light",
+            "scrollWidth": 1920,
+            "scrollHeight": 1080,
+            "ok": true
+          },
+          {
+            "width": 2048,
+            "height": 1320,
+            "theme": "light",
+            "scrollWidth": 2048,
+            "scrollHeight": 1320,
+            "ok": true
+          }
+        ]
+      },
+      "visual_review": "passed",
+      "correction_rounds": 1,
+      "screenshots": [
+        {
+          "path": "06-collection-lifecycle.visual-check.1440x900.light.png",
+          "sha256": "14f1ae38ee49fbdbeb08dcc3936346e9947d33ae0a5e254208314392f845a03f",
+          "bytes": 137264,
+          "actually_inspected": true
+        },
+        {
+          "path": "06-collection-lifecycle.visual-check.1440x900.dark.png",
+          "sha256": "599cbbcd41a5fd976a8ce7434bed85cfbf49286b62295d28a13981d9b3ec00bd",
+          "bytes": 141323,
+          "actually_inspected": true
+        },
+        {
+          "path": "06-collection-lifecycle.visual-check.2048x1320.light.png",
+          "sha256": "b3890ea7d565712370262052a0f99dfecda401cb076fe00a6bc00ee4653d9138",
+          "bytes": 173143,
+          "actually_inspected": true
+        },
+        {
+          "path": "06-collection-lifecycle.visual-check.2048x1320.dark.png",
+          "sha256": "66c45dc468b5b5c717a765758c6adbcc6e800f87cdf822811c64f9cf9083ddc0",
+          "bytes": 176447,
+          "actually_inspected": true
+        }
+      ],
+      "observations": [
+        "八个真实采集状态都可见，正常路径从左至右；FAILED/CANCELED 典型退出向下，未穿越其他节点。",
+        "浅深主题下状态、标签、箭头与两张结论卡可辨；COLLECTED 与重试新增 attempt 的边界在卡片明确。",
+        "2048 大屏中主流程与结论卡占用均衡，没有旧 lifecycle 中空置中断带带来的大片纵向空白。"
+      ]
+    },
+    {
+      "id": "07-analysis-lifecycle",
+      "diagram_type": "sequence",
+      "specification": {
+        "path": "07-analysis-lifecycle.json",
+        "sha256": "cdbc0a5891f1c3724c7c4f9501d4b2776adb9adc10df67093a636cebbf4d4ec3",
+        "bytes": 3600
+      },
+      "artifact": {
+        "path": "07-analysis-lifecycle.html",
+        "sha256": "bd35e8f300321a92aa5d5f89ff5808e5289c91b791560fb6c725661e2be01e50",
+        "bytes": 807547
+      },
+      "validation": {
+        "checksPassed": 9,
+        "checkCount": 9,
+        "compositionProfile": "showcase",
+        "compositionStatus": "pass",
+        "errors": 0,
+        "warnings": 0
+      },
+      "browser_evidence": {
+        "status": "passed",
+        "receipt": "07-analysis-lifecycle.visual-check.json",
+        "artifact_sha256": "bd35e8f300321a92aa5d5f89ff5808e5289c91b791560fb6c725661e2be01e50",
+        "viewports": [
+          {
+            "width": 1440,
+            "height": 900,
+            "theme": "light",
+            "scrollWidth": 1440,
+            "scrollHeight": 900,
+            "ok": true
+          },
+          {
+            "width": 1600,
+            "height": 1000,
+            "theme": "light",
+            "scrollWidth": 1600,
+            "scrollHeight": 1000,
+            "ok": true
+          },
+          {
+            "width": 1920,
+            "height": 1080,
+            "theme": "light",
+            "scrollWidth": 1920,
+            "scrollHeight": 1080,
+            "ok": true
+          },
+          {
+            "width": 2048,
+            "height": 1320,
+            "theme": "light",
+            "scrollWidth": 2048,
+            "scrollHeight": 1320,
+            "ok": true
+          }
+        ]
+      },
+      "visual_review": "passed",
+      "correction_rounds": 2,
+      "screenshots": [
+        {
+          "path": "07-analysis-lifecycle.visual-check.1440x900.light.png",
+          "sha256": "18920c94d19af3f9d47f7990b4aa1df0f06642a13d3e79be40d0e14d7440e7e1",
+          "bytes": 116346,
+          "actually_inspected": true
+        },
+        {
+          "path": "07-analysis-lifecycle.visual-check.1440x900.dark.png",
+          "sha256": "545a60db9c5d847baa0c8c53b5caa3e7a5b86a3a458b94ae3b5a4c1a0666a00f",
+          "bytes": 118639,
+          "actually_inspected": true
+        },
+        {
+          "path": "07-analysis-lifecycle.visual-check.2048x1320.light.png",
+          "sha256": "d1ff732e2e3b2161d77ff485dd3591c1efff2bd885f959478a3e31d3b0f1313a",
+          "bytes": 154955,
+          "actually_inspected": true
+        },
+        {
+          "path": "07-analysis-lifecycle.visual-check.2048x1320.dark.png",
+          "sha256": "190fb9415d54e8b6c39bfa7de901540f073603e2c53bd3984891b84d16e605bc",
+          "bytes": 158191,
+          "actually_inspected": true
+        }
+      ],
+      "observations": [
+        "六个参与者完整显示；Task.analysis_status 与 AnalysisJob.status 分列，大写和小写状态清楚区分。",
+        "领取、过期接管、旧 owner 拒写、上传和同事务成功提交的顺序可读；没有 segments 标题遮挡参与者。",
+        "三条额外分支在标签明确命名为分支；详细原因保留在 note 和 state-facts，默认 READ 不把 note 当已显示正文。",
+        "最终 sequence 在其第一次自动浏览器检查通过；此前生命周期与 workflow 拒绝稿已移至 candidate-history，不是最终交付。"
+      ]
+    },
+    {
+      "id": "11-recovery-sequence",
+      "diagram_type": "sequence",
+      "specification": {
+        "path": "11-recovery-sequence.json",
+        "sha256": "847cbd59ba6a818d6da210a418bcd6eaff7166f7c61f25e4bd55492b47c35216",
+        "bytes": 2848
+      },
+      "artifact": {
+        "path": "11-recovery-sequence.html",
+        "sha256": "e4823c18ecba7f24ec45d477b96c3053dc3200a447aaf7e43668cd9b81155cd2",
+        "bytes": 804181
+      },
+      "validation": {
+        "checksPassed": 9,
+        "checkCount": 9,
+        "compositionProfile": "showcase",
+        "compositionStatus": "pass",
+        "errors": 0,
+        "warnings": 0
+      },
+      "browser_evidence": {
+        "status": "passed",
+        "receipt": "11-recovery-sequence.visual-check.json",
+        "artifact_sha256": "e4823c18ecba7f24ec45d477b96c3053dc3200a447aaf7e43668cd9b81155cd2",
+        "viewports": [
+          {
+            "width": 1440,
+            "height": 900,
+            "theme": "light",
+            "scrollWidth": 1440,
+            "scrollHeight": 900,
+            "ok": true
+          },
+          {
+            "width": 1600,
+            "height": 1000,
+            "theme": "light",
+            "scrollWidth": 1600,
+            "scrollHeight": 1000,
+            "ok": true
+          },
+          {
+            "width": 1920,
+            "height": 1080,
+            "theme": "light",
+            "scrollWidth": 1920,
+            "scrollHeight": 1080,
+            "ok": true
+          },
+          {
+            "width": 2048,
+            "height": 1320,
+            "theme": "light",
+            "scrollWidth": 2048,
+            "scrollHeight": 1320,
+            "ok": true
+          }
+        ]
+      },
+      "visual_review": "passed",
+      "correction_rounds": 1,
+      "screenshots": [
+        {
+          "path": "11-recovery-sequence.visual-check.1440x900.light.png",
+          "sha256": "117045a406f8c6ab9fd5cf5c483d9dca2f7151dd550309571604a250e8ee7214",
+          "bytes": 106612,
+          "actually_inspected": true
+        },
+        {
+          "path": "11-recovery-sequence.visual-check.1440x900.dark.png",
+          "sha256": "6bbce5622ca5575b31e87ec2c6e4f05af783717358b6436676817834450f15c9",
+          "bytes": 108600,
+          "actually_inspected": true
+        },
+        {
+          "path": "11-recovery-sequence.visual-check.2048x1320.light.png",
+          "sha256": "f4942562fc46788067199091c95673ff998198fe9d8a86fec912d265af81a85d",
+          "bytes": 141720,
+          "actually_inspected": true
+        },
+        {
+          "path": "11-recovery-sequence.visual-check.2048x1320.dark.png",
+          "sha256": "560352ad6083608423ce5bb4ce6030c58640ce3af704cfae249544214d489056",
+          "bytes": 143802,
+          "actually_inspected": true
+        }
+      ],
+      "observations": [
+        "四个真实组件的消息方向可辨；ACK 未抵达明确用文字标注，下一轮重读 QUEUED 后停止重复 RPC。",
+        "published_at、TaskDesc、Heartbeat 和短期 PUT 目标标签完整，没有出现凭据或签名 URL。",
+        "压缩的是时间线留白与重复结论卡；1440 首屏与 2048 大屏均无裁切，消息行之间可辨。"
+      ]
+    },
+    {
+      "id": "12-schedule-composite",
+      "diagram_type": "workflow",
+      "specification": {
+        "path": "12-schedule-composite.json",
+        "sha256": "b0d694684a3d5cf3eef6de2e98e0ca4686c30cea84daa526453c44c100c53424",
+        "bytes": 5778
+      },
+      "artifact": {
+        "path": "12-schedule-composite.html",
+        "sha256": "2826d583c6d112815dc5a4c77c444c95261d86452201b64f788c31b3f8d8b416",
+        "bytes": 819177
+      },
+      "validation": {
+        "checksPassed": 9,
+        "checkCount": 9,
+        "compositionProfile": "showcase",
+        "compositionStatus": "pass",
+        "errors": 0,
+        "warnings": 0
+      },
+      "browser_evidence": {
+        "status": "passed",
+        "receipt": "12-schedule-composite.visual-check.json",
+        "artifact_sha256": "2826d583c6d112815dc5a4c77c444c95261d86452201b64f788c31b3f8d8b416",
+        "viewports": [
+          {
+            "width": 1440,
+            "height": 900,
+            "theme": "light",
+            "scrollWidth": 1440,
+            "scrollHeight": 900,
+            "ok": true
+          },
+          {
+            "width": 1600,
+            "height": 1000,
+            "theme": "light",
+            "scrollWidth": 1600,
+            "scrollHeight": 1000,
+            "ok": true
+          },
+          {
+            "width": 1920,
+            "height": 1080,
+            "theme": "light",
+            "scrollWidth": 1920,
+            "scrollHeight": 1080,
+            "ok": true
+          },
+          {
+            "width": 2048,
+            "height": 1320,
+            "theme": "light",
+            "scrollWidth": 2048,
+            "scrollHeight": 1320,
+            "ok": true
+          }
+        ]
+      },
+      "visual_review": "passed",
+      "correction_rounds": 0,
+      "screenshots": [
+        {
+          "path": "12-schedule-composite.visual-check.1440x900.light.png",
+          "sha256": "05eba471362e89cc96624ae2a9c654370f3edad9cf72bfa1b38e919b7c51c8f0",
+          "bytes": 156442,
+          "actually_inspected": true
+        },
+        {
+          "path": "12-schedule-composite.visual-check.1440x900.dark.png",
+          "sha256": "98fde03c7901a4af41c06855bf5ffaa34cfd73cad7a7ca34eb83d6e3dad56e7b",
+          "bytes": 161202,
+          "actually_inspected": true
+        },
+        {
+          "path": "12-schedule-composite.visual-check.2048x1320.light.png",
+          "sha256": "6ede6cfd54ff617a61218f26921241b2e715848e91d88402449b43765fcee1b7",
+          "bytes": 211606,
+          "actually_inspected": true
+        },
+        {
+          "path": "12-schedule-composite.visual-check.2048x1320.dark.png",
+          "sha256": "ff963320969b74402aee746d8aa604dca0ea292a66b03961a8c487b24f2110cd",
+          "bytes": 220264,
+          "actually_inspected": true
+        }
+      ],
+      "observations": [
+        "两种入口汇入普通任务链路可追踪；DAG 依赖、跳过、汇总到 SUCCESS/FAILED/PARTIAL_SUCCESS 的箭头各有标签。",
+        "四条工作带、十二个节点与两张事实卡完整显示；下方卡片明确时点幂等、不补发全部历史时点、整体超时与用户取消。",
+        "1440 中内容较密但可读且无重叠；2048 大屏文字与关系可辨，面板及卡片占用均衡。"
+      ]
+    }
+  ]
+}

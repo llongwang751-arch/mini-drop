@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-10-24",
+  "reviewer": "Codex root image-capable review",
+  "scope": "Default READ / Still only. All four endpoint screenshots were actually viewed through view_image; automated checks are separate.",
+  "diagrams": [
+    {
+      "id": "01-system-architecture",
+      "diagram_type": "architecture",
+      "specification": {
+        "sha256": "7fc0ad4c48cae3610952f755959563116dac14cac40ac035348952291e78f56c",
+        "bytes": 5535
+      },
+      "artifact": {
+        "sha256": "ff243a6fb87d95734ac153680a93d27930c9a51f850a261cbdfee623071e56c2",
+        "bytes": 810014
+      },
+      "validation": {
+        "checksPassed": 9,
+        "checkCount": 9,
+        "compositionProfile": "showcase",
+        "compositionStatus": "pass",
+        "errors": 0,
+        "warnings": 0
+      },
+      "browser_evidence": {
+        "status": "passed",
+        "receipt": "01-system-architecture.visual-check.json"
+      },
+      "visual_review": "passed",
+      "correction_rounds": 0,
+      "observations": [
+        "八个模块、主控制路径与存储路径可读。SQL走廊虽然有交叉，但标签没有盖住关键箭头或节点。",
+        "1440与2048两主题首屏完整，主面板和结论卡使用高度均衡；来源与数据库角色另由门户逐项说明。"
+      ],
+      "screenshots": [
+        {
+          "path": "01-system-architecture.visual-check.1440x900.light.png",
+          "sha256": "d4e5b36c64205bc269a62fd5e4cbf4837663c080538c4f1082285e4e5c74eeb2",
+          "bytes": 119879,
+          "viewed": true
+        },
+        {
+          "path": "01-system-architecture.visual-check.1440x900.dark.png",
+          "sha256": "0df82d5e2ea1c5168318203ef4c484fe6cef7deaa93874b4c945d27ae1060ec8",
+          "bytes": 121951,
+          "viewed": true
+        },
+        {
+          "path": "01-system-architecture.visual-check.2048x1320.light.png",
+          "sha256": "50028e6e23f512812d8d1f217bd811b3137dcd6025ebf9a44f436f982951846e",
+          "bytes": 151734,
+          "viewed": true
+        },
+        {
+          "path": "01-system-architecture.visual-check.2048x1320.dark.png",
+          "sha256": "623745dae0e1ab5daefd45ab2311b26334cf3a18bc6b4dcd7c41c58bbd4c46d2",
+          "bytes": 154507,
+          "viewed": true
+        }
+      ]
+    },
+    {
+      "id": "02-control-data-flow",
+      "diagram_type": "dataflow",
+      "specification": {
+        "sha256": "40b3ba16fc453889f0e6d4b07039ad5202ab11f66eb753eb816415b30a896b20",
+        "bytes": 4599
+      },
+      "artifact": {
+        "sha256": "a2c1d69b9fa0bd19ea5be02716c14234c2a8ae6434685c3982bae5129154b997",
+        "bytes": 809308
+      },
+      "validation": {
+        "checksPassed": 9,
+        "checkCount": 9,
+        "compositionProfile": "showcase",
+        "compositionStatus": "pass",
+        "errors": 0,
+        "warnings": 0
+      },
+      "browser_evidence": {
+        "status": "passed",
+        "receipt": "02-control-data-flow.visual-check.json"
+      },
+      "visual_review": "passed",
+      "correction_rounds": 1,
+      "observations": [
+        "将下排PUT/GET的说明移到边线上方后，箭头露出，消息与文件两条逻辑流分明。",
+        "四张最终截图均已实际查看；字密的字段可在门户以正文阅读，图上主角色/协议/权重单位未互相遮挡。"
+      ],
+      "screenshots": [
+        {
+          "path": "02-control-data-flow.visual-check.1440x900.light.png",
+          "sha256": "cec31ab39f45368457f9df50c67a487b5a66698b853060f34e7d405068953a2c",
+          "bytes": 136877,
+          "viewed": true
+        },
+        {
+          "path": "02-control-data-flow.visual-check.1440x900.dark.png",
+          "sha256": "23dee4113c0545d94dc54629bc46a15e4f050e04bcf8401d5833d0a7efa0869a",
+          "bytes": 138737,
+          "viewed": true
+        },
+        {
+          "path": "02-control-data-flow.visual-check.2048x1320.light.png",
+          "sha256": "1a19ce69d9f7ee6fea07152e8bb01c03585a95949d4319e12920ab00c85a1559",
+          "bytes": 191127,
+          "viewed": true
+        },
+        {
+          "path": "02-control-data-flow.visual-check.2048x1320.dark.png",
+          "sha256": "4905d4bfd36dfb7f8bb31447077dbd6530baec9a70358cc80f869234ab23575e",
+          "bytes": 193880,
+          "viewed": true
+        }
+      ]
+    }
+  ]
+}

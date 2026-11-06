@@ -1,0 +1,1074 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="Drop 系统架构、数据流、时序与状态图，附采集器、协议字段和实际操作链路。"
+    />
+    <title>Drop 系统图解 · 从点击到证据</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --paper: #f5f6f8;
+        --card: #fff;
+        --ink: #172a3b;
+        --muted: #50677c;
+        --line: #d8e1e9;
+        --blue: #165ec8;
+        --tint: #eaf1fc;
+        --green: #087d6b;
+        --code: #eff3f7;
+      }
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --paper: #101822;
+        --card: #172330;
+        --ink: #e7eff7;
+        --muted: #b0c1d2;
+        --line: #344759;
+        --blue: #91beff;
+        --tint: #223750;
+        --green: #7ddbc5;
+        --code: #12202c;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+        line-height: 1.8;
+      }
+      a {
+        color: var(--blue);
+        text-underline-offset: 3px;
+      }
+      button,
+      input {
+        font: inherit;
+      }
+      button,
+      a,
+      input,
+      summary {
+        -webkit-tap-highlight-color: transparent;
+      }
+      button {
+        cursor: pointer;
+      }
+      :focus-visible {
+        outline: 3px solid var(--blue);
+        outline-offset: 3px;
+      }
+      .skip {
+        position: fixed;
+        z-index: 20;
+        left: 12px;
+        top: -100px;
+        background: var(--card);
+        padding: 8px 14px;
+      }
+      .skip:focus {
+        top: 10px;
+      }
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px 32px;
+        border-bottom: 1px solid var(--line);
+        background: var(--card);
+      }
+      .brand {
+        color: var(--ink);
+        font-weight: 750;
+        text-decoration: none;
+        font-size: 21px;
+        letter-spacing: -0.7px;
+      }
+      .brand span {
+        color: var(--blue);
+      }
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 14px;
+      }
+      .quiet-button {
+        background: var(--card);
+        color: var(--ink);
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        padding: 6px 12px;
+      }
+      .shell {
+        display: grid;
+        grid-template-columns: 246px minmax(0, 1fr);
+        max-width: 1900px;
+        margin: auto;
+      }
+      .sidebar {
+        padding: 26px 17px;
+        border-right: 1px solid var(--line);
+      }
+      .side-inner {
+        position: sticky;
+        top: 18px;
+        max-height: calc(100vh - 30px);
+        overflow-y: auto;
+        scrollbar-width: thin;
+        padding-bottom: 12px;
+      }
+      .side-heading {
+        margin: 15px 12px 7px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+      }
+      .side-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: var(--muted);
+        padding: 8px 12px;
+        margin: 3px 0;
+        border-radius: 6px;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .side-link:hover {
+        background: var(--card);
+        color: var(--ink);
+      }
+      .side-link[aria-current="page"] {
+        background: var(--tint);
+        color: var(--blue);
+        font-weight: 650;
+      }
+      .num {
+        font-size: 11px;
+        font-family: Consolas, monospace;
+        color: var(--muted);
+        min-width: 21px;
+      }
+      .side-note {
+        border-top: 1px solid var(--line);
+        margin: 22px 12px 0;
+        padding-top: 14px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      main {
+        min-width: 0;
+        padding: 30px 34px 72px;
+      }
+      .intro {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 28px;
+        padding-bottom: 24px;
+        margin-bottom: 26px;
+        border-bottom: 1px solid var(--line);
+      }
+      .eyebrow {
+        font-size: 12px;
+        color: var(--green);
+        margin: 0 0 6px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(27px, 3vw, 39px);
+        letter-spacing: -1.2px;
+        line-height: 1.35;
+      }
+      .intro p:last-child {
+        margin: 10px 0 0;
+        color: var(--muted);
+        max-width: 760px;
+      }
+      .count {
+        white-space: nowrap;
+        text-align: right;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .count strong {
+        color: var(--ink);
+        font-size: 27px;
+        font-weight: 550;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.5;
+        margin: 0 0 8px;
+        letter-spacing: -0.5px;
+      }
+      h3 {
+        font-size: 17px;
+        margin: 0 0 8px;
+      }
+      p {
+        margin: 8px 0 16px;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .panel-head {
+        margin-bottom: 20px;
+      }
+      .panel-head p {
+        color: var(--muted);
+        max-width: 960px;
+      }
+      .figure-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 12px;
+      }
+      .figure-head h2 {
+        margin: 0;
+      }
+      .figure-type {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .figure-links {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        font-size: 14px;
+      }
+      .figure-wrap {
+        background: #f8fafc;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+      }
+      iframe {
+        display: block;
+        width: 100%;
+        height: 850px;
+        border: 0;
+        border-radius: 10px;
+        background: #f8fafc;
+      }
+      .figure-caption {
+        padding: 14px 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .explain {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 24px 26px;
+        margin: 12px 0 22px;
+      }
+      .explain > p {
+        max-width: 1050px;
+      }
+      .cols {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 26px;
+      }
+      ol,
+      ul {
+        padding-left: 22px;
+        margin: 8px 0 12px;
+      }
+      li {
+        margin: 7px 0;
+      }
+      .source-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 20px;
+        padding-top: 14px;
+        margin-top: 16px;
+        border-top: 1px solid var(--line);
+        font-size: 12px;
+        overflow-wrap: anywhere;
+      }
+      .next {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 24px 0 0;
+      }
+      .note {
+        border-left: 3px solid var(--green);
+        padding: 10px 18px;
+        background: var(--tint);
+        margin: 18px 0;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 22px;
+      }
+      .card p {
+        margin: 6px 0 12px;
+      }
+      dl {
+        margin: 12px 0;
+      }
+      dt {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 650;
+        margin-top: 12px;
+      }
+      dd {
+        margin: 2px 0 8px;
+        overflow-wrap: anywhere;
+      }
+      .table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        margin: 18px 0;
+        background: var(--card);
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        text-align: left;
+        font-size: 14px;
+      }
+      th {
+        font-weight: 650;
+        color: var(--muted);
+        font-size: 12px;
+        white-space: nowrap;
+        background: var(--code);
+      }
+      th,
+      td {
+        padding: 15px 17px;
+        vertical-align: top;
+        border-bottom: 1px solid var(--line);
+      }
+      tr:last-child td {
+        border-bottom: 0;
+      }
+      td {
+        min-width: 130px;
+        overflow-wrap: anywhere;
+      }
+      .route {
+        font-weight: 650;
+        min-width: 200px;
+      }
+      .protocol {
+        display: block;
+        margin-top: 5px;
+        font-size: 12px;
+        color: var(--green);
+        font-weight: 500;
+      }
+      .search {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin: 24px 0 16px;
+      }
+      .search input {
+        width: min(100%, 510px);
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--ink);
+        padding: 10px 14px;
+        border-radius: 7px;
+      }
+      .collector {
+        margin: 12px 0;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--card);
+      }
+      .collector summary {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        list-style: none;
+        cursor: pointer;
+        padding: 18px 21px;
+      }
+      .collector summary::-webkit-details-marker {
+        display: none;
+      }
+      .collector summary::after {
+        content: "＋";
+        color: var(--blue);
+        font-size: 21px;
+        margin-left: auto;
+      }
+      .collector[open] summary::after {
+        content: "−";
+      }
+      .collector-name {
+        min-width: 210px;
+      }
+      .collector-name strong {
+        display: block;
+        font-size: 16px;
+      }
+      .collector-name code {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .collector-summary {
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .collector-body {
+        border-top: 1px solid var(--line);
+        padding: 22px;
+      }
+      .collector-body ul {
+        font-size: 14px;
+      }
+      .raw {
+        background: var(--code);
+        padding: 14px 17px;
+        border-radius: 6px;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+      }
+      code,
+      pre {
+        font-family: Consolas, "Cascadia Code", monospace;
+      }
+      code {
+        overflow-wrap: anywhere;
+      }
+      pre {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        background: var(--code);
+        padding: 18px;
+        border-radius: 7px;
+        font-size: 13px;
+        line-height: 1.65;
+      }
+      .journey {
+        display: grid;
+        grid-template-columns: 36px minmax(0, 1fr);
+        gap: 10px 17px;
+        padding: 22px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .stepnum {
+        color: var(--blue);
+        font:
+          500 24px/1.7 Consolas,
+          monospace;
+      }
+      .journey h3 {
+        margin: 0 0 7px;
+      }
+      .journey p {
+        margin: 0 0 7px;
+      }
+      .mobile-nav {
+        display: none;
+      }
+      .footer {
+        margin-top: 38px;
+        font-size: 12px;
+        color: var(--muted);
+        border-top: 1px solid var(--line);
+        padding-top: 16px;
+      }
+      @media (min-width: 1650px) {
+        main {
+          padding-left: 46px;
+          padding-right: 46px;
+        }
+      }
+      @media (max-width: 960px) {
+        .shell {
+          grid-template-columns: 205px minmax(0, 1fr);
+        }
+        main {
+          padding: 25px 22px 50px;
+        }
+        .sidebar {
+          padding: 22px 10px;
+        }
+        .side-link {
+          font-size: 13px;
+          padding: 8px;
+        }
+        .cols,
+        .cards {
+          grid-template-columns: 1fr;
+        }
+        .count {
+          display: none;
+        }
+        .collector summary {
+          flex-wrap: wrap;
+          gap: 3px 10px;
+        }
+        .collector-summary {
+          width: calc(100% - 35px);
+        }
+        .collector summary::after {
+          position: absolute;
+          right: 18px;
+          top: 23px;
+        }
+        .collector summary {
+          position: relative;
+          padding-right: 42px;
+        }
+      }
+      @media (max-width: 680px) {
+        .top {
+          padding: 14px 18px;
+        }
+        .top-actions {
+          gap: 10px;
+          font-size: 12px;
+        }
+        .top-actions .evidence-top {
+          display: none;
+        }
+        .shell {
+          display: block;
+        }
+        .sidebar {
+          display: none;
+        }
+        .sidebar.open {
+          display: block;
+          border-bottom: 1px solid var(--line);
+        }
+        .side-inner {
+          position: static;
+          max-height: none;
+          overflow: visible;
+        }
+        .sidebar nav {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+        }
+        .side-heading,
+        .side-note {
+          grid-column: 1/-1;
+        }
+        main {
+          padding: 22px 17px 45px;
+        }
+        .mobile-nav {
+          display: inline-block;
+        }
+        .intro {
+          padding-bottom: 19px;
+          margin-bottom: 21px;
+        }
+        .intro p:last-child {
+          font-size: 14px;
+        }
+        .figure-head {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 8px;
+        }
+        h2 {
+          font-size: 21px;
+        }
+        .explain,
+        .card,
+        .collector-body {
+          padding: 18px;
+        }
+        iframe {
+          height: 1040px;
+        }
+        .figure-caption {
+          font-size: 12px;
+        }
+        .figure-links {
+          font-size: 13px;
+        }
+        .journey {
+          grid-template-columns: 27px minmax(0, 1fr);
+          gap: 12px;
+        }
+        .stepnum {
+          font-size: 21px;
+        }
+      }
+      @media print {
+        .sidebar,
+        .top,
+        .intro,
+        iframe,
+        .figure-links,
+        .next,
+        .search {
+          display: none !important;
+        }
+        .shell {
+          display: block;
+        }
+        main {
+          padding: 0;
+        }
+        .panel {
+          display: block !important;
+        }
+        .card,
+        .explain,
+        .collector {
+          break-inside: avoid;
+        }
+        body {
+          background: white;
+          color: black;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#main">跳到内容</a>
+    <header class="top">
+      <a class="brand" href="#diagram/01">drop<span>.</span> 系统图解</a>
+      <div class="top-actions">
+        <button
+          class="quiet-button mobile-nav"
+          id="menu"
+          aria-controls="sidebar"
+          aria-expanded="false"
+        >
+          目录
+        </button>
+        <a class="evidence-top" href="validation.json">验证记录</a>
+        <button
+          class="quiet-button"
+          id="theme"
+          aria-label="切换图册说明的深浅色"
+        >
+          切换深浅色
+        </button>
+      </div>
+    </header>
+    <div class="shell">
+      <aside class="sidebar" id="sidebar">
+        <div class="side-inner">
+          <nav aria-label="图册目录" id="navigation"></nav>
+          <p class="side-note">
+            源码快照 · 2026-10-24<br />每张图可独立打开、缩放、查看说明和导出。图的主题可在图内单独切换。
+          </p>
+        </div>
+      </aside>
+      <main id="main" tabindex="-1">
+        <div class="intro">
+          <div>
+            <p class="eyebrow">代码里的链路，一张张讲清楚</p>
+            <h1>从一次点击，到一份证据。</h1>
+            <p>
+              谁接单、谁采集、文件去哪、模型看到了什么。先看图，再对照字段和真实采集内容。
+            </p>
+          </div>
+          <div class="count">
+            <strong id="diagram-count"></strong> 张图 ·
+            <strong>16</strong> 种现场采集<br />含通信契约、操作链路与源码入口
+          </div>
+        </div>
+        <section
+          class="panel"
+          id="panel-diagram"
+          aria-labelledby="figure-title"
+        >
+          <div class="figure-head">
+            <div>
+              <h2 id="figure-title"></h2>
+              <span class="figure-type" id="figure-type"></span>
+            </div>
+            <div class="figure-links">
+              <a id="open-diagram" target="_blank" rel="noopener">独立打开 ↗</a
+              ><a id="read-png" download>阅读版 PNG ↓</a
+              ><a id="open-json" target="_blank" rel="noopener">图的源文件</a>
+            </div>
+          </div>
+          <div class="figure-wrap">
+            <iframe
+              id="diagram"
+              title="系统图"
+              loading="eager"
+              allow="fullscreen"
+            ></iframe>
+          </div>
+          <div class="figure-caption">
+            时序图从上往下看；点消息查看详细字段。右下角可缩放和搜索。“阅读版
+            PNG”保存清楚的主图；标准导出会展开细注，部分长注释时序图会重叠。
+          </div>
+          <div id="diagram-explanation"></div>
+          <div class="next" id="diagram-next"></div>
+        </section>
+        <section class="panel" id="panel-gallery" hidden>
+          <div class="panel-head">
+            <p class="eyebrow">保存和对照</p>
+            <h2>全部阅读版静态图</h2>
+            <p>
+              这里使用经过验证的 READ
+              视图，保留主图和图例，去掉浏览器工具栏。每张可直接下载；详细字段和补充结论在交互图与下方说明里查看。
+            </p>
+          </div>
+          <div class="cards" id="gallery"></div>
+        </section>
+        <section class="panel" id="panel-modules" hidden>
+          <div class="panel-head">
+            <p class="eyebrow">认清角色</p>
+            <h2>每个模块到底在忙什么</h2>
+            <p>
+              “采集 Agent”和“AI Agent”是两种角色。Go 编排与 Go
+              工具网关则是同一个服务中的不同职责。
+            </p>
+          </div>
+          <div class="cards" id="modules"></div>
+        </section>
+        <section class="panel" id="panel-contracts" hidden>
+          <div class="panel-head">
+            <p class="eyebrow">通信契约</p>
+            <h2>连线里传的是什么</h2>
+            <p>
+              这张表展开真实通信跳点。总览里的逻辑箭头，可能需要经过
+              API、数据库与对象授权才能完成。
+            </p>
+          </div>
+          <div class="note">
+            用户入口经 HTTPS；gRPC 使用 mTLS；Agent 到私有存储的默认内部链路是
+            S3 HTTP；AI 运行、回调和源码执行分别使用用途受限的 Unix
+            socket。公网对象代理只读。
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>谁联系谁 / 协议</th>
+                  <th>传递内容</th>
+                  <th>为了什么</th>
+                </tr>
+              </thead>
+              <tbody id="communications"></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="panel" id="panel-collectors" hidden>
+          <div class="panel-head">
+            <p class="eyebrow">采集内容对照</p>
+            <h2>采集到的东西究竟是什么</h2>
+            <p>
+              CPU
+              抽样、线程计账、分配记录、堆快照和事件不是同一种数据。展开每项，看具体工具、RAW
+              文件、单位、前提和能回答的问题。
+            </p>
+          </div>
+          <div class="search">
+            <label class="sr-label" for="collector-search">筛选采集器</label
+            ><input
+              type="search"
+              id="collector-search"
+              placeholder="搜 Python、CPU、内存、pprof、bytes…"
+            /><span
+              id="collector-count"
+              class="muted"
+              role="status"
+              aria-live="polite"
+            ></span>
+          </div>
+          <div id="collector-empty" class="note" hidden>
+            没有匹配项，换个关键词试试。
+          </div>
+          <div id="collectors"></div>
+          <h3 style="margin-top: 28px">另外两种入口</h3>
+          <div id="special-cases"></div>
+          <details class="collector">
+            <summary>
+              <span class="collector-name"
+                ><strong>所有采集器共同的边界</strong></span
+              >
+            </summary>
+            <div class="collector-body" id="collector-common"></div>
+          </details>
+        </section>
+        <section class="panel" id="panel-walkthrough" hidden>
+          <div class="panel-head">
+            <p class="eyebrow">跟着点一遍</p>
+            <h2>从普通采集跑到调查、修复和编排</h2>
+            <p>
+              以你有权限使用且具备相应能力的 Linux
+              节点为前提。下面是一条操作说明，不表示本次已经替你执行这些动作。
+            </p>
+          </div>
+          <div id="walkthrough"></div>
+        </section>
+        <section class="panel" id="panel-data" hidden>
+          <div class="panel-head">
+            <p class="eyebrow">字段与文件</p>
+            <h2>编号、单位和证据分别放哪</h2>
+            <p>先把这些名字认熟，再读消息字段会容易很多。</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>字段</th>
+                  <th>用人话讲</th>
+                  <th>为什么要有</th>
+                </tr>
+              </thead>
+              <tbody id="fields"></tbody>
+            </table>
+          </div>
+          <h2 style="margin-top: 32px">数据保存在哪里</h2>
+          <div class="cards" id="storage"></div>
+          <div class="explain" id="example" style="margin-top: 26px"></div>
+        </section>
+        <section class="panel" id="panel-about" hidden>
+          <div class="panel-head">
+            <p class="eyebrow">怎么读、如何核对</p>
+            <h2>图册的范围和证据</h2>
+          </div>
+          <div class="explain" id="about"></div>
+          <div class="note">
+            图册是在本地生成的代码说明，未部署线上，也没有触发现场采集、模型调用或生产故障注入。图表校验、浏览器测量和图片视觉审阅分别记录。
+          </div>
+          <div class="figure-links">
+            <a href="validation.json">查看完整交付收据</a
+            ><a href="source-manifest.json">源码 SHA 清单</a
+            ><a href="collectors.json">采集器原始对照表</a
+            ><a href="ai-facts.json">AI 事实依据</a
+            ><a href="state-facts.json">状态与恢复依据</a>
+          </div>
+        </section>
+        <footer class="footer">
+          基于当前工作区的静态图解。源文件和证据随图册保留；外部模型、数据库和生产环境不会因打开此页被调用。
+        </footer>
+      </main>
+    </div>
+    <script id="atlas-data" type="application/json">
+      __ATLAS_DATA__
+    </script>
+    <script>
+      (() => {
+        const data = JSON.parse(
+          document.getElementById("atlas-data").textContent,
+        );
+        const a = data.atlas,
+          catalog = data.collectors;
+        const $ = (id) => document.getElementById(id);
+        const e = (v) =>
+          String(v ?? "").replace(
+            /[&<>"']/g,
+            (c) =>
+              ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;",
+              })[c],
+          );
+        const list = (rows, ordered = false) =>
+          `<${ordered ? "ol" : "ul"}>${rows.map((x) => `<li>${e(x)}</li>`).join("")}</${ordered ? "ol" : "ul"}>`;
+        const refs = (sources) =>
+          `<div class="source-list">${sources.map((s) => `<a href="sources/${e(s.path)}.html#L${e(s.line || 1)}" target="_blank" rel="noopener" title="${e(s.reason || s.role || "当前工作区源码快照")}">${e(s.path)}:${e(s.line || 1)}</a>`).join("")}</div>`;
+        const types = {
+          architecture: "架构图",
+          dataflow: "数据流图",
+          sequence: "时序图",
+          workflow: "流程 / 状态图",
+          lifecycle: "状态图",
+        };
+        const pages = [
+          ["gallery", "全部静态图 / 下载"],
+          ["modules", "每个模块干什么"],
+          ["contracts", "模块通信与字段"],
+          ["collectors", "具体采集了什么"],
+          ["walkthrough", "实际怎么点"],
+          ["data", "文件、编号和单位"],
+          ["about", "阅读与验证说明"],
+        ];
+        $("navigation").innerHTML =
+          `<p class="side-heading">${a.diagrams.length} 张图，沿链路读</p>${a.diagrams.map((d) => `<a class="side-link" href="#diagram/${d.id}"><span class="num">${d.id}</span>${e(d.title)}</a>`).join("")}<p class="side-heading">查细节</p>${pages.map(([id, label]) => `<a class="side-link" href="#${id}">${e(label)}</a>`).join("")}`;
+        $("diagram-count").textContent = a.diagrams.length;
+        $("gallery").innerHTML = a.diagrams
+          .map(
+            (d) =>
+              `<article class="card"><h3>${d.id} · ${e(d.title)}</h3><a href="#diagram/${d.id}"><img src="read-png/${e(d.file)}.png" alt="${e(d.title)}" loading="lazy" style="display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:5px;margin:15px 0;background:white"></a><div class="figure-links"><a href="#diagram/${d.id}">查看交互图</a><a href="read-png/${e(d.file)}.png" download>下载 PNG ↓</a></div></article>`,
+          )
+          .join("");
+        $("modules").innerHTML = a.modules
+          .map(
+            (m) =>
+              `<article class="card"><h3>${e(m.name)}</h3><p>${e(m.role)}</p><dl><dt>收到什么</dt><dd>${e(m.input)}</dd><dt>交出什么</dt><dd>${e(m.output)}</dd></dl>${refs([{ path: m.path, line: 1 }])}</article>`,
+          )
+          .join("");
+        $("communications").innerHTML = a.communications
+          .map(
+            (c) =>
+              `<tr><td class="route">${e(c.from)} → ${e(c.to)}<span class="protocol">${e(c.protocol)}</span></td><td>${e(c.payload)}${refs([c.source])}</td><td>${e(c.why)}</td></tr>`,
+          )
+          .join("");
+        $("fields").innerHTML = a.fields
+          .map(
+            (f) =>
+              `<tr><td><code>${e(f.name)}</code></td><td>${e(f.meaning)}</td><td>${e(f.reason)}</td></tr>`,
+          )
+          .join("");
+        $("storage").innerHTML = a.storage
+          .map(
+            (s) =>
+              `<article class="card"><h3>${e(s.place)}</h3><p>${e(s.data)}</p><p class="muted">${e(s.readers)}</p></article>`,
+          )
+          .join("");
+        const x = a.example;
+        $("example").innerHTML =
+          `<h2>${e(x.title)}</h2><p class="muted">${e(x.notice)}</p><div class="cols"><div><h3>简化的 folded 原文</h3><pre>${e(x.raw)}</pre><p>${e(x.explanation)}</p></div><div><h3>按路径累计成树</h3><pre>${e(x.result)}</pre><p class="muted">${e(x.result_notice)}</p></div></div>${list(x.limits)}`;
+        function collector(c) {
+          const raw = c.raw || {};
+          return `<details class="collector" data-collector="${e(c.id)}"><summary><span class="collector-name"><strong>${e(c.label || c.id)}</strong><code>${e(c.id)} · ${e(c.runner || "编排 / 导入")}</code></span><span class="collector-summary">${e(c.what)}</span></summary><div class="collector-body"><h3>怎么取，取到了什么</h3><p>${e(c.tool_and_input)}</p><div class="cols"><div><h3>数据和单位</h3>${list(c.data_and_units || [])}<h3>分析后能看见</h3>${list(c.analysis_outputs || [])}</div><div><h3>使用前提</h3>${list(c.prerequisites || [])}<h3>据此还不能下什么结论</h3>${list(c.cannot_infer || [])}</div></div><div class="raw"><strong>RAW</strong> · ${e(raw.name || "见具体子任务 / 导入格式")}<br />格式：${e(raw.format || "按子任务 / 导入选择")}；分析流程：<code>${e(c.analysis_pipeline || "按子任务")}</code><br />可接受格式：${e((raw.accepted_formats || []).join(" / ") || "见该入口约定")}${raw.catalog_max_bytes ? `；目录文件上限：${e(raw.catalog_max_bytes.toLocaleString())} bytes` : ""}</div>${refs(c.sources || [])}</div></details>`;
+        }
+        $("collectors").innerHTML = catalog.collectors.map(collector).join("");
+        $("special-cases").innerHTML = catalog.special_cases
+          .map(collector)
+          .join("");
+        const common = catalog.common;
+        $("collector-common").innerHTML =
+          list(
+            common.map((v) => (typeof v === "string" ? v : JSON.stringify(v))),
+          ) +
+          `<p>${e(catalog.import_note)}</p>` +
+          refs(catalog.common_sources || []);
+        function filter() {
+          const q = $("collector-search").value.trim().toLocaleLowerCase();
+          let shown = 0;
+          catalog.collectors.forEach((c, i) => {
+            const show =
+              !q || JSON.stringify(c).toLocaleLowerCase().includes(q);
+            $("collectors").children[i].hidden = !show;
+            if (show) shown++;
+          });
+          $("collector-count").textContent =
+            `${shown} / ${catalog.collectors.length} 种现场采集`;
+          $("collector-empty").hidden = shown > 0;
+        }
+        $("collector-search").addEventListener("input", filter);
+        filter();
+        $("walkthrough").innerHTML = a.walkthrough
+          .map(
+            (w, i) =>
+              `<article class="journey"><div class="stepnum">${String(i + 1).padStart(2, "0")}</div><div><h3>${e(w.title.replace(/^\d+\.\s*/, ""))}</h3><p>${e(w.text)}</p><a href="#diagram/${w.diagram}">对照第 ${w.diagram} 张图 →</a></div></article>`,
+          )
+          .join("");
+        $("about").innerHTML =
+          `<p>${e(a.scope)}</p>${list(a.reading)}<p>每张图保留可编辑 JSON、独立 HTML、确定性校验收据、浏览器尺寸测量和深浅色截图。源码 SHA 清单以本地文件内容为准。</p>`;
+        let current = "";
+        function resizeFigure() {
+          const f = $("diagram");
+          if ($("panel-diagram").hidden) return;
+          const [width, height] = data.dimensions[current] || [1200, 600];
+          const diagramHeight = (f.clientWidth * height) / width;
+          f.style.height =
+            Math.ceil(
+              Math.max(innerWidth < 681 ? 1040 : 760, diagramHeight + 250),
+            ) + "px";
+        }
+        function route() {
+          const hash = location.hash.slice(1) || "diagram/01";
+          let [page, id] = hash.split("/");
+          if (page !== "diagram" && !pages.some(([p]) => p === page))
+            page = "diagram";
+          const d = a.diagrams.find((d) => d.id === id) || a.diagrams[0];
+          document
+            .querySelectorAll(".panel")
+            .forEach((p) => (p.hidden = p.id !== `panel-${page}`));
+          const canonical = page === "diagram" ? `diagram/${d.id}` : page;
+          document.querySelectorAll(".side-link").forEach((link) => {
+            if (link.getAttribute("href") === `#${canonical}`)
+              link.setAttribute("aria-current", "page");
+            else link.removeAttribute("aria-current");
+          });
+          if (page === "diagram" && current !== d.id) {
+            current = d.id;
+            $("figure-title").textContent = `${d.id} · ${d.title}`;
+            $("figure-type").textContent =
+              `${types[data.types[d.file] || d.type]} · ${d.question}`;
+            $("open-diagram").href = d.file + ".html";
+            $("open-json").href = d.file + ".json";
+            $("read-png").href = "read-png/" + d.file + ".png";
+            const f = $("diagram");
+            f.title = d.title;
+            f.style.height = innerWidth < 681 ? "1040px" : "850px";
+            f.src = d.file + ".html";
+            $("diagram-explanation").innerHTML =
+              `<article class="explain"><h3>这张图在讲什么</h3><p>${e(d.explanation)}</p><div class="cols"><div><h3>跟着这样读</h3>${list(d.steps, true)}</div><div><h3>读的时候留意</h3>${list(d.watch)}</div></div>${refs(d.sources)}</article>`;
+            const n = a.diagrams.indexOf(d);
+            $("diagram-next").innerHTML =
+              `${n > 0 ? `<a href="#diagram/${a.diagrams[n - 1].id}">← ${e(a.diagrams[n - 1].title)}</a>` : "<span></span>"}${n < a.diagrams.length - 1 ? `<a href="#diagram/${a.diagrams[n + 1].id}">${e(a.diagrams[n + 1].title)} →</a>` : `<a href="#collectors">继续看具体采集内容 →</a>`}`;
+          }
+          document.title = `${page === "diagram" ? d.title : pages.find(([p]) => p === page)?.[1] || "图册"} · Drop 系统图解`;
+          $("sidebar").classList.remove("open");
+          $("menu").setAttribute("aria-expanded", "false");
+          window.scrollTo({ top: 0, behavior: "instant" });
+          setTimeout(resizeFigure, 150);
+        }
+        $("diagram").addEventListener("load", () => {
+          resizeFigure();
+          setTimeout(resizeFigure, 400);
+        });
+        window.addEventListener("hashchange", route);
+        window.addEventListener("resize", resizeFigure);
+        $("menu").addEventListener("click", () => {
+          const open = $("sidebar").classList.toggle("open");
+          $("menu").setAttribute("aria-expanded", String(open));
+        });
+        $("theme").addEventListener("click", () => {
+          const dark = document.documentElement.dataset.theme !== "dark";
+          document.documentElement.dataset.theme = dark ? "dark" : "light";
+          try {
+            localStorage.setItem("drop-atlas-theme", dark ? "dark" : "light");
+          } catch {}
+        });
+        try {
+          const theme = localStorage.getItem("drop-atlas-theme");
+          if (theme === "dark") document.documentElement.dataset.theme = "dark";
+        } catch {}
+        route();
+      })();
+    </script>
+  </body>
+</html>

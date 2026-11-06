@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-24",
+  "scope": "只读核对当前源码与契约；不推断全部遥测源已部署，不调用采集、模型或生产。",
+  "portal": {
+    "id": "13-business-signals",
+    "title": "业务信号：把同一采集时段的业务表现接进诊断",
+    "type": "architecture",
+    "description": "解释调查表单里的“关联业务信号”：Go 怎样按服务权限和本次采集窗口查询已登记监控源，再把有界、脱敏的指标与日志/调用链摘要交给诊断。",
+    "read_steps": [
+      "从左上看：页面选择已登记业务服务，Go 校验服务和一跳依赖，只把固定别名 S1…S8 暴露给工具。",
+      "看中间时钟和右侧：从当前 attempt 的有效采集起止确定 window，再用登记查询访问可选遥测源。",
+      "沿下方向左看：校验身份、时间、单位与数量后形成 E 编号观测，供报告、复测和按需补证引用。"
+    ],
+    "watch": [
+      "这是可选数据源接入：Prometheus/Loki/Tempo 或 Drop adapter 按管理员登记配置选择，不表示全部已部署。",
+      "无源、坏时钟、空结果不能当正常；CPU 样本不能换算业务延迟，同时段关联和拓扑均不证明根因。"
+    ]
+  },
+  "facts": [
+    {
+      "id": "registration",
+      "statement": "管理员离线登记服务、Agent/组范围、一跳依赖、connector 类型/baseURL/token file/固定查询。模型不能提供URL、SQL、文件路径或凭据。HTTPS默认，HTTP必须在可信源配置AllowHTTP中显式允许。",
+      "sources": [
+        {
+          "path": "api/internal/service/diagnostic_observability.go",
+          "line": 1
+        },
+        {
+          "path": "api/internal/service/diagnostic_observability.go",
+          "line": 66
+        }
+      ]
+    },
+    {
+      "id": "aliases",
+      "statement": "query_business_signals只接service_ref=S1…S8与signal=metrics/logs/traces/changes。S1根服务，固定登记邻接排序给其余别名；未授权服务保留空位不重绑。inspect_service_topology只读登记一跳依赖，causality_proven=false。",
+      "sources": [
+        {
+          "path": "api/internal/service/diagnostic_signal_query.go",
+          "line": 139
+        },
+        {
+          "path": "api/internal/service/diagnostic_observability.go",
+          "line": 192
+        },
+        {
+          "path": "api/internal/service/diagnostic_observability.go",
+          "line": 223
+        },
+        {
+          "path": "docs/CONTRACT.md",
+          "line": 239
+        }
+      ]
+    },
+    {
+      "id": "window",
+      "statement": "优先使用完整collection_started_unix_ms / collection_finished_unix_ms 毫秒时钟且须在attempt执行区间内，标collector_execution，并非逐样本时间戳。仅两者都没有的旧任务回退attempt_execution，可能含准备/上传。单项、坏值、反序、越界或无attempt边界返回collection_window_unknown。上下文前后1分钟仅说明，context_queried=false，不发源，不混入结果。",
+      "sources": [
+        {
+          "path": "api/internal/service/diagnostic_signal_query.go",
+          "line": 85
+        },
+        {
+          "path": "api/internal/service/diagnostic_signal_query.go",
+          "line": 170
+        },
+        {
+          "path": "docs/CONTRACT.md",
+          "line": 240
+        }
+      ]
+    },
+    {
+      "id": "metrics",
+      "statement": "Prometheus固定GET /api/v1/query_range，登记预聚合语句、window start/end、step15与timeout3s；仅单一聚合时序、最多64点，读取窗口内实际末点。固定指标latency_p95_ms(milliseconds)/error_rate(ratio)/throughput_rps(requests_per_second)，非profile权重换算。登记预聚合自身回看语义保留，查询窗口不等于重建全部请求。",
+      "sources": [
+        {
+          "path": "api/internal/service/diagnostic_signal_query.go",
+          "line": 252
+        },
+        {
+          "path": "docs/CONTRACT.md",
+          "line": 240
+        }
+      ]
+    },
+    {
+      "id": "logs-traces",
+      "statement": "Loki固定selector+window查询，最多30条，仅固定JSON字段timestamp/level/event_code/duration_ms/status_code及哈希trace_ref。Tempo固定服务搜索，最多20条，返回散列Trace ID/真实时长/开始时刻；未提供span/error数量则保持未知。原日志正文、自由属性、真实Trace ID和令牌不进入模型、检查点、诊断轨迹。",
+      "sources": [
+        {
+          "path": "api/internal/service/diagnostic_signal_query.go",
+          "line": 1
+        },
+        {
+          "path": "api/internal/service/diagnostic_signal_query.go",
+          "line": 316
+        },
+        {
+          "path": "api/internal/service/diagnostic_signal_query.go",
+          "line": 351
+        },
+        {
+          "path": "api/internal/service/diagnostic_signal_query.go",
+          "line": 393
+        }
+      ]
+    },
+    {
+      "id": "adapter",
+      "statement": "Drop adapter以GET /v1/signals携带service/signal/start/end/limit30；验证schema_version1、service_id、signal、单位、数值、时间及数量：metrics<=3/logs<=30/traces<=20/changes<=20。changes只允许deployment/configuration/feature_flag，revision散列。轻量adapter可替代尚未接入Loki/Tempo的环境，并非所有源都必须并存。",
+      "sources": [
+        {
+          "path": "api/internal/service/diagnostic_signal_adapter.go",
+          "line": 16
+        },
+        {
+          "path": "api/internal/service/diagnostic_signal_adapter.go",
+          "line": 41
+        },
+        {
+          "path": "api/internal/service/diagnostic_signal_adapter.go",
+          "line": 90
+        }
+      ]
+    },
+    {
+      "id": "unknown",
+      "statement": "未绑定/未授权/未配置信号/坏窗口分别返回不可用原因。源读取错误将available=false并清空局部数组；无匹配数据保留no_matching_data，不填0、不推断正常。truncated和limitations显式返回。每次业务信号调用总timeout8秒，HTTP client5秒，响应大小另有界。",
+      "sources": [
+        {
+          "path": "api/internal/service/diagnostic_signal_query.go",
+          "line": 152
+        },
+        {
+          "path": "api/internal/service/diagnostic_signal_query.go",
+          "line": 185
+        },
+        {
+          "path": "api/internal/service/diagnostic_signal_query.go",
+          "line": 204
+        },
+        {
+          "path": "api/internal/service/diagnostic_observability.go",
+          "line": 249
+        }
+      ]
+    },
+    {
+      "id": "fence",
+      "statement": "最终成功事务重新核验源登记摘要、当前用户/Agent/组授权、实际读过的S别名；撤权和源版本变化不允许迟到结果带旧信号提交。历史读取也检查业务信号独立授权，任务共享并不自动授予监控数据权限。",
+      "sources": [
+        {
+          "path": "api/internal/service/diagnostic_signal_fence.go",
+          "line": 16
+        },
+        {
+          "path": "api/internal/service/diagnostic_signal_read.go",
+          "line": 43
+        }
+      ]
+    },
+    {
+      "id": "demo",
+      "statement": "observability-demo为明确受控合成业务：gateway真实HTTP调用catalog，后者执行SQLite或Python计算；adapter指标按实际完成请求计算窗口P95/5xx率/吞吐，空请求窗口为空。变化deployment是真实启动事件，非故障发布证据；遥测为有界内存，重启清空，不代表生产持久化监控。",
+      "sources": [
+        {
+          "path": "integrations/observability-demo/README.md",
+          "line": 3
+        },
+        {
+          "path": "integrations/observability-demo/README.md",
+          "line": 21
+        },
+        {
+          "path": "integrations/observability-demo/README.md",
+          "line": 66
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1630 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-10-25",
+  "task": "Testing chapter read-only audit for PROJECT_INTERVIEW_HANDBOOK.md",
+  "draft": {
+    "path": ".local\\interview_drafts\\testing.md",
+    "sha256": "10e73e8176b65d6a9fd82ffe37d206346c36cc1494b1f8cc6d33196b74a49819",
+    "bytes": 49378,
+    "han_chars": 11073,
+    "interview_questions": 30
+  },
+  "evidence_semantics": {
+    "source_present_tests": "Code describes current test targets/invariants; source presence alone is not a new execution claim.",
+    "historical_executed": "The separate receipts below bind date/version/target/count. No aggregation across incompatible scopes.",
+    "this_turn": "Read-only code/receipt/link inspection and draft writing only; no tests,compilers,models,collectors,production mutation or deployment."
+  },
+  "historical_receipts": [
+    {
+      "source": "docs/evidence/jd-depth-20261023/ci/github-ci.json",
+      "source_sha256": "95719eee497b94b20f9560e765d0f1dbdbde6e236dc0cfa3af5be709ae1920dd",
+      "bytes": 10924,
+      "evidence_kind": "historical_raw_ci_receipt",
+      "historical_time": "2026-10-22T21:58:41.144846+00:00",
+      "version_or_binding": "2d413e4a4abdc0c132107a29ea37d7b4e1535004",
+      "values": {
+        "jobs": {
+          "total_jobs": 10,
+          "success": 10,
+          "failure": 0,
+          "skipped": 0
+        },
+        "attempt_execution_counts": {
+          "successful_unique_physical_jobs": 10,
+          "targeted_rerun_jobs": 1,
+          "original_canceled_job_attempts_retained": 1,
+          "reused_successful_execution_displays": 2
+        },
+        "fuzz": {
+          "source_commit": "2d413e4a4abdc0c132107a29ea37d7b4e1535004",
+          "workflow_run_id": 39856663534,
+          "physical_job_id": 120096523281,
+          "execution_attempt": 1,
+          "per_target_execution_budget": 200000,
+          "reported_executions": [
+            200011,
+            200000,
+            200000
+          ],
+          "reported_total_executions": 600011,
+          "reported_target_elapsed_seconds": [
+            13.248,
+            64.507,
+            44.24
+          ],
+          "target_names": [
+            "FuzzTaskNormalizeAndValidate",
+            "FuzzDiagnosisObservationObject",
+            "FuzzDiagnosisExactScalar"
+          ],
+          "all_targets_reported_pass": true,
+          "exit_status_evidence": "ThreePASS markers, sequential bash-e commands and step/job success support exit0; no independent raw subprocess-returncode capture is claimed",
+          "counterexample_artifact_id": 12459982440,
+          "artifact_zip_sha256": "2661f68ad0884a70faf88fcfbff429d43cb29ae763fe4f22373bb06576859498",
+          "manifest_bytes": 489,
+          "manifest_sha256": "d33f5de8dfa19ba6f25fe0396e6e1d6dff381d9fc9555411cc6ffd5d331908ec",
+          "corpus_capture_passed": true,
+          "native_outcome": "success",
+          "captured_files": 0,
+          "captured_bytes": 0,
+          "rejections": 0,
+          "limit": "Actual reported executions can differ from requested budget; do not infer why11 extra executions occurred. Empty persisted corpus does not prove absence of all crashes. Evidence belongs to this2d attempt1 physical job, not the earlier91 run."
+        },
+        "system": {
+          "physical_job_id": 120096524033,
+          "execution_attempt": 1,
+          "system_artifact_id": 12460618049,
+          "system_artifact_zip_sha256": "6d83d10f7060079f436d549bce9106edb4a488fbfc086cc906979212a5f87cf2",
+          "build_binding_artifact_id": 12460009191,
+          "build_binding_artifact_zip_sha256": "81658a2b44903bb24f880166e0f7e8deab66d6d6268931fa99c3b4e30b9e13e3",
+          "diagnostic_instrumentation": false,
+          "acceptance_eligible": true,
+          "collector_dns_resolver": "native",
+          "resolver_verified_from_owned_runtime_config": true,
+          "successful_real_tasks": 5,
+          "artifacts_verified_by_actual_size_sha_download": 20,
+          "owned_recovery_scenarios": 3,
+          "browser_cancel_retry_attempt_2": true,
+          "business_response_mocking": false,
+          "page_errors": 0,
+          "model_calls": 0,
+          "owned_cleanup_passed": true,
+          "owned_containers_removed": 12,
+          "soak_requested_minutes": 0,
+          "soak_completed_windows": 0,
+          "runtime_build_artifact_hashes_matched": 40
+        },
+        "workflows": [
+          {
+            "id": 39856663489,
+            "attempt": 1,
+            "conclusion": "success",
+            "jobs": [
+              {
+                "name": "core",
+                "execution_job_id": 120096522733,
+                "execution_attempt": 1,
+                "reused": false
+              },
+              {
+                "name": "analyzer",
+                "execution_job_id": 120096523015,
+                "execution_attempt": 1,
+                "reused": false
+              },
+              {
+                "name": "maintenance",
+                "execution_job_id": 120096523168,
+                "execution_attempt": 1,
+                "reused": false
+              },
+              {
+                "name": "agent-runtime",
+                "execution_job_id": 120096523195,
+                "execution_attempt": 1,
+                "reused": false
+              },
+              {
+                "name": "api",
+                "execution_job_id": 120096523284,
+                "execution_attempt": 1,
+                "reused": false
+              },
+              {
+                "name": "web",
+                "execution_job_id": 120096523296,
+                "execution_attempt": 1,
+                "reused": false
+              },
+              {
+                "name": "contracts",
+                "execution_job_id": 120096523502,
+                "execution_attempt": 1,
+                "reused": false
+              }
+            ]
+          },
+          {
+            "id": 39856663534,
+            "attempt": 2,
+            "conclusion": "success",
+            "jobs": [
+              {
+                "name": "protocol-state",
+                "execution_job_id": 120096523281,
+                "execution_attempt": 1,
+                "reused": true
+              },
+              {
+                "name": "bounded-business-and-agent-regressions",
+                "execution_job_id": 120107490315,
+                "execution_attempt": 2,
+                "reused": false
+              },
+              {
+                "name": "memory-and-live-sampling",
+                "execution_job_id": 120096524033,
+                "execution_attempt": 1,
+                "reused": true
+              }
+            ]
+          }
+        ]
+      },
+      "limits": [
+        "All10 latest job outcomes belong to this exact functional commit. Earlier same-source canceled UI attempt is retained: one targeted rerun after documented APT dependency downloads exhausted the outer job budget; no other source baseline borrowed and no passed protocol or memory job rerun.",
+        "CI covers owned synthetic PROC_CPU targets, real browser/HTTP/mTLS collection/storage/Analyzer and bounded recoveries; no production business request or paid model.",
+        "Agent SIGKILL, pending Analyzer restart and three-second PostgreSQL outage; not a leased-worker crash, cross-host disaster recovery or maximum throughput claim.",
+        "This ordinary run has zero sustained minutes. Original004 thirty-minute server record remains bound to its earlier frozen build and is not reattributed to this CI.",
+        "QA-only native resolver follows recorded same-stack default/native/default diagnosis; it does not establish a specific c-ares package or security-fix defect.",
+        "All earlier failed or explicitly instrumented CI runs remain failures and are retained unchanged."
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-quality-20261023/protocol-local.json",
+      "source_sha256": "eeae61d7b84ac08dec7f645f04c25cf9027c95ca89186e15154cbdca122a4dfb",
+      "bytes": 6152,
+      "evidence_kind": "historical_local_pg_and_synthetic_properties",
+      "historical_time": "2026-10-23",
+      "version_or_binding": "workspace_source_bytes_sha256 map in source receipt",
+      "values": {
+        "postgres_lifecycle_and_races": {
+          "passed": true,
+          "go_version": "go1.26.10",
+          "database": "fresh isolated loopback PostgreSQL17, all ten authoritative migrations",
+          "provider": "no real model calls; imported fixtures for provider and protocol tests",
+          "tests_passed_including_subtests": 10,
+          "tests_skipped_including_subtests": 0,
+          "failed_tests": [],
+          "skipped_tests": [],
+          "elapsed_seconds": 18.33,
+          "log_sha256": "4c768cd7446440e8df444b3a3ce95e2d010eb53183540d2d9501f2d3566d8c13"
+        },
+        "critical_function_risk_gate": {
+          "schema_version": 1,
+          "passed": true,
+          "coverage_scope": "selected production function statement coverage, not branch coverage or whole-repository coverage",
+          "required_scenarios": {
+            "TestPostgresLifecycleRandomizedProperties": "pass",
+            "TestPostgresLifecycleRandomizedProperties/seed_7": "pass",
+            "TestPostgresLifecycleRandomizedProperties/seed_1984": "pass",
+            "TestPostgresLifecycleRandomizedProperties/seed_20261023": "pass",
+            "TestPostgresLifecycleRandomizedProperties/seed_922337": "pass",
+            "TestPostgresCancelIsIdempotentForConcurrentAndTerminalRequests": "pass",
+            "TestPostgresExhaustedDispatchCannotOverwriteConcurrentLifecycle": "pass"
+          },
+          "checks": [
+            {
+              "risk_id": "LIFECYCLE-CANCEL-ATOMIC",
+              "function": "Cancel",
+              "statement_coverage_percent": 72.0,
+              "minimum_percent": 70.0,
+              "passed": true
+            },
+            {
+              "risk_id": "LIFECYCLE-RETRY-FENCE",
+              "function": "Retry",
+              "statement_coverage_percent": 75.0,
+              "minimum_percent": 73.0,
+              "passed": true
+            },
+            {
+              "risk_id": "LIFECYCLE-STALE-OUTBOX",
+              "function": "DispatchOne",
+              "statement_coverage_percent": 65.1,
+              "minimum_percent": 63.0,
+              "passed": true
+            }
+          ],
+          "tests_passed_including_subtests": 10,
+          "tests_skipped_including_subtests": 0,
+          "note": "Scenario presence plus measured production function statements; this is not proof of all branches or semantic completeness"
+        },
+        "native_go_fuzz": {
+          "configured_seconds_per_target": 5,
+          "workers_per_target": 1,
+          "targets": [
+            {
+              "name": "FuzzTaskNormalizeAndValidate",
+              "executions": 99340,
+              "passed": true
+            },
+            {
+              "name": "FuzzDiagnosisObservationObject",
+              "executions": 13581,
+              "passed": true
+            },
+            {
+              "name": "FuzzDiagnosisExactScalar",
+              "executions": 6183,
+              "passed": true
+            }
+          ],
+          "total_executions": 119104,
+          "skipped": 0
+        },
+        "python_parser_properties": {
+          "tests_passed": 3,
+          "skipped": 0,
+          "valid_stack_groups": 128,
+          "bounded_arbitrary_byte_inputs": 1024,
+          "malformed_tail_cases": 32
+        },
+        "risk_gate_regressions": {
+          "tests_passed": 3,
+          "skipped": 0
+        },
+        "analyzer_runner_ownership_and_capture_mount": {
+          "tests_passed": 5,
+          "skipped": 0
+        },
+        "go_vet": {
+          "packages": [
+            "internal/domain",
+            "internal/repository",
+            "internal/service"
+          ],
+          "passed": true
+        },
+        "syntax": {
+          "python_py_compile": true,
+          "bash_n_live_chain": true,
+          "bash_n_isolated_analyzer": true,
+          "quality_workflow_yaml_parse": true
+        }
+      },
+      "limits": [
+        "Function statement coverage is not branch or full-repository coverage.",
+        "Go randomized sequence is a real Repository/PostgreSQL state test, not a live collector/model test.",
+        "ASan and real chain results must be supplied separately by the Linux isolation runner.",
+        "Live sampling chain excludes Go HTTP task creation, Agent gRPC and browser."
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-quality-20261023/lifecycle-risk-gate.json",
+      "source_sha256": "82d2933c789eec21d4f9d4d44b984e3197f607574673c0da12ac353a62a278c3",
+      "bytes": 1494,
+      "evidence_kind": "historical_function_statement_coverage",
+      "historical_time": null,
+      "version_or_binding": null,
+      "values": {
+        "checks": [
+          {
+            "risk_id": "LIFECYCLE-CANCEL-ATOMIC",
+            "function": "Cancel",
+            "statement_coverage_percent": 72.0,
+            "minimum_percent": 70.0,
+            "passed": true
+          },
+          {
+            "risk_id": "LIFECYCLE-RETRY-FENCE",
+            "function": "Retry",
+            "statement_coverage_percent": 75.0,
+            "minimum_percent": 73.0,
+            "passed": true
+          },
+          {
+            "risk_id": "LIFECYCLE-STALE-OUTBOX",
+            "function": "DispatchOne",
+            "statement_coverage_percent": 65.1,
+            "minimum_percent": 63.0,
+            "passed": true
+          }
+        ],
+        "required_scenarios": {
+          "TestPostgresLifecycleRandomizedProperties": "pass",
+          "TestPostgresLifecycleRandomizedProperties/seed_7": "pass",
+          "TestPostgresLifecycleRandomizedProperties/seed_1984": "pass",
+          "TestPostgresLifecycleRandomizedProperties/seed_20261023": "pass",
+          "TestPostgresLifecycleRandomizedProperties/seed_922337": "pass",
+          "TestPostgresCancelIsIdempotentForConcurrentAndTerminalRequests": "pass",
+          "TestPostgresExhaustedDispatchCannotOverwriteConcurrentLifecycle": "pass"
+        }
+      },
+      "limits": [
+        "selected production function statement coverage, not branch coverage or whole-repository coverage",
+        "Scenario presence plus measured production function statements; this is not proof of all branches or semantic completeness"
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-quality-20261023/security-postgres.json",
+      "source_sha256": "ac46732d16d05166d0cccce58379c6ed9055b87a00d6c55a36d5ed2cc807f808",
+      "bytes": 477,
+      "evidence_kind": "historical_real_pg_router_security",
+      "historical_time": null,
+      "version_or_binding": null,
+      "values": {
+        "passed": true,
+        "go_version": "go1.26.10",
+        "database": "fresh isolated loopback PostgreSQL17, all ten authoritative migrations",
+        "provider": "no real model calls; imported fixtures for provider and protocol tests",
+        "tests_passed_including_subtests": 42,
+        "tests_skipped_including_subtests": 0,
+        "failed_tests": [],
+        "skipped_tests": [],
+        "elapsed_seconds": 10.16,
+        "log_sha256": "8f20ae0098302a08d7f1aed838462de0fa93f6db91bd8bf9f4c8e7a8fec8f1c1"
+      },
+      "limits": [
+        "Counts include parent/subtests; not vulnerabilities found. Real Router+PG, not external TLS/DAST/browser SameSite."
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-quality-20261023/cpp-sanitizers.json",
+      "source_sha256": "6762efe0272efbf199b2bbaaf79f740fef657919774583b75b12df2b1ac96f53",
+      "bytes": 13034,
+      "evidence_kind": "historical_linux_sanitizer",
+      "historical_time": "2026-10-22T16:28:55.287404+00:00",
+      "version_or_binding": {
+        "image_id": "sha256:7f54338d00b7749cbd968bc7a2085bab68a224985da48a0233a6c5499acb4aa8",
+        "source_files": {
+          "core/CMakeLists.txt": "7f8131eede95e0dee30a48743f8c80ed9f7a3de04cdcddd2e545b9bef3e8d3ee",
+          "core/Dockerfile": "d2c0b0c74a1e537cff7a63cdef1d39b874908fcfa263ade28905c51adeb977de",
+          "core/tests/protocol_property_test.cpp": "6c921271b4db360412e4322325643339d13b0156daf62369bc6a053b6a572210"
+        }
+      },
+      "values": {
+        "passed": true,
+        "exit_code": 0,
+        "asan_and_ubsan_enabled": true,
+        "warnings_as_errors": true,
+        "leak_check_enabled": true,
+        "ctest_passed": 6,
+        "image_id": "sha256:7f54338d00b7749cbd968bc7a2085bab68a224985da48a0233a6c5499acb4aa8",
+        "memory_limit_bytes": 1610612736,
+        "nanocpus": 1000000000,
+        "oom_killed": false
+      },
+      "limits": [
+        "Six selected targets only; not all native profilers or release performance."
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-quality-20261023/sampling-analysis-chain.json",
+      "source_sha256": "5df6cec7bfa5578759a6744aaf9c0bcc63de6142725f323f6873d00a18735d54",
+      "bytes": 927,
+      "evidence_kind": "historical_real_runner_subchain",
+      "historical_time": null,
+      "version_or_binding": {
+        "drop_runner_probe": "b86d4124454c747c0b04ce101191d29195710802442a92577a04807f9a50bfbf",
+        "drop_workload": "d2cf0a32e6875efdec14236367aa1dc68d9950bfcf8f9a681a09e858c2878480"
+      },
+      "values": {
+        "passed": true,
+        "scope": "Runner -> MinIO -> Analyzer child -> PostgreSQL atomic result -> result download",
+        "raw_sha256": "8d07eb122b706c95f03ab4d2b629201ca68370c5a3f751df95bb126d9a23eaea",
+        "raw_size": 48,
+        "total_cpu_ticks": 101,
+        "result_artifacts_verified": 3,
+        "analysis_success_events": 1,
+        "producer_binary_sha256": {
+          "drop_runner_probe": "b86d4124454c747c0b04ce101191d29195710802442a92577a04807f9a50bfbf",
+          "drop_workload": "d2cf0a32e6875efdec14236367aa1dc68d9950bfcf8f9a681a09e858c2878480"
+        }
+      },
+      "limits": [
+        "Go HTTP task creation",
+        "Agent gRPC delivery",
+        "browser",
+        "paid model"
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-depth-20261023/system/system-run-004/summary.json",
+      "source_sha256": "9fb621a0f0ef16226de663b1d920154e8c1e0b73ec3d47ba0e3dd856b4f7719f",
+      "bytes": 132118,
+      "evidence_kind": "historical_disposable_full_system",
+      "historical_time": null,
+      "version_or_binding": {
+        "drop_api_sha256": "e9d23d6e380683a6bb3416ddde52737a5ffb3530e5f18084599abb00b7447e8a"
+      },
+      "values": {
+        "passed": true,
+        "successful_tasks": 65,
+        "verified_artifacts": 260,
+        "faults": [
+          {
+            "scenario": "SIGKILL during actual collection, journal recovery",
+            "task_id": "3",
+            "terminal": "FAILED",
+            "error_code": "AGENT_RESTARTED",
+            "persisted_runner_accepted_events": 1,
+            "duplicate_sampling_started": false
+          },
+          {
+            "scenario": "Analyzer stopped before collection; durable pending queue resumes",
+            "task_id": "5",
+            "passed": true,
+            "excludes": "not an already leased worker crash test"
+          },
+          {
+            "scenario": "owned PostgreSQL three-second stop/start, existing session and historical result preserved",
+            "passed": true
+          }
+        ],
+        "soak": {
+          "requested_minutes": 30,
+          "active_task_id": "66",
+          "completed_windows": 60,
+          "actual_seconds": 1800.0116514910478,
+          "interval_seconds": 30,
+          "scope": "serial real controlled diagnostics under fixed container caps; not maximum load or days-long leak certification"
+        },
+        "cleanup": {
+          "passed": true,
+          "owned_containers_removed": 12,
+          "scope": "only fresh random Compose project labels; private evidence retained"
+        }
+      },
+      "limits": [
+        "PROC_CPU synthetic target only; not all collectors. Pending Analyzer recovery, not leased worker crash. PG three-second outage, not HA.",
+        "004 belongs to pre-window-fix API;005 zero sustained windows. Never carry soak result across binary hashes."
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-depth-20261023/system/system-run-005/summary.json",
+      "source_sha256": "224691330d5482b116bc4512e27ec2bb6c0b66a8c1ab1612a2b11f9663ebf336",
+      "bytes": 21697,
+      "evidence_kind": "historical_disposable_full_system",
+      "historical_time": null,
+      "version_or_binding": {
+        "drop_api_sha256": "bce07fb7f0e61de335f0f2f0ded5a4c298d29f1fe8eb4b8747dca8bb1fd2db40"
+      },
+      "values": {
+        "passed": true,
+        "successful_tasks": 5,
+        "verified_artifacts": 20,
+        "faults": [
+          {
+            "scenario": "SIGKILL during actual collection, journal recovery",
+            "task_id": "3",
+            "terminal": "FAILED",
+            "error_code": "AGENT_RESTARTED",
+            "persisted_runner_accepted_events": 1,
+            "duplicate_sampling_started": false
+          },
+          {
+            "scenario": "Analyzer stopped before collection; durable pending queue resumes",
+            "task_id": "5",
+            "passed": true,
+            "excludes": "not an already leased worker crash test"
+          },
+          {
+            "scenario": "owned PostgreSQL three-second stop/start, existing session and historical result preserved",
+            "passed": true
+          }
+        ],
+        "soak": {
+          "requested_minutes": 0,
+          "actual_seconds": 5.2227816410013475,
+          "interval_seconds": 30,
+          "completed_windows": 0,
+          "scope": "serial real controlled diagnostics under fixed container caps; not maximum load or days-long leak certification"
+        },
+        "cleanup": {
+          "passed": true,
+          "owned_containers_removed": 12,
+          "scope": "only fresh random Compose project labels; private evidence retained"
+        }
+      },
+      "limits": [
+        "PROC_CPU synthetic target only; not all collectors. Pending Analyzer recovery, not leased worker crash. PG three-second outage, not HA.",
+        "004 belongs to pre-window-fix API;005 zero sustained windows. Never carry soak result across binary hashes."
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-quality-20261023/performance-final.json",
+      "source_sha256": "0cd2392ff892ddc979478a8a3e62bd6bf0cb48a748a9d3ec29bca63df9d2326d",
+      "bytes": 12349,
+      "evidence_kind": "historical_live_synthetic_http_profiler_measurement",
+      "historical_time": "2026-10-22T16:42:02.270118+00:00",
+      "version_or_binding": {
+        "sampler_binary_sha256": "e7c2de2dc54449ec88c086f1859555b4e34e63ccdcf3f8804496f9306cd44de6",
+        "target_source_sha256": "a56a9fe16a097dbb5c32d8bfb01d8d5932c82ae6d851505ca98108b8907ca884"
+      },
+      "values": {
+        "trial_count": 9,
+        "frequencies": [
+          0,
+          49,
+          99,
+          99,
+          0,
+          49,
+          49,
+          99,
+          0
+        ],
+        "concurrency_stages": [
+          1,
+          2,
+          4
+        ],
+        "bounded_soak": {
+          "sampling_hz": 0,
+          "concurrency": 2,
+          "requested_seconds": 30,
+          "elapsed_seconds": 30.00740181899164,
+          "successful_requests": 4072,
+          "failures": {},
+          "throughput_rps": 135.69985247515956,
+          "latency_ms": {
+            "p50": 10.042775014881045,
+            "p95": 42.40564600331709,
+            "p99": 57.40531301125884
+          },
+          "target_peak_rss_bytes": 25063424,
+          "target_rss_growth_bytes": -49152,
+          "target_cpu_percent": 53.62010378991446,
+          "collector_peak_rss_bytes": null,
+          "collector_cpu_seconds_in_measured_window": null,
+          "resource_observations": 296,
+          "sampling": null
+        },
+        "gate": {
+          "passed": true,
+          "checks": {
+            "requests_and_oracle": true,
+            "bounded_target_memory": true,
+            "collector_observed": true,
+            "synthetic_perturbation_gate": true
+          },
+          "paired_sampling_effect": {
+            "49": {
+              "pairs": [
+                {
+                  "p95_ratio": 1.4678029636265661,
+                  "throughput_ratio": 0.7451271804153461
+                },
+                {
+                  "p95_ratio": 1.2983334287417765,
+                  "throughput_ratio": 0.8037121147323566
+                },
+                {
+                  "p95_ratio": 0.9374423978009435,
+                  "throughput_ratio": 1.0418934278199568
+                }
+              ],
+              "median_p95_ratio": 1.2983334287417765,
+              "median_throughput_ratio": 0.8037121147323566
+            },
+            "99": {
+              "pairs": [
+                {
+                  "p95_ratio": 1.380598256618109,
+                  "throughput_ratio": 0.8331874544306903
+                },
+                {
+                  "p95_ratio": 1.028603757762284,
+                  "throughput_ratio": 0.8628335569203234
+                },
+                {
+                  "p95_ratio": 1.0113957185771842,
+                  "throughput_ratio": 1.0024837460347793
+                }
+              ],
+              "median_p95_ratio": 1.028603757762284,
+              "median_throughput_ratio": 0.8628335569203234
+            }
+          },
+          "predeclared_gate": {
+            "maximum_median_p95_ratio": 2.0,
+            "minimum_median_throughput_ratio": 0.5,
+            "maximum_target_rss_bytes": 134217728,
+            "minimum_requests_per_window": 10
+          }
+        }
+      },
+      "limits": [
+        "Same-host synthetic closed-loop HTTP workload; not CRM or production capacity.",
+        "Finite windows and low sample counts do not establish tail SLO or long-term leak freedom.",
+        "P95/P99 use successful requests; failures are separately counted without retry.",
+        "py-spy provides no loss counter here; weight deficit is never fabricated as sample loss.",
+        "Collector metrics belong to the standalone profiler, not the complete Drop Agent.",
+        "The separate real Core heartbeat experiment measures the control plane."
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-quality-20261023/core-heartbeat.json",
+      "source_sha256": "52d4d8d8dcc3db0c1f54dbf6a3208a0c33052fa6a40efce04f60a3b920290839",
+      "bytes": 4721,
+      "evidence_kind": "historical_actual_core_mtls_synthetic_clients",
+      "historical_time": null,
+      "version_or_binding": {
+        "architecture": "amd64",
+        "client_cgroup_cpu_max": "25000 100000",
+        "client_cgroup_memory_max": "134217728",
+        "client_cgroup_memory_swap_max": "0",
+        "core_image_id": "sha256:abb10f7f51f7f33e08248fde4c0d6ec0bbf200f5b4c9cde7248e8701cb25c4dc",
+        "docker_engine": "29.1.3",
+        "go": "go1.26.10",
+        "gomaxprocs": 1,
+        "kernel": "5.15.0-181-generic",
+        "logical_cpus_seen": 4,
+        "os": "linux",
+        "postgres_image_id": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+        "runner_requested_joint_caps": {
+          "additional_swap_bytes": 0,
+          "cpu_quota_cores": 1,
+          "device_read_bytes_per_second": 8388608,
+          "device_write_bytes_per_second": 4194304,
+          "memory_bytes": 536870912
+        }
+      },
+      "values": {
+        "stages": [
+          {
+            "simulated_agents": 10,
+            "rounds_per_agent": 10,
+            "maximum_in_flight_rpcs": 8,
+            "planned_heartbeats": 100,
+            "registration_or_warmup_failed": 0,
+            "setup_failure_codes": {},
+            "measurement_started": true,
+            "measurement": {
+              "attempted": 100,
+              "success": 100,
+              "failed": 0,
+              "elapsed_seconds": 20.000547885,
+              "successful_heartbeats_per_second": 4.999863032502122,
+              "successful_rpc_latency": {
+                "p50_ms": 14.460869,
+                "p95_ms": 23.231897,
+                "p99_ms": 27.391152
+              },
+              "successful_scheduler_queue_delay": {
+                "p50_ms": 0.867068,
+                "p95_ms": 8.751122,
+                "p99_ms": 9.477004
+              },
+              "failure_codes": {}
+            }
+          },
+          {
+            "simulated_agents": 25,
+            "rounds_per_agent": 10,
+            "maximum_in_flight_rpcs": 8,
+            "planned_heartbeats": 250,
+            "registration_or_warmup_failed": 0,
+            "setup_failure_codes": {},
+            "measurement_started": true,
+            "measurement": {
+              "attempted": 250,
+              "success": 250,
+              "failed": 0,
+              "elapsed_seconds": 20.001327285,
+              "successful_heartbeats_per_second": 12.499170501924018,
+              "successful_rpc_latency": {
+                "p50_ms": 16.475931,
+                "p95_ms": 53.956917,
+                "p99_ms": 70.948991
+              },
+              "successful_scheduler_queue_delay": {
+                "p50_ms": 11.840593,
+                "p95_ms": 57.878935,
+                "p99_ms": 69.368027
+              },
+              "failure_codes": {}
+            }
+          },
+          {
+            "simulated_agents": 50,
+            "rounds_per_agent": 10,
+            "maximum_in_flight_rpcs": 8,
+            "planned_heartbeats": 500,
+            "registration_or_warmup_failed": 0,
+            "setup_failure_codes": {},
+            "measurement_started": true,
+            "measurement": {
+              "attempted": 500,
+              "success": 500,
+              "failed": 0,
+              "elapsed_seconds": 20.000099519,
+              "successful_heartbeats_per_second": 24.999875601869,
+              "successful_rpc_latency": {
+                "p50_ms": 20.886161,
+                "p95_ms": 71.256891,
+                "p99_ms": 90.235014
+              },
+              "successful_scheduler_queue_delay": {
+                "p50_ms": 38.238963,
+                "p95_ms": 161.815384,
+                "p99_ms": 179.392403
+              },
+              "failure_codes": {}
+            }
+          }
+        ],
+        "measured_attempts": 850,
+        "measured_successes": 850,
+        "measured_failures": 0,
+        "cadence_seconds": 2,
+        "warmup": "One actual registration and one heartbeat per identity per stage; TLS/setup/warmup excluded from measured latency and throughput."
+      },
+      "limits": [
+        "Small fixed-cadence baseline under shared-host resource caps; not maximum capacity, saturation, availability or production SLA proof.",
+        "Percentiles describe only this finite run; client CPU throttling and scheduler queue time can affect observed RPC latency.",
+        "Unset protobuf CPU/memory/load fields have zero defaults; they are placeholders, not observed business-host resource measurements."
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-depth-20261023/ci/39854002402-summary.json",
+      "source_sha256": "96cde92c4fedd5bd79cdd7a7902c4c548d601936d288f734726b4934884e3289",
+      "bytes": 19138,
+      "evidence_kind": "historical_failed_instrumented_ci",
+      "historical_time": null,
+      "version_or_binding": {
+        "bindings_sha256": {
+          "drop_agent": "a55190507bdffb45a7d618bcaae2d726c9fe1b8bb442f0bda34408811d35a759"
+        }
+      },
+      "values": {
+        "passed": false,
+        "acceptance_eligible": false,
+        "readiness": {
+          "status": 200,
+          "dependency": "none"
+        },
+        "browser": {
+          "schema_version": 1,
+          "passed": false,
+          "error_code": "QUALITY_BROWSER_FAILED",
+          "phase": "controlled_agent_ready",
+          "error_name": "Error",
+          "last_http": {
+            "area": "agents",
+            "status": 200
+          },
+          "agent_readiness": {
+            "listed_agents": 0,
+            "controlled_agent_found": false,
+            "proc_cpu_available": false,
+            "controlled_uid_published": false
+          }
+        },
+        "initial_agent_dns_failures": 27,
+        "cleanup": {
+          "passed": true,
+          "owned_containers_removed": 12,
+          "scope": "only fresh random Compose project labels; private evidence retained"
+        }
+      },
+      "limits": [
+        "Original browser failure retained, not final ordinary acceptance."
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-depth-20261023/ci/39854002402-resolver-diagnostic.json",
+      "source_sha256": "10318963515fb7edd969f5fec15844b1fa86f195b3ac38d6c97bbfdfab8bf8ba",
+      "bytes": 3832,
+      "evidence_kind": "historical_resolver_controlled_comparison",
+      "historical_time": null,
+      "version_or_binding": null,
+      "values": {
+        "diagnostic_only": true,
+        "acceptance_eligible": false,
+        "original_browser_failure_preserved": true,
+        "initial_default_failed_grpc_14": true,
+        "legs": [
+          {
+            "name": "native",
+            "registered": true,
+            "observed_seconds": 1.0454866089999086,
+            "new_container_checked": true,
+            "only_resolver_setting_changed": true,
+            "work_counts": {
+              "tasks": 0,
+              "attempts": 0
+            },
+            "agent_log_projection": {
+              "events": {
+                "configuration_loaded": 1,
+                "perf_probe_succeeded": 0,
+                "perf_probe_unavailable": 1,
+                "registration_succeeded": 1,
+                "registration_failed": 0,
+                "server_ready": 0,
+                "configuration_error": 0,
+                "rpc_internal_error": 0,
+                "database_sweep_deferred": 0
+              },
+              "registration_grpc_status_counts": {
+                "0": 0,
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0,
+                "6": 0,
+                "7": 0,
+                "8": 0,
+                "9": 0,
+                "10": 0,
+                "11": 0,
+                "12": 0,
+                "13": 0,
+                "14": 0,
+                "15": 0,
+                "16": 0
+              },
+              "registration_error_classes": {
+                "control_internal": 0,
+                "dns": 0,
+                "failed_connect": 0,
+                "other": 0
+              },
+              "stderr_flags": {
+                "tls_verify_failed": false,
+                "tls_bad_certificate": false,
+                "peer_name_mismatch": false,
+                "dns_resolution_failed": false,
+                "connect_all_addresses_failed": false,
+                "thread_creation_failed": false,
+                "shared_library_missing": false
+              },
+              "scope": "last 100 owned container log lines; fixed event counts and literal-match booleans only"
+            },
+            "container_running": true,
+            "container_oom_killed": false,
+            "readiness": {
+              "status": 200,
+              "dependency": "none"
+            }
+          },
+          {
+            "name": "default_after_ready",
+            "registered": false,
+            "observed_seconds": 45.71861764700009,
+            "new_container_checked": true,
+            "only_resolver_setting_changed": true,
+            "work_counts": {
+              "tasks": 0,
+              "attempts": 0
+            },
+            "agent_log_projection": {
+              "events": {
+                "configuration_loaded": 1,
+                "perf_probe_succeeded": 0,
+                "perf_probe_unavailable": 1,
+                "registration_succeeded": 0,
+                "registration_failed": 15,
+                "server_ready": 0,
+                "configuration_error": 0,
+                "rpc_internal_error": 0,
+                "database_sweep_deferred": 0
+              },
+              "registration_grpc_status_counts": {
+                "0": 0,
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0,
+                "6": 0,
+                "7": 0,
+                "8": 0,
+                "9": 0,
+                "10": 0,
+                "11": 0,
+                "12": 0,
+                "13": 0,
+                "14": 15,
+                "15": 0,
+                "16": 0
+              },
+              "registration_error_classes": {
+                "control_internal": 0,
+                "dns": 15,
+                "failed_connect": 0,
+                "other": 0
+              },
+              "stderr_flags": {
+                "tls_verify_failed": false,
+                "tls_bad_certificate": false,
+                "peer_name_mismatch": false,
+                "dns_resolution_failed": false,
+                "connect_all_addresses_failed": false,
+                "thread_creation_failed": false,
+                "shared_library_missing": false
+              },
+              "scope": "last 100 owned container log lines; fixed event counts and literal-match booleans only"
+            },
+            "container_running": true,
+            "container_oom_killed": false,
+            "readiness": {
+              "status": 200,
+              "dependency": "none"
+            }
+          }
+        ],
+        "model_calls": 0,
+        "task_creates": 0,
+        "conclusion": "RESOLVER_STRATEGY_DIFFERENCE_REPRODUCED"
+      },
+      "limits": [
+        "Original default failure belongs to prior summary, this source holds native and restored-default legs.",
+        "Supports resolver strategy difference, not package-level c-ares/security-fix root cause."
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-depth-20261023/ci/local-fixed-fuzz-200k-001.json",
+      "source_sha256": "c5c84c87d8db31f761f20bd674a41f665f966ad25f5820e609f3c552a737df31",
+      "bytes": 2433,
+      "evidence_kind": "historical_other_fuzz_run",
+      "historical_time": "2026-10-22T20:44:37.343019+00:00",
+      "version_or_binding": "0cc95f6e3bb12f6b844c8340e4bc96e591ff4ef2",
+      "values": {
+        "provenance": "local Windows Go1.26.10, explicitly synthetic existing corpus; not replacement for failed Linux CI",
+        "targets": [
+          {
+            "target": "FuzzTaskNormalizeAndValidate",
+            "exit_code": 0,
+            "elapsed_seconds": 17.017,
+            "reported_fuzz_execs": 200000,
+            "fixed_budget": 200000,
+            "hard_timeout_seconds": 120,
+            "parallel": 1
+          },
+          {
+            "target": "FuzzDiagnosisObservationObject",
+            "exit_code": 0,
+            "elapsed_seconds": 84.959,
+            "reported_fuzz_execs": 200000,
+            "fixed_budget": 200000,
+            "hard_timeout_seconds": 120,
+            "parallel": 1
+          },
+          {
+            "target": "FuzzDiagnosisExactScalar",
+            "exit_code": 0,
+            "elapsed_seconds": 85.695,
+            "reported_fuzz_execs": 200000,
+            "fixed_budget": 200000,
+            "hard_timeout_seconds": 120,
+            "parallel": 1
+          }
+        ],
+        "source_commit": "0cc95f6e3bb12f6b844c8340e4bc96e591ff4ef2",
+        "go_version": "go version go1.26.10 windows/amd64",
+        "fixed_budget_total": 600000
+      },
+      "limits": [
+        "Separate run, OS or source; not added to final600011."
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-depth-20261023/ci/fuzz-91aaa00-execution.json",
+      "source_sha256": "862e515a69cd2342b064d569df32c04019242ede1474a6b34fca76b988d5bc21",
+      "bytes": 4097,
+      "evidence_kind": "historical_other_fuzz_run",
+      "historical_time": null,
+      "version_or_binding": "91aaa00b7d4a36d591ea1e77c728072d97234e77",
+      "values": {
+        "source_commit": "91aaa00b7d4a36d591ea1e77c728072d97234e77",
+        "native_fuzz": {
+          "runner_os": "ubuntu-24.04",
+          "requested_fuzztime": "200000x",
+          "requested_executions_per_target": 200000,
+          "target_count": 3,
+          "requested_total_executions": 600000,
+          "parallel_workers": 1,
+          "GOMAXPROCS": 2,
+          "process_timeout_seconds": 120,
+          "targets": [
+            {
+              "target": "FuzzTaskNormalizeAndValidate",
+              "package": "drop/api/internal/domain",
+              "reported_executions": 200000,
+              "reported_go_elapsed_seconds": 6.588,
+              "reported_PASS": true,
+              "inferred_exit_code": 0
+            },
+            {
+              "target": "FuzzDiagnosisObservationObject",
+              "package": "drop/api/internal/service",
+              "reported_executions": 200000,
+              "reported_go_elapsed_seconds": 28.375,
+              "reported_PASS": true,
+              "inferred_exit_code": 0
+            },
+            {
+              "target": "FuzzDiagnosisExactScalar",
+              "package": "drop/api/internal/service",
+              "reported_executions": 200028,
+              "reported_go_elapsed_seconds": 30.348,
+              "reported_PASS": true,
+              "inferred_exit_code": 0
+            }
+          ],
+          "reported_total_executions": 600028,
+          "exit_code_projection": [
+            0,
+            0,
+            0
+          ],
+          "exit_code_basis": "三个命令各自PASS，固定顺序bash -e无重试且native步骤成功，因而推得退出码0/0/0；未单独插桩捕获三个原始process-returncode。",
+          "audit_reruns_performed": 0
+        },
+        "limits": [
+          "预算是三组200000x，实际reported总数600028；不能把超过预算的28次抹掉或写成精确600000。",
+          "0/0/0是PASS、顺序bash -e和step success支持的推断，不冒作三个独立进程退出码的原始捕获。",
+          "空corpus仅表示本次没有保存反例，不证明没有crash或不存在未知缺陷；capture不改变原Go结果，也未触发重试。",
+          "只读取固定manifest与必要Fuzz尾部并提取计数；未下载或公开完整业务日志，也没有完整loghash，不虚构该散列。",
+          "这里只投影三个合成协议目标的Linux真跑，不增加真实CRM、付费模型或生产系统的验收范围。"
+        ]
+      },
+      "limits": [
+        "Separate run, OS or source; not added to final600011."
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-depth-20261023/build-validation.json",
+      "source_sha256": "429e818a69e03cda260b8f266b9e4378b5501f2363ef84c0bca5853c75b7d03a",
+      "bytes": 3834,
+      "evidence_kind": "historical_quality_ui_and_pg_revocation",
+      "historical_time": null,
+      "version_or_binding": "d91e6f0d776b3138ef03d153efd4e5bc647f6839",
+      "values": {
+        "real_postgres_role_revocation": {
+          "passed": true,
+          "go_version": "go1.26.10",
+          "database": "fresh isolated loopback PostgreSQL17, all ten authoritative migrations",
+          "provider": "no real model calls; imported fixtures for provider and protocol tests",
+          "tests_passed_including_subtests": 1,
+          "tests_skipped_including_subtests": 0,
+          "failed_tests": [],
+          "skipped_tests": [],
+          "elapsed_seconds": 11.43,
+          "log_sha256": "0b0288324a02bd582fa3317dd1c8b539f793b9280ed8bcfa5b6f3a5ef3bec1a2"
+        },
+        "new_quality_ui_synthetic_fixtures": {
+          "stats": {
+            "startTime": "2026-10-22T18:12:47.906Z",
+            "duration": 8513.778,
+            "expected": 6,
+            "skipped": 0,
+            "unexpected": 0,
+            "flaky": 0
+          },
+          "fixture_scope": "Explicit imported API summaries for rendering; real production acceptance recorded separately."
+        }
+      },
+      "limits": [
+        "Named candidate image construction is separate from production deployment.",
+        "No paid model call or private CRM data is used in ordinary CI.",
+        "This receipt does not claim a new full image CVE scan or image signature."
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-depth-20261023/window-regression.json",
+      "source_sha256": "ab5a2a9156cf46073b5af4afb5732c47dd80c87d4b6d3f6304e613981c189081",
+      "bytes": 477,
+      "evidence_kind": "historical_fresh_pg_http_window_regressions",
+      "historical_time": null,
+      "version_or_binding": null,
+      "values": {
+        "passed": true,
+        "go_version": "go1.26.10",
+        "database": "fresh isolated loopback PostgreSQL17, all ten authoritative migrations",
+        "provider": "no real model calls; imported fixtures for provider and protocol tests",
+        "tests_passed_including_subtests": 43,
+        "tests_skipped_including_subtests": 0,
+        "failed_tests": [],
+        "skipped_tests": [],
+        "elapsed_seconds": 32.08,
+        "log_sha256": "631be716a26b7fe0b349495e0e99ea1e051541b4a94359c45a33b22dedb6f15c"
+      },
+      "limits": [
+        "Imported provider fixtures; does not add paid models or production collection."
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-depth-20261023/business-generation.json",
+      "source_sha256": "e668a20d085615c0ac43d4d5e3b4f1d02076add1b89d0cb7262f83112e3006ff",
+      "bytes": 5808,
+      "evidence_kind": "historical_private_crm_generated_memory_tests",
+      "historical_time": "2026-10-22T18:21:30.268531+00:00",
+      "version_or_binding": {
+        "suite_sha256": "ee6408838a950bf85e004c302206efaf19171fd6986516e563e3731658cf093c",
+        "oracle_source_sha256": "3ab09c5d861bb67de2b0271d70e364da7115a463623ca79cd6ced83ed3b95a0b"
+      },
+      "values": {
+        "memory": {
+          "mutation_kills": [
+            {
+              "killed_by_cases": [
+                "foreign_seed_isolation"
+              ],
+              "mutation": "contact_get_ignores_tenant",
+              "synthetic_mutation": true
+            },
+            {
+              "killed_by_cases": [
+                "own_seed_phone_duplicate"
+              ],
+              "mutation": "duplicate_phone_guard_removed",
+              "synthetic_mutation": true
+            },
+            {
+              "killed_by_cases": [
+                "viewer_write_denied"
+              ],
+              "mutation": "viewer_rank_elevated",
+              "synthetic_mutation": true
+            }
+          ],
+          "report_sha256": "049a928feb3bde22047655330fa058b24912c1d5b9565203e6c624eaeb25dc70",
+          "scope": "real CRM ASGI routes and MemoryRepository, synthetic identity resolver; not PG/TCP end-to-end",
+          "summary": {
+            "actual_requests": 76,
+            "baseline_passed": 4,
+            "baseline_total": 4,
+            "passed": true,
+            "sham_passed": 4,
+            "synthetic_mutants_killed": 3
+          }
+        },
+        "total_model_calls": 2,
+        "generated_case_count": 4,
+        "generated_step_count": 17
+      },
+      "limits": [
+        "Real CRM ASGI/MemoryRepository, explicit synthetic identity; not PG/RLS/TCP or Drop core profiling.",
+        "Mutants are injected faults, not newly found production vulnerabilities."
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-depth-20261023/business-postgres.json",
+      "source_sha256": "b31e8187e56f55d08fe695e3a43b00a50d8ea8ae0c010d5b09f31ae80d1dc9e4",
+      "bytes": 17422,
+      "evidence_kind": "historical_private_crm_real_db_local_issuer",
+      "historical_time": "2026-10-22T18:21:30.268531+00:00",
+      "version_or_binding": {
+        "oracle_source_sha256": "3ab09c5d861bb67de2b0271d70e364da7115a463623ca79cd6ced83ed3b95a0b",
+        "reviewed_requirements_sha256": "f03a57772c57531134f13ed0d6edeeec5bf1be8747460c64847745550ca12f94"
+      },
+      "values": {
+        "db_checks_distinct": 8,
+        "auth_checks_distinct": 4,
+        "request_count_scope": {
+          "memory_generated_suite_all_five_runs": 76,
+          "model_postgres_asgi_generated_steps": 17,
+          "model_postgres_gateway_http_requests": 132,
+          "note": "Memory76 includes baseline/sham/three mutations; gateway132 includes real repository/auth/internal HTTP and is a different denominator."
+        },
+        "runs": [
+          {
+            "run_id": "crm-run-001",
+            "bundle": "003",
+            "passed": false,
+            "start": "2026-10-22T18:10:53.357322+00:00",
+            "finish": "2026-10-22T18:11:37.643827+00:00",
+            "database_checks": null,
+            "auth_checks": null,
+            "generated_asgi_requests": null,
+            "gateway": null,
+            "first_failure": {
+              "diagnosed_cause": "PostgREST started before ephemeral authenticator role existed and exited; bootstrap handshake fixed startup order",
+              "note": "Original controller compared unsorted mount lists and reported false. A separate normalized follow-up matched all 29 container IDs, image IDs and volume names. The initial after-list was not retained, so the exact comparison discrepancy is not conclusively attributable; original false and follow-up remain distinct.",
+              "production_followup_normalized": {
+                "after_sha256": "2af8fbfe2fcfc441cbfb549817b2086537f2e03d59a7d3438d9882ccf0e881fe",
+                "before_sha256": "2af8fbfe2fcfc441cbfb549817b2086537f2e03d59a7d3438d9882ccf0e881fe",
+                "changed_container_id_count": 0,
+                "mount_order_only_difference": false,
+                "production_count_after": 29,
+                "production_count_before": 29,
+                "production_ids_images_volumes_unchanged": true
+              }
+            }
+          },
+          {
+            "run_id": "crm-run-002",
+            "bundle": "004",
+            "passed": true,
+            "start": "2026-10-22T18:15:20.160673+00:00",
+            "finish": "2026-10-22T18:15:42.089218+00:00",
+            "database_checks": [
+              {
+                "name": "application_role_is_real_authenticated_non_superuser_non_bypass",
+                "passed": true
+              },
+              {
+                "name": "unfiltered_select_enforces_original_rls",
+                "passed": true
+              },
+              {
+                "name": "rls_cross_tenant_insert_denied_without_business_effect",
+                "passed": true,
+                "sqlstate": "42501"
+              },
+              {
+                "name": "real_transaction_rolls_back_insert_update_and_business_side_effects",
+                "passed": true
+              },
+              {
+                "name": "original_unique_index_arbitrates_concurrent_writers",
+                "outcomes": [
+                  "committed",
+                  "23505"
+                ],
+                "passed": true,
+                "resulting_rows": 1
+              },
+              {
+                "name": "positive_control_same_phone_in_different_tenants",
+                "passed": true,
+                "resulting_rows": 2
+              },
+              {
+                "name": "synthetic_rls_disabled_mutation_killed_and_restored",
+                "passed": true,
+                "root_cause_is_production_vulnerability": false,
+                "synthetic_mutation": true
+              },
+              {
+                "fixture_route_not_a_production_endpoint": true,
+                "name": "original_config_transaction_rolls_back_pipeline_and_stage_after_injected_failure",
+                "passed": true,
+                "synthetic_failure_injection": true
+              }
+            ],
+            "auth_checks": [
+              {
+                "business_state_unchanged": true,
+                "name": "missing",
+                "passed": true,
+                "status": 401
+              },
+              {
+                "business_state_unchanged": true,
+                "name": "wrong_signature",
+                "passed": true,
+                "status": 401
+              },
+              {
+                "business_state_unchanged": true,
+                "name": "expired",
+                "passed": true,
+                "status": 401
+              },
+              {
+                "name": "live_membership_revocation",
+                "passed": true,
+                "status": 403
+              }
+            ],
+            "generated_asgi_requests": 17,
+            "gateway": {
+              "gateway_requests": 114,
+              "local_issuer_checks": 20,
+              "local_issuer_rejections": 2
+            },
+            "first_failure": null
+          },
+          {
+            "run_id": "crm-run-003",
+            "bundle": "005",
+            "passed": true,
+            "start": "2026-10-22T18:16:45.728617+00:00",
+            "finish": "2026-10-22T18:17:08.068249+00:00",
+            "database_checks": [
+              {
+                "name": "application_role_is_real_authenticated_non_superuser_non_bypass",
+                "passed": true
+              },
+              {
+                "name": "unfiltered_select_enforces_original_rls",
+                "passed": true
+              },
+              {
+                "name": "rls_cross_tenant_insert_denied_without_business_effect",
+                "passed": true,
+                "sqlstate": "42501"
+              },
+              {
+                "name": "real_transaction_rolls_back_insert_update_and_business_side_effects",
+                "passed": true
+              },
+              {
+                "name": "original_unique_index_arbitrates_concurrent_writers",
+                "outcomes": [
+                  "committed",
+                  "23505"
+                ],
+                "passed": true,
+                "resulting_rows": 1
+              },
+              {
+                "name": "positive_control_same_phone_in_different_tenants",
+                "passed": true,
+                "resulting_rows": 2
+              },
+              {
+                "name": "synthetic_rls_disabled_mutation_killed_and_restored",
+                "passed": true,
+                "root_cause_is_production_vulnerability": false,
+                "synthetic_mutation": true
+              },
+              {
+                "fixture_route_not_a_production_endpoint": true,
+                "name": "original_config_transaction_rolls_back_pipeline_and_stage_after_injected_failure",
+                "passed": true,
+                "synthetic_failure_injection": true
+              }
+            ],
+            "auth_checks": [
+              {
+                "business_state_unchanged": true,
+                "name": "missing",
+                "passed": true,
+                "status": 401
+              },
+              {
+                "business_state_unchanged": true,
+                "name": "wrong_signature",
+                "passed": true,
+                "status": 401
+              },
+              {
+                "business_state_unchanged": true,
+                "name": "expired",
+                "passed": true,
+                "status": 401
+              },
+              {
+                "name": "live_membership_revocation",
+                "passed": true,
+                "status": 403
+              }
+            ],
+            "generated_asgi_requests": 17,
+            "gateway": {
+              "gateway_requests": 132,
+              "local_issuer_checks": 21,
+              "local_issuer_rejections": 2
+            },
+            "first_failure": null
+          }
+        ]
+      },
+      "limits": [
+        "Only reviewed contacts DSL operations and explicit config transaction fixture route are covered; no full CRM acceptance claim",
+        "Local HS256 issuer adapter is not GoTrue, external issuer, enterprise SSO or MFA",
+        "Supabase auth/storage SQL prelude is explicit compatibility fixture, not external service provisioning",
+        "Disabling disposable contacts RLS and raising service rollback exceptions are synthetic mutations, not newly discovered production vulnerabilities",
+        "Private bundle and CRM source are excluded from GitHub; only aggregate counts, names and hashes are publicable",
+        "No production Drop container, image or named volume was modified by these tests"
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-depth-20261023/business-validation.json",
+      "source_sha256": "2deb187df9355fd841743d896201fa1ffa249da77c9f4533ab1cab1ffd1a6094",
+      "bytes": 5113,
+      "evidence_kind": "historical_parser_correction_without_test_rerun",
+      "historical_time": "2026-10-22T18:21:30.268531+00:00",
+      "version_or_binding": "0e23654bbcf2730be28a2a91793b3568a78b3ffd1a040eff1317112171313ced",
+      "values": {
+        "all_tool_source_files_unchanged_from_final_bundle": true,
+        "kind": "official_sdk_mock_and_crm_boundary_final_validation",
+        "original_receipt_sha256": "b8d278f15f00b13c8570f1f9daee5209ff083f809e527b8b4ca3664aa974f7ca",
+        "passed": true,
+        "provider_calls_real": 0,
+        "receipt_parser_correction": "Normalize Windows CRLF using splitlines; original tests all returned exit 0; original receipt preserved",
+        "schema_version": 1,
+        "steps": [
+          {
+            "exit_code": 0,
+            "finished_at_utc": "2026-10-22T18:20:14.293674+00:00",
+            "log_sha256": "ca93bb7c188039aabe0ddd8c251ba52c3111aee9280eeee0cdbc6f7b6fbd3616",
+            "name": "business-sdk",
+            "passed": true,
+            "skips": 0,
+            "started_at_utc": "2026-10-22T18:20:11.752014+00:00",
+            "test_count": 38
+          },
+          {
+            "exit_code": 0,
+            "finished_at_utc": "2026-10-22T18:20:15.045983+00:00",
+            "log_sha256": "d619769190e8151eebed6df5219d9406b92d312a2c6fa6874c003650923b162b",
+            "name": "postgres-boundaries",
+            "passed": true,
+            "skips": 0,
+            "started_at_utc": "2026-10-22T18:20:14.293685+00:00",
+            "test_count": 10
+          },
+          {
+            "exit_code": 0,
+            "finished_at_utc": "2026-10-22T18:20:15.128343+00:00",
+            "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+            "name": "ruff",
+            "passed": true,
+            "skips": null,
+            "started_at_utc": "2026-10-22T18:20:15.045993+00:00",
+            "test_count": null
+          },
+          {
+            "exit_code": 0,
+            "finished_at_utc": "2026-10-22T18:20:15.207702+00:00",
+            "log_sha256": "ba72d5ff990b6755459efa6266bf58b9f38733d193f2c3339b32245e476e5994",
+            "name": "ruff-format",
+            "passed": true,
+            "skips": null,
+            "started_at_utc": "2026-10-22T18:20:15.128352+00:00",
+            "test_count": null
+          }
+        ],
+        "tool_manifest_sha256": "0e23654bbcf2730be28a2a91793b3568a78b3ffd1a040eff1317112171313ced"
+      },
+      "limits": [
+        "38 offline business tests use official AgentScope2.0.10 and synthetic MockTransport; 10 adapter/orchestration tests use synthetic local fixtures. They do not represent additional paid model calls or a CI deployment of private CRM.",
+        "Original CRLF parser misclassification retained; correction uses original logs, not rerun."
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-depth-20261023/causal/v2-r2/full-two-repetitions/score.json",
+      "source_sha256": "3eb304268cb4067693fec5f4e07a4dcd70215e8e462aa43289b68fe3d8ee4e11",
+      "bytes": 15751,
+      "evidence_kind": "historical_agent_causal_score",
+      "historical_time": null,
+      "version_or_binding": {
+        "plan_sha256": "a93d84fabe25355b1baed32fbde22114ef767023f5a9e78fb15b053114c6f096",
+        "manifest_sha256": "6874050733a5739461a3352322ae58cff19867fde3443828076f79e26c630347"
+      },
+      "values": {
+        "metrics": {
+          "controlled_intervention_verified": {
+            "numerator": 6,
+            "denominator": 6,
+            "rate": 1.0
+          },
+          "fault_supported_direction_top3": {
+            "numerator": 2,
+            "denominator": 6,
+            "rate": 0.3333333333333333
+          },
+          "normal_after_direction_top3": {
+            "numerator": 6,
+            "denominator": 6,
+            "rate": 1.0
+          },
+          "exact_root_cause_accuracy": null,
+          "independent_human_reviews": 0,
+          "semantic_false_positive_rate": null,
+          "semantic_abstention_accuracy": null
+        },
+        "budget": {
+          "accounted_model_calls": 43,
+          "accounted_tool_calls": 50,
+          "unknown_runs_charged_worst_case": 0,
+          "model_limit": 60,
+          "tool_limit": 80
+        },
+        "round_count": 6,
+        "combined_passed": 2,
+        "combined_denominator": 6,
+        "combined_derivation": "For each predeclared round: controlled_effect.passed AND fault_direction.matched AND after_direction.matched; failures retained."
+      },
+      "limits": [
+        "Read independent per-round fields for combined;2/6 from predeclared all-conditions scorer, not model-execution pass rate.",
+        "Exact RCA/semantic false-positive/abstention remain null; normal Top3 does not imply zero false-positive."
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-depth-20261023/causal/v2-r2/full-two-repetitions/execution-summary.json",
+      "source_sha256": "77a4eac7bc916e3e14d56cecca7f986316354efc46822f91ddcb2572db623a88",
+      "bytes": 4291,
+      "evidence_kind": "historical_causal_execution",
+      "historical_time": "2026-10-22T19:52:48.469273Z",
+      "version_or_binding": "be98e6499ccdf9aaa00964179ac0e65fec1f773b8700901b3faaf0423a0ba511",
+      "values": {
+        "started_at": "2026-10-22T19:52:48.469273Z",
+        "finished_at": "2026-10-22T20:06:01.038423Z",
+        "planned_rounds": 6,
+        "recorded_rounds": 6,
+        "recorded_phase_failures": 0,
+        "budget": {
+          "accounted_model_calls": 43,
+          "accounted_tool_calls": 50,
+          "unknown_runs_charged_worst_case": 0,
+          "model_limit": 60,
+          "tool_limit": 80,
+          "counts_are_runtime_logical_calls_not_provider_network_attempts": true
+        },
+        "execution_error": null
+      },
+      "limits": [
+        "Runtime logical calls, not exact provider HTTP attempts; not rerun for handbook."
+      ],
+      "executed_this_documentation_turn": false
+    },
+    {
+      "source": "docs/evidence/jd-quality-20261023/agent-score.json",
+      "source_sha256": "5a50631565b808950f8675a971af7867cfd363a25c56937b8b049dd656c085d0",
+      "bytes": 9462,
+      "evidence_kind": "historical_author_visible_labels",
+      "historical_time": null,
+      "version_or_binding": "386395db828b3f20beee7fa4f3c6945152077fbf83b167d54f9c2c565f02c4cb",
+      "values": {
+        "metrics": {
+          "diagnosis_acceptance": {
+            "numerator": 7,
+            "denominator": 7,
+            "rate": 1.0
+          },
+          "controlled_fixture_hint_top3": {
+            "numerator": 7,
+            "denominator": 7,
+            "rate": 1.0
+          },
+          "invalid_input_rejection": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1.0
+          },
+          "successful_report_objective_guard": {
+            "numerator": 7,
+            "denominator": 7,
+            "rate": 1.0
+          },
+          "semantic_root_cause_topk": null,
+          "normal_load_semantic_false_positive_rate": null,
+          "semantic_abstention_accuracy": null,
+          "independent_human_review_coverage": {
+            "numerator": 0,
+            "denominator": 7,
+            "rate": 0.0
+          }
+        }
+      },
+      "limits": [
+        "7/7 label/structure checks is not independent semantic/root-cause accuracy; independent review0/7."
+      ],
+      "executed_this_documentation_turn": false
+    }
+  ],
+  "link_check": {
+    "count": 65,
+    "missing": [],
+    "base": "Final file is under docs; draft-relative links intentionally resolve from docs."
+  }
+}

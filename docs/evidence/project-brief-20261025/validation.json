@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-25T23:27:40.744360+08:00",
+  "status": "passed-document-checks",
+  "output": "docs/PROJECT_BRIEF.md",
+  "artifact": {
+    "sha256": "74e97ac438c2b4fe8a22ee7c4037e8a3098633ca91cf35bfff8aa2d2912a9cef",
+    "bytes": 19683
+  },
+  "base_revision": "abae056e989a91afb6270e2a8b72c4249f0e842a",
+  "scope": "Project-focused technical brief for Mini-Drop and Python AI CRM, based on resume, selected local conversations, code and historical receipts. Responsibilities summarized briefly; no question bank or mock session material.",
+  "counts": {
+    "unicode_characters_including_whitespace_markdown": 9680,
+    "non_whitespace_characters": 8988,
+    "han_characters": 4397,
+    "h2": 3,
+    "h3": 13
+  },
+  "length_definition": "Every Unicode code point is counted, including Markdown, whitespace, newlines and English; total strictly below 10000.",
+  "checks": {
+    "markdown_ast_content_and_links": {
+      "passed": true,
+      "receipt": "markdown-check.json"
+    },
+    "prettier": {
+      "passed": true,
+      "command": "node web/node_modules/prettier/bin/prettier.cjs --check docs/PROJECT_BRIEF.md"
+    },
+    "diff_whitespace": {
+      "passed": true,
+      "command": "git diff --check -- docs/README.md docs/DELIVERY_MATRIX.md DEVELOPMENT_LOG.md",
+      "notes": "Existing CRLF normalization warnings only."
+    },
+    "source_and_receipt_hashes": {
+      "passed": true,
+      "source_file_count": 62,
+      "historical_receipt_count": 4,
+      "receipt": "source-validation.json"
+    },
+    "technical_cross_review": {
+      "completed": true,
+      "receipt": "review.json"
+    }
+  },
+  "application_tests_run": [],
+  "application_builds_run": [],
+  "application_databases_started": [],
+  "production_actions": [],
+  "live_collection_runs": 0,
+  "model_calls": 0,
+  "crm_files_modified": [],
+  "resume_pdf_modified": false,
+  "existing_full_project_summary_preserved": true,
+  "limits": [
+    "Python/LangGraph and original TypeScript/Pi implementations are described separately.",
+    "Historical verification is not a new acceptance run of current source.",
+    "No all-product equivalence, real paid-provider result or external customer-delivery claim is made.",
+    "Personal role attribution uses explicit user statements; source presence does not independently establish authorship or work dates."
+  ]
+}

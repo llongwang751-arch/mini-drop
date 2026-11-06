@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-10-24",
+  "scope": "由当前工作区源码核对的状态、恢复、计划与复合编排事实。图示主路径和典型退出，不声称执行了生产故障注入。",
+  "diagrams": [
+    {
+      "id": "06-collection-lifecycle",
+      "type": "workflow",
+      "specification": "06-collection-lifecycle.json",
+      "artifact": "06-collection-lifecycle.html",
+      "facts": [
+        "tasks.collection_status 的完整枚举为 CREATED、QUEUED、DELIVERED、RUNNING、UPLOADING、COLLECTED、FAILED、CANCELED。",
+        "正常单向迁移为 CREATED → QUEUED → DELIVERED → RUNNING → UPLOADING → COLLECTED；同态上报可幂等。尚未终态的采集可失败或取消；采集终态不可原地复活。",
+        "API 创建 task、attempt、TASK_CREATED event 和 DISPATCH Outbox 在同一 PostgreSQL 事务内。C++ Server 幂等将 CREATED 推进为 QUEUED，Agent 心跳领取后推进为 DELIVERED。",
+        "NotifyResult 成功时在同一事务登记 RAW 等制品、写 COLLECTED、结束采集 attempt、创建 pending AnalysisJob 与事件。COLLECTED 不表示分析已经成功。",
+        "导入数据不派发 Agent；导入对象成功后，数据库登记制品并直接进入 COLLECTED 和 pending 分析队列。",
+        "手动重试以新的 Idempotency-Key 新增采集 attempt，将逻辑任务回到 CREATED/PENDING；历史 attempt、制品和事件保留。旧轮次失去当前发布资格，旧上传授权清空。"
+      ],
+      "sources": [
+        {
+          "path": "db/migrations/001_initial.sql",
+          "line": 24,
+          "role": "Task 采集与分析状态 CHECK；attempt/event/artifact/job/outbox 结构"
+        },
+        {
+          "path": "core/include/drop/domain.hpp",
+          "line": 64,
+          "role": "完整采集合法迁移规则，终态与幂等同态"
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "line": 119,
+          "role": "创建任务、attempt、事件、Outbox 的原子事务"
+        },
+        {
+          "path": "core/src/server.cpp",
+          "line": 496,
+          "role": "CreateTask 当前 attempt 栅栏与幂等 QUEUED 接收"
+        },
+        {
+          "path": "core/src/server.cpp",
+          "line": 1018,
+          "role": "心跳派发前提交 DELIVERED 与事件"
+        },
+        {
+          "path": "core/src/server.cpp",
+          "line": 467,
+          "role": "成功采集与 pending AnalysisJob 的原子登记"
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "line": 231,
+          "role": "重试新增 attempt、保留历史并清除旧上传授权"
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "line": 319,
+          "role": "导入完成不经过现场采集，原子登记制品和分析队列"
+        }
+      ],
+      "semantic_form": "lifecycle states expressed with readable workflow v2"
+    },
+    {
+      "id": "07-analysis-lifecycle",
+      "type": "sequence",
+      "specification": "07-analysis-lifecycle.json",
+      "artifact": "07-analysis-lifecycle.html",
+      "facts": [
+        "tasks.analysis_status 使用大写 PENDING、RUNNING、RETRY、SUCCESS、FAILED、CANCELED。analysis_jobs.status 独立使用小写 pending、running、retry、success、failed，没有 canceled。",
+        "Task 自创建即 PENDING，采集完成前可以还没有 AnalysisJob。图中 PENDING/pending 对应关系从 COLLECTED 后生成 Job 起解释，不能把两张表视为始终一一相等。",
+        "Analyzer claim 只领取当前采集 attempt、Task.collection_status=COLLECTED 且 Task 分析未结束的作业；使用行锁和 SKIP LOCKED，claim 原子令 Job.running、分析轮次加一、Task.RUNNING 并写开始事件。",
+        "可重试错误且分析预算未耗尽时，Job.retry/Task.RETRY 并设置 available_at；到时重新 claim。不可重试错误或预算耗尽则 Job.failed/Task.FAILED。",
+        "租约过期且仍有预算的 running Job 可直接被新 owner claim，不要求先写成 retry；最终分析尝试的租约过期会明确失败为 ANALYSIS_RETRY_EXHAUSTED。",
+        "续租及发布同时核对 lease_owner、analysis_jobs.attempt（分析轮次）、实时未过期租约、当前采集 attempt 与 Task 状态；即使没有新 worker 接管，已过期 owner 也不能发布。",
+        "成功发布在事务中写 Job.success、Task.SUCCESS、结果制品、建议和事件。旧 worker 即使已上传对象也不能成为当前结果。",
+        "取消未终态 Task 会令 Task.analysis_status=CANCELED；当前 pending/running/retry AnalysisJob 置 failed，固定错误 TASK_CANCELED，并清空租约。取消允许发生在 PENDING/RUNNING/RETRY；图中三个附加分支只说明状态映射，不接续上方成功主线。"
+      ],
+      "sources": [
+        {
+          "path": "db/migrations/001_initial.sql",
+          "line": 28,
+          "role": "Task.analysis_status 的大写 CHECK"
+        },
+        {
+          "path": "db/migrations/001_initial.sql",
+          "line": 52,
+          "role": "AnalysisJob.status 的小写 CHECK、分析轮次、预算与租约"
+        },
+        {
+          "path": "analyzer/drop_analyzer/repository.py",
+          "line": 67,
+          "role": "claim、过期接管和最终尝试耗尽收尾"
+        },
+        {
+          "path": "analyzer/drop_analyzer/repository.py",
+          "line": 172,
+          "role": "续租核对 owner、分析轮次、实时期限与当前采集 attempt"
+        },
+        {
+          "path": "analyzer/drop_analyzer/repository.py",
+          "line": 229,
+          "role": "所有发布写入共用的当前归属事务栅栏"
+        },
+        {
+          "path": "analyzer/drop_analyzer/repository.py",
+          "line": 429,
+          "role": "成功写 Job、Task 与事件的原子更新"
+        },
+        {
+          "path": "analyzer/drop_analyzer/repository.py",
+          "line": 453,
+          "role": "可重试性、重试预算、退避与失败原子发布"
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "line": 189,
+          "role": "取消 Task 与已有活动 AnalysisJob，清空租约"
+        }
+      ],
+      "semantic_form": "analysis lifecycle mapping with lease takeover sequence"
+    },
+    {
+      "id": "11-recovery-sequence",
+      "type": "sequence",
+      "specification": "11-recovery-sequence.json",
+      "artifact": "11-recovery-sequence.html",
+      "facts": [
+        "本图展开的单一场景：Server 已独立提交 QUEUED，但 API 未收到成功 ACK。API 将 RPC 当作失败处理，并保留 Outbox 退避意图。",
+        "Outbox 实际没有 delivered 状态枚举；是否发布由 published_at 是否为空表示。attempt 记录派发重试，available_at 记录下次可处理时点。",
+        "下一轮派发先读取 Task 和当前采集 attempt。Dispatchable 对 DISPATCH 只允许 Task.collection_status=CREATED 且该 attempt.status=CREATED，且 attempt 必须仍为最新。",
+        "本场景 Task 已 QUEUED，故下一轮直接写 Outbox.published_at，不再发送第二次 CreateTask。不能把 ACK 丢失画成必然重复 RPC。",
+        "如果其他时序确实造成 CreateTask 重放，Server 对当前 task/attempt 与持久状态幂等处理：CREATED 才推进，QUEUED 不重复写入队事件，其他已推进状态直接返回 ACK。",
+        "Agent 通过 Heartbeat 获取任务；Server 先在数据库写 DELIVERED 和事件，再返回带参数、attempt、短期上传目标的 TaskDesc。图中的 Agent 心跳安排在 Outbox 收尾后，是这一条示例时序，实际可更早到来。",
+        "派发失败预算耗尽时会重新锁 Task、重读最新 attempt，防止将网络调用期间已推进的任务错误改为失败。"
+      ],
+      "sources": [
+        {
+          "path": "api/internal/repository/postgres.go",
+          "line": 119,
+          "role": "创建任务与派发意图的原子性"
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "line": 353,
+          "role": "Outbox 领取、退避、确认与 RPC 返回后的状态重读"
+        },
+        {
+          "path": "api/internal/repository/fencing.go",
+          "line": 8,
+          "role": "仅当前 CREATED 任务与 attempt 允许 DISPATCH"
+        },
+        {
+          "path": "api/internal/service/tasks.go",
+          "line": 304,
+          "role": "4 秒 RPC 期限与短期上传授权补齐"
+        },
+        {
+          "path": "core/src/server.cpp",
+          "line": 496,
+          "role": "CreateTask 幂等接收"
+        },
+        {
+          "path": "core/src/server.cpp",
+          "line": 192,
+          "role": "Agent 心跳的执行身份与取消指令核对"
+        },
+        {
+          "path": "core/src/server.cpp",
+          "line": 1018,
+          "role": "派发前提交 DELIVERED、attempt 与任务事件"
+        }
+      ]
+    },
+    {
+      "id": "12-schedule-composite",
+      "type": "workflow",
+      "specification": "12-schedule-composite.json",
+      "artifact": "12-schedule-composite.html",
+      "facts": [
+        "计划支持标准五段 Cron 或固定 1–10080 分钟间隔，按 IANA 时区计算下次时间；二者是互斥的触发定义。",
+        "调度器在事务内以行锁和 SKIP LOCKED 领取一个 enabled 且 next_run_at 已到期的计划；schedule_records 的唯一(schedule_id,scheduled_at) 与稳定的 schedule-时点 幂等键共同防重。",
+        "每次处理当前已到期的 next_run_at，创建任务或登记固定失败后，用 time.Now() 计算下一未来时点；不逐个遍历补发所有错过的历史时点。严格说这不是过期时点一条都不执行。",
+        "计划和 DAG 子节点都复用普通 Tasks.Create：仍经过账号权限、目标权限、参数、配额和幂等校验，并建立普通采集/分析链路。",
+        "复合诊断为 1–16 个现场采集节点；拒绝环、缺失/重复依赖与嵌套复合。定义、节点与进度持久化，不依赖浏览器保持打开。",
+        "DAG 节点在所有依赖 SUCCESS 后创建普通任务；无依赖起点可以进入同一轮调度。依赖 FAILED 或 SKIPPED，当前 WAITING 节点标 SKIPPED/DEPENDENCY_FAILED。",
+        "AggregateComposite 在还有 WAITING/RUNNING 时返回 RUNNING，并非必选失败立即取消其他节点。所有节点结束后：任一必选 FAILED/SKIPPED 则 FAILED；不允许部分成功但有失败/跳过也 FAILED；零成功也 FAILED。",
+        "显式允许部分成功、无必选失败/跳过、至少一项成功，且存在可选失败/跳过，才为 PARTIAL_SUCCESS。全部节点成功才 SUCCESS。",
+        "复合总 deadline 到期会取消未结束子任务并使父 TIMED_OUT；用户取消可令父 CANCELED。父摘要不把不同采样器的权重加为同一指标。"
+      ],
+      "sources": [
+        {
+          "path": "api/internal/domain/platform.go",
+          "line": 71,
+          "role": "按 Cron/间隔与时区计算下一次时间"
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "line": 448,
+          "role": "计划行锁、时点记录、以当前时间推进下次触发"
+        },
+        {
+          "path": "db/migrations/001_initial.sql",
+          "line": 78,
+          "role": "计划记录唯一(schedule_id,scheduled_at)"
+        },
+        {
+          "path": "api/internal/service/tasks.go",
+          "line": 351,
+          "role": "计划使用稳定时点幂等键创建普通任务"
+        },
+        {
+          "path": "api/internal/domain/platform.go",
+          "line": 117,
+          "role": "DAG 输入、节点数、依赖与环校验"
+        },
+        {
+          "path": "api/internal/service/composites.go",
+          "line": 17,
+          "role": "复合定义与节点事务持久化"
+        },
+        {
+          "path": "api/internal/service/composites.go",
+          "line": 168,
+          "role": "后台依赖推进、普通子任务、跳过与独立总超时"
+        },
+        {
+          "path": "api/internal/domain/platform.go",
+          "line": 197,
+          "role": "整体 RUNNING/SUCCESS/PARTIAL_SUCCESS/FAILED 汇总算法"
+        },
+        {
+          "path": "api/internal/service/composites.go",
+          "line": 131,
+          "role": "总超时或取消时收尾未完成的子任务"
+        }
+      ]
+    }
+  ]
+}

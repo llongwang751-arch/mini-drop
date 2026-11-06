@@ -1,0 +1,1022 @@
+{
+  "schema_version": 1,
+  "purpose": "供主文档合并者只读核对采集、分析与浏览器机制，不是运行验收报告",
+  "draft_path": ".local/interview_drafts/collection-analysis-web.md",
+  "draft_link_base": "docs/PROJECT_INTERVIEW_HANDBOOK.md",
+  "verification": {
+    "method": "阅读当前契约及生产源码；校验草稿相对链接存在；合成样本手算",
+    "tests_run": [],
+    "compiles_run": [],
+    "production_actions": [],
+    "external_model_calls": [],
+    "new_benchmark_claims": false,
+    "personal_ownership_claims": false,
+    "existing_test_links_are_navigation_only": true,
+    "missing_claim_sources": [],
+    "symbols_missing_by_token_scan": []
+  },
+  "critical_boundaries": [
+    "普通采集与解析不依赖外部模型。本文不宣称模型获得 RAW，也不展开 AgentScope 职业身份叙事。",
+    "Core NotifyResult 校验登记元数据、授权、状态与当前轮次，不下载 RAW 复算真实 SHA；Analyzer 下载后计算真实 SHA。",
+    "浏览器 Profile Worker 只处理选中的 gzip 完整调用树；当前没有文件字节 SHA 复算。SHA 元数据用于身份/缓存绑定，RAW 是另一条普通授权下载。",
+    "Java asprof 当前 folded 分支的公开权重统一为 samples；不能按 alloc/lock 名称擅自补充 bytes/ns 语义。Java 现场 argv 未把表单 frequency 转为实际采样间隔。",
+    "HPROF retained 为快照强引用支配树的载荷权重，不是精确 RSS，也不承诺下一次 GC 实际释放或归还操作系统的内存。",
+    "C++ 管理外部采集工具不能自动让 perf 更快；多语言主要集成既有生态，也增加构建、部署和契约协调成本。",
+    "进程组、身份和预算是受控工具的边界，不宣称构成任意恶意程序的完整容器沙箱。"
+  ],
+  "claims": [
+    {
+      "id": "flow",
+      "sections": [
+        1,
+        2
+      ],
+      "claim": "Go 事务登记任务、attempt、事件和 Outbox；Outbox 调 Control.CreateTask，Core 对现存当前轮次派发；采集与分析有独立状态。",
+      "sources": [
+        {
+          "path": "api/internal/service/tasks.go",
+          "symbols": [
+            "Tasks.Create",
+            "Tasks.dispatch"
+          ]
+        },
+        {
+          "path": "core/src/server.cpp",
+          "symbols": [
+            "Services::CreateTask",
+            "Services::dispatch"
+          ]
+        },
+        {
+          "path": "contracts/drop.proto",
+          "symbols": [
+            "TaskDesc",
+            "ResultRequest",
+            "HeartbeatResponse"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pull-dispatch",
+      "sections": [
+        2
+      ],
+      "claim": "Agent 主动 Init/Heartbeat/Collect，任务和取消在 HeartbeatResponse 返回；主循环与采集工作线程分离。节点锁加当前任务检查保证同节点派发单并发，不能只靠进程内互斥。",
+      "sources": [
+        {
+          "path": "core/src/agent.cpp",
+          "symbols": [
+            "Agent::run"
+          ]
+        },
+        {
+          "path": "core/src/server.cpp",
+          "symbols": [
+            "Services::Do",
+            "Services::Collect",
+            "Services::dispatch",
+            "Services::sweep"
+          ]
+        },
+        {
+          "path": "contracts/drop.proto",
+          "symbols": [
+            "InitAgent",
+            "HealthCheck",
+            "Hotmethod",
+            "HeartbeatResponse"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "post-lock-latest-attempt",
+      "sections": [
+        2,
+        17
+      ],
+      "claim": "等待任务锁之后重新 SQL 查询最新 attempt，防止以锁等待前旧快照续活或发布旧执行；终态和迟到回写各自检查。",
+      "sources": [
+        {
+          "path": "core/src/server.cpp",
+          "symbols": [
+            "Services::current",
+            "Services::Do",
+            "Services::NotifyResult"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "target-identity",
+      "sections": [
+        3
+      ],
+      "claim": "PID 不是永久身份；比较 start_time_ticks、UID、NSpid/pid namespace、exe path 及已知 dev/inode；容器内 PID 解析核对 namespace/cgroup。本地 TargetPolicy 不能由客户端 expected_uid 覆盖。检查与附加之间仍有 TOCTOU 窗口。",
+      "sources": [
+        {
+          "path": "core/src/target.cpp",
+          "symbols": [
+            "process_identity",
+            "same_identity",
+            "validate_identity",
+            "resolve_target",
+            "target_policy"
+          ]
+        },
+        {
+          "path": "core/src/lifecycle.cpp",
+          "symbols": [
+            "ManagedRunner"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "argv-helper",
+      "sections": [
+        4
+      ],
+      "claim": "绝对路径、工具哈希、argv 白名单和固定脚本限制命令面；helper 经 Unix socket/SO_PEERCRED 核对对端身份，用固定协议、持久 token 和结果 ACK，不接收长期凭据、任意命令或上传链接。",
+      "sources": [
+        {
+          "path": "core/src/process.cpp",
+          "symbols": [
+            "execute"
+          ]
+        },
+        {
+          "path": "core/src/runner.cpp",
+          "symbols": [
+            "build_runner_argv",
+            "RunnerRegistry::collect"
+          ]
+        },
+        {
+          "path": "core/src/helper.cpp",
+          "symbols": [
+            "SO_PEERCRED"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "process-ownership-budget",
+      "sections": [
+        5
+      ],
+      "claim": "子进程独立进程组，父进程失效信号、rlimit、期限、取消和 group 进程/线程预算分层；超时先 TERM 再 KILL 并回收。相同 UID 不代表采集归属。总临时磁盘预算与单文件 RLIMIT_FSIZE 不同。",
+      "sources": [
+        {
+          "path": "core/src/process.cpp",
+          "symbols": [
+            "execute",
+            "process_group_over_budget"
+          ]
+        },
+        {
+          "path": "core/src/lifecycle.cpp",
+          "symbols": [
+            "ManagedRunner"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "setrlimit-caveat",
+      "sections": [
+        5
+      ],
+      "claim": "当前 C++ execute 中各 setrlimit 调用没有逐个检查返回值；草稿将其列为可核查改进点，不虚构已经复现的超限故障。",
+      "sources": [
+        {
+          "path": "core/src/process.cpp",
+          "symbols": [
+            "execute",
+            "setrlimit"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "journal-recovery",
+      "sections": [
+        6
+      ],
+      "claim": "task/result 与上传 marker/receipt 保留当前字节身份；Agent 恢复重试同结果上传，不重新采样。没有 result.pb 时先尝试同 token helper 恢复，否则 AGENT_RESTARTED；NotifyResult ACK 后才清理。",
+      "sources": [
+        {
+          "path": "core/src/agent.cpp",
+          "symbols": [
+            "Agent::recover",
+            "Agent::resume_helper",
+            "Agent::complete",
+            "Agent::upload_retry"
+          ]
+        },
+        {
+          "path": "core/src/artifact.cpp",
+          "symbols": [
+            "atomic_write",
+            "sha256_file"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "put-ack-gap",
+      "sections": [
+        6,
+        7
+      ],
+      "claim": "PUT 成功但本地标记未持久化时可能重新上传相同字节；S3 与 SQL 不构成跨存储事务，因此不能宣称全链路 exactly once。ETag 作为不透明回执，不等同本地 SHA。",
+      "sources": [
+        {
+          "path": "core/src/agent.cpp",
+          "symbols": [
+            "Agent::upload_retry",
+            "Agent::complete"
+          ]
+        },
+        {
+          "path": "core/src/artifact.cpp",
+          "symbols": [
+            "upload_file",
+            "atomic_write"
+          ]
+        },
+        {
+          "path": "core/src/server.cpp",
+          "symbols": [
+            "Services::NotifyResult"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "notification-fence",
+      "sections": [
+        7
+      ],
+      "claim": "NotifyResult 核 current attempt、agent、合法状态、协商 artifact 名/格式/类型/大小和 SHA 语法；原子登记制品、COLLECTED、待分析 Job 与事件。相同 COLLECTED 重放比对同一制品身份，取消或过期不能被迟到成功覆盖。",
+      "sources": [
+        {
+          "path": "core/src/server.cpp",
+          "symbols": [
+            "Services::NotifyResult",
+            "Services::store_artifact",
+            "Services::current"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "manifest-separation",
+      "sections": [
+        7
+      ],
+      "claim": "现场协商的采集 manifest 与 Analyzer 解析产出 manifest 是不同阶段制品；旧协议与多制品新协议能力不同，不把任意辅助文件都画成 RAW。",
+      "sources": [
+        {
+          "path": "core/src/agent.cpp",
+          "symbols": [
+            "Agent::complete",
+            "Agent::collected_result"
+          ]
+        },
+        {
+          "path": "analyzer/drop_analyzer/registry.py",
+          "symbols": [
+            "Pipeline.build_manifest"
+          ]
+        },
+        {
+          "path": "contracts/drop.proto",
+          "symbols": [
+            "UploadTarget",
+            "ArtifactInfo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runner-catalog",
+      "sections": [
+        8
+      ],
+      "claim": "契约包含16个实际现场 runner，IMPORT_COLLAPSED只导入，COMPOSITE是Go DAG编排而非通用profile解析器。节点须满足工具/权限/目标前提。",
+      "sources": [
+        {
+          "path": "contracts/task-kinds.json",
+          "symbols": []
+        },
+        {
+          "path": "core/src/runner.cpp",
+          "symbols": [
+            "RunnerRegistry::collect",
+            "build_runner_argv"
+          ]
+        },
+        {
+          "path": "api/internal/service/composites.go",
+          "symbols": []
+        },
+        {
+          "path": "analyzer/drop_analyzer/registry.py",
+          "symbols": [
+            "PIPELINES"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "actual-frequency",
+      "sections": [
+        9
+      ],
+      "claim": "py-spy传rate、perf传频率；Java asprof argv没有将表单frequency转成interval，Go pprof请求也不改变runtime profiler频率；文件事实和用户声明参数须分开。",
+      "sources": [
+        {
+          "path": "core/src/runner.cpp",
+          "symbols": [
+            "build_runner_argv",
+            "download_pprof"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "weights-and-units",
+      "sections": [
+        8,
+        9
+      ],
+      "claim": "PROC_CPU单位cpu_ticks且仅进程/线程层级；pprof列可为cpu纳秒或heap字节/对象，total_samples是兼容字段名，不一定是观测次数；CPU样本占比不是CPU利用率或端到端时延。",
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/pprof.py",
+          "symbols": [
+            "analyze_pprof"
+          ]
+        },
+        {
+          "path": "analyzer/drop_analyzer/result.py",
+          "symbols": [
+            "make_result"
+          ]
+        },
+        {
+          "path": "core/src/runner.cpp",
+          "symbols": [
+            "RunnerRegistry::collect"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "java-unit-limitation",
+      "sections": [
+        8,
+        9
+      ],
+      "claim": "JAVA_CPU当前folded通用解析标签samples，没有按alloc/lock自动验证/转换bytes或ns。导入JFR解析支持执行采样子集，不代表所有JFR事件支持。",
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/folded.py",
+          "symbols": [
+            "analyze_folded"
+          ]
+        },
+        {
+          "path": "analyzer/drop_analyzer/external.py",
+          "symbols": [
+            "analyze_jfr"
+          ]
+        },
+        {
+          "path": "analyzer/drop_analyzer/result.py",
+          "symbols": [
+            "make_result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "analyzer-raw-integrity",
+      "sections": [
+        10
+      ],
+      "claim": "process_job下载实际字节并复算RAW和所需ELF等输入SHA，严格选择kind/pipeline/format；未知二进制不回退文本。对象大小、总输入、解析、临时磁盘、CPU、墙钟、进程组均有各自预算。隔离子进程不带DB/S3长期凭据。",
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/worker.py",
+          "symbols": [
+            "process_job"
+          ]
+        },
+        {
+          "path": "analyzer/drop_analyzer/storage.py",
+          "symbols": [
+            "ObjectStore.download"
+          ]
+        },
+        {
+          "path": "analyzer/drop_analyzer/registry.py",
+          "symbols": [
+            "Pipeline.validate",
+            "Pipeline.prepare",
+            "Pipeline.analyze",
+            "get_pipeline"
+          ]
+        },
+        {
+          "path": "analyzer/drop_analyzer/isolate.py",
+          "symbols": [
+            "analyze_isolated",
+            "process_group_usage"
+          ]
+        },
+        {
+          "path": "analyzer/drop_analyzer/child.py",
+          "symbols": [
+            "main"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "analysis-lease",
+      "sections": [
+        11
+      ],
+      "claim": "Repository.claim用FOR UPDATE SKIP LOCKED和当前collection attempt筛选，run/owner/lease识别每次接管；renew/complete同时验证当前轮次、运行号、owner和未过期租约。旧Worker失去资格即使算完也不能发布；唯一run输出路径避免覆盖新结果。",
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/repository.py",
+          "symbols": [
+            "Repository.claim",
+            "Repository.renew",
+            "Repository.complete",
+            "Repository._lock_owned"
+          ]
+        },
+        {
+          "path": "analyzer/drop_analyzer/worker.py",
+          "symbols": [
+            "LeaseGuard",
+            "process_job"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "folded-recursion",
+      "sections": [
+        12
+      ],
+      "claim": "树中重复递归帧保留各层位置，node.value累计经过该位置权重，self只给叶；函数Top inclusive按每条输入路径set(frames)去重，避免递归名重复累加。总value守恒不代表每个同名Top inclusive可相加。",
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/folded.py",
+          "symbols": [
+            "analyze_folded"
+          ]
+        },
+        {
+          "path": "analyzer/drop_analyzer/stacks.py",
+          "symbols": [
+            "stack_result"
+          ]
+        },
+        {
+          "path": "web/src/components/flame-analysis.ts",
+          "symbols": [
+            "validateFlameTree"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "folded-limits",
+      "sections": [
+        10,
+        12
+      ],
+      "claim": "默认folded输入32MiB、深度128、节点100000、路径500000、帧4096字节、行64KiB、安全整数总权重；严格UTF8/正十进制整数权重，负数、零和无效帧拒绝。",
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/folded.py",
+          "symbols": [
+            "Limits",
+            "analyze_folded"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hprof-algorithm",
+      "sections": [
+        13
+      ],
+      "claim": "HPROF以SQLite索引对象与引用，虚拟根连接实际roots，迭代DFS生成逆后序；Cooper/Harvey/Kennedy idom通过前驱链交汇迭代，retained沿idom逆序累加。不是保存每节点全支配集合，也不是声称使用Lengauer-Tarjan。",
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/hprof.py",
+          "symbols": [
+            "analyze_hprof"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hprof-limits-meaning",
+      "sections": [
+        13
+      ],
+      "claim": "当前默认HPROF输入32MiB、对象100000、边1000000、支配迭代256、工作步20000000；SQLite落盘不消除后续图内存成本。权重为序列化字段/数组载荷，不含完整VM头、对齐和压缩引用开销。Reference.referent不作为强边。",
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/hprof.py",
+          "symbols": [
+            "analyze_hprof"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hprof-not-leak-proof",
+      "sections": [
+        13
+      ],
+      "claim": "可达不等于支配，retained项不能直接相加；同类嵌套去重不代表跨类可相加。保留候选/leak_paths名称不是泄漏证明，需多时间点及业务生命周期证据。",
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/hprof.py",
+          "symbols": [
+            "analyze_hprof"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "memray-native-heap",
+      "sections": [
+        8,
+        14
+      ],
+      "claim": "memray主树高水位bytes、结束未释放候选不等于泄漏，聚合格式缺失逐事件总量保持null；gperftools/jemalloc/Go heap缺完整对象引用图，jemalloc采样校正为估计。",
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/external.py",
+          "symbols": [
+            "analyze_memray"
+          ]
+        },
+        {
+          "path": "analyzer/drop_analyzer/native.py",
+          "symbols": [
+            "native_heap"
+          ]
+        },
+        {
+          "path": "analyzer/drop_analyzer/pprof.py",
+          "symbols": [
+            "analyze_pprof"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "io-memory-resource-scope",
+      "sections": [
+        8,
+        14
+      ],
+      "claim": "I/O字节/时长/分位数来自实际事件集合，重叠深度是观测区间估计而非硬件队列；pagefault-only可有事件而无分配树；网络是目标net namespace接口总计，进程context switch为主线程口径。",
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/events.py",
+          "symbols": [
+            "analyze_io",
+            "analyze_memory",
+            "analyze_resources"
+          ]
+        },
+        {
+          "path": "core/src/runner.cpp",
+          "symbols": [
+            "trace_program",
+            "resource_sample"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sse-is-not-facts-store",
+      "sections": [
+        15
+      ],
+      "claim": "SSE事件使详情缓存失效，REST重新读取任务事实；非终态保留基础轮询。fetch携带显式Last-Event-ID；服务端持续验会话/任务权限并从数据库游标后重放。退出详情只关闭订阅，不取消后台任务。",
+      "sources": [
+        {
+          "path": "web/src/event-stream.ts",
+          "symbols": [
+            "subscribeTaskEvents"
+          ]
+        },
+        {
+          "path": "web/src/views/TaskDetail.tsx",
+          "symbols": [
+            "TaskDetail"
+          ]
+        },
+        {
+          "path": "api/internal/httpapi/resources.go",
+          "symbols": [
+            "Server.stream"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sse-framing-cursor",
+      "sections": [
+        15
+      ],
+      "claim": "流式UTF8/CRLF跨块解码，以空行提交完整帧及ID，连接尾部半帧不提交；int64十进制字符串加BigInt避免JS精度损失。单帧65536字节预算包含注释、字段和分隔符；连接身份及退避约束迟到回调和故障重连。",
+      "sources": [
+        {
+          "path": "web/src/event-stream.ts",
+          "symbols": [
+            "EventStreamDecoder",
+            "subscribeTaskEvents"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "browser-no-byte-sha",
+      "sections": [
+        16
+      ],
+      "claim": "Profile Worker仅gzip完整树，SHA元数据绑定cache身份而未调用字节SHA复算；RAW下载独立授权后跳转。不能说浏览器校验RAW真实SHA。",
+      "sources": [
+        {
+          "path": "web/src/profile-loader.ts",
+          "symbols": [
+            "parseInProfileWorker",
+            "loadFlameArtifact"
+          ]
+        },
+        {
+          "path": "web/src/profile.worker.ts",
+          "symbols": []
+        },
+        {
+          "path": "web/src/views/TaskDetail.tsx",
+          "symbols": [
+            "TaskDetail"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "browser-download-limits",
+      "sections": [
+        16
+      ],
+      "claim": "完整树选最新已采集attempt的分析成功ready可下载RESULT；同源/objects URL，授权携会话而对象GET省略cookie拒重定向；当前16MiB压缩、32MiB展开、约30s总期限，实际流块累计。",
+      "sources": [
+        {
+          "path": "web/src/profile-data.ts",
+          "symbols": [
+            "decodeFlameGzip",
+            "selectFlameArtifact"
+          ]
+        },
+        {
+          "path": "web/src/profile.worker.ts",
+          "symbols": []
+        },
+        {
+          "path": "web/src/profile-loader.ts",
+          "symbols": [
+            "loadFlameArtifact"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "browser-tree-validation",
+      "sections": [
+        16
+      ],
+      "claim": "完整树节点100000、深度128、安全整数非负权重、每节点value=self+children，显式栈和对象已见集合避免环/别名。选中数据身份变化时销毁旧专用Worker，布局也terminate旧Worker，不虚构layout request_id机制。",
+      "sources": [
+        {
+          "path": "web/src/components/flame-analysis.ts",
+          "symbols": [
+            "validateFlameTree"
+          ]
+        },
+        {
+          "path": "web/src/profile-loader.ts",
+          "symbols": [
+            "parseInProfileWorker"
+          ]
+        },
+        {
+          "path": "web/src/components/Flamegraph.tsx",
+          "symbols": [
+            "Flamegraph"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "browser-layout",
+      "sections": [
+        16
+      ],
+      "claim": "Layout Worker用d3 hierarchy.sum(self)+partition算坐标与深度索引，主线程按可见深度窗口画SVG；细矩形可不画但仍保留布局数据供搜索。横向是权重而不是时间轴。",
+      "sources": [
+        {
+          "path": "web/src/components/flame.worker.ts",
+          "symbols": [
+            "buildFlameLayout"
+          ]
+        },
+        {
+          "path": "web/src/components/Flamegraph.tsx",
+          "symbols": [
+            "Flamegraph"
+          ]
+        }
+      ]
+    }
+  ],
+  "synthetic_examples": [
+    {
+      "section": 6,
+      "example": "PUT成功后崩溃、标记/ACK间隙",
+      "kind": "假想故障时间线，不是已运行故障注入"
+    },
+    {
+      "section": 9,
+      "example": "10秒内两线程各200tick、假设100Hz=>4秒CPU=>单核40%",
+      "kind": "手算示例，100Hz不是生产写死常量"
+    },
+    {
+      "section": 11,
+      "example": "Analyzer租约过期接管，旧run算完仍不可发布",
+      "kind": "合成并发时间线"
+    },
+    {
+      "section": 12,
+      "example": "api;walk;walk;hash 4 / api;walk;parse 6 / api;lookup 10",
+      "kind": "合成folded输入与解释伪代码",
+      "expected": "total20,Top(walk).inclusive10；再加api;walk;walk 2后total22、inclusive12、self2"
+    },
+    {
+      "section": 13,
+      "example": "R->A,B;A->C;B->C;C->D;weights10,20,30,40",
+      "kind": "合成对象图",
+      "expected": "retained A10 B20 C70 D40；删B->C后A80"
+    },
+    {
+      "section": 14,
+      "example": "I/O区间[0,4]与[2,6]毫秒",
+      "kind": "合成区间手算",
+      "expected": "最大重叠2，区间平均深度4/3"
+    },
+    {
+      "section": 15,
+      "example": "id123帧的JSON跨三次read，最后空行才提交",
+      "kind": "合成传输片段，不是真实抓包"
+    },
+    {
+      "section": 17,
+      "example": "两个屏障控制取消/重试与旧提交竞态",
+      "kind": "建议的回归设计，本任务未运行"
+    }
+  ],
+  "reviewer_notes": [
+    "合并时可按主文档层级调整标题编号，保留源码链接的docs相对基准。",
+    "主体约1.3万汉字，重点是机制；父文档负责个人职责、STAR、面试轮次与手写题，避免重复职业身份叙述。",
+    "脚本与测试链接只是源代码定位，不将已有测试存在等同本次执行通过。",
+    "事实快照对应当前工作区，其他协作者可能继续修改主文档；本文不改应用代码或部署状态。"
+  ],
+  "draft_snapshot": {
+    "sha256": "c9f7412a030647c2fba5a045080111d4c80f5c84886b68e5e67eb92b253a6350",
+    "bytes": 56034,
+    "han_excluding_fenced_code": 13021,
+    "sections": 17,
+    "relative_links": 64,
+    "missing_relative_links": []
+  },
+  "source_snapshots": [
+    {
+      "path": "analyzer/drop_analyzer/child.py",
+      "bytes": 4463,
+      "sha256": "912a6e43f7923897bc4989203105f53cb0fa32f16167ff760df8a71427cd1440"
+    },
+    {
+      "path": "analyzer/drop_analyzer/events.py",
+      "bytes": 21263,
+      "sha256": "560da3699111559b286032c09e7d037b695866fe9535a1801624c20ebdf373d7"
+    },
+    {
+      "path": "analyzer/drop_analyzer/external.py",
+      "bytes": 13191,
+      "sha256": "e4db405b42e0e9c4b9dadaa7c6f6effd21c16a365a0f104cc8b90f1b97610131"
+    },
+    {
+      "path": "analyzer/drop_analyzer/folded.py",
+      "bytes": 5716,
+      "sha256": "5047dce5503121cd749a1645796498512e7ccec31d176d81db759604c3ab773c"
+    },
+    {
+      "path": "analyzer/drop_analyzer/hprof.py",
+      "bytes": 25310,
+      "sha256": "8e3a40bec324769d936c0ab6a7d6992b00eb23f8ad12aa2254ffa6ac4105612b"
+    },
+    {
+      "path": "analyzer/drop_analyzer/isolate.py",
+      "bytes": 6605,
+      "sha256": "8e1be0abb4de8caeb22a68dc05944314a10bc1260a75cfd8e72af1cdc0bd1ef6"
+    },
+    {
+      "path": "analyzer/drop_analyzer/native.py",
+      "bytes": 11797,
+      "sha256": "227d503f941481acd05e642788c5e960a9b2a1f2e148fc5d907fa069fa935337"
+    },
+    {
+      "path": "analyzer/drop_analyzer/pprof.py",
+      "bytes": 10200,
+      "sha256": "67ab333650ced2358e18ff4eef6f47169be3f4c2ff8317b6bae977e5616c8d6f"
+    },
+    {
+      "path": "analyzer/drop_analyzer/registry.py",
+      "bytes": 9673,
+      "sha256": "b9ff5ab13f723208df759f41ab965f289e61171633635dff1cdedf49b8ba7fa9"
+    },
+    {
+      "path": "analyzer/drop_analyzer/repository.py",
+      "bytes": 23415,
+      "sha256": "3f48724a4d5e3232bfba95cdf03d0e3ff35e786ad2ffc027c4af7c9aaff942f5"
+    },
+    {
+      "path": "analyzer/drop_analyzer/result.py",
+      "bytes": 5308,
+      "sha256": "b1ac819e110859644dad2219caf0cd8836a9920eb18bc98de5d7517a2cf6d37b"
+    },
+    {
+      "path": "analyzer/drop_analyzer/stacks.py",
+      "bytes": 1675,
+      "sha256": "09dbaf0c67978489b1dbecf4bc44e8c420cbc1faedcacccc31536f5be3533de4"
+    },
+    {
+      "path": "analyzer/drop_analyzer/storage.py",
+      "bytes": 4432,
+      "sha256": "c6aac09248df4d1cd6191c50c86ed3fd03c3397638772d90bb6a397fecff45ac"
+    },
+    {
+      "path": "analyzer/drop_analyzer/worker.py",
+      "bytes": 22700,
+      "sha256": "e36cff0ffaea5cd851c8ac643b1b73fa3e32e33186b304acf520eb37384d9164"
+    },
+    {
+      "path": "api/internal/httpapi/resources.go",
+      "bytes": 10861,
+      "sha256": "e211cf3409a64dedc8a5bbe073ee2bfea435586503ca4050779da9d8ffc1db91"
+    },
+    {
+      "path": "api/internal/service/composites.go",
+      "bytes": 9676,
+      "sha256": "813504a387b9bd1f7f77e94882967bb9ceae9c3783fde71af921e70d34b02ff2"
+    },
+    {
+      "path": "api/internal/service/tasks.go",
+      "bytes": 14513,
+      "sha256": "f4f6a6af717f1862200bbea917ae2c367c62fa40942ff82aac77e38cecc0562c"
+    },
+    {
+      "path": "contracts/drop.proto",
+      "bytes": 6711,
+      "sha256": "ecfae71e2ea6509187562b45562660e71a825e0c342206f047fea0c98f8a5830"
+    },
+    {
+      "path": "contracts/task-kinds.json",
+      "bytes": 88501,
+      "sha256": "92b0b23111bc57da00b01feeebc5f654b1bd8bdcc42b69d63bbf60075001c5ac"
+    },
+    {
+      "path": "core/src/agent.cpp",
+      "bytes": 71957,
+      "sha256": "36c46c3aee57018875e18fa96a56131189789c8bbfb4741fe4f086b4aa044fda"
+    },
+    {
+      "path": "core/src/artifact.cpp",
+      "bytes": 9287,
+      "sha256": "c8809874f5d75ced127dab0abf066980ccbac34ea109ac6bc3cd1ae7902f67c5"
+    },
+    {
+      "path": "core/src/helper.cpp",
+      "bytes": 57841,
+      "sha256": "243061f5938290c610e4397c308ef766baec992a1affe0191fd248193cc96a52"
+    },
+    {
+      "path": "core/src/lifecycle.cpp",
+      "bytes": 4555,
+      "sha256": "6d4ee15022cda073cbe662e77c9739ccb4c8bf6fa4ec6313bb51f0064e5ce897"
+    },
+    {
+      "path": "core/src/process.cpp",
+      "bytes": 15041,
+      "sha256": "27cd338dbf82e48d7d5a2e35b55c96d1b6c61101153839e5b87038c40daed995"
+    },
+    {
+      "path": "core/src/runner.cpp",
+      "bytes": 80688,
+      "sha256": "a91d20e43f596de615c86485f613e961d6e4ff7bf372327989e7edc00ba2498e"
+    },
+    {
+      "path": "core/src/server.cpp",
+      "bytes": 54133,
+      "sha256": "84eaf594db6c2e2ce4ef9d65bfcb7d0567ec653666bdab24e70ec7337b5ce533"
+    },
+    {
+      "path": "core/src/target.cpp",
+      "bytes": 11710,
+      "sha256": "afcbaece5ae975e865b9bd230165ad7e48c66b8699218ce6e32faa416aee72b7"
+    },
+    {
+      "path": "web/src/components/Flamegraph.tsx",
+      "bytes": 23763,
+      "sha256": "c73e0befd29677cb4d4d632b5ade744c4820eba94d9843c15bd507977da617a6"
+    },
+    {
+      "path": "web/src/components/flame-analysis.ts",
+      "bytes": 5995,
+      "sha256": "b70170e81cd2a09fce84c54d2d1deccd5422039db34d3027705b289527e54061"
+    },
+    {
+      "path": "web/src/components/flame.worker.ts",
+      "bytes": 3859,
+      "sha256": "148b84de3bdb1a8b19b95aac7cca101fe4bcc7c79dab6da0291ef0f8917be0f8"
+    },
+    {
+      "path": "web/src/event-stream.ts",
+      "bytes": 9479,
+      "sha256": "4d5f55991cca344fcc4ee770aaf1883c0df5c715a5ad185d1cb46b5d81df6c57"
+    },
+    {
+      "path": "web/src/profile-data.ts",
+      "bytes": 7819,
+      "sha256": "15e5132121696612108ddbc4b97b03b79d6bbb6c42f7fd75304d0dde99d6c894"
+    },
+    {
+      "path": "web/src/profile-loader.ts",
+      "bytes": 5699,
+      "sha256": "7743d119abd7cf6c933df06aabdc18233685f7a7acf8353cc2519a5a48d21900"
+    },
+    {
+      "path": "web/src/profile.worker.ts",
+      "bytes": 5498,
+      "sha256": "f6958d222a2f5937c9a49cf30ff636088d48b331da9c690e68aa00ed5dafbc1a"
+    },
+    {
+      "path": "web/src/views/TaskDetail.tsx",
+      "bytes": 35719,
+      "sha256": "b5610758901778105a4dc289dc7c3adae6520eaa625c76bfe2fd0f16685179d7"
+    }
+  ],
+  "runner_catalog_crosscheck": {
+    "path": "docs/diagrams/drop-system/collectors.json",
+    "sha256": "fbfc0ec20462a9a56db43ba94beddeca7955db076c611f20af75279c58f45fec",
+    "runner_ids": [
+      "PERF_CPU",
+      "PROC_CPU",
+      "JAVA_CPU",
+      "GO_CPU",
+      "GO_HEAP",
+      "PYTHON_CPU",
+      "PYTHON_MEMORY",
+      "JAVA_HEAP",
+      "IO_TRACE",
+      "MEMORY_TRACE",
+      "GPERF_CPU",
+      "GPERF_HEAP",
+      "JEPROF_HEAP",
+      "BOLT_PROFILE",
+      "SCRIPT",
+      "RESOURCE_SNAPSHOT"
+    ],
+    "special_case_ids": [
+      "IMPORT_COLLAPSED",
+      "COMPOSITE"
+    ],
+    "runner_count": 16
+  }
+}

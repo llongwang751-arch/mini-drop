@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "validate",
+  "stage": "render",
+  "type": "workflow",
+  "input": "E:\\tx-drop\\docs\\diagrams\\drop-system\\07-analysis-lifecycle.json",
+  "error": "Workflow edge \"publish-success\" has no feasible readable-v2 automatic route.",
+  "diagnostics": [
+    {
+      "code": "workflow/solver-budget-exhausted",
+      "severity": "error",
+      "message": "Workflow edge \"publish-success\" has no feasible readable-v2 automatic route.",
+      "subject": {
+        "diagramType": "workflow",
+        "edge": "publish-success",
+        "from": "running",
+        "to": "success"
+      },
+      "evidence": {
+        "attemptedCandidateFamilies": [
+          "facing-straight",
+          "horizontal-then-vertical",
+          "vertical-then-horizontal",
+          "lane-gap-corridor",
+          "column-gap-corridor",
+          "outside-left",
+          "outside-right",
+          "top-corridor",
+          "bottom-corridor"
+        ],
+        "candidateCount": 9
+      },
+      "supportedFixes": []
+    }
+  ]
+}

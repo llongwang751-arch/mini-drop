@@ -1,0 +1,141 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "分析状态：Task 摘要与 Job 作业分开记账",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "main",
+      "label": "采集 COLLECTED 之后：大写为 tasks.analysis_status"
+    },
+    {
+      "id": "branches",
+      "label": "下方说明 analysis_jobs.status；可重试、失败与取消",
+      "variant": "exception"
+    }
+  ],
+  "mainPath": [
+    "pending",
+    "running",
+    "success"
+  ],
+  "nodes": [
+    {
+      "id": "pending",
+      "lane": "main",
+      "col": 0,
+      "type": "messagebus",
+      "label": "PENDING",
+      "sublabel": "Job: pending",
+      "width": 132
+    },
+    {
+      "id": "running",
+      "lane": "main",
+      "col": 2,
+      "type": "backend",
+      "label": "RUNNING",
+      "sublabel": "Job: running",
+      "width": 132
+    },
+    {
+      "id": "success",
+      "lane": "main",
+      "col": 5,
+      "type": "database",
+      "label": "SUCCESS",
+      "sublabel": "Job: success",
+      "width": 132
+    },
+    {
+      "id": "retry",
+      "lane": "branches",
+      "col": 2,
+      "type": "messagebus",
+      "label": "RETRY",
+      "sublabel": "Job: retry",
+      "width": 132
+    },
+    {
+      "id": "failed",
+      "lane": "branches",
+      "col": 5,
+      "type": "security",
+      "label": "FAILED",
+      "sublabel": "Job: failed",
+      "width": 132
+    },
+    {
+      "id": "canceled",
+      "lane": "branches",
+      "col": 0,
+      "type": "security",
+      "label": "CANCELED",
+      "sublabel": "Job: failed",
+      "width": 132
+    }
+  ],
+  "edges": [
+    {
+      "id": "claim-pending",
+      "from": "pending",
+      "to": "running",
+      "label": "claim：分析轮次 +1",
+      "role": "main"
+    },
+    {
+      "id": "publish-success",
+      "from": "running",
+      "to": "success",
+      "label": "原子提交完整结果",
+      "role": "main"
+    },
+    {
+      "id": "transient-error",
+      "from": "running",
+      "to": "retry",
+      "label": "可重试错误；退避",
+      "role": "error"
+    },
+    {
+      "id": "claim-retry",
+      "from": "retry",
+      "to": "running",
+      "label": "到时重新 claim",
+      "role": "return"
+    },
+    {
+      "id": "fatal-or-exhausted",
+      "from": "running",
+      "to": "failed",
+      "label": "不可重试或预算耗尽",
+      "role": "error"
+    },
+    {
+      "id": "cancel-analysis",
+      "from": "pending",
+      "to": "canceled",
+      "label": "取消未完成任务",
+      "role": "error"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "两个独立字段与一个入口条件",
+      "items": [
+        "Task 自创建即 PENDING；采集完成后才生成 Job。取消已有 Job 记为 failed / TASK_CANCELED。"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "到期接管与迟到拒写",
+      "items": [
+        "到期有预算可接管 running；发布核对 owner、分析轮次、实时期限与当前采集 attempt，旧 owner 拒写。"
+      ]
+    }
+  ]
+}

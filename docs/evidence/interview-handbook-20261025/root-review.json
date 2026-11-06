@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-10-25",
+  "status": "minor_wording_fixes_recommended",
+  "scope": "Read-only review of opening/closing against repository sources and already inspected raw receipts; no tests,models,collectors or production actions.",
+  "reviewed_files": [
+    {
+      "path": ".local\\interview_drafts\\opening.md",
+      "sha256": "087f221045537d44f65dae0d30449a0b616c66914749591fd9b55ddbaf907088",
+      "bytes": 33643
+    },
+    {
+      "path": ".local\\interview_drafts\\closing.md",
+      "sha256": "f5ff49b4dc46b68577accb418aa5b8a800518df6982131bfe7f163b4c61e7531",
+      "bytes": 38876
+    }
+  ],
+  "findings": [
+    {
+      "priority": "P2",
+      "file": "opening.md",
+      "line": 5,
+      "sentence": "文中的第一人称回答按“个人项目开发与测试负责人”的口径组织",
+      "reason": "源码和收据能证明项目行为、测试历史，不能证明用户具有“负责人”头衔或独立承担表内全部开发。后文虽有认领提醒，开头仍先给了未经验证的角色。",
+      "suggested_change": "改成“文中的第一人称回答是开发与测试经历的口述模板；职责及实际贡献按本人可解释、可核对的工作填写”，删去默认负责人头衔。"
+    },
+    {
+      "priority": "P3",
+      "file": "closing.md",
+      "lines": [
+        478,
+        497
+      ],
+      "sentence": "Agent只在必要时追问，不作为主线。 / Agent最多占一个补充问题。",
+      "reason": "项目另有C++采集Agent，它本来就是开发主链的重要模块。单写Agent会让后续模拟面试错误降低采集器、journal、目标身份的比重。",
+      "suggested_change": "两处均改成“AI诊断Agent”，保留C++采集Agent在系统开发主线中的正常比重。"
+    },
+    {
+      "priority": "P3",
+      "file": "opening.md",
+      "line": 303,
+      "sentence": "采集20秒，任务27秒完成，并不自动说明“平台额外慢了7秒”",
+      "reason": "27-20确实等于7秒非采集窗口时间，当前措辞容易像否认算术；真正不能推出的是7秒都属于平台计算、异常退化或可优化损耗。",
+      "suggested_change": "改成“可以算出约7秒非采集窗口耗时，但不能把它全算成平台计算开销或异常退化；须再拆排队、准备、上传与解析”。"
+    },
+    {
+      "priority": "P3",
+      "file": "closing.md",
+      "line": 398,
+      "sentence": "baseline_cpu/candidate_cpu中位数1.125；不能写每轮至少快12.5%",
+      "reason": "中位数计算正确、每轮表述也已明确否定。为防面试把speedup和时间下降混淆，值得增加一句：1.125倍对应相同工作量耗时下降约11.11%，并非12.5%。",
+      "suggested_change": "可追加“若解释成同一工作量的耗时下降，需算1-1/1.125≈11.11%；若套用实际至少5/6组>1.05的门槛，这组只有4/6超过，不能通过”。这是可选教学补充，不是当前数学错误。"
+    }
+  ],
+  "confirmed": [
+    "README明确腾讯Mini课程题目、导师指南参考、个人复刻扩展及非内部源码；opening来源叙述与其一致，没有擅自推导任职/客户/团队规模。",
+    "额度3→10、24并发仅10接纳、8选定PG测试0skip、API-only发布且零生产调查，均与investigation_quota_test.go和20261024 validation.json相符；合成状态不是实采，正文已有区分。",
+    "99×20=1980的名义估计、nearest-rank ceil(.95×20)=19、CPU(2.2-2)/2=10%、堆图72/40与B retained16、六比值中位1.125均算术正确；例子明确标合成。",
+    "开发45分钟表合计45，测试60分钟表合计60，评分合计100；五分钟介绍列项合计4分40秒，可把余20秒作为过渡，无硬冲突。",
+    "AI专门段落少，legacy/agentscope可选、RAW不进普通模型、独立六轮2/6与精确语义未知均正确；没有把7/7结构标签当准确率。",
+    "opening明确Profile Worker不复算此类制品SHA；任务/attempt与分析job/run、PG与对象存储非统一事务、RETRY状态及ready检查边界与实现一致。",
+    "类型list/tuple历史、CI DNS default/native/default仅证明策略差异、插桩不能充最终普通验收，均与历史说明和已核原始收据一致。"
+  ],
+  "known_root_fixes_not_repeated": [
+    "access.go应authorization.go",
+    "analyzer/pyproject.toml不存在"
+  ],
+  "modified_files": [
+    ".local/interview_drafts/root-review.json"
+  ]
+}

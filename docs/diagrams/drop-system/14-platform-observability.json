@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "平台自监控：可选监控层怎样观察 Drop",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1320,
+      680
+    ]
+  },
+  "components": [
+    {
+      "id": "drop-processes",
+      "type": "backend",
+      "label": "Drop 工作进程",
+      "sublabel": "API / Server / Agent / Analyzer",
+      "pos": [
+        60,
+        250
+      ],
+      "size": [
+        260,
+        88
+      ]
+    },
+    {
+      "id": "otel",
+      "type": "messagebus",
+      "label": "OTel Collector",
+      "sublabel": "OTLP HTTP :4318",
+      "pos": [
+        410,
+        110
+      ],
+      "size": [
+        190,
+        70
+      ]
+    },
+    {
+      "id": "tempo",
+      "type": "database",
+      "label": "Tempo",
+      "sublabel": "保存平台 traces",
+      "pos": [
+        740,
+        110
+      ],
+      "size": [
+        170,
+        70
+      ]
+    },
+    {
+      "id": "grafana",
+      "type": "frontend",
+      "label": "Grafana",
+      "sublabel": "查询指标与链路",
+      "pos": [
+        1040,
+        250
+      ],
+      "size": [
+        190,
+        70
+      ]
+    },
+    {
+      "id": "prometheus",
+      "type": "database",
+      "label": "Prometheus",
+      "sublabel": "15 秒抓取 /metrics",
+      "pos": [
+        410,
+        390
+      ],
+      "size": [
+        190,
+        70
+      ]
+    },
+    {
+      "id": "alertmanager",
+      "type": "messagebus",
+      "label": "Alertmanager",
+      "sublabel": "告警分组与去重",
+      "pos": [
+        740,
+        500
+      ],
+      "size": [
+        170,
+        70
+      ]
+    },
+    {
+      "id": "maintenance",
+      "type": "backend",
+      "label": "Maintenance",
+      "sublabel": "告警审计与维护指标",
+      "pos": [
+        1040,
+        500
+      ],
+      "size": [
+        190,
+        70
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "被监控的平台进程",
+      "wraps": [
+        "drop-processes"
+      ],
+      "pad": 24
+    },
+    {
+      "kind": "region",
+      "label": "可选 compose.observability.yml 监控层",
+      "wraps": [
+        "otel",
+        "tempo",
+        "grafana",
+        "prometheus",
+        "alertmanager",
+        "maintenance"
+      ],
+      "pad": 24
+    }
+  ],
+  "connections": [
+    {
+      "id": "export-traces",
+      "from": "drop-processes",
+      "to": "otel",
+      "label": "OTLP HTTP /v1/traces",
+      "variant": "dashed"
+    },
+    {
+      "id": "store-traces",
+      "from": "otel",
+      "to": "tempo",
+      "label": "批量 OTLP HTTP"
+    },
+    {
+      "id": "query-traces",
+      "from": "grafana",
+      "to": "tempo",
+      "label": "查询 traces：HTTP"
+    },
+    {
+      "id": "scrape-platform",
+      "from": "prometheus",
+      "to": "drop-processes",
+      "label": "GET /metrics：15s"
+    },
+    {
+      "id": "query-metrics",
+      "from": "grafana",
+      "to": "prometheus",
+      "label": "PromQL：HTTP"
+    },
+    {
+      "id": "evaluate-alerts",
+      "from": "prometheus",
+      "to": "alertmanager",
+      "label": "规则评估后发送 alerts"
+    },
+    {
+      "id": "audit-alerts",
+      "from": "alertmanager",
+      "to": "maintenance",
+      "label": "带授权 POST /alerts",
+      "variant": "security",
+      "labelDy": 25
+    },
+    {
+      "id": "scrape-maintenance",
+      "from": "prometheus",
+      "to": "maintenance",
+      "label": "GET /metrics：15s",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "健康检查、节点心跳、采集成功分别看",
+      "items": [
+        "API ready 检查 DB / S3 / Core Ping；节点心跳只证明 Agent 近期在线。",
+        "一次采集真正成功，还要核对 RAW 制品与分析结果。"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "平台监控与业务诊断的证据分开",
+      "items": [
+        "这层观察队列、错误、耗时与租约；CPU profile、堆和 I/O 是另一条业务采集链。",
+        "trace_id 帮助串联调用，不能单独证明业务根因；未启用叠加层不等于已经上报。"
+      ]
+    }
+  ]
+}

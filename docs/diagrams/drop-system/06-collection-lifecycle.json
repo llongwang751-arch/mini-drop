@@ -1,0 +1,161 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "采集状态：一次 attempt 怎样走到原始文件",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "collection",
+      "label": "正常采集：tasks.collection_status"
+    },
+    {
+      "id": "exits",
+      "label": "未完成采集的退出分支",
+      "variant": "exception"
+    }
+  ],
+  "mainPath": [
+    "created",
+    "queued",
+    "delivered",
+    "running",
+    "uploading",
+    "collected"
+  ],
+  "nodes": [
+    {
+      "id": "created",
+      "lane": "collection",
+      "col": 0,
+      "type": "database",
+      "label": "CREATED",
+      "sublabel": "任务与派发意图已保存"
+    },
+    {
+      "id": "queued",
+      "lane": "collection",
+      "col": 1,
+      "type": "messagebus",
+      "label": "QUEUED",
+      "sublabel": "等待节点心跳领取"
+    },
+    {
+      "id": "delivered",
+      "lane": "collection",
+      "col": 2,
+      "type": "backend",
+      "label": "DELIVERED",
+      "sublabel": "已下发到 Agent"
+    },
+    {
+      "id": "running",
+      "lane": "collection",
+      "col": 3,
+      "type": "backend",
+      "label": "RUNNING",
+      "sublabel": "执行所选采集器"
+    },
+    {
+      "id": "uploading",
+      "lane": "collection",
+      "col": 4,
+      "type": "cloud",
+      "label": "UPLOADING",
+      "sublabel": "短期 PUT 上传原始文件"
+    },
+    {
+      "id": "collected",
+      "lane": "collection",
+      "col": 5,
+      "type": "database",
+      "label": "COLLECTED",
+      "sublabel": "文件就绪，等待分析"
+    },
+    {
+      "id": "canceled",
+      "lane": "exits",
+      "col": 2,
+      "type": "security",
+      "label": "CANCELED",
+      "sublabel": "取消；旧回调不得覆盖"
+    },
+    {
+      "id": "failed",
+      "lane": "exits",
+      "col": 3,
+      "type": "security",
+      "label": "FAILED",
+      "sublabel": "失败或超时，本轮结束"
+    }
+  ],
+  "edges": [
+    {
+      "id": "queue-task",
+      "from": "created",
+      "to": "queued",
+      "label": "接收并入队",
+      "role": "main"
+    },
+    {
+      "id": "heartbeat-deliver",
+      "from": "queued",
+      "to": "delivered",
+      "label": "心跳领取",
+      "role": "main"
+    },
+    {
+      "id": "start-collector",
+      "from": "delivered",
+      "to": "running",
+      "label": "开始采集",
+      "role": "main"
+    },
+    {
+      "id": "start-upload",
+      "from": "running",
+      "to": "uploading",
+      "label": "开始上传",
+      "role": "main"
+    },
+    {
+      "id": "notify-complete",
+      "from": "uploading",
+      "to": "collected",
+      "label": "结果确认",
+      "role": "main"
+    },
+    {
+      "id": "cancel-example",
+      "from": "delivered",
+      "to": "canceled",
+      "label": "取消当前轮次",
+      "role": "error"
+    },
+    {
+      "id": "fail-example",
+      "from": "running",
+      "to": "failed",
+      "label": "采集失败或超时",
+      "role": "error"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "采集完成以后，分析才入队",
+      "items": [
+        "COLLECTED 只保证采集文件就绪；导入文件可直接从登记文件进入该状态。"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "重试新建 attempt，保留旧历史",
+      "items": [
+        "图示退出箭头为典型位置；未完成采集均可失败或取消。重试新增轮次，旧文件和事件保留。"
+      ]
+    }
+  ]
+}

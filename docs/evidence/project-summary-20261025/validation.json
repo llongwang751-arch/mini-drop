@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-25T16:22:29.851626+08:00",
+  "status": "passed-document-checks",
+  "output": "docs/PROJECT_SUMMARY.md",
+  "artifact": {
+    "sha256": "1ca0db72d0f798780cca75c82f6f34dcbdf30356752f3e5a836f0b12b2c70504",
+    "bytes": 147238
+  },
+  "base_revision": "abae056e989a91afb6270e2a8b72c4249f0e842a",
+  "scope": "Detailed project-only Markdown: usage, development/testing responsibilities, architecture, communication, collection, analysis, frontend, reliability, security, monitoring, historical validation and known limits.",
+  "editorial_revision": "Removed interview questions, standalone story/practice cases, handwritten/design exercises, timed mock sessions, scoring and copyable prompts; replaced prior active handbook and navigation.",
+  "statistics": {
+    "chapters": 28,
+    "subsections": 58,
+    "code_blocks": 1,
+    "tables": 15,
+    "han_excluding_fenced_code": 30329,
+    "distinct_linked_files": 143,
+    "local_link_occurrences": 252,
+    "chapter_anchors": 28
+  },
+  "statistics_definition": "Han characters counted from Markdown AST text and inline-code, including TOC/headings/tables and excluding fenced code; counts describe size only.",
+  "checks": {
+    "markdown_ast_links_and_project_scope": {
+      "passed": true,
+      "receipt": "markdown-check.json"
+    },
+    "prettier": {
+      "passed": true,
+      "command": "node web/node_modules/prettier/bin/prettier.cjs --check docs/PROJECT_SUMMARY.md"
+    },
+    "git_diff_check": {
+      "passed": true,
+      "command": "git diff --check -- docs/README.md docs/DELIVERY_MATRIX.md DEVELOPMENT_LOG.md",
+      "notes": "Only existing CRLF normalization warnings; no whitespace errors."
+    },
+    "historical_receipt_sha": {
+      "passed": true,
+      "count": 22,
+      "receipt": "source-validation.json",
+      "experiments_rerun": false
+    },
+    "existing_source_snapshot_sha": {
+      "passed": true,
+      "count": 35,
+      "receipt": "source-validation.json"
+    },
+    "technical_cross_review": {
+      "completed": true,
+      "receipt": "review.json"
+    }
+  },
+  "source_review_observations": [
+    {
+      "topic": "SSE sequence allocation vs transaction commit ordering",
+      "kind": "static-risk",
+      "runtime_reproduced": false,
+      "implementation_changed": false
+    },
+    {
+      "topic": "C++ setrlimit return checks incomplete",
+      "kind": "static-limitation",
+      "runtime_reproduced": false,
+      "implementation_changed": false
+    },
+    {
+      "topic": "Partial-result unavailable error-code naming drift",
+      "kind": "source-contract-frontend-difference",
+      "runtime_reproduced": false,
+      "implementation_changed": false
+    },
+    {
+      "topic": "Generic imported ELF bytes do not establish build-ID/address matching",
+      "kind": "scope-limitation",
+      "runtime_reproduced": false,
+      "implementation_changed": false
+    }
+  ],
+  "application_tests_run": [],
+  "application_builds_run": [],
+  "production_actions": [],
+  "live_collection_runs": 0,
+  "model_calls": 0,
+  "historical_evidence_rewritten": false,
+  "limits": [
+    "Historical test results retain original dates, versions, environments and denominators.",
+    "Read-only source and document checks do not constitute new system acceptance or independent contribution attribution."
+  ]
+}

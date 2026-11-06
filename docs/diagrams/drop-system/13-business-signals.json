@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "13 · 业务信号：把同一采集时段的业务表现接进诊断",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1100,
+      540
+    ]
+  },
+  "layout": {
+    "mode": "grid",
+    "origin": [
+      50,
+      65
+    ],
+    "cols": 3,
+    "cellW": 190,
+    "cellH": 64,
+    "gapX": 250,
+    "gapY": 82
+  },
+  "components": [
+    {
+      "id": "signal-ui",
+      "type": "frontend",
+      "label": "页面关联业务服务",
+      "sublabel": "可选 telemetry_service_id",
+      "row": 0,
+      "col": 0
+    },
+    {
+      "id": "signal-scope",
+      "type": "security",
+      "label": "Go 校验授权范围",
+      "sublabel": "服务 + 一跳依赖 → S1…S8",
+      "row": 0,
+      "col": 1
+    },
+    {
+      "id": "signal-query",
+      "type": "backend",
+      "label": "Go 固定查询工具",
+      "sublabel": "query_business_signals",
+      "row": 0,
+      "col": 2
+    },
+    {
+      "id": "signal-window",
+      "type": "database",
+      "label": "本次采集时钟",
+      "sublabel": "attempt + collector 起止",
+      "row": 1,
+      "col": 1
+    },
+    {
+      "id": "signal-source",
+      "type": "external",
+      "label": "可选遥测源",
+      "sublabel": "仅查询管理员登记的源",
+      "row": 1,
+      "col": 2
+    },
+    {
+      "id": "signal-project",
+      "type": "security",
+      "label": "Go 校验并脱敏",
+      "sublabel": "身份、时间、单位、数量",
+      "row": 2,
+      "col": 2
+    },
+    {
+      "id": "signal-evidence",
+      "type": "backend",
+      "label": "供诊断使用的证据",
+      "sublabel": "指标、日志、追踪、变更",
+      "row": 2,
+      "col": 1
+    },
+    {
+      "id": "signal-report",
+      "type": "frontend",
+      "label": "报告、复测与补证",
+      "sublabel": "事实引用 + 反证 + 未知项",
+      "row": 2,
+      "col": 0
+    }
+  ],
+  "connections": [
+    {
+      "id": "signal-select",
+      "from": "signal-ui",
+      "to": "signal-scope",
+      "label": "问题与业务服务 ID",
+      "variant": "emphasis"
+    },
+    {
+      "id": "signal-alias",
+      "from": "signal-scope",
+      "to": "signal-query",
+      "label": "仅 service_ref + signal",
+      "variant": "security"
+    },
+    {
+      "id": "signal-time",
+      "from": "signal-window",
+      "to": "signal-query",
+      "label": "有效执行 window",
+      "variant": "security"
+    },
+    {
+      "id": "signal-fetch",
+      "from": "signal-query",
+      "to": "signal-source",
+      "label": "HTTP(S)：固定查询 + window",
+      "variant": "emphasis",
+      "labelDy": 24
+    },
+    {
+      "id": "signal-response",
+      "from": "signal-source",
+      "to": "signal-project",
+      "label": "源响应 → 有界字段",
+      "variant": "security",
+      "labelDy": 24
+    },
+    {
+      "id": "signal-observation",
+      "from": "signal-project",
+      "to": "signal-evidence",
+      "label": "E 编号 + observation",
+      "variant": "emphasis"
+    },
+    {
+      "id": "signal-conclusion",
+      "from": "signal-evidence",
+      "to": "signal-report",
+      "label": "事实值/单位/引用核验"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "实际会取什么",
+      "items": [
+        "指标：P95 毫秒、错误比例、吞吐；日志只留固定事件类别。",
+        "Trace/版本号散列；不传原日志正文、自由属性、令牌。"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "先接入，再关联",
+      "items": [
+        "Prometheus / Loki / Tempo 或 Drop adapter；按配置选择，不宣称全部已部署。",
+        "管理员登记服务、依赖、端点和固定查询；模型不能自填 URL/SQL。"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "时间与结论边界",
+      "items": [
+        "按本次有效采集窗口查询；缺源/坏时钟/空结果保持未知。",
+        "CPU 样本不能换算业务延迟；同时出现与依赖拓扑不证明因果。"
+      ]
+    }
+  ]
+}

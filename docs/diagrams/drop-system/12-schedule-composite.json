@@ -1,0 +1,242 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "计划与复合诊断：两种入口，复用普通任务链路",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "schedule",
+      "label": "按时间触发"
+    },
+    {
+      "id": "execution",
+      "label": "普通任务执行"
+    },
+    {
+      "id": "composite",
+      "label": "手动 DAG 编排"
+    },
+    {
+      "id": "outcomes",
+      "label": "允许的部分成功"
+    }
+  ],
+  "mainPath": [
+    "timer",
+    "schedule-guard",
+    "create-task",
+    "pipeline",
+    "task-result",
+    "success"
+  ],
+  "nodes": [
+    {
+      "id": "timer",
+      "lane": "schedule",
+      "col": 0,
+      "type": "messagebus",
+      "label": "计划到时",
+      "sublabel": "Cron / 分钟间隔"
+    },
+    {
+      "id": "schedule-guard",
+      "lane": "schedule",
+      "col": 1,
+      "type": "database",
+      "label": "锁定计划与时点",
+      "sublabel": "保存模板快照与记录"
+    },
+    {
+      "id": "create-task",
+      "lane": "execution",
+      "col": 2,
+      "type": "backend",
+      "label": "创建普通任务",
+      "sublabel": "权限与幂等"
+    },
+    {
+      "id": "pipeline",
+      "lane": "execution",
+      "col": 3,
+      "type": "backend",
+      "label": "采集与分析",
+      "sublabel": "采集器执行与结果解析"
+    },
+    {
+      "id": "task-result",
+      "lane": "execution",
+      "col": 4,
+      "type": "database",
+      "label": "子任务真实结果",
+      "sublabel": "成功 / 失败 / 取消"
+    },
+    {
+      "id": "success",
+      "lane": "execution",
+      "col": 5,
+      "type": "frontend",
+      "label": "SUCCESS",
+      "sublabel": "分析完成或全成功"
+    },
+    {
+      "id": "manual",
+      "lane": "composite",
+      "col": 0,
+      "type": "frontend",
+      "label": "创建复合诊断",
+      "sublabel": "手动定义 1–16 个节点"
+    },
+    {
+      "id": "validate-dag",
+      "lane": "composite",
+      "col": 1,
+      "type": "security",
+      "label": "校验并保存 DAG",
+      "sublabel": "拒绝非法依赖"
+    },
+    {
+      "id": "dependencies",
+      "lane": "composite",
+      "col": 2,
+      "type": "backend",
+      "label": "等待依赖成功",
+      "sublabel": "无依赖的起点可以并发"
+    },
+    {
+      "id": "aggregate",
+      "lane": "composite",
+      "col": 4,
+      "type": "backend",
+      "label": "汇总编排状态",
+      "sublabel": "按必选与部分成功策略"
+    },
+    {
+      "id": "failed",
+      "lane": "composite",
+      "col": 5,
+      "type": "security",
+      "label": "FAILED",
+      "sublabel": "必选失败等失败条件"
+    },
+    {
+      "id": "partial",
+      "lane": "outcomes",
+      "col": 5,
+      "type": "frontend",
+      "label": "部分成功",
+      "sublabel": "PARTIAL_SUCCESS"
+    }
+  ],
+  "edges": [
+    {
+      "id": "time-lock",
+      "from": "timer",
+      "to": "schedule-guard",
+      "label": "到时推进",
+      "role": "main"
+    },
+    {
+      "id": "scheduled-create",
+      "from": "schedule-guard",
+      "to": "create-task",
+      "label": "时点唯一 + 子任务幂等键",
+      "role": "main"
+    },
+    {
+      "id": "normal-work",
+      "from": "create-task",
+      "to": "pipeline",
+      "label": "任务与派发意图同事务",
+      "role": "main"
+    },
+    {
+      "id": "save-result",
+      "from": "pipeline",
+      "to": "task-result",
+      "label": "状态与事件持久化",
+      "role": "main"
+    },
+    {
+      "id": "standalone-success",
+      "from": "task-result",
+      "to": "success",
+      "label": "分析成功",
+      "role": "main"
+    },
+    {
+      "id": "define-dag",
+      "from": "manual",
+      "to": "validate-dag",
+      "label": "节点与依赖"
+    },
+    {
+      "id": "persist-and-tick",
+      "from": "validate-dag",
+      "to": "dependencies",
+      "label": "持久化后后台推进"
+    },
+    {
+      "id": "ready-node",
+      "from": "dependencies",
+      "to": "create-task",
+      "label": "全部依赖成功",
+      "role": "branch"
+    },
+    {
+      "id": "collect-composite",
+      "from": "task-result",
+      "to": "aggregate",
+      "label": "属于 DAG 的子任务",
+      "role": "branch"
+    },
+    {
+      "id": "skip-dependent",
+      "from": "dependencies",
+      "to": "aggregate",
+      "label": "依赖失败：本节点 SKIPPED",
+      "role": "error"
+    },
+    {
+      "id": "all-success",
+      "from": "aggregate",
+      "to": "success",
+      "label": "全部成功",
+      "role": "branch"
+    },
+    {
+      "id": "required-failed",
+      "from": "aggregate",
+      "to": "failed",
+      "label": "失败条件成立",
+      "role": "error"
+    },
+    {
+      "id": "optional-failed",
+      "from": "aggregate",
+      "to": "partial",
+      "label": "允许部分成功",
+      "role": "branch"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "计划不是定时补发队列",
+      "items": [
+        "行锁、唯一 (schedule_id, scheduled_at) 与子任务幂等一起防重复。",
+        "处理当前到期时点后，从当前时间计算下一次；不逐个补发全部历史时点。"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "DAG 的失败与结束",
+      "items": [
+        "依赖失败会令后续节点 SKIPPED；必选失败使整体 FAILED。",
+        "部分成功须显式允许；整体超时取消未完成子任务并 TIMED_OUT，用户可 CANCELED。"
+      ]
+    }
+  ]
+}

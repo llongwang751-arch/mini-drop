@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "分析状态与租约：谁能发布当前结果",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "viewBox": [
+      1080,
+      580
+    ]
+  },
+  "participants": [
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "Go API",
+      "sublabel": "接受用户取消"
+    },
+    {
+      "id": "task",
+      "type": "database",
+      "label": "Task",
+      "sublabel": "analysis_status：大写"
+    },
+    {
+      "id": "job",
+      "type": "database",
+      "label": "AnalysisJob",
+      "sublabel": "status：小写"
+    },
+    {
+      "id": "worker-a",
+      "type": "backend",
+      "label": "Worker A",
+      "sublabel": "先领取的 owner"
+    },
+    {
+      "id": "worker-b",
+      "type": "backend",
+      "label": "Worker B",
+      "sublabel": "到期后的新 owner"
+    },
+    {
+      "id": "storage",
+      "type": "cloud",
+      "label": "对象存储",
+      "sublabel": "RAW 与结果文件"
+    }
+  ],
+  "messages": [
+    {
+      "id": "claim-job",
+      "from": "worker-a",
+      "to": "job",
+      "y": 160,
+      "label": "采集完成后 claim：pending → running；run +1",
+      "variant": "emphasis"
+    },
+    {
+      "id": "task-running",
+      "from": "worker-a",
+      "to": "task",
+      "y": 188,
+      "label": "PENDING → RUNNING；与 Job claim 同一事务"
+    },
+    {
+      "id": "read-current-input",
+      "from": "worker-a",
+      "to": "storage",
+      "y": 216,
+      "label": "读当前采集 attempt 的 RAW，核对 size / SHA"
+    },
+    {
+      "id": "takeover",
+      "from": "worker-b",
+      "to": "job",
+      "y": 244,
+      "label": "租约过期且有预算：再 claim，分析轮次 +1",
+      "variant": "emphasis"
+    },
+    {
+      "id": "reject-late-owner",
+      "from": "worker-a",
+      "to": "job",
+      "y": 272,
+      "label": "迟到续租 / 提交：LeaseLost，拒写",
+      "variant": "security"
+    },
+    {
+      "id": "upload-own-output",
+      "from": "worker-b",
+      "to": "storage",
+      "y": 300,
+      "label": "上传本分析轮次结果与 manifest"
+    },
+    {
+      "id": "publish-job-success",
+      "from": "worker-b",
+      "to": "job",
+      "y": 328,
+      "label": "running → success；原子发布结果和事件",
+      "variant": "emphasis"
+    },
+    {
+      "id": "publish-task-success",
+      "from": "worker-b",
+      "to": "task",
+      "y": 356,
+      "label": "RUNNING → SUCCESS；与结果发布同一事务",
+      "variant": "emphasis"
+    },
+    {
+      "id": "retry-branch",
+      "from": "worker-a",
+      "to": "job",
+      "y": 398,
+      "label": "分支① 可重试：Job.retry / Task.RETRY",
+      "note": "设置 available_at；到时重新 claim，分析轮次 +1",
+      "variant": "dashed"
+    },
+    {
+      "id": "failure-branch",
+      "from": "worker-a",
+      "to": "job",
+      "y": 446,
+      "label": "分支② 不可重试或预算耗尽：Job.failed / Task.FAILED",
+      "note": "最终尝试租约过期也会明确失败；旧 owner 连失败也不能回写",
+      "variant": "security"
+    },
+    {
+      "id": "cancel-branch",
+      "from": "api",
+      "to": "task",
+      "y": 494,
+      "label": "分支③ 用户取消：Task.CANCELED；当前 Job.failed",
+      "note": "固定 TASK_CANCELED 并清租约；Job 没有 canceled 枚举",
+      "variant": "security"
+    }
+  ]
+}

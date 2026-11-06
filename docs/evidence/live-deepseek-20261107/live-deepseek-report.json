@@ -1,0 +1,242 @@
+{
+  "model": "deepseek-flash",
+  "provider": "deepseek",
+  "report": {
+    "facts": [
+      {
+        "id": "F1",
+        "path": "/kind",
+        "tool": "read_profile_summary",
+        "unit": "category",
+        "value": "IMPORT_COLLAPSED",
+        "operator": "eq",
+        "description": "E1：观测类型=\"IMPORT_COLLAPSED\"（category）",
+        "evidence_id": "E1"
+      },
+      {
+        "id": "F2",
+        "path": "/measurement_unit",
+        "tool": "read_profile_summary",
+        "unit": "unit",
+        "value": "unknown",
+        "operator": "eq",
+        "description": "E1：观测单位=\"unknown\"（unit）",
+        "evidence_id": "E1"
+      },
+      {
+        "id": "F3",
+        "path": "/total_weight",
+        "tool": "read_profile_summary",
+        "unit": "unknown",
+        "value": 1000,
+        "operator": "eq",
+        "description": "E1：本次观测总权重=1000（unknown）",
+        "evidence_id": "E1"
+      },
+      {
+        "id": "F4",
+        "path": "/node_count",
+        "tool": "read_profile_summary",
+        "unit": "count",
+        "value": 4,
+        "operator": "eq",
+        "description": "E1：本次树节点数=4（count）",
+        "evidence_id": "E1"
+      },
+      {
+        "id": "F5",
+        "path": "/top_functions/0/self_percent",
+        "tool": "inspect_hotspots",
+        "unit": "percent",
+        "value": 80,
+        "operator": "eq",
+        "description": "E2：已返回热点的 self/total 权重占比（不是耗时比例）=80（percent）",
+        "evidence_id": "E2"
+      },
+      {
+        "id": "F6",
+        "path": "/top_functions/0/rank",
+        "tool": "inspect_hotspots",
+        "unit": "rank",
+        "value": 1,
+        "operator": "eq",
+        "description": "E2：返回热点排名=1（rank）",
+        "evidence_id": "E2"
+      },
+      {
+        "id": "F7",
+        "path": "/top_functions/0/symbol_hint",
+        "tool": "inspect_hotspots",
+        "unit": "category",
+        "value": "unknown",
+        "operator": "eq",
+        "description": "E2：本地词形提示（不是根因证明）=\"unknown\"（category）",
+        "evidence_id": "E2"
+      },
+      {
+        "id": "F8",
+        "path": "/issues",
+        "tool": "check_collection_quality",
+        "unit": "count",
+        "value": 1,
+        "operator": "count",
+        "description": "E3：工具返回的质量问题或未知项数量=1（count）",
+        "evidence_id": "E3"
+      },
+      {
+        "id": "F9",
+        "path": "/unknowns",
+        "tool": "check_collection_quality",
+        "unit": "count",
+        "value": 3,
+        "operator": "count",
+        "description": "E3：工具返回的质量问题或未知项数量=3（count）",
+        "evidence_id": "E3"
+      },
+      {
+        "id": "F10",
+        "path": "/duration_seconds",
+        "tool": "check_collection_quality",
+        "unit": "seconds",
+        "value": 0,
+        "operator": "eq",
+        "description": "E3：工具记录的采集时长（0 表示未记录或不适用）=0（seconds）",
+        "evidence_id": "E3"
+      },
+      {
+        "id": "F11",
+        "path": "/frequency_hz",
+        "tool": "check_collection_quality",
+        "unit": "hertz",
+        "value": 0,
+        "operator": "eq",
+        "description": "E3：工具记录的频率（0 表示未记录或不适用）=0（hertz）",
+        "evidence_id": "E3"
+      }
+    ],
+    "model": "deepseek-flash",
+    "engine": "model",
+    "summary": "本次IMPORT_COLLAPSED观测单位为unknown，总权重1000。已返回热点表中2项具有正self权重；排名1 self占比80%，排名2 self占比20%。这些是当前工具范围内的描述，不构成已确认业务根因或优化收益。",
+    "hypotheses": [
+      {
+        "kind": "cpu_hotspot",
+        "claim": "热点权重分布需要结合负载与调用路径核验，当前尚不能认定业务瓶颈。依据已核验事实：F5、F6、F7、F3。",
+        "fact_ids": [
+          "F5",
+          "F6",
+          "F7",
+          "F3"
+        ],
+        "evidence_ids": [
+          "E1",
+          "E2"
+        ],
+        "verification": "模型待审建议（不是工具返回或已校验计划）：通过授权源码映射核对业务语义；建议时长30秒。执行前须独立核验采集器契约和权限；本报告不执行该建议。\n模型待审建议（不是工具返回或已校验计划）：对齐请求延迟、吞吐、错误率与采样窗口。执行前须独立核验采集器契约和权限；本报告不执行该建议。\n模型待审建议（不是工具返回或已校验计划）：在相同目标、单位与稳定负载下补充对照采集；建议时长30秒；建议频率99Hz。执行前须独立核验采集器契约和权限；本报告不执行该建议。",
+        "unverified_interpretation": "rank1 符号（哈希 symbol_3f0919466224）self 占比 80%，是本次导入快照中最集中的叶帧权重；但单位未知、符号语义未知，不能据此认定 CPU 耗时或根因。"
+      },
+      {
+        "kind": "insufficient_evidence",
+        "claim": "当前观测不足以确认性能缺陷或根因，应先补充可比证据。依据已核验事实：F1、F2、F10、F11、F8、F9。",
+        "fact_ids": [
+          "F1",
+          "F2",
+          "F10",
+          "F11",
+          "F8",
+          "F9"
+        ],
+        "evidence_ids": [
+          "E1",
+          "E3"
+        ],
+        "verification": "模型待审建议（不是工具返回或已校验计划）：通过授权源码映射核对业务语义；建议时长30秒。执行前须独立核验采集器契约和权限；本报告不执行该建议。\n模型待审建议（不是工具返回或已校验计划）：对齐请求延迟、吞吐、错误率与采样窗口。执行前须独立核验采集器契约和权限；本报告不执行该建议。\n模型待审建议（不是工具返回或已校验计划）：在相同目标、单位与稳定负载下补充对照采集；建议时长30秒；建议频率99Hz。执行前须独立核验采集器契约和权限；本报告不执行该建议。",
+        "unverified_interpretation": "离线导入、无采集时长/频率、无业务延迟与丢样信息，无法判断是否存在性能回退，也无法验证热点方向。"
+      }
+    ],
+    "limitations": [
+      "程序核验事实只保证所列字段、数值、单位和出处与本次工具返回一致，不证明因果或自由模型解释。",
+      "权重与占比不能直接换算为请求延迟、CPU利用率或性能收益；正常高负载也可能产生热点。",
+      "导入数据的现场来源、采样时钟、负载与丢样未核实；树结构及权重不能证明真实CPU执行或分配行为。",
+      "测量单位未知，停止跨单位与耗时收益判断。",
+      "模型结论为待验证假设，不代表已确认缺陷；不提供未经符号映射验证的源码行号。",
+      "原始profile、原符号、主机、PID、路径和凭据不发送模型；问题文本会发送，请勿填入敏感信息。"
+    ],
+    "report_version": 2
+  },
+  "source": "explicit_imported_test_fixture",
+  "status": "success",
+  "trace": [
+    {
+      "tool": "read_profile_summary",
+      "evidence_id": "E1",
+      "observation": {
+        "kind": "IMPORT_COLLAPSED",
+        "node_count": 4,
+        "limitations": [
+          "Sample weights are not request latency; no root cause or improvement is proven.",
+          "Raw profiles and symbol names are excluded. Symbol hashes are pseudonyms, not a guarantee of anonymization."
+        ],
+        "stack_scope": "profile_dependent",
+        "total_weight": 1000,
+        "top_functions": [
+          {
+            "symbol": "symbol_3f0919466224",
+            "self_percent": 80,
+            "total_percent": 90
+          },
+          {
+            "symbol": "symbol_4fb62348858c",
+            "self_percent": 20,
+            "total_percent": 20
+          }
+        ],
+        "schema_version": 1,
+        "measurement_unit": "unknown",
+        "verification_available": false,
+        "observability_available": false,
+        "available_followup_collectors": []
+      }
+    },
+    {
+      "tool": "inspect_hotspots",
+      "evidence_id": "E2",
+      "observation": {
+        "hint_source": "local_symbol_heuristic_v1",
+        "top_functions": [
+          {
+            "rank": 1,
+            "symbol": "symbol_3f0919466224",
+            "symbol_hint": "unknown",
+            "self_percent": 80,
+            "total_percent": 90
+          },
+          {
+            "rank": 2,
+            "symbol": "symbol_4fb62348858c",
+            "symbol_hint": "unknown",
+            "self_percent": 20,
+            "total_percent": 20
+          }
+        ],
+        "interpretation": "self为叶帧权重，total为包含子调用权重；symbol_hint为本地符号词形分类，仅作线索，不能证明锁等待或根因。比例不证明请求延迟或因果。原符号仅保留在授权结果页面。"
+      }
+    },
+    {
+      "tool": "check_collection_quality",
+      "evidence_id": "E3",
+      "observation": {
+        "kind": "IMPORT_COLLAPSED",
+        "issues": [
+          "离线导入数据：无法核实现场负载、采集时钟和丢样"
+        ],
+        "unknowns": [
+          "未关联业务请求延迟、吞吐和错误率",
+          "单次快照不能证明性能回退或修复收益",
+          "未采集源码、符号地址映射及丢样率，不输出文件行号"
+        ],
+        "frequency_hz": 0,
+        "duration_seconds": 0
+      }
+    }
+  ]
+}

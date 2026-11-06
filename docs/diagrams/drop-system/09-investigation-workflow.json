@@ -1,0 +1,228 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "09 · 一次智能性能调查，从问题到复核",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "person",
+      "label": "你在页面上操作"
+    },
+    {
+      "id": "control",
+      "label": "Go 编排 + AI 规划/诊断"
+    },
+    {
+      "id": "execution",
+      "label": "真实采集与证据"
+    }
+  ],
+  "mainPath": [
+    "question",
+    "planning",
+    "confirmation",
+    "baseline",
+    "diagnosis",
+    "verification",
+    "comparison",
+    "report"
+  ],
+  "nodes": [
+    {
+      "id": "question",
+      "lane": "person",
+      "col": 0,
+      "type": "frontend",
+      "label": "描述问题",
+      "sublabel": "节点 + 目标 + 同意"
+    },
+    {
+      "id": "planning",
+      "lane": "control",
+      "col": 1,
+      "type": "backend",
+      "label": "模型提出计划",
+      "sublabel": "读实际能力和采集清单"
+    },
+    {
+      "id": "confirmation",
+      "lane": "person",
+      "col": 2,
+      "type": "security",
+      "label": "你确认采集计划",
+      "sublabel": "生成计划时不采集"
+    },
+    {
+      "id": "baseline",
+      "lane": "execution",
+      "col": 2,
+      "type": "backend",
+      "label": "原采集与分析",
+      "sublabel": "C++ → RAW → Python"
+    },
+    {
+      "id": "diagnosis",
+      "lane": "control",
+      "col": 3,
+      "type": "backend",
+      "label": "工具辅助诊断",
+      "sublabel": "热点 + 质量 + 假设"
+    },
+    {
+      "id": "verification",
+      "lane": "execution",
+      "col": 4,
+      "type": "backend",
+      "label": "原目标复测",
+      "sublabel": "最多一次，含再次诊断"
+    },
+    {
+      "id": "comparison",
+      "lane": "control",
+      "col": 5,
+      "type": "backend",
+      "label": "比较两次证据",
+      "sublabel": "核对目标、来源、单位"
+    },
+    {
+      "id": "report",
+      "lane": "person",
+      "col": 5,
+      "type": "frontend",
+      "label": "查看调查结果",
+      "sublabel": "事实、假设和证据边界"
+    },
+    {
+      "id": "followup-confirm",
+      "lane": "person",
+      "col": 3,
+      "type": "security",
+      "label": "确认动态补证",
+      "sublabel": "额外分支，最多 2 个"
+    },
+    {
+      "id": "followup",
+      "lane": "execution",
+      "col": 3,
+      "type": "messagebus",
+      "label": "补采与新诊断",
+      "sublabel": "独立任务和证据"
+    },
+    {
+      "id": "repair",
+      "lane": "execution",
+      "col": 5,
+      "type": "security",
+      "label": "可选源码修复",
+      "sublabel": "已登记项目与额外同意"
+    }
+  ],
+  "edges": [
+    {
+      "id": "submit",
+      "from": "question",
+      "to": "planning",
+      "label": "POST /investigations",
+      "role": "main"
+    },
+    {
+      "id": "propose",
+      "from": "planning",
+      "to": "confirmation",
+      "label": "采集器/时长/频率/理由",
+      "role": "main"
+    },
+    {
+      "id": "confirm",
+      "from": "confirmation",
+      "to": "baseline",
+      "label": "POST /confirm",
+      "variant": "security",
+      "role": "main"
+    },
+    {
+      "id": "analyzed",
+      "from": "baseline",
+      "to": "diagnosis",
+      "label": "统计结果 + 版本绑定",
+      "role": "main"
+    },
+    {
+      "id": "verify",
+      "from": "diagnosis",
+      "to": "verification",
+      "label": "自动复测",
+      "role": "main"
+    },
+    {
+      "id": "compare",
+      "from": "verification",
+      "to": "comparison",
+      "label": "compare_profiles",
+      "role": "main"
+    },
+    {
+      "id": "present",
+      "from": "comparison",
+      "to": "report",
+      "label": "保存报告与运行记录",
+      "role": "main"
+    },
+    {
+      "id": "extra-plan",
+      "from": "diagnosis",
+      "to": "followup-confirm",
+      "label": "缺证据时提出计划",
+      "variant": "dashed",
+      "role": "branch"
+    },
+    {
+      "id": "extra-confirm",
+      "from": "followup-confirm",
+      "to": "followup",
+      "label": "你再确认；校验预算",
+      "variant": "security",
+      "role": "branch",
+      "route": "return-left",
+      "fromSide": "left",
+      "toSide": "left"
+    },
+    {
+      "id": "source-opt-in",
+      "from": "comparison",
+      "to": "repair",
+      "label": "绑定版本且已授权",
+      "variant": "security",
+      "role": "branch"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "每次点击意味着什么",
+      "items": [
+        "生成计划只规划；确认后才开始采集。每次采集最多 60 秒。",
+        "等待确认也占名额；每账号最多 10 个未终态调查。"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "复测的证据边界",
+      "items": [
+        "热点重复出现只能说明重复观察到；root_cause_status 仍为 not_tested。",
+        "取消、撤权或来源版本改变，会阻止后续工具与迟到提交。"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "动态补证与修复",
+      "items": [
+        "补证不默认执行：最多 2 个分支，每条需要人工确认。",
+        "关联源码只改隔离副本；不自动发布生产仓库。"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,211 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "10 · 源码修复：生成补丁，隔离验证，人工交付",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "scope",
+      "label": "登记范围与授权"
+    },
+    {
+      "id": "agent",
+      "label": "AI 提议 / Go 工具验收"
+    },
+    {
+      "id": "sandbox",
+      "label": "root broker → 独立容器"
+    }
+  ],
+  "mainPath": [
+    "registration",
+    "consent",
+    "profile",
+    "source",
+    "patch",
+    "broker",
+    "tests",
+    "benchmark",
+    "acceptance",
+    "delivery"
+  ],
+  "nodes": [
+    {
+      "id": "registration",
+      "lane": "scope",
+      "col": 0,
+      "type": "security",
+      "label": "登记项目",
+      "sublabel": "SHA 与镜像 ID"
+    },
+    {
+      "id": "consent",
+      "lane": "scope",
+      "col": 1,
+      "type": "security",
+      "label": "源码单独授权",
+      "sublabel": "版本及运行绑定"
+    },
+    {
+      "id": "profile",
+      "lane": "agent",
+      "col": 1,
+      "type": "backend",
+      "label": "业务流采样",
+      "sublabel": "cProfile"
+    },
+    {
+      "id": "source",
+      "lane": "agent",
+      "col": 2,
+      "type": "backend",
+      "label": "read_source",
+      "sublabel": "SHA 与行号"
+    },
+    {
+      "id": "patch",
+      "lane": "agent",
+      "col": 3,
+      "type": "backend",
+      "label": "test_patch",
+      "sublabel": "精确编辑与测试"
+    },
+    {
+      "id": "broker",
+      "lane": "sandbox",
+      "col": 3,
+      "type": "security",
+      "label": "隔离容器",
+      "sublabel": "UDS /rpc"
+    },
+    {
+      "id": "tests",
+      "lane": "sandbox",
+      "col": 4,
+      "type": "backend",
+      "label": "功能验证",
+      "sublabel": "回归、红绿、类型"
+    },
+    {
+      "id": "benchmark",
+      "lane": "sandbox",
+      "col": 5,
+      "type": "backend",
+      "label": "CPU 成对比较",
+      "sublabel": "含 sham 负控"
+    },
+    {
+      "id": "acceptance",
+      "lane": "agent",
+      "col": 5,
+      "type": "security",
+      "label": "Go 验收回执",
+      "sublabel": "双状态均真"
+    },
+    {
+      "id": "delivery",
+      "lane": "scope",
+      "col": 5,
+      "type": "frontend",
+      "label": "下载审阅补丁",
+      "sublabel": "核 SHA，人工合入"
+    }
+  ],
+  "edges": [
+    {
+      "id": "enroll",
+      "from": "registration",
+      "to": "consent",
+      "label": "冻结登记范围",
+      "role": "main"
+    },
+    {
+      "id": "authorize",
+      "from": "consent",
+      "to": "profile",
+      "label": "project_id + revision",
+      "variant": "security",
+      "role": "main"
+    },
+    {
+      "id": "locate",
+      "from": "profile",
+      "to": "source",
+      "label": "实测热点与行号",
+      "role": "main"
+    },
+    {
+      "id": "edit",
+      "from": "source",
+      "to": "patch",
+      "label": "原 SHA + 唯一上下文",
+      "role": "main"
+    },
+    {
+      "id": "rpc",
+      "from": "patch",
+      "to": "broker",
+      "label": "UDS /rpc：登记动作",
+      "variant": "security",
+      "role": "main"
+    },
+    {
+      "id": "execute-tests",
+      "from": "broker",
+      "to": "tests",
+      "label": "固定镜像和 argv",
+      "variant": "security",
+      "role": "main"
+    },
+    {
+      "id": "measure",
+      "from": "tests",
+      "to": "benchmark",
+      "label": "功能通过再测 CPU",
+      "role": "main"
+    },
+    {
+      "id": "receipt",
+      "from": "benchmark",
+      "to": "acceptance",
+      "label": "测量、负控、结果 SHA",
+      "role": "main"
+    },
+    {
+      "id": "bundle",
+      "from": "acceptance",
+      "to": "delivery",
+      "label": "unified diff + sha256",
+      "role": "main"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "隔离与工具边界",
+      "items": [
+        "profile_business_flow、read_source、test_patch 经 Go 校验后调用固定 RPC；API 无 Docker socket。",
+        "容器 UID10001、只读根目录、512 MiB、1 CPU、64 进程、240 秒硬限。"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "验证适用范围",
+      "items": [
+        "红绿与 sham 是通用 Python preset 的新增验证；旧 CRM/Saber 保留各自冻结回归。",
+        "6 组 CPU 对照只证明登记输入下的组件基准，不代表生产 P95/P99。"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "失败与最终交付",
+      "items": [
+        "最多 8 轮模型、12 次工具、2 次实际沙箱测试；失败在原预算内修正或结束。",
+        "patch_bundle 标明 isolated_snapshot 与 production_deployed=false。"
+      ]
+    }
+  ]
+}

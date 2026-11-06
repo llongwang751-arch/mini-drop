@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "恢复时序：任务已收到，确认响应却丢了",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "viewBox": [
+      1030,
+      540
+    ]
+  },
+  "participants": [
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "Go API",
+      "sublabel": "含 Outbox 派发器"
+    },
+    {
+      "id": "db",
+      "type": "database",
+      "label": "PostgreSQL",
+      "sublabel": "持久状态与派发意图"
+    },
+    {
+      "id": "server",
+      "type": "backend",
+      "label": "C++ Server",
+      "sublabel": "幂等接收与下发"
+    },
+    {
+      "id": "agent",
+      "type": "backend",
+      "label": "C++ Agent",
+      "sublabel": "通过心跳领取任务"
+    }
+  ],
+  "messages": [
+    {
+      "id": "create-intent",
+      "from": "api",
+      "to": "db",
+      "y": 160,
+      "label": "同事务写 task + attempt + event + outbox",
+      "variant": "emphasis"
+    },
+    {
+      "id": "first-dispatch",
+      "from": "api",
+      "to": "server",
+      "y": 188,
+      "label": "mTLS CreateTask(task_id, attempt)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "first-accept",
+      "from": "server",
+      "to": "db",
+      "y": 216,
+      "label": "校验当前 attempt；CREATED → QUEUED + event"
+    },
+    {
+      "id": "lost-ack",
+      "from": "server",
+      "to": "api",
+      "y": 244,
+      "label": "确认响应未抵达；API 观察到超时",
+      "variant": "dashed"
+    },
+    {
+      "id": "retry-intent",
+      "from": "api",
+      "to": "db",
+      "y": 272,
+      "label": "Outbox 保持待发，记录退避时间"
+    },
+    {
+      "id": "reread-current",
+      "from": "api",
+      "to": "db",
+      "y": 300,
+      "label": "下次派发先重读 Task 与最新 attempt"
+    },
+    {
+      "id": "already-queued",
+      "from": "db",
+      "to": "api",
+      "y": 328,
+      "label": "Task 已 QUEUED；不再满足 CREATED 派发条件",
+      "variant": "return"
+    },
+    {
+      "id": "close-outbox",
+      "from": "api",
+      "to": "db",
+      "y": 356,
+      "label": "Outbox 写 published_at；不再重复 RPC"
+    },
+    {
+      "id": "agent-heartbeat",
+      "from": "agent",
+      "to": "server",
+      "y": 384,
+      "label": "Heartbeat：可接收任务"
+    },
+    {
+      "id": "persist-delivery",
+      "from": "server",
+      "to": "db",
+      "y": 412,
+      "label": "领取 QUEUED；原子标记 DELIVERED"
+    },
+    {
+      "id": "deliver-task",
+      "from": "server",
+      "to": "agent",
+      "y": 440,
+      "label": "TaskDesc：参数 + attempt + 短期 PUT 目标",
+      "variant": "return"
+    }
+  ]
+}

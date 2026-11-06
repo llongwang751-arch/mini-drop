@@ -1,0 +1,1015 @@
+{
+  "title": "Drop 系统图解",
+  "description": "从你点下新建诊断开始，跟着任务指令和采样文件走完一圈。",
+  "date": "2026-10-24",
+  "scope": "按当前工作区代码绘制。图中的示例仅用于讲解，不代表本次执行了采集、模型调用或生产测试。",
+  "diagrams": [
+    {
+      "id": "01",
+      "file": "01-system-architecture",
+      "type": "architecture",
+      "title": "系统总览",
+      "question": "这几个服务各管什么？",
+      "explanation": "把它想成一次体检：React 是你填单、看报告的窗口；Go API 负责核对权限、登记任务；C++ Server 联系现场的 C++ Agent；Agent 用受控工具采样。原始文件放进 MinIO，Python Analyzer 读取并解析，页面再把结果画出来。PostgreSQL 记录这次检查进行到哪一步。",
+      "steps": [
+        "沿上排从左向右看：页面 → Go → C++ Server → C++ Agent。",
+        "看右下角：被检查的业务程序是目标，和采集 Agent 是两个不同进程。",
+        "看下排：文件去 MinIO，执行事实去 PostgreSQL，Analyzer 把原始文件变成结果。"
+      ],
+      "watch": [
+        "C++ Agent 负责现场采集；Python AgentScope 负责模型对话，名字相似、职责不同。",
+        "Go、Core Server、Analyzer 都有各自的受限数据库访问；浏览器和采集 Agent 不直连 PostgreSQL。"
+      ],
+      "sources": [
+        {
+          "path": "contracts/drop.proto",
+          "line": 86
+        },
+        {
+          "path": "api/internal/service/tasks.go",
+          "line": 306
+        },
+        {
+          "path": "core/src/server.cpp",
+          "line": 512
+        },
+        {
+          "path": "analyzer/drop_analyzer/worker.py",
+          "line": 230
+        }
+      ]
+    },
+    {
+      "id": "02",
+      "file": "02-control-data-flow",
+      "type": "dataflow",
+      "title": "指令与文件怎么流转",
+      "question": "各条线上究竟传了什么？",
+      "explanation": "上排是安排工作的小消息：采谁、采多久、用什么采集器、这次是哪一轮。下排是检查得到的证据：调用栈、计账、对象或事件文件。任务状态和文件位置在数据库中登记；完整原始文件另存在对象存储。图里的 C++ 框合并了 Server 和 Agent 两个角色，精确调用方向看第 03、04 张图。",
+      "steps": [
+        "上排先走一遍，认清 kind、target、task_id、attempt_id。",
+        "下排再走一遍，认清 RAW → 分析结果 → 图表。",
+        "最后看右侧 SSE：通知页面状态变化，再由页面重新查询事实。"
+      ],
+      "watch": [
+        "普通 Agent 采样文件通过受控 S3 PUT 上传，不把整份 RAW 塞进 gRPC 回执。",
+        "导入任务有自己的 HTTP 导入入口，不要把现场 Agent 的上传路径套给导入。"
+      ],
+      "sources": [
+        {
+          "path": "contracts/drop.proto",
+          "line": 86
+        },
+        {
+          "path": "core/src/artifact.cpp",
+          "line": 149
+        },
+        {
+          "path": "api/internal/storage/minio.go",
+          "line": 56
+        },
+        {
+          "path": "api/internal/httpapi/resources.go",
+          "line": 338
+        }
+      ]
+    },
+    {
+      "id": "03",
+      "file": "03-collection-sequence",
+      "type": "sequence",
+      "title": "点新建后怎么开始采集",
+      "question": "谁先说话，谁再干活？",
+      "explanation": "从上往下读，一根竖线代表一个参与者。页面提交结构化表单；Go 在同一个数据库事务里登记任务、执行轮次、事件和待下发记录。Outbox 后台工作器再通过 Control.CreateTask 把指令交给 Core Server。现场 Agent 用心跳或拉取响应领任务，在目标身份和预算检查通过后运行工具。",
+      "steps": [
+        "先看 POST /tasks 和原子登记，页面拿到 ID 不代表现场已经开始。",
+        "再看 Outbox → CreateTask：网络发送和数据库事务分开处理。",
+        "最后看 Agent 领单和目标检查：PID 之外还核对启动时间、UID 等绑定。"
+      ],
+      "watch": [
+        "task_id 是这件事的编号；attempt_id 是某次实际执行的编号。重试会产生新轮次。",
+        "旧轮次迟到的回执不能覆盖当前轮次。"
+      ],
+      "sources": [
+        {
+          "path": "api/internal/repository/postgres.go",
+          "line": 119
+        },
+        {
+          "path": "api/internal/control/client.go",
+          "line": 67
+        },
+        {
+          "path": "core/src/server.cpp",
+          "line": 871
+        },
+        {
+          "path": "contracts/drop.proto",
+          "line": 171
+        }
+      ]
+    },
+    {
+      "id": "04",
+      "file": "04-artifact-sequence",
+      "type": "sequence",
+      "title": "采样文件怎么变成分析结果",
+      "question": "上传了什么，谁验证，谁解析？",
+      "explanation": "Agent 先把工具输出落到本地文件，再按本轮授权上传 RAW 和该类型需要的附件，最后向 Core Server 报告制品信息。Core 检查授权、轮次和元数据，原子登记采集完成及分析任务。Analyzer 领取带租约的分析任务，下载 RAW、复算 SHA-256、选择对应解析器，上传结果文件，再提交结果引用。",
+      "steps": [
+        "看 PUT：真正传文件字节。",
+        "看 NotifyResult：传 object_key、size、sha256、format 等登记信息。",
+        "看 Analyzer：下载校验、解析、上传结果，最后由当前租约持有者发布成功。"
+      ],
+      "watch": [
+        "Core 接回执时不重新下载 RAW 验哈希；Analyzer 下载后才复算真实文件 SHA。",
+        "对象上传与 SQL 提交不是一个事务。上传成功、发布失败会留下待维护对账的孤立对象。"
+      ],
+      "sources": [
+        {
+          "path": "core/src/agent.cpp",
+          "line": 942
+        },
+        {
+          "path": "core/src/server.cpp",
+          "line": 317
+        },
+        {
+          "path": "analyzer/drop_analyzer/worker.py",
+          "line": 230
+        },
+        {
+          "path": "analyzer/drop_analyzer/repository.py",
+          "line": 343
+        }
+      ]
+    },
+    {
+      "id": "05",
+      "file": "05-result-sequence",
+      "type": "sequence",
+      "title": "浏览器怎么画出结果",
+      "question": "火焰图是模型画的吗？",
+      "explanation": "火焰图来自分析结果里的调用树。页面通过 REST 取摘要与文件索引，专门的 Profile Worker 获取短期下载授权、下载 gzip 调用树并校验结构。另一个 Layout Worker 算每个方块的位置，再由 React 展示。模型诊断是另一条可选链路。",
+      "steps": [
+        "先看 REST + SSE：SSE 触发重新查询，不代替最终状态。",
+        "再看 Profile Worker：下载、解压、解析放到工作线程。",
+        "最后看 Layout Worker：根据树的权重计算宽度，点击节点可以放大查看。"
+      ],
+      "watch": [
+        "当前浏览器用 SHA 元数据绑定缓存身份，但没有复算采样制品 SHA；它检查长度、gzip、解压限额和树结构。",
+        "获授权用户可以下载 RAW；不能把“普通模型不接收 RAW”理解成“用户不能下载 RAW”。"
+      ],
+      "sources": [
+        {
+          "path": "web/src/views/TaskDetail.tsx",
+          "line": 106
+        },
+        {
+          "path": "web/src/event-stream.ts",
+          "line": 194
+        },
+        {
+          "path": "web/src/profile.worker.ts",
+          "line": 108
+        },
+        {
+          "path": "web/src/components/flame.worker.ts",
+          "line": 73
+        }
+      ]
+    },
+    {
+      "id": "06",
+      "file": "06-collection-lifecycle",
+      "type": "lifecycle",
+      "title": "采集状态怎么变化",
+      "question": "创建、排队、采完有什么区别？",
+      "explanation": "创建是系统记下了需求；排队是等待下发；运行是现场正在检查；COLLECTED 表示原始采集完成。失败、取消和超时各有自己的原因。采集成功后还需要分析，才能看到相应的分析结果。",
+      "steps": [
+        "从 CREATED 沿主路径看到 COLLECTED。",
+        "再看失败、取消、超时分支。",
+        "把状态与当前 attempt 绑定起来看；重新执行是新 attempt。"
+      ],
+      "watch": [
+        "COLLECTED 和 analysis=SUCCESS 是两条不同的状态轴。",
+        "同一 task 可以有历史失败轮次和当前成功轮次，不能只看一条旧事件。"
+      ],
+      "sources": [
+        {
+          "path": "api/internal/domain/task.go",
+          "line": 1
+        },
+        {
+          "path": "core/src/server.cpp",
+          "line": 317
+        },
+        {
+          "path": "db/migrations/001_initial.sql",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "id": "07",
+      "file": "07-analysis-lifecycle",
+      "type": "lifecycle",
+      "title": "分析状态与租约",
+      "question": "两个分析器抢同一份任务怎么办？",
+      "explanation": "Analyzer 从数据库领取分析任务并拿到租约，相当于有时间限制的处理资格。活着就续租；进程失联后，其他 Worker 可以接管。提交结果时重新核对轮次、分析 run 和租约，防止旧进程醒来后把新结果覆盖。 这张用状态迁移时序展开；成功发布、重试、接管、取消分别阅读。",
+      "steps": [
+        "区分 Task 的大写 analysis_status 和 AnalysisJob 的小写 status。",
+        "看 claim、续租和过期接管。",
+        "最后看带条件提交：文件已生成不等于这名 Worker 仍有资格发布。"
+      ],
+      "watch": [
+        "Task 创建时即有 PENDING；AnalysisJob 到采集 COLLECTED 后才创建。",
+        "租约过期的 running 可以直接被重新领取、run 递增，不必先写 retry。",
+        "第 07 图下方的 retry、租约接管和取消是不同分支，不是成功之后继续执行；Job 没有 canceled 状态。"
+      ],
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/repository.py",
+          "line": 1
+        },
+        {
+          "path": "analyzer/drop_analyzer/worker.py",
+          "line": 230
+        },
+        {
+          "path": "db/migrations/001_initial.sql",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "id": "08",
+      "file": "08-ai-tool-sequence",
+      "type": "sequence",
+      "title": "AI 怎么读证据、调工具",
+      "question": "模型是不是能随便操作服务器？",
+      "explanation": "在启用 AI_AGENT_BACKEND=agentscope 时，Go 把受限问题、统计投影和工具定义交给独立的 Python AgentScope。模型提出工具调用意图后，AgentScope 回调同一个 Go 进程里的工具网关。Go 重新验证工具名、参数、权限、当前轮次、租约和预算，查询真实证据，再返回有界观察。模型提交报告后，Go 还会校验证据引用、数值和单位。",
+      "steps": [
+        "区分 Go 编排与 Go 工具网关：两个角色，属于同一个服务进程。",
+        "看两个私有 Unix socket：运行请求与工具回调分别走。",
+        "最后看 finish：只有通过证据校验的结果才能提交。"
+      ],
+      "watch": [
+        "普通诊断给模型的是脱敏、有界统计，不是整份 RAW、存储密钥或下载 URL。",
+        "源码修复另有明确同意，允许发送登记项目的受限源码片段，不能笼统说所有模式都不发送源码。",
+        "源码默认 legacy，使用 Go 内模型循环；本图专门展开独立 AgentScope 后端，不代表所有配置都经过 Python。"
+      ],
+      "sources": [
+        {
+          "path": "contracts/agent-runtime-v1.json",
+          "line": 4
+        },
+        {
+          "path": "api/internal/service/agent_runtime.go",
+          "line": 141
+        },
+        {
+          "path": "api/internal/service/diagnosis_tools.go",
+          "line": 183
+        },
+        {
+          "path": "api/internal/service/diagnosis_facts.go",
+          "line": 575
+        }
+      ]
+    },
+    {
+      "id": "09",
+      "file": "09-investigation-sequence",
+      "type": "sequence",
+      "title": "智能调查与自动复测",
+      "question": "说一句“CPU 高”，之后发生什么？",
+      "explanation": "系统先根据真实节点能力生成采集计划，让你检查。你确认后才执行原采集、分析和诊断；有可执行复测方案时，最多再采一次并比较。模型若想补充另一类证据，会提出单独分支，仍需要你确认。每账号最多保留 10 个未结束调查，等待确认也占一个。",
+      "steps": [
+        "先看计划返回和人工确认，规划本身不采集。",
+        "再看原采集 → 分析 → 诊断 → 至多一次复测。",
+        "最后看可选补证和源码修复分支，注意各自前提。"
+      ],
+      "watch": [
+        "缺少某采集器的必要配置可能停在 manual_configuration_required。",
+        "复采结果接近只能增加观察一致性；不能直接证明已找到因果根因或业务延迟改善。"
+      ],
+      "sources": [
+        {
+          "path": "api/internal/service/investigation.go",
+          "line": 22
+        },
+        {
+          "path": "api/internal/service/investigation.go",
+          "line": 504
+        },
+        {
+          "path": "api/internal/service/diagnosis_verify.go",
+          "line": 56
+        },
+        {
+          "path": "api/internal/service/investigation_followups.go",
+          "line": 142
+        }
+      ]
+    },
+    {
+      "id": "10",
+      "file": "10-repair-workflow",
+      "type": "workflow",
+      "title": "源码定位与隔离修复",
+      "question": "AI 改了代码，会改到正在跑的业务吗？",
+      "explanation": "管理员选择已登记的项目并明确同意后，系统把修复放在独立副本里做。模型只能读取允许的源码片段、提出受限修改、调用登记好的验证流程。Go 通过 Unix socket 联系专用执行 Broker；Broker 创建限资源、无网络的新容器执行。最后返回带版本和 SHA 的补丁包供人审阅。",
+      "steps": [
+        "先看项目登记、源码版本和目标身份绑定。",
+        "再看 profile_business_flow、read_source、test_patch 三个受限工具。",
+        "最后看测试收据和补丁包，补丁只应用在隔离副本。"
+      ],
+      "watch": [
+        "通用 Python 适配器有新红绿回归、6 组 CPU 对照和 sham；旧 CRM/Saber 预设有各自验证协议。",
+        "CPU 对照只描述登记组件的受控工作负载，不能自动扩展成生产 P95/P99 改善。补丁不自动部署业务。"
+      ],
+      "sources": [
+        {
+          "path": "api/internal/service/code_repair.go",
+          "line": 237
+        },
+        {
+          "path": "api/internal/service/code_executor.go",
+          "line": 39
+        },
+        {
+          "path": "ops/code_executor.py",
+          "line": 505
+        },
+        {
+          "path": "integrations/generic-python/harness/run_job.py",
+          "line": 84
+        }
+      ]
+    },
+    {
+      "id": "11",
+      "file": "11-recovery-sequence",
+      "type": "sequence",
+      "title": "回执丢了怎样恢复",
+      "question": "服务收到了任务，回包却丢了，会采两次吗？",
+      "explanation": "网络超时只表示发送方不知道结果。Core 可能已经把任务推进到 QUEUED。Outbox 退避后会重新读当前状态：如果已经推进，就把待发送记录确认完成；只有仍满足下发条件时才发送。接收端和状态更新也有幂等与轮次约束。",
+      "steps": [
+        "先看 Core 已落库、Go 没拿到 ACK 的时间窗口。",
+        "再看 Outbox 下一轮重读数据库。",
+        "最后看 published_at 收尾与 Agent 领任务。"
+      ],
+      "watch": [
+        "这个场景通常重读后直接确认 Outbox，不是必然再发一次 CreateTask。",
+        "幂等解决重复操作，attempt 约束解决旧轮次，两者作用不同。"
+      ],
+      "sources": [
+        {
+          "path": "api/internal/repository/fencing.go",
+          "line": 8
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "line": 355
+        },
+        {
+          "path": "core/src/server.cpp",
+          "line": 512
+        }
+      ]
+    },
+    {
+      "id": "12",
+      "file": "12-schedule-composite",
+      "type": "workflow",
+      "title": "定时任务与复合诊断",
+      "question": "多项检查和定时检查怎么组织？",
+      "explanation": "定时任务负责到时间产生一次执行；复合诊断负责把多项检查按依赖关系排起来。每个可运行子项仍走普通采集与分析链。汇总器等子项结束后，区分全部成功、部分成功和失败。",
+      "steps": [
+        "从定时触发入口看 next_run_at 和本轮记录。",
+        "从复合入口看 DAG 依赖、可执行子项和子任务。",
+        "沿普通采集/分析完成回到汇总结果。"
+      ],
+      "watch": [
+        "每轮处理一个已到期时点，下次以当前时间推算；不会逐个补发所有历史时点。",
+        "必选子项失败不等于立即取消其他子项；最终汇总要等 waiting/running 归零。"
+      ],
+      "sources": [
+        {
+          "path": "api/internal/repository/postgres.go",
+          "line": 448
+        },
+        {
+          "path": "api/internal/domain/platform.go",
+          "line": 197
+        },
+        {
+          "path": "api/internal/service/composites.go",
+          "line": 19
+        }
+      ]
+    },
+    {
+      "id": "13",
+      "file": "13-business-signals",
+      "type": "architecture",
+      "title": "关联业务信号",
+      "question": "CPU 高的时候，业务到底有没有变慢？",
+      "explanation": "解释调查表单里的“关联业务信号”：Go 怎样按服务权限和本次采集窗口查询已登记监控源，再把有界、脱敏的指标与日志/调用链摘要交给诊断。",
+      "steps": [
+        "从左上看：页面选择已登记业务服务，Go 校验服务和一跳依赖，只把固定别名 S1…S8 暴露给工具。",
+        "看中间时钟和右侧：从当前 attempt 的有效采集起止确定 window，再用登记查询访问可选遥测源。",
+        "沿下方向左看：校验身份、时间、单位与数量后形成 E 编号观测，供报告、复测和按需补证引用。"
+      ],
+      "watch": [
+        "这是可选数据源接入：Prometheus/Loki/Tempo 或 Drop adapter 按管理员登记配置选择，不表示全部已部署。",
+        "无源、坏时钟、空结果不能当正常；CPU 样本不能换算业务延迟，同时段关联和拓扑均不证明根因。"
+      ],
+      "sources": [
+        {
+          "path": "api/internal/service/diagnostic_signal_query.go",
+          "line": 85
+        },
+        {
+          "path": "api/internal/service/diagnostic_signal_query.go",
+          "line": 139
+        },
+        {
+          "path": "api/internal/service/diagnostic_signal_query.go",
+          "line": 252
+        },
+        {
+          "path": "api/internal/service/diagnostic_signal_fence.go",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "id": "14",
+      "file": "14-platform-observability",
+      "type": "architecture",
+      "title": "平台自身怎么监控",
+      "question": "给 Drop 自己做体检，用的是哪条链？",
+      "explanation": "这一层给 Drop 自己做体检：看任务有没有积压、哪个组件报错、一次请求经过了哪些阶段。它与给业务程序采 CPU、堆和 I/O 的诊断链路分开。",
+      "steps": [
+        "先看左侧四个工作进程：Prometheus 每 15 秒主动抓取它们的 /metrics；平台 trace 由进程通过 OTLP HTTP 发给 OTel Collector，再批量送到 Tempo。",
+        "再看 Grafana：它分别查询 Prometheus 的指标和 Tempo 的链路。当前 OTel 配置只有 traces 流水线，不是指标中转站。",
+        "最后看下方告警：Prometheus 评估规则，Alertmanager 分组后向 Maintenance 的 /alerts 发送带授权通知，Maintenance 把受限告警字段写进审计。"
+      ],
+      "watch": [
+        "监控来自可选 compose.observability.yml 叠加文件；源码有配置不代表所有环境已经启用。管理端口只绑定宿主机 loopback，按部署说明从本机或 SSH 隧道访问。",
+        "health、心跳、指标、trace 分别证明不同事情。trace_id 和 span links 帮助串联平台调用，不能代替业务采样与受控复测，也不能单独证明业务根因。"
+      ],
+      "sources": [
+        {
+          "path": "deploy/compose.observability.yml",
+          "line": 1,
+          "label": "可选叠加与组件监听"
+        },
+        {
+          "path": "deploy/observability/prometheus.yml",
+          "line": 1,
+          "label": "真实抓取目标与告警路由"
+        },
+        {
+          "path": "deploy/observability/otel.yml",
+          "line": 1,
+          "label": "仅 traces 的 Collector 流水线"
+        },
+        {
+          "path": "deploy/observability/grafana/datasources/drop.yml",
+          "line": 1,
+          "label": "Grafana 的两个实际数据源"
+        },
+        {
+          "path": "api/internal/httpapi/server.go",
+          "line": 288,
+          "label": "API ready 的真实检查范围"
+        },
+        {
+          "path": "ops/maintenance.py",
+          "line": 228,
+          "label": "授权告警接收与审计"
+        }
+      ]
+    }
+  ],
+  "modules": [
+    {
+      "name": "React 工作台",
+      "role": "把你的选择变成结构化请求，再把状态、表格和调用树展示出来。",
+      "input": "表单、当前会话、API JSON、事件、授权制品",
+      "output": "REST 请求、SSE 连接、Worker 消息、图表",
+      "path": "web/src/views/TaskDetail.tsx"
+    },
+    {
+      "name": "Go API / 编排",
+      "role": "检查谁能采谁，登记事实，安排采集、分析、调查和修复。",
+      "input": "HTTP JSON、数据库记录、AgentScope 回调",
+      "output": "gRPC 指令、短期上传下载授权、受限模型上下文、状态 JSON",
+      "path": "api/internal/service/tasks.go"
+    },
+    {
+      "name": "C++ Core Server",
+      "role": "接收采集任务，管理节点连接，向现场 Agent 发指令并收回执。",
+      "input": "CreateTask、注册/心跳、采集结果元数据",
+      "output": "待执行指令、取消轮次、采集状态与制品记录",
+      "path": "core/src/server.cpp"
+    },
+    {
+      "name": "C++ Agent / Runner",
+      "role": "在目标机器上检查身份，调用允许的工具，收集文件并上传。",
+      "input": "TaskDesc、目标身份、预算、短期 PUT 授权",
+      "output": "RAW/附件文件、进度、NotifyResult、节点心跳",
+      "path": "core/src/agent.cpp"
+    },
+    {
+      "name": "Python Analyzer",
+      "role": "把不同采集器的文件解析成可以查、可以画的结果。",
+      "input": "数据库分析租约、RAW、部分类型的 ELF 等附件",
+      "output": "有界摘要、热点表、typed sections、调用树 gzip、分析清单",
+      "path": "analyzer/drop_analyzer/worker.py"
+    },
+    {
+      "name": "PostgreSQL",
+      "role": "记工作账：哪个用户、哪项任务、哪一轮、哪个状态，以及事件和结果引用。",
+      "input": "参数化 SQL / 事务",
+      "output": "任务事实、授权、Outbox、分析任务/租约、调查与工具收据",
+      "path": "db/migrations/001_initial.sql"
+    },
+    {
+      "name": "MinIO + storage-gateway",
+      "role": "放证据文件。内部网关把受控 S3 请求转到私有存储。",
+      "input": "RAW、附件、分析制品的 PUT",
+      "output": "授权读取的文件字节；浏览器经同源只读 /objects 代理取文件",
+      "path": "deploy/storage-gateway.conf"
+    },
+    {
+      "name": "Python AgentScope",
+      "role": "在启用 agentscope 后端时管理与模型的多轮对话，把模型的工具意图交回 Go 校验执行；源码默认另有 Go 内 legacy 后端。",
+      "input": "phase、model、messages、tools、budget、可见 checkpoint",
+      "output": "工具回调、受约束报告、模型轮次记账请求",
+      "path": "agent_runtime/drop_agent_runtime/wire.py"
+    },
+    {
+      "name": "模型供应方",
+      "role": "根据允许看到的上下文提出解释、计划或修改建议。",
+      "input": "问题、脱敏统计、受限工具观察；修复需另获同意后可有源码片段",
+      "output": "文本、结构化工具调用或结构化结论；最终仍由 Go 验收",
+      "path": "api/internal/service/diagnosis_agentscope.go"
+    },
+    {
+      "name": "源码执行 Broker + 沙箱",
+      "role": "核对已登记项目与允许动作，在隔离容器里测补丁。",
+      "input": "受限 /rpc 动作、项目/版本、执行 ID、结构化补丁",
+      "output": "有界执行/测试收据、对照结果、补丁包",
+      "path": "ops/code_executor.py"
+    },
+    {
+      "name": "诊断规则 / 诊断知识",
+      "role": "规则提供可配置判据；知识保存诊断方法、经复核的经验和 Playbook。",
+      "input": "受权限控制的规则修改、案例复核、方法选择",
+      "output": "规则建议、诊断方法目录、合格且仍有权限的案例参考",
+      "path": "api/internal/httpapi/diagnostic_knowledge.go"
+    },
+    {
+      "name": "质量验证页",
+      "role": "读取已经执行并审阅发布的质量报告。",
+      "input": "管理员 GET 请求、离线发布目录里的有界 JSON",
+      "output": "执行记录与证据摘要；点击查询不会执行任意测试命令",
+      "path": "api/internal/httpapi/quality.go"
+    },
+    {
+      "name": "业务信号适配与登记",
+      "role": "把已授权业务服务在本次采集窗口里的表现接进诊断。按登记配置查询固定指标、日志类别和Trace摘要，缺数据保持未知。",
+      "input": "service_ref、signal、当前采集window；管理员配置的源/查询/凭据文件",
+      "output": "固定单位的P95/错误率/吞吐，受限日志/Trace/变更观测与证据引用",
+      "path": "api/internal/service/diagnostic_signal_query.go"
+    },
+    {
+      "name": "Prometheus（可选监控层）",
+      "role": "定时主动读取Drop各组件的/metrics，保存指标并评估告警。业务诊断也可以单独登记某个Prometheus作为业务指标源，授权与查询范围仍需另配。",
+      "input": "HTTP /metrics响应、受管规则",
+      "output": "时序查询、告警到Alertmanager",
+      "path": "deploy/observability/prometheus.yml"
+    },
+    {
+      "name": "OTel Collector / Tempo（可选）",
+      "role": "接收并保存平台执行链路。当前Collector只配traces流水线，指标由Prometheus直接抓。",
+      "input": "工作进程OTLP HTTP /v1/traces",
+      "output": "Collector批量转Tempo；Tempo提供Trace查询",
+      "path": "deploy/observability/otel.yml"
+    },
+    {
+      "name": "Grafana（可选）",
+      "role": "把监控数据画成面板，是看平台运行情况的另一个入口。",
+      "input": "查询Prometheus和Tempo的结果",
+      "output": "监控仪表盘与链路检索",
+      "path": "deploy/observability/grafana/datasources/drop.yml"
+    },
+    {
+      "name": "Alertmanager / Maintenance（可选）",
+      "role": "对平台告警分组并受控记录。Maintenance还做制品维护与对账；这里只画告警和监控职责。",
+      "input": "Prometheus规则告警；带Bearer授权的/alerts受限通知",
+      "output": "MONITORING_ALERT审计、有界维护指标与健康状态",
+      "path": "ops/maintenance.py"
+    }
+  ],
+  "communications": [
+    {
+      "from": "浏览器",
+      "to": "Go API",
+      "protocol": "同源 HTTPS / REST",
+      "payload": "GET /task-kinds、/agents；POST /tasks：name、kind、target_agent_id、parameters、visibility 等；写请求携会话、CSRF 和相应幂等键。",
+      "why": "列出能选的项目，提交任务并返回 task/attempt。",
+      "source": {
+        "path": "api/internal/httpapi/server.go",
+        "line": 76
+      }
+    },
+    {
+      "from": "Go API",
+      "to": "Core Server",
+      "protocol": "gRPC + mTLS",
+      "payload": "Control.CreateTask(TaskDesc)：task_id、attempt_id、kind、target、parameters、budget、deadline、upload_targets、格式、pipeline 等；返回 Ack。",
+      "why": "告诉采集控制面本轮要做什么。",
+      "source": {
+        "path": "contracts/drop.proto",
+        "line": 86
+      }
+    },
+    {
+      "from": "现场 Agent",
+      "to": "Core Server",
+      "protocol": "gRPC + mTLS",
+      "payload": "InitAgent.Init 的 AgentInfo；HealthCheck.Do 的 agent_id、CPU/内存/负载、running_attempt_ids、resources_json；响应带 tasks 与 cancel_attempt_ids。",
+      "why": "报在线、报实际能力、领任务、领取消。箭头表示 Agent 发起 RPC。",
+      "source": {
+        "path": "contracts/drop.proto",
+        "line": 171
+      }
+    },
+    {
+      "from": "Agent / Runner",
+      "to": "被采集的进程",
+      "protocol": "固定 argv 子进程、attach、procfs 或已配置 profile 端点",
+      "payload": "PID/启动时间/UID、时长、频率、允许的类型选项；具体工具和输出见采集表。",
+      "why": "取得现场证据，不接受任意 shell 命令。",
+      "source": {
+        "path": "core/src/runner.cpp",
+        "line": 1
+      }
+    },
+    {
+      "from": "Agent",
+      "to": "storage-gateway → MinIO",
+      "protocol": "S3 PUT / 短期预签名授权",
+      "payload": "RAW 及按种类允许的 BINARY、MANIFEST、LOG 等文件字节。内部默认网络是 HTTP S3，不等于公网 HTTPS。",
+      "why": "让大文件独立存储；Agent 不持有长期存储凭证。",
+      "source": {
+        "path": "core/src/artifact.cpp",
+        "line": 149
+      }
+    },
+    {
+      "from": "Agent",
+      "to": "Core Server",
+      "protocol": "Hotmethod.NotifyResult / gRPC",
+      "payload": "ResultRequest：agent/task/attempt、success、exit_code、error_code、受限去敏的 error_message、runner_metadata_json；ArtifactInfo 带 object_key、size、sha256、name、format、content_type、kind。",
+      "why": "登记采到了哪些文件或为什么失败，回执不是完整采样文件。",
+      "source": {
+        "path": "contracts/drop.proto",
+        "line": 134
+      }
+    },
+    {
+      "from": "Go / Core / Analyzer",
+      "to": "PostgreSQL",
+      "protocol": "各自受限数据库身份 / SQL 事务",
+      "payload": "task、attempt、events、artifacts、Outbox、analysis_job、lease/run、结果与授权等。各服务只访问职责需要的对象。",
+      "why": "原子保存状态和事件，靠条件写入挡住迟到轮次及失效租约。",
+      "source": {
+        "path": "db/migrations/001_initial.sql",
+        "line": 1
+      }
+    },
+    {
+      "from": "Analyzer",
+      "to": "MinIO",
+      "protocol": "内部 S3 GET / PUT",
+      "payload": "GET RAW 与解析附件，下载后复算 SHA；PUT summary、调用树 gzip、manifest 等分析制品。",
+      "why": "将原始证据加工成可展示结果；SQL 最后发布可见引用。",
+      "source": {
+        "path": "analyzer/drop_analyzer/worker.py",
+        "line": 230
+      }
+    },
+    {
+      "from": "页面",
+      "to": "Go API",
+      "protocol": "SSE + REST 重读",
+      "payload": "GET /tasks/:id/events/stream，重连携 Last-Event-ID；服务器发送 id、event:task_status、data JSON；完整帧后推进游标。",
+      "why": "让页面及时更新。ID/游标作为十进制字符串避免大整数精度丢失。",
+      "source": {
+        "path": "web/src/event-stream.ts",
+        "line": 194
+      }
+    },
+    {
+      "from": "Profile Worker",
+      "to": "Go → 同源 /objects → MinIO",
+      "protocol": "授权 REST + 只读 GET / HEAD",
+      "payload": "先按 task/artifact ID 获取最多 5 分钟且受保留期约束的 URL，再取 gzip 调用树；Nginx 保留内部签名所需 Host。获授权 RAW 由任务详情的普通下载按钮另行申请授权、跳转下载。",
+      "why": "浏览器凭短期授权读取文件；公网对象代理不提供上传。",
+      "source": {
+        "path": "api/internal/storage/minio.go",
+        "line": 67
+      }
+    },
+    {
+      "from": "React",
+      "to": "Layout Worker",
+      "protocol": "浏览器 Web Worker postMessage",
+      "payload": "消息实际是 {root, options}：调用树与布局选项；返回各节点布局。页面通过终止旧 Worker 隔离旧布局任务。",
+      "why": "下载、解压、树解析与布局分到工作线程，减少主页面卡顿。",
+      "source": {
+        "path": "web/src/components/flame.worker.ts",
+        "line": 73
+      }
+    },
+    {
+      "from": "Go 编排",
+      "to": "Python AgentScope",
+      "protocol": "私有 Unix socket / HTTP POST /v1/run（启用 agentscope 后端）",
+      "payload": "phase、model、system_prompt、messages、tools、budget、可见 checkpoint。每次运行有独立私有 capability，与公开 run_id 不同。",
+      "why": "运行受限模型会话；两端用 SO_PEERCRED 核实际进程 UID。 源码默认 legacy 后端，使用 Go 内模型循环；本图展开 AI_AGENT_BACKEND=agentscope 分支，不推断当前生产配置。",
+      "source": {
+        "path": "api/internal/service/agent_runtime.go",
+        "line": 141
+      }
+    },
+    {
+      "from": "AgentScope",
+      "to": "Go 工具网关（同一 Go 进程）",
+      "protocol": "另一私有 Unix socket / POST /v1/callback/{run_id}",
+      "payload": "type、round、call_id、name、arguments 与控制面 capability；响应为校验后的有界工具观察。capability 不给模型。",
+      "why": "模型只能提议调用；Go 负责权限、预算、事实与执行边界。",
+      "source": {
+        "path": "api/internal/service/agent_runtime.go",
+        "line": 620
+      }
+    },
+    {
+      "from": "AgentScope",
+      "to": "模型供应方",
+      "protocol": "服务端配置的 HTTPS 模型 API",
+      "payload": "受限 messages 与 tools；普通诊断是脱敏统计投影，源码修复需另获同意。",
+      "why": "模型推理；不传普通 RAW、存储 URL、Cookie 或执行器凭证。",
+      "source": {
+        "path": "api/internal/service/diagnosis_tools.go",
+        "line": 183
+      }
+    },
+    {
+      "from": "Go 修复编排",
+      "to": "专用执行 Broker",
+      "protocol": "第三条用途独立的 Unix socket / POST /rpc",
+      "payload": "action、project_id、source_revision、execution_id、arguments；Broker 再按固定镜像/命令/目录策略创建临时容器。",
+      "why": "API 不拿 Docker socket，模型不获得宿主任意执行权限。",
+      "source": {
+        "path": "api/internal/service/code_executor.go",
+        "line": 39
+      }
+    },
+    {
+      "from": "Go业务信号工具",
+      "to": "管理员登记的业务遥测源",
+      "protocol": "固定HTTP API / 有界时间窗",
+      "payload": "只接service_ref和signal；Go据登记配置选择Prometheus/Loki/Tempo或轻量adapter，查询本次有效window。模型不提供URL、查询语言或凭据。",
+      "why": "把固定单位和数量上限的观测与采样证据并列，原日志正文和真实Trace ID不进入模型。",
+      "source": {
+        "path": "api/internal/service/diagnostic_signal_query.go",
+        "line": 139
+      }
+    },
+    {
+      "from": "Prometheus（可选）",
+      "to": "API / Core / Agent / Analyzer等/metrics",
+      "protocol": "HTTP GET /metrics，每15秒拉取",
+      "payload": "平台HTTP/gRPC、进程、队列、Outbox、租约等计数、耗时与状态；具体目标按部署配置。",
+      "why": "观察平台自身是否健康和积压，与Agent领任务心跳不同。",
+      "source": {
+        "path": "deploy/observability/prometheus.yml",
+        "line": 1
+      }
+    },
+    {
+      "from": "工作进程（启用OTLP时）",
+      "to": "OTel Collector → Tempo",
+      "protocol": "OTLP HTTP /v1/traces",
+      "payload": "有界平台span、有效上下文和异步span links；Collector配置memory_limiter、batch，只转发traces。",
+      "why": "串联执行链路；并不承诺异步阶段始终共用同一个trace_id，更不能代替权限或因果证明。",
+      "source": {
+        "path": "deploy/observability/otel.yml",
+        "line": 1
+      }
+    },
+    {
+      "from": "Grafana（可选）",
+      "to": "Prometheus / Tempo",
+      "protocol": "受管HTTP数据源 / proxy",
+      "payload": "监控面板的指标查询与平台Trace查询；当前受管配置没有Loki。",
+      "why": "给运维人员查看平台监控。业务信号的可选Loki接入是另一条登记链。",
+      "source": {
+        "path": "deploy/observability/grafana/datasources/drop.yml",
+        "line": 1
+      }
+    },
+    {
+      "from": "Prometheus → Alertmanager",
+      "to": "Maintenance /alerts → PostgreSQL审计",
+      "protocol": "内网HTTP告警 + Bearer受限接收",
+      "payload": "规则告警经分组，Maintenance限定正文/批次并提取固定alertname、severity、job、instance和firing/resolved字段。",
+      "why": "保存受限MONITORING_ALERT审计；不开放任意命令执行入口。",
+      "source": {
+        "path": "ops/maintenance.py",
+        "line": 228
+      }
+    }
+  ],
+  "fields": [
+    {
+      "name": "task_id",
+      "meaning": "这件检查工作的编号，像工单号。",
+      "reason": "查详情、权限、历史轮次、结果都围绕它。"
+    },
+    {
+      "name": "attempt_id",
+      "meaning": "某一次实际执行的编号。像同一工单第几次上门。",
+      "reason": "重试用新轮次，旧回执不能改新一轮。"
+    },
+    {
+      "name": "kind / analysis_pipeline",
+      "meaning": "用哪种采集器、交给哪种分析流程。",
+      "reason": "folded、HPROF、pprof、事件 JSON 不能混着解析。"
+    },
+    {
+      "name": "target",
+      "meaning": "被检查的进程/容器/主机的结构化身份。",
+      "reason": "只用 PID 会认错重启后复用编号的进程；启动时间、UID 等提供额外绑定。"
+    },
+    {
+      "name": "duration / frequency",
+      "meaning": "采多久、每秒尝试采多少次。",
+      "reason": "采样有开销与误差，频率不是请求吞吐量。实际输出还取决于工具与权限。"
+    },
+    {
+      "name": "budget / deadline",
+      "meaning": "文件、内存、CPU、进程数、并发和到期时间的边界。",
+      "reason": "采集任务需要限制开销，模型或表单不能越过服务器策略。"
+    },
+    {
+      "name": "object_key",
+      "meaning": "证据文件在存储桶里的地址标识。",
+      "reason": "它不是文件正文，也不是永久公开下载地址。"
+    },
+    {
+      "name": "size / sha256 / format",
+      "meaning": "多大、文件指纹是什么、应该按什么格式读。",
+      "reason": "元数据核对、实际下载完整性检查、解析器选择和缓存身份各有自己的作用。"
+    },
+    {
+      "name": "lease / analysis run",
+      "meaning": "某个分析器这段时间的处理资格，以及分析的当前轮次。",
+      "reason": "旧进程不能凭旧资格发布新结果。"
+    },
+    {
+      "name": "event sequence",
+      "meaning": "同一事件流里的顺序号。",
+      "reason": "断线从上次完整帧之后续读；事件用于通知，最终事实仍重读数据库。"
+    },
+    {
+      "name": "run_id / call_id / capability",
+      "meaning": "模型会话号、工具调用号、私有运行授权是三个东西。",
+      "reason": "公开 ID 方便追踪，私有授权控制回调；持久化的可见收据用来防止盲目重复动作。"
+    },
+    {
+      "name": "unit / self / total",
+      "meaning": "单位、函数自身权重、含子调用的累计权重。",
+      "reason": "samples、bytes、ticks、ns 的比例不能互当。火焰图宽度反映权重，默认不是时间轴。"
+    }
+  ],
+  "storage": [
+    {
+      "place": "PostgreSQL",
+      "data": "用户/组/授权；task/attempt；状态/事件/Outbox；分析任务与租约；有界结果；调查、工具收据与知识条目。",
+      "readers": "Go、Core Server、Analyzer 按职责访问。"
+    },
+    {
+      "place": "私有 MinIO",
+      "data": "RAW；类型允许的 ELF/二进制/采集清单/日志；分析摘要、完整调用树 gzip、分析 manifest 等制品。",
+      "readers": "Agent 持短期 PUT 授权上传；Analyzer 使用服务端身份；用户经 Go 授权下载。"
+    },
+    {
+      "place": "Agent 本地工作目录",
+      "data": "工具临时输出、helper/上传恢复需要的受控状态与待上传文件。",
+      "readers": "现场 Agent/受控 helper；不提供任意本地路径给浏览器读取。"
+    },
+    {
+      "place": "Browser Worker / 页面内存",
+      "data": "当前结果、下载解压后的调用树、布局、绑定 task/attempt/artifact/SHA 元数据的缓存。",
+      "readers": "当前授权页面；退出或取消时终止相应 Worker。"
+    },
+    {
+      "place": "修复隔离副本",
+      "data": "登记源码的本轮副本、候选修改、有界测试输出、对照结果和补丁。",
+      "readers": "Broker 创建的限资源、无网络容器。原业务不自动替换。"
+    },
+    {
+      "place": "模型请求 / 可见 checkpoint",
+      "data": "普通诊断只含受限问题与脱敏投影；checkpoint 保存可见消息、计数和工具收据。",
+      "readers": "AgentScope 和受控 Go 编排；不保存私有 capability 或隐藏思维链。"
+    }
+  ],
+  "walkthrough": [
+    {
+      "title": "1. 先确定要查谁",
+      "text": "打开“接入节点”，选一个你有权限使用且在线的节点，查看进程和实际采集能力。以一个已授权的 Python 进程为例：节点需有可用 py-spy 及对应 attach 权限，记住当前 PID/启动身份。",
+      "diagram": "01"
+    },
+    {
+      "title": "2. 创建一次具体采集",
+      "text": "点“新建诊断”，选“Python CPU 调用栈”，选刚才的节点/进程，设置 20 秒、99 Hz，“包含原生调用栈”保持关闭后提交。系统向 Go 提交的是结构化参数；这个表单不会上传整份业务源码。",
+      "diagram": "03"
+    },
+    {
+      "title": "3. 看它是否真的开始",
+      "text": "进入任务详情，沿状态、事件观察创建、排队和采集。此时 Go 已有工单，Core/Agent 再安排现场工作。若权限、工具或目标身份不满足，查看明确错误原因，别把失败当作零开销。",
+      "diagram": "06"
+    },
+    {
+      "title": "4. 等原始证据与分析",
+      "text": "py-spy 输出 python.folded。Agent 上传并登记回执，Analyzer 下载验 SHA 后按 folded 解析。采集 COLLECTED 后，分析仍可能在 PENDING/RUNNING；等 analysis=SUCCESS 再看分析结果。",
+      "diagram": "04"
+    },
+    {
+      "title": "5. 读热点与火焰图",
+      "text": "打开结果，先看样本量、单位和质量提示，再看 Top 函数与调用路径。宽的是权重高的路径，横向不是请求的先后时间。可以放大节点、搜索函数，也可以按当前权限下载制品核查。",
+      "diagram": "05"
+    },
+    {
+      "title": "6. 让 AI 解释已有证据",
+      "text": "在任务的诊断区域发起诊断并按提示同意。模型通过受限工具读热点、质量和证据引用；Go 验收结论中的数值与单位。模型提出假设不等于已经证明根因。",
+      "diagram": "08"
+    },
+    {
+      "title": "7. 再走智能调查入口",
+      "text": "到“智能性能调查”描述问题、选目标，点生成采集计划。先看它打算用什么采集器、采多久，确认后执行。系统最多自动复测一次；额外补证分支需另确认。未结束调查最多 10 个。",
+      "diagram": "09"
+    },
+    {
+      "title": "关联业务信号，再核对业务表现",
+      "text": "在调查表单的“关联业务信号”中选择已登记且有权读取的业务服务；没有可用数据源时保留“仅使用采集证据”。确认计划后，系统按本次有效采集时间窗查询。看真实P95/错误率/吞吐的单位与证据；缺数据保持未知，不能由CPU样本代算业务延迟。",
+      "diagram": "13"
+    },
+    {
+      "title": "8. 有登记项目再做源码修复",
+      "text": "管理员在“源码定位与修复”选已登记项目并明确同意。系统在隔离副本中定位、改动、回归和对照；完成后下载补丁包、人审后自行合并部署。没有登记与绑定的项目不能直接套用在线目标修复。",
+      "diagram": "10"
+    },
+    {
+      "title": "9. 扩展到定时与多项检查",
+      "text": "想周期执行，去“计划任务”配置已授权目标；想联合 CPU/内存等检查，去“复合诊断”配置子项与依赖。它们复用前面的普通采集分析链，不能绕过工具与目标权限。",
+      "diagram": "12"
+    },
+    {
+      "title": "10. 最后看管理和质量",
+      "text": "“权限组”管谁能看、谁能使用节点；“诊断规则”管规则判据；“诊断知识”管方法和经复核经验；“质量验证”读取已经发布的执行证据。总览只把这些事实汇总显示。",
+      "diagram": "01"
+    },
+    {
+      "title": "查看平台自监控（可选配置）",
+      "text": "若管理员已启用监控叠加配置，按部署说明从本机或SSH隧道访问Grafana等管理入口，查看平台队列、错误、Outbox和链路。总览里的节点在线来自心跳；health/ready、监控指标和一次实际采集成功是不同证据。",
+      "diagram": "14"
+    }
+  ],
+  "example": {
+    "title": "用两行示例看懂：文件怎样变成图",
+    "notice": "以下是手写的合成教学数据，不是本次或线上真实采样结果。",
+    "raw": "api;decode;parse 5\napi;lookup 15\n",
+    "explanation": "一行是一条调用路径，末尾是权重。这里共 20 个样本权重：api 累计 20；decode 累计 5；parse 自身 5；lookup 自身 15。lookup 占 15/20=75%，parse 占 25%。父函数的累计值包含子调用，不要把所有层的累计值相加。",
+    "result": "{\n  \"name\": \"api\", \"self\": 0, \"total\": 20,\n  \"children\": [\n    {\"name\":\"decode\", \"self\":0, \"total\":5,\n     \"children\":[{\"name\":\"parse\",\"self\":5,\"total\":5}]},\n    {\"name\":\"lookup\",\"self\":15,\"total\":15}\n  ]\n}\n",
+    "result_notice": "这是解释 self/total 的简化树，不是平台完整响应 schema。普通折叠栈按路径累计后，Analyzer 再生成正式有界摘要与完整树制品。",
+    "limits": [
+      "75% 是这份样本的权重占比，不等于服务器 CPU 使用率 75%，也不等于请求花了 75% 的墙钟时间。",
+      "这份 folded 没有每个请求的完整时间线，无法直接算 P95/P99；内存类与事件类采集也应按自己的单位读。",
+      "空事件窗口可能没有事件；零字节、不完整或质量不合格的 RAW 需要按具体解析/错误语义处理，不能一概补成零开销。"
+    ]
+  },
+  "reading": [
+    "看总览先认角色；看数据流分清消息和文件；看时序从上往下找先后；看状态图理解等待、成功和失败。",
+    "点图上的消息或节点可以查看说明；用右下角缩放、路径、地图、搜索探索。标准导出在部分长注释时序图会展开细注，可能重叠；要保存清楚的静态图，优先下载图册提供的“阅读版 PNG”。需要单独交互查看时点“独立打开”。",
+    "图与说明按当前工作区源码绘制，基础 Git revision 与被引用文件 SHA 记录在证据清单中。本地修改也计入来源，不能只把基准提交当成全部文件内容。"
+  ]
+}

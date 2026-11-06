@@ -1,0 +1,821 @@
+{
+  "artifact": "backend.md",
+  "intended_merge_target": "docs/PROJECT_INTERVIEW_HANDBOOK.md",
+  "verification_date": "2026-10-25",
+  "scope": "Go HTTP 编排、PostgreSQL 与跨服务一致性，只读源码核对；未修改实现",
+  "verification": {
+    "kind": "static_source_and_document_checks",
+    "markdown_h2_count": 13,
+    "han_characters": 11879,
+    "markdown_bytes": 52342,
+    "markdown_sha256": "1d2462497d758762480ad5ead612437f9fe5d86963644fe0c50b24b724241dd3",
+    "relative_link_count": 54,
+    "links_resolved_from": "docs/",
+    "missing_local_links": [],
+    "tests_run": [],
+    "runtime_concurrency_reproduction": false
+  },
+  "non_guarantees": [
+    "不是网络 exactly-once",
+    "SSE bigserial 不等于事务提交顺序；未证明极端并发下完整无丢",
+    "并非全部后台审计都在对应业务事务内",
+    "没有对象存储与 PostgreSQL 分布式事务",
+    "默认租约与配置不是所有部署的固定承诺",
+    "没有虚构 QPS、SLO、用户贡献或企业身份"
+  ],
+  "facts": [
+    {
+      "id": "create-entry",
+      "claim": "普通任务 HTTP 创建转交 Tasks.Create；请求只先发布持久任务身份，不等待完整采集分析。",
+      "sources": [
+        {
+          "path": "api/internal/httpapi/resources.go",
+          "symbols": [
+            "Server.createTask"
+          ]
+        },
+        {
+          "path": "api/internal/service/tasks.go",
+          "symbols": [
+            "Tasks.Create"
+          ]
+        }
+      ],
+      "evidence": "current_source_read"
+    },
+    {
+      "id": "http-json-boundary",
+      "claim": "普通 bind 限制请求体、拒绝未知结构字段和尾随 JSON；POST tasks 放宽到 64MiB，普通请求 4MiB。",
+      "sources": [
+        {
+          "path": "api/internal/httpapi/server.go",
+          "symbols": [
+            "Server.bind"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "未发现该解码函数专门拒绝重复 JSON key；内层导入解码大小仍需通过领域校验。"
+    },
+    {
+      "id": "normalize-validate",
+      "claim": "Create 先角色和 key 检查，再 Normalize/Validate、组写权限、首次现场 Agent operate/在线/能力与目标准入。",
+      "sources": [
+        {
+          "path": "api/internal/service/tasks.go",
+          "symbols": [
+            "Tasks.Create",
+            "ValidateKey"
+          ]
+        },
+        {
+          "path": "api/internal/domain/task.go",
+          "symbols": [
+            "CreateTask.Normalize",
+            "CreateTask.Validate"
+          ]
+        },
+        {
+          "path": "api/internal/service/targets.go",
+          "symbols": [
+            "validateTargetResources"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "幂等快速重放已有现场任务发生在重复检查 Agent 在线和目标资源之前。"
+    },
+    {
+      "id": "target-identity",
+      "claim": "目标策略与进程快照核对 PID、start time/UID，并将身份传入现场执行边界。",
+      "sources": [
+        {
+          "path": "api/internal/service/targets.go",
+          "symbols": [
+            "validateTargetResources"
+          ]
+        },
+        {
+          "path": "core/src/target.cpp",
+          "symbols": []
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "快照与执行存在时间差；必须依赖执行前的 OS 身份复核，不能称永久授权证明。"
+    },
+    {
+      "id": "idempotency-key",
+      "claim": "普通创建键为 8–128 字符且拒绝 CR/LF/NUL；按 owner/key 读取已存 request hash，同键异参冲突。",
+      "sources": [
+        {
+          "path": "api/internal/service/tasks.go",
+          "symbols": [
+            "ValidateKey",
+            "Tasks.Create"
+          ]
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.Existing",
+            "Repository.CreateTask"
+          ]
+        }
+      ],
+      "evidence": "current_source_read"
+    },
+    {
+      "id": "hash-input",
+      "claim": "请求 hash 对规范化输入计算，早于服务端追踪和导入 source 注入，也早于资源快照字段补充。",
+      "sources": [
+        {
+          "path": "api/internal/service/tasks.go",
+          "symbols": [
+            "Tasks.Create"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "不是最终所有执行字段的字节摘要，也不承诺任意语义等价 JSON 都有同 hash。"
+    },
+    {
+      "id": "atomic-create",
+      "claim": "Repository.CreateTask 单事务保存 Task、首轮 attempt、创建事件、DISPATCH Outbox（现场任务）与审计。",
+      "sources": [
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.CreateTask"
+          ]
+        }
+      ],
+      "evidence": "current_source_read"
+    },
+    {
+      "id": "database-uniqueness",
+      "claim": "持久身份具有 tasks(creator_id,idempotency_key)、task_attempts(task_id,attempt)、analysis_jobs(task_id,attempt_id)、outbox(attempt_id,event_type) 等独立唯一约束。",
+      "sources": [
+        {
+          "path": "db/migrations/001_initial.sql",
+          "symbols": []
+        },
+        {
+          "path": "db/migrations/002_platform.sql",
+          "symbols": []
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "各约束解决不同重复；不能互相替代业务准入与当前轮次判断。"
+    },
+    {
+      "id": "identities",
+      "claim": "Task.id、采集 attempt.id/attempt 轮次、AnalysisJob.attempt 分别表达逻辑任务、输入执行身份和分析领取轮次。",
+      "sources": [
+        {
+          "path": "api/internal/domain/task.go",
+          "symbols": [
+            "Task",
+            "Attempt"
+          ]
+        },
+        {
+          "path": "analyzer/drop_analyzer/repository.py",
+          "symbols": [
+            "Job",
+            "Repository.claim"
+          ]
+        }
+      ],
+      "evidence": "current_source_read"
+    },
+    {
+      "id": "state-axes",
+      "claim": "Task 采集与分析两轴显式保存；Task 分析大写含 CANCELED，AnalysisJob 小写没有 canceled。",
+      "sources": [
+        {
+          "path": "api/internal/domain/task.go",
+          "symbols": [
+            "Task.Terminal"
+          ]
+        },
+        {
+          "path": "db/migrations/001_initial.sql",
+          "symbols": []
+        },
+        {
+          "path": "analyzer/drop_analyzer/repository.py",
+          "symbols": []
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "COLLECTED 不代表当前分析完成。"
+    },
+    {
+      "id": "outbox-lock",
+      "claim": "DispatchOne 以 FOR UPDATE OF outbox SKIP LOCKED 锁住 Outbox，RPC 在该事务和行锁范围内；发 RPC 前不持 Task 行锁。",
+      "sources": [
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.DispatchOne"
+          ]
+        },
+        {
+          "path": "api/internal/service/tasks.go",
+          "symbols": [
+            "Tasks.dispatch"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "不能说网络期间完全不持数据库锁；避免预锁 Task 是为了不与 Core 的 Task 更新形成跨进程等待环。"
+    },
+    {
+      "id": "dispatch-timeout",
+      "claim": "Tasks.dispatch 为 Core RPC 设置 4 秒超时；派发错误按 min(attempt²,60) 秒退避，最多十次并受 deadline 限制。",
+      "sources": [
+        {
+          "path": "api/internal/service/tasks.go",
+          "symbols": [
+            "Tasks.dispatch"
+          ]
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.DispatchOne"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "Outbox.attempt 是派发尝试，不是采集轮次或分析轮次。"
+    },
+    {
+      "id": "ack-loss",
+      "claim": "Core 已提交 QUEUED 而响应丢失时，后续 DispatchOne 重读发现不再 Dispatchable，直接填 published_at 收尾，不必再次发 CreateTask。",
+      "sources": [
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.DispatchOne"
+          ]
+        },
+        {
+          "path": "api/internal/repository/fencing.go",
+          "symbols": [
+            "Dispatchable"
+          ]
+        },
+        {
+          "path": "core/src/server.cpp",
+          "symbols": [
+            "CreateTask"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "该结论限定已提交 QUEUED 的场景；接收端仍需处理其他重复 RPC。"
+    },
+    {
+      "id": "dispatch-exhaustion",
+      "claim": "准备耗尽判失败时，DispatchOne 在 RPC 返回后才锁 Task 与当前 attempt，重新核对 Dispatchable，避免覆盖已经推进、取消或重试的事实。",
+      "sources": [
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.DispatchOne"
+          ]
+        },
+        {
+          "path": "api/internal/repository/fencing.go",
+          "symbols": [
+            "Dispatchable"
+          ]
+        }
+      ],
+      "evidence": "current_source_read"
+    },
+    {
+      "id": "cancel-transaction",
+      "claim": "Cancel 锁定当前授权 Task；非终态时原子更新 Task、当前采集 attempt、活动分析/AI 作业，写取消事件、CANCEL Outbox 和审计。终态请求返回原状态。",
+      "sources": [
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.Cancel"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "返回数据库取消事实不代表远端 OS 子进程已经停止。"
+    },
+    {
+      "id": "retry-fence",
+      "claim": "Retry 持 owner 额度锁和 Task 锁，按事件中 retry key 识别重放，只允许终态且有现场 Agent 的 Task，新建 attempt 并清理旧上传授权。",
+      "sources": [
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.Retry"
+          ]
+        },
+        {
+          "path": "api/internal/service/tasks.go",
+          "symbols": [
+            "Tasks.Retry"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "初次创建的 tasks.idempotency_key 不被 retry 覆写。"
+    },
+    {
+      "id": "core-current-attempt",
+      "claim": "Core current 先单独锁 Task，再重新查询并校验最大采集轮次、请求 attempt 和 Agent；旧 attempt 不能把当前任务推进。",
+      "sources": [
+        {
+          "path": "core/src/server.cpp",
+          "symbols": [
+            "current",
+            "CancelTask",
+            "NotifyResult"
+          ]
+        }
+      ],
+      "evidence": "current_source_read"
+    },
+    {
+      "id": "terminal-log-grace",
+      "claim": "终态当前 attempt 只保留符合固定协议的已有 runner.log 授权，宽限 120 秒；不能补交 RAW/BINARY，旧 attempt 不再拥有该例外。",
+      "sources": [
+        {
+          "path": "api/internal/repository/upload_grants.go",
+          "symbols": [
+            "TerminalUploadMetadata",
+            "persistActiveUploadGrant"
+          ]
+        },
+        {
+          "path": "core/src/server.cpp",
+          "symbols": []
+        }
+      ],
+      "evidence": "current_source_read"
+    },
+    {
+      "id": "analyzer-claim",
+      "claim": "claim 以 FOR UPDATE OF j,t SKIP LOCKED 领取到期 pending/retry 或预算内过期 running；只允许当前采集已 COLLECTED 的合法 Task。领取递增分析 attempt、切换 owner/lease 并发布运行事件。",
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/repository.py",
+          "symbols": [
+            "Repository.claim"
+          ]
+        }
+      ],
+      "evidence": "current_source_read"
+    },
+    {
+      "id": "analyzer-publish-fence",
+      "claim": "renew/_lock_owned/complete/fail 核对 owner、分析轮次、当前采集 attempt、Task 状态及实时未过期 lease；最终受保护更新检查影响行数。",
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/repository.py",
+          "symbols": [
+            "Repository.renew",
+            "Repository._lock_owned",
+            "Repository.complete",
+            "Repository.fail"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "lease 不会物理停止旧 worker；旧 worker 仍可能计算或上传，但没有当前发布资格。"
+    },
+    {
+      "id": "analyzer-lease-default",
+      "claim": "Analyzer 配置默认 lease_seconds=60、renew_seconds=10，配置有范围检查。",
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/config.py",
+          "symbols": []
+        },
+        {
+          "path": "analyzer/drop_analyzer/worker.py",
+          "symbols": [
+            "LeaseGuard"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "默认值不是所有部署不可变常量。"
+    },
+    {
+      "id": "analyzer-retry",
+      "claim": "可重试错误在预算内把 Job 标 retry、Task 标 RETRY 并设置指数退避；过期最后一轮收敛 ANALYSIS_RETRY_EXHAUSTED。",
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/repository.py",
+          "symbols": [
+            "Repository.claim",
+            "Repository.fail"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "预算内过期 running 可被直接接管，不保证先经过显式 retry 状态。"
+    },
+    {
+      "id": "reanalyze",
+      "claim": "管理员 Reanalyze 只针对 COLLECTED 且当前 Job success/failed；归档旧执行、清空当前结果和租约、旧建议 superseded、Task PENDING，max_attempts=当前 attempt+3。",
+      "sources": [
+        {
+          "path": "api/internal/service/administration.go",
+          "symbols": [
+            "Tasks.Reanalyze"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "不创建新采集 attempt，不把分析 attempt 重置为零；需要当前 RAW 仍可用。"
+    },
+    {
+      "id": "current-result",
+      "claim": "Result 只返回当前最新采集 attempt 的成功 AnalysisJob，不自动退回旧成功结果。",
+      "sources": [
+        {
+          "path": "api/internal/repository/queries.go",
+          "symbols": [
+            "Repository.Result",
+            "Repository.ResultSummary"
+          ]
+        }
+      ],
+      "evidence": "current_source_read"
+    },
+    {
+      "id": "object-sql-boundary",
+      "claim": "导入与 Analyzer 均先上传对象，再以 SQL 发布元数据与结果；无 S3/PostgreSQL 共同事务，SQL 未发布时可能留下对象。",
+      "sources": [
+        {
+          "path": "api/internal/service/tasks.go",
+          "symbols": [
+            "Tasks.Create"
+          ]
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.ImportWithAux"
+          ]
+        },
+        {
+          "path": "analyzer/drop_analyzer/worker.py",
+          "symbols": [
+            "process_job"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "孤立对象与存储维护对账需单独处理，不能称跨存储强原子。"
+    },
+    {
+      "id": "stale-import",
+      "claim": "SweepStaleImport 对超过 deadline、无目标 Agent、仍 CREATED 的导入持锁标 FAILED/IMPORT_TIMEOUT 并写事件。",
+      "sources": [
+        {
+          "path": "api/internal/repository/import_recovery.go",
+          "symbols": [
+            "Repository.SweepStaleImport"
+          ]
+        }
+      ],
+      "evidence": "current_source_read"
+    },
+    {
+      "id": "owner-collection-quota",
+      "claim": "CreateTask/Retry 以 pg_advisory_xact_lock(hashtextextended(task-quota:owner,0)) 串行该 owner 准入；CREATED/QUEUED/DELIVERED/RUNNING/UPLOADING 最多十个。",
+      "sources": [
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.CreateTask",
+            "Repository.Retry"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "COLLECTED 之后分析未完成不占采集十额度；导入 CREATED 也计入；retry 按原 owner 计数。"
+    },
+    {
+      "id": "http-limits",
+      "claim": "Router 的 createSlots 容量为 1、仅每 API 进程入口；登录 10/IP/15分钟与认证写入 60/user/分钟使用分布式固定窗口计数。",
+      "sources": [
+        {
+          "path": "api/internal/httpapi/server.go",
+          "symbols": [
+            "Server.Router",
+            "Server.authenticate"
+          ]
+        },
+        {
+          "path": "api/internal/httpapi/distributed_limiter.go",
+          "symbols": []
+        },
+        {
+          "path": "api/internal/repository/authorization.go",
+          "symbols": [
+            "Repository.AllowRate"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "不能混同进程槽、请求频率、owner 活跃采集十额度。"
+    },
+    {
+      "id": "diagnosis-distinct-quota",
+      "claim": "当前 activeInvestigationLimit=10；RequestDiagnosis 按 requested_by 跨任务统计 pending/running，上限仍为 3，代码修复另有边界。",
+      "sources": [
+        {
+          "path": "api/internal/service/investigation.go",
+          "symbols": [
+            "activeInvestigationLimit"
+          ]
+        },
+        {
+          "path": "api/internal/service/diagnosis.go",
+          "symbols": [
+            "Suggestions.RequestDiagnosis"
+          ]
+        },
+        {
+          "path": "api/internal/service/code_repair.go",
+          "symbols": []
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "3 不是每个 Task 各有的额度；调查、只读诊断和代码修复不共用表与计数。"
+    },
+    {
+      "id": "sse-read",
+      "claim": "Task SSE 以 sequence>after、ORDER BY sequence、每批最多 500 条读持久事件；单条完整格式写调用成功后推进连接游标，轮询一秒、keepalive 十五秒。",
+      "sources": [
+        {
+          "path": "api/internal/httpapi/resources.go",
+          "symbols": [
+            "Server.stream"
+          ]
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.Events"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "网络客户端可能重放边界事件；成功 Write 不等于客户端已确认消费。"
+    },
+    {
+      "id": "sse-sequence-precision",
+      "claim": "SSE id 用十进制文本，Event.sequence JSON 编码为字符串；transport event=task_status，业务类型在 JSON type。",
+      "sources": [
+        {
+          "path": "api/internal/httpapi/resources.go",
+          "symbols": [
+            "Server.stream"
+          ]
+        },
+        {
+          "path": "api/internal/domain/task.go",
+          "symbols": [
+            "Event"
+          ]
+        }
+      ],
+      "evidence": "current_source_read"
+    },
+    {
+      "id": "sse-revocation",
+      "claim": "stream 每轮重新读取 Session/当前 User 并复核 Task 权限，授权失败结束连接，不以连接建立时身份永久授权。",
+      "sources": [
+        {
+          "path": "api/internal/httpapi/resources.go",
+          "symbols": [
+            "Server.stream"
+          ]
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.Session"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "已经发送的数据不能撤回，网络写阻塞会影响实际退出时刻，不能承诺硬实时一秒撤销。"
+    },
+    {
+      "id": "sse-commit-order-boundary",
+      "claim": "SUGGESTION_FAILED 的 Suggestions.process 失败闭包，以及 processDiagnosis 租约耗尽恢复的 DIAGNOSIS_FAILED 写入，未先串行锁 Task；bigserial 不是事务提交水位。",
+      "sources": [
+        {
+          "path": "api/internal/service/suggestions.go",
+          "symbols": [
+            "Suggestions.process"
+          ]
+        },
+        {
+          "path": "api/internal/service/diagnosis.go",
+          "symbols": [
+            "Suggestions.processDiagnosis"
+          ]
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.Events"
+          ]
+        },
+        {
+          "path": "db/migrations/001_initial.sql",
+          "symbols": []
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "未证明所有同 Task 事件提交顺序；低序号晚提交可被更大游标跳过是源码推导风险，本轮未执行并发复现，不声称 exactly-once 或绝不丢。"
+    },
+    {
+      "id": "feedback-scope",
+      "claim": "Server.feedback 对 suggestion_feedback upsert 并记审计，不是 task_events 的统一写入入口。",
+      "sources": [
+        {
+          "path": "api/internal/httpapi/suggestions.go",
+          "symbols": [
+            "Server.feedback"
+          ]
+        }
+      ],
+      "evidence": "current_source_read"
+    },
+    {
+      "id": "authorization",
+      "claim": "全局 CanWrite 与 ResourceScope/AgentScope 分开；Task owner、组、显式 read/operate share 范围在 SQL 中应用；group_admin 不自动管理所有组。",
+      "sources": [
+        {
+          "path": "api/internal/domain/task.go",
+          "symbols": [
+            "User.CanWrite"
+          ]
+        },
+        {
+          "path": "api/internal/repository/authorization.go",
+          "symbols": [
+            "ResourceScope",
+            "AgentScope",
+            "Repository.AuthorizeTaskWrite",
+            "Repository.CanManageTask"
+          ]
+        }
+      ],
+      "evidence": "current_source_read"
+    },
+    {
+      "id": "download-capability",
+      "claim": "DownloadGrant 重新授权、核对 ready/归属/download_allowed/retention，审计后签发最长五分钟且不超过剩余保留期的 URL。",
+      "sources": [
+        {
+          "path": "api/internal/service/tasks.go",
+          "symbols": [
+            "Tasks.DownloadGrant"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "共享撤销不自动即时撤销已经签发的短期 URL；不得输出 URL、凭据或实际敏感制品内容。"
+    },
+    {
+      "id": "audit-atomic-boundary",
+      "claim": "核心仓储状态事务包含相应事件，但不能推广为全部管理审计原子；Tasks.Retry 的额外审计调用在仓储事务之外。",
+      "sources": [
+        {
+          "path": "api/internal/service/tasks.go",
+          "symbols": [
+            "Tasks.Retry"
+          ]
+        },
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.Retry"
+          ]
+        },
+        {
+          "path": "api/internal/httpapi/admin.go",
+          "symbols": []
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "文档区分工程目标和逐条实现，未为写文档修改审计实现。"
+    },
+    {
+      "id": "schedule-transaction",
+      "claim": "TickSchedule 锁到期启用计划 SKIP LOCKED，以同一事务 Repository 创建普通 Task、写 schedule_record、更新 next_run_at；稳定子键来自计划 ID 和 scheduled 时点。",
+      "sources": [
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.TickSchedule"
+          ]
+        },
+        {
+          "path": "api/internal/service/tasks.go",
+          "symbols": [
+            "Tasks.schedule"
+          ]
+        },
+        {
+          "path": "db/migrations/002_platform.sql",
+          "symbols": []
+        }
+      ],
+      "evidence": "current_source_read"
+    },
+    {
+      "id": "schedule-calendar",
+      "claim": "支持五段 Cron 或 1–10080 分钟 interval；默认 Asia/Shanghai，最终 UTC；Cron 字段非空时不以兼容 interval=1 推断每分钟。",
+      "sources": [
+        {
+          "path": "api/internal/domain/platform.go",
+          "symbols": [
+            "NextSchedule"
+          ]
+        },
+        {
+          "path": "api/internal/httpapi/admin.go",
+          "symbols": [
+            "Server.createSchedule"
+          ]
+        }
+      ],
+      "evidence": "current_source_read"
+    },
+    {
+      "id": "schedule-missed",
+      "claim": "只处理当前持久到期点，完成后从 time.Now 计算下一未来时点，不遍历补跑全部历史；暂停不取消已创建任务，toggle 从当前时刻重算。",
+      "sources": [
+        {
+          "path": "api/internal/repository/postgres.go",
+          "symbols": [
+            "Repository.TickSchedule",
+            "Repository.ToggleSchedule"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "不等同重启后当前已到期点一条也不执行；创建计划 POST 不等同普通创建的幂等协议。"
+    },
+    {
+      "id": "dag-definition",
+      "claim": "CreateComposite.Validate 限 1–16 节点与 1–3600 秒 deadline，拒绝重复 key、缺失依赖、环、导入和嵌套 COMPOSITE。",
+      "sources": [
+        {
+          "path": "api/internal/domain/platform.go",
+          "symbols": [
+            "CreateComposite.Validate"
+          ]
+        }
+      ],
+      "evidence": "current_source_read"
+    },
+    {
+      "id": "dag-execution",
+      "claim": "TickComposite 锁父 run、在同事务调用普通 Tasks.Create，子键 composite-run-node；依赖全成功才就绪，失败/跳过传播 SKIPPED，QUOTA_EXCEEDED 保留 WAITING。",
+      "sources": [
+        {
+          "path": "api/internal/service/composites.go",
+          "symbols": [
+            "Tasks.CreateComposite",
+            "Tasks.TickComposite",
+            "Tasks.stopComposite"
+          ]
+        }
+      ],
+      "evidence": "current_source_read"
+    },
+    {
+      "id": "dag-aggregate",
+      "claim": "AggregateComposite 有 WAITING/RUNNING 先保持 RUNNING；全部结束后必选失败/跳过、禁止部分且有失败、或零成功均 FAILED；其余可选失败允许 PARTIAL_SUCCESS。",
+      "sources": [
+        {
+          "path": "api/internal/domain/platform.go",
+          "symbols": [
+            "AggregateComposite"
+          ]
+        }
+      ],
+      "evidence": "current_source_read",
+      "boundary": "不是必选一失败就立刻取消所有节点的 fail-fast；不同采集单位不能相加为总性能分。"
+    }
+  ]
+}

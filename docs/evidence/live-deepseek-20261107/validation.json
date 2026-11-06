@@ -1,0 +1,34 @@
+{
+  "recorded_at": "2026-11-07T02:20:00+08:00",
+  "passed": true,
+  "scope": "Go 侧诊断管线真实 DeepSeek 模型验收（单次诊断执行），非 AgentScope runtime、非 causal 六轮评测、非现场采集",
+  "test": "TestPostgresDiagnosisLiveDeepSeek",
+  "command": "go test -run '^TestPostgresDiagnosisLiveDeepSeek$' ./internal/service -count=1 -timeout 420s -v",
+  "go_version": "go1.26.10",
+  "platform": "windows/amd64",
+  "database": "本机全新隔离 PostgreSQL 17.11 回环实例（portable-pg17），十份权威迁移由测试工具自动应用",
+  "model": {
+    "provider": "deepseek",
+    "model": "deepseek-flash",
+    "endpoint": "https://api.deepseek.com/chat/completions",
+    "key_source": "受保护 .local 文件（git 忽略），不入库、不入收据"
+  },
+  "results": {
+    "status": "success",
+    "elapsed_seconds": 4.34,
+    "validated_facts": 11,
+    "hypotheses": 2,
+    "evidence_ids": ["E1", "E2", "E3"],
+    "tools_cited": ["read_profile_summary", "inspect_hotspots", "check_collection_quality"]
+  },
+  "provenance": "输入为明确导入的合成 IMPORT_COLLAPSED 夹具（diagnosisFixture），符号在报告中以哈希提示呈现；模型输出的事实路径/单位/值经 Go 对照真实工具观测核验后才进入报告",
+  "boundaries": [
+    "这是 Go worker（含事实协议）的真实 provider 往返证明：密钥错误或网络失败都会使测试失败",
+    "不是根因准确率评测：单条合成夹具诊断不构成任何 2/6 类因果结论",
+    "该协议输出未记录 token usage；费用保持 null",
+    "causal v2 六轮评测需要服务器内网（observability-gateway:8130 / catalog:8131）与当前有效平台账号，本机两者皆无，本轮未执行"
+  ],
+  "artifact_sha256": {
+    "live-deepseek-report.json": "a06f9e3964c9b3363141448348872db8ca155579eed8bea2677ff984b0841cf7"
+  }
+}

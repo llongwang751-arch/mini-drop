@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "一次真实采集怎样完成",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "viewBox": [
+      1080,
+      580
+    ]
+  },
+  "participants": [
+    {
+      "id": "browser",
+      "type": "frontend",
+      "label": "浏览器",
+      "sublabel": "点击创建"
+    },
+    {
+      "id": "go",
+      "type": "backend",
+      "label": "Go API",
+      "sublabel": "权限与编排"
+    },
+    {
+      "id": "pg",
+      "type": "database",
+      "label": "PostgreSQL",
+      "sublabel": "任务与事件"
+    },
+    {
+      "id": "core",
+      "type": "backend",
+      "label": "Core Server",
+      "sublabel": "C++ 控制面"
+    },
+    {
+      "id": "runner",
+      "type": "backend",
+      "label": "Agent / Runner",
+      "sublabel": "C++ 采集区"
+    },
+    {
+      "id": "storage",
+      "type": "cloud",
+      "label": "对象存储",
+      "sublabel": "原始与分析文件"
+    },
+    {
+      "id": "analyzer",
+      "type": "backend",
+      "label": "Python Analyzer",
+      "sublabel": "解析与计算"
+    }
+  ],
+  "messages": [
+    {
+      "id": "create",
+      "from": "browser",
+      "to": "go",
+      "y": 160,
+      "label": "POST /api/v1/tasks",
+      "variant": "emphasis",
+      "note": "JSON：kind、target_agent_id、parameters、目标、时长和频率；幂等键防止重复创建。"
+    },
+    {
+      "id": "atomic",
+      "from": "go",
+      "to": "pg",
+      "y": 188,
+      "label": "事务写任务、attempt、事件、Outbox",
+      "variant": "emphasis"
+    },
+    {
+      "id": "dispatch",
+      "from": "go",
+      "to": "core",
+      "y": 216,
+      "label": "Outbox → Control.CreateTask",
+      "variant": "emphasis",
+      "note": "mTLS gRPC；TaskDesc 包含 task_id、attempt_id、kind、目标身份、预算、截止时间和短期上传授权。Core 写 PG，把任务变为 QUEUED。"
+    },
+    {
+      "id": "collect",
+      "from": "runner",
+      "to": "core",
+      "y": 244,
+      "label": "Collect / 心跳领取任务",
+      "note": "Agent 主动领取；Core 锁定节点与任务，按优先级/FIFO 分配当前 attempt。"
+    },
+    {
+      "id": "execute",
+      "from": "core",
+      "to": "runner",
+      "y": 272,
+      "label": "TaskDesc · 当前 attempt",
+      "variant": "emphasis",
+      "note": "Agent 校验进程身份，Runner 把类型化参数变成固定 argv；采样工具产出本地 RAW，不使用任意 shell。"
+    },
+    {
+      "id": "progress",
+      "from": "runner",
+      "to": "core",
+      "y": 300,
+      "label": "ReportProgress · 状态",
+      "note": "RUNNING → UPLOADING；Core 原子写 PG 状态与事件。"
+    },
+    {
+      "id": "upload",
+      "from": "runner",
+      "to": "storage",
+      "y": 328,
+      "label": "短期签名 PUT · RAW / 附件",
+      "note": "HTTP 经内部 storage-gateway 到 MinIO；并非经 Go 上传。Agent 在本地计算 SHA-256 与大小。"
+    },
+    {
+      "id": "notify",
+      "from": "runner",
+      "to": "core",
+      "y": 356,
+      "label": "NotifyResult · 制品元数据",
+      "variant": "emphasis",
+      "note": "ResultRequest：task_id、attempt_id、success、ArtifactInfo 的 object_key / size / sha256 / format，另有辅助制品和受限运行统计。"
+    },
+    {
+      "id": "accept",
+      "from": "core",
+      "to": "pg",
+      "y": 384,
+      "label": "事务：COLLECTED + 分析 Job + 事件",
+      "variant": "emphasis",
+      "note": "核对当前 attempt、状态与已授予制品身份；Core 登记元数据，不从存储重读全部 RAW 验哈希。"
+    },
+    {
+      "id": "claim",
+      "from": "analyzer",
+      "to": "pg",
+      "y": 412,
+      "label": "领取 Job · 租约与分析 run",
+      "note": "SELECT FOR UPDATE SKIP LOCKED；租约续期，旧 run 不得覆盖新 run。"
+    },
+    {
+      "id": "read",
+      "from": "storage",
+      "to": "analyzer",
+      "y": 440,
+      "label": "下载 RAW · 复算大小和 SHA",
+      "variant": "return",
+      "note": "Analyzer 通过内部存储客户端下载，按 pipeline 解析；RAW 只有获授权的采集区、存储与分析区处理。"
+    },
+    {
+      "id": "publish",
+      "from": "analyzer",
+      "to": "pg",
+      "y": 468,
+      "label": "租约栅栏提交结果、制品索引、事件",
+      "variant": "emphasis",
+      "note": "分析文件先写对象存储（下一张详解）；有效 lease_owner + run + 当前采集 attempt 才能发布 SUCCESS。"
+    },
+    {
+      "id": "result",
+      "from": "go",
+      "to": "browser",
+      "y": 496,
+      "label": "GET 查询 → 状态、摘要与制品索引",
+      "variant": "return",
+      "note": "前端通过 Go 授权读取 PG；浏览器不会直连 PG，完整树下载见结果展示图。"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "一个任务，两段工作",
+      "items": [
+        "Agent采集；Analyzer解析，两个阶段分别记状态。"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "状态与文件分开保存",
+      "items": [
+        "PG存执行事实；对象存储保存RAW和结果。"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "不能混淆",
+      "items": [
+        "上传成功不等于分析成功；RAW不外发模型。"
+      ]
+    }
+  ]
+}

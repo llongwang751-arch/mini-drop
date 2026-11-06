@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "08 · AI 诊断：模型怎样调用真实工具",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "viewBox": [
+      1080,
+      790
+    ]
+  },
+  "participants": [
+    {
+      "id": "orchestrator",
+      "type": "backend",
+      "label": "Go 业务编排",
+      "sublabel": "拥有权限和状态"
+    },
+    {
+      "id": "runtime",
+      "type": "backend",
+      "label": "AgentScope",
+      "sublabel": "独立 Python 运行时"
+    },
+    {
+      "id": "provider",
+      "type": "external",
+      "label": "模型服务",
+      "sublabel": "HTTPS · 服务端密钥"
+    },
+    {
+      "id": "gateway",
+      "type": "security",
+      "label": "Go 工具网关",
+      "sublabel": "与左侧 Go 同进程"
+    },
+    {
+      "id": "evidence",
+      "type": "database",
+      "label": "授权证据与 PG",
+      "sublabel": "统计 · 版本 · 账本"
+    }
+  ],
+  "segments": [
+    {
+      "from": 155,
+      "to": 280,
+      "label": "启动与模型预算"
+    },
+    {
+      "from": 292,
+      "to": 505,
+      "label": "一次工具循环，可在预算内重复"
+    },
+    {
+      "from": 518,
+      "to": 710,
+      "label": "程序验收后才能保存报告"
+    }
+  ],
+  "messages": [
+    {
+      "id": "start",
+      "from": "orchestrator",
+      "to": "runtime",
+      "y": 168,
+      "label": "UDS /v1/run：阶段、工具、预算",
+      "variant": "emphasis"
+    },
+    {
+      "id": "reserve",
+      "from": "runtime",
+      "to": "gateway",
+      "y": 207,
+      "label": "callback：model_start 预扣轮次",
+      "variant": "security"
+    },
+    {
+      "id": "provider-request",
+      "from": "runtime",
+      "to": "provider",
+      "y": 250,
+      "label": "HTTPS：问题、脱敏统计、tools",
+      "variant": "emphasis"
+    },
+    {
+      "id": "model-tool",
+      "from": "provider",
+      "to": "runtime",
+      "y": 310,
+      "label": "工具名 + JSON 参数",
+      "variant": "return"
+    },
+    {
+      "id": "tool-callback",
+      "from": "runtime",
+      "to": "gateway",
+      "y": 353,
+      "label": "UDS callback：call_id + 参数",
+      "variant": "security"
+    },
+    {
+      "id": "tool-read",
+      "from": "gateway",
+      "to": "evidence",
+      "y": 396,
+      "label": "验权限/版本；读有界统计",
+      "variant": "security"
+    },
+    {
+      "id": "tool-observation",
+      "from": "evidence",
+      "to": "gateway",
+      "y": 439,
+      "label": "热点、质量、调用路径",
+      "variant": "return"
+    },
+    {
+      "id": "return-observation",
+      "from": "gateway",
+      "to": "runtime",
+      "y": 482,
+      "label": "E 编号 + observation",
+      "variant": "return"
+    },
+    {
+      "id": "model-followup",
+      "from": "runtime",
+      "to": "provider",
+      "y": 532,
+      "label": "HTTPS：实际工具观测",
+      "variant": "emphasis"
+    },
+    {
+      "id": "model-report",
+      "from": "provider",
+      "to": "runtime",
+      "y": 575,
+      "label": "JSON：facts + hypotheses",
+      "variant": "return"
+    },
+    {
+      "id": "finish",
+      "from": "runtime",
+      "to": "gateway",
+      "y": 618,
+      "label": "callback finish：提交候选报告",
+      "variant": "security"
+    },
+    {
+      "id": "accept",
+      "from": "gateway",
+      "to": "runtime",
+      "y": 661,
+      "label": "核对引用/值/单位后 accepted",
+      "variant": "return"
+    },
+    {
+      "id": "runtime-result",
+      "from": "runtime",
+      "to": "orchestrator",
+      "y": 704,
+      "label": "返回 Go 已验收 JSON + 计数",
+      "variant": "return"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "两条私有通道",
+      "items": [
+        "HTTP/1.1 over 两个 Unix socket；双方 SO_PEERCRED 校验 UID。",
+        "run_id 可公开；临时 capability 仅内存，取消/结束即撤销。"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "谁能看到什么",
+      "items": [
+        "普通诊断只发化名统计和问题；RAW、密钥、签名 URL 不发模型。",
+        "源码片段必须另获同意；运行时不持有数据库或对象存储凭据。"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "谁说了算",
+      "items": [
+        "工具网关是 Go 的角色，不是独立微服务；预算、权限与事实由 Go 验收。",
+        "PG 保存可见检查点和回执；未知 pending 拒绝盲目重放。"
+      ]
+    }
+  ]
+}

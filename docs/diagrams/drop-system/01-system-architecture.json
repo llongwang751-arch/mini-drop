@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Drop：从点击诊断到看到证据",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1320,
+      620
+    ],
+    "repository": {
+      "url": "https://github.com/llongwang751-arch/mini-drop",
+      "revision": "00738e146b59dfcc36953f8224c126ca80cb0182",
+      "link_mode": "local-only"
+    }
+  },
+  "components": [
+    {
+      "id": "reader",
+      "type": "frontend",
+      "label": "React 工作台",
+      "sublabel": "创建任务、读取结果",
+      "pos": [
+        34,
+        100
+      ],
+      "size": [
+        200,
+        80
+      ],
+      "sources": [
+        {
+          "path": "web/src/views/NewTask.tsx",
+          "line": 79
+        }
+      ]
+    },
+    {
+      "id": "orchestrator",
+      "type": "backend",
+      "label": "Go API",
+      "sublabel": "权限、事务、编排",
+      "pos": [
+        370,
+        100
+      ],
+      "size": [
+        200,
+        80
+      ],
+      "sources": [
+        {
+          "path": "api/internal/service/tasks.go",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "id": "collector-control",
+      "type": "backend",
+      "label": "C++ Server",
+      "sublabel": "接单、节点心跳与下发",
+      "pos": [
+        706,
+        100
+      ],
+      "size": [
+        200,
+        80
+      ],
+      "sources": [
+        {
+          "path": "core/src/server.cpp",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "id": "collector-agent",
+      "type": "backend",
+      "label": "C++ Agent / Runner",
+      "sublabel": "目标身份、受控工具执行",
+      "pos": [
+        1042,
+        100
+      ],
+      "size": [
+        220,
+        80
+      ],
+      "sources": [
+        {
+          "path": "core/src/agent.cpp",
+          "line": 1
+        },
+        {
+          "path": "core/src/runner.cpp",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "id": "business-process",
+      "type": "external",
+      "label": "被检查的程序",
+      "sublabel": "Python / Go / JVM / 原生进程",
+      "pos": [
+        1042,
+        380
+      ],
+      "size": [
+        220,
+        80
+      ]
+    },
+    {
+      "id": "artifact-store",
+      "type": "cloud",
+      "label": "制品服务 / 私有 MinIO",
+      "sublabel": "RAW、清单、完整树与报告",
+      "pos": [
+        706,
+        380
+      ],
+      "size": [
+        220,
+        80
+      ]
+    },
+    {
+      "id": "parser-worker",
+      "type": "backend",
+      "label": "Python Analyzer",
+      "sublabel": "校验输入、解析、生成结果",
+      "pos": [
+        370,
+        380
+      ],
+      "size": [
+        220,
+        80
+      ],
+      "sources": [
+        {
+          "path": "analyzer/drop_analyzer/worker.py",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "id": "state-store",
+      "type": "database",
+      "label": "PostgreSQL",
+      "sublabel": "任务、attempt、租约和事件",
+      "pos": [
+        34,
+        380
+      ],
+      "size": [
+        220,
+        80
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "browser-http",
+      "from": "reader",
+      "to": "orchestrator",
+      "label": "HTTPS · JSON / SSE",
+      "variant": "emphasis"
+    },
+    {
+      "id": "api-rpc",
+      "from": "orchestrator",
+      "to": "collector-control",
+      "label": "gRPC + mTLS · TaskDesc",
+      "variant": "emphasis"
+    },
+    {
+      "id": "core-dispatch",
+      "from": "collector-control",
+      "to": "collector-agent",
+      "label": "gRPC · 心跳 / 任务 / 回执",
+      "variant": "emphasis"
+    },
+    {
+      "id": "agent-tool",
+      "from": "collector-agent",
+      "to": "business-process",
+      "label": "固定 argv / attach / procfs",
+      "labelDy": 24
+    },
+    {
+      "id": "agent-artifacts",
+      "from": "collector-agent",
+      "to": "artifact-store",
+      "label": "S3 PUT · 短期签名"
+    },
+    {
+      "id": "analyzer-artifacts",
+      "from": "parser-worker",
+      "to": "artifact-store",
+      "label": "S3 · 读 RAW / 写分析制品",
+      "labelAt": [
+        648,
+        376
+      ]
+    },
+    {
+      "id": "analyzer-sql",
+      "from": "parser-worker",
+      "to": "state-store",
+      "label": "SQL · 领取租约 / 提交结果",
+      "labelDy": 57
+    },
+    {
+      "id": "api-sql",
+      "from": "orchestrator",
+      "to": "state-store",
+      "label": "SQL · 任务 / Outbox / 权限"
+    },
+    {
+      "id": "core-sql",
+      "from": "collector-control",
+      "to": "state-store",
+      "label": "SQL · 采集状态 / 制品",
+      "fromSide": "bottom",
+      "toSide": "top"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "指令与文件分开走",
+      "items": [
+        "gRPC 传任务与回执；采样文件由受控上传进入制品服务。"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "数据库保存执行事实",
+      "items": [
+        "task_id + attempt_id 绑定每轮执行，分析发布还受当前租约约束。"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "AI 链路另图展开",
+      "items": [
+        "普通采集与解析可独立运行；模型只在授权后读取受限投影。"
+      ]
+    }
+  ]
+}

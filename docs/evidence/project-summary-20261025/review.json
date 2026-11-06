@@ -1,0 +1,40 @@
+{
+  "review_scope": "Read-only technical and project-only-content review of rewritten drafts, followed by listed editorial corrections. Final assembled Markdown was validated separately.",
+  "backend_draft": {
+    "path": ".local/project-summary-drafts/backend.md",
+    "sha256": "3bdbe471c20f4844134687a79b28c666a9186c77fc9dfe46209893dd992625f2",
+    "bytes": 37275,
+    "author_final_check": true
+  },
+  "collector_web_cross_review": {
+    "path": ".local/project-summary-drafts/collection-analysis-web.md",
+    "reviewed_sha256": "819109ac88fac89766c8db659908ef7dda6c291242a1adc6c7fe67bb35ad8022",
+    "sha256": "819109ac88fac89766c8db659908ef7dda6c291242a1adc6c7fe67bb35ad8022",
+    "bytes": 46138
+  },
+  "testing_cross_review": {
+    "path": ".local/project-summary-drafts/testing.md",
+    "reviewed_sha256": "99025bb5263ed9a2a276e4bb5d982b8ba2e3899c4882f3bec70e0e96bd572fc6",
+    "sha256": "99025bb5263ed9a2a276e4bb5d982b8ba2e3899c4882f3bec70e0e96bd572fc6",
+    "bytes": 22940
+  },
+  "root_draft_review": {
+    "files": [
+      "opening.md",
+      "closing.md"
+    ],
+    "scope": "Independent read-only review of usage, responsibilities, wire fields, monitoring and signal windows; corrections applied by primary author before assembly.",
+    "corrections": [
+      "Replaced missing access.go and pyproject.toml links with authorization.go and requirements.lock.",
+      "Specified actual HTTP nesting/header and TaskDesc wire field names.",
+      "Changed ordinary analysis to ordinary AI diagnosis to preserve model-independent Analyzer boundary.",
+      "Clarified fallback requires both collector timestamp fields absent and valid bounded attempt timestamps."
+    ]
+  },
+  "technical_corrections": [
+    "Restricted device/inode/build-ID/content-SHA binding to BOLT live collection; documented generic imported ELF matching limitations.",
+    "Made quota eight-pass and signal-window 43-pass counts explicit parent/subtest records."
+  ],
+  "application_changes": false,
+  "runtime_reproduction_performed": false
+}
