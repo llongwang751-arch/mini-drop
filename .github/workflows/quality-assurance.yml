@@ -136,6 +136,8 @@ jobs:
       - name: Performance measurement, fixed HTTP workload and negative-control regressions
         # 统计/门禁与自有本机HTTP目标测试；不将这些单测标成真实py-spy扰动实验。
         run: python -m unittest discover -s scripts/quality/performance -p 'test_*.py' -v
+      - name: Load test receipt math and bounded invocation gates (offline, no live targets)
+        run: python -m unittest discover -s scripts/quality/loadtest -p 'test_*.py' -v
       - name: Immutable quality reports and owned system fault-controller regressions
         run: |
           python -m unittest discover -s scripts/quality/reports -p 'test_*.py' -v

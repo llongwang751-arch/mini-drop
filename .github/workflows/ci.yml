@@ -24,6 +24,8 @@ jobs:
         run: npx playwright test --config playwright.knowledge.config.ts
       - name: Agent extension review, source evidence and patch download (imported fixtures)
         run: npx playwright test --config playwright.agent-extensions.config.ts
+      - name: Public tutorial book reads every chapter without any business API (static preview)
+        run: npx playwright test --config playwright.book.config.ts
   api:
     runs-on: ubuntu-24.04
     services:
@@ -97,6 +99,16 @@ jobs:
       - run: python api/tools/check_http_contract.py
       - name: Diagnostic evaluation provenance, scoring and analyzer replay (imported synthetic fixtures)
         run: python -m unittest discover -s scripts/evaluation -p 'test_*.py' -v
+  tutorials:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Twelve mechanism labs keep real failing assertions (stdlib only, no services)
+        run: |
+          python -m unittest discover -s tutorials/labs -t . -v
+          python -m tutorials.labs --all --json
   maintenance:
     runs-on: ubuntu-24.04
     steps:
