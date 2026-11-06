@@ -1,0 +1,149 @@
+{
+  "gates": [
+    {
+      "actual": 0,
+      "id": "no_5xx",
+      "passed": true,
+      "rule": "服务端 5xx 计数为 0"
+    },
+    {
+      "actual": 0.0,
+      "id": "error_rate",
+      "passed": true,
+      "rule": "失败率 ≤ 1%"
+    },
+    {
+      "actual": 150.0,
+      "id": "client_p95",
+      "passed": true,
+      "rule": "各端点 P95 ≤ 800ms（含公网 RTT）"
+    },
+    {
+      "actual": 3700.0,
+      "id": "client_p99",
+      "passed": false,
+      "rule": "各端点 P99 ≤ 2000ms（含公网 RTT）"
+    }
+  ],
+  "generated_at": "2026-11-05T01:22:40+08:00",
+  "generator": {
+    "cpu_count": 24,
+    "host": "LAPTOP-BTHCSF99",
+    "location": "developer workstation, public internet",
+    "os": "Windows 11",
+    "python": "3.14.0"
+  },
+  "load_model": {
+    "duration_seconds": 45,
+    "http_protocol": "HTTP/1.1 (Locust/requests)",
+    "scenario": "public",
+    "sessions": 0,
+    "tls_verify": false,
+    "virtual_users": 100,
+    "writes_enabled": false
+  },
+  "not_measured": [
+    "服务端 CPU / 内存 / IO 采样（本机没有该主机的 SSH 凭据）",
+    "PostgreSQL 连接数、锁等待与慢查询统计",
+    "SSE 长连接并发（需单独的有界客户端，不在本套件内）",
+    "真实浏览器 JS 执行后的 Core Web Vitals（另有 Lighthouse 证据）",
+    "容量上限与拐点（本套件只做有界阶梯，不找饱和点）"
+  ],
+  "profile": "capacity-step",
+  "schema": "drop.loadtest.receipt/1",
+  "target": "https://82.157.81.79",
+  "totals": {
+    "aggregate_rps": 318.759,
+    "error_rate": 0.0,
+    "failures": 0,
+    "p95_ms_worst_endpoint": 150.0,
+    "p99_ms_worst_endpoint": 3700.0,
+    "requests": 14630
+  },
+  "verdict": "fail",
+  "workload": {
+    "bytes_total": 8075670,
+    "endpoints": [
+      {
+        "avg_bytes": 855.0,
+        "avg_ms": 180.1,
+        "failures": 0,
+        "max_ms": 3743.0,
+        "median_ms": 50.0,
+        "method": "GET",
+        "min_ms": 39.1,
+        "name": "GET /",
+        "p50_ms": 50.0,
+        "p90_ms": 78.0,
+        "p95_ms": 130.0,
+        "p99_ms": 3700.0,
+        "requests": 4908,
+        "rps": 106.936
+      },
+      {
+        "avg_bytes": 855.0,
+        "avg_ms": 177.3,
+        "failures": 0,
+        "max_ms": 3750.2,
+        "median_ms": 50.0,
+        "method": "GET",
+        "min_ms": 39.4,
+        "name": "GET /<spa-route>",
+        "p50_ms": 50.0,
+        "p90_ms": 78.0,
+        "p95_ms": 150.0,
+        "p99_ms": 3600.0,
+        "requests": 3216,
+        "rps": 70.07
+      },
+      {
+        "avg_bytes": 173.0,
+        "avg_ms": 190.7,
+        "failures": 0,
+        "max_ms": 3755.6,
+        "median_ms": 51.0,
+        "method": "GET",
+        "min_ms": 39.5,
+        "name": "GET /api/v1/auth/providers",
+        "p50_ms": 51.0,
+        "p90_ms": 83.0,
+        "p95_ms": 130.0,
+        "p99_ms": 3700.0,
+        "requests": 3233,
+        "rps": 70.441
+      },
+      {
+        "avg_bytes": 156.0,
+        "avg_ms": 186.9,
+        "failures": 0,
+        "max_ms": 3758.5,
+        "median_ms": 52.0,
+        "method": "GET",
+        "min_ms": 39.1,
+        "name": "GET /api/v1/tasks (401 path)",
+        "p50_ms": 52.0,
+        "p90_ms": 84.0,
+        "p95_ms": 130.0,
+        "p99_ms": 3600.0,
+        "requests": 3273,
+        "rps": 71.312
+      }
+    ],
+    "status_counts": {
+      "GET /": {
+        "200": 4945
+      },
+      "GET /<spa-route>": {
+        "200": 3242
+      },
+      "GET /api/v1/auth/providers": {
+        "200": 3249
+      },
+      "GET /api/v1/tasks (401 path)": {
+        "401": 3293
+      }
+    },
+    "throttled_429": 0,
+    "top_failures": []
+  }
+}
