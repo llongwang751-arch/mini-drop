@@ -19,6 +19,9 @@ import (
 	"gorm.io/gorm"
 )
 
+// 等待用户确认的计划也计入同一账号的活跃调查额度。
+const activeInvestigationLimit = 10
+
 type InvestigationInput struct {
 	Goal               string            `json:"goal"`
 	AgentID            string            `json:"target_agent_id"`
@@ -159,8 +162,8 @@ func (s *Suggestions) RequestInvestigation(ctx context.Context, u domain.User, i
 		if err := tx.Model(&Investigation{}).Where("requested_by=? AND status NOT IN ('success','failed','canceled')", u.ID).Count(&n).Error; err != nil {
 			return err
 		}
-		if n >= 3 {
-			return domain.Fail("DIAGNOSIS_BUSY", "最多同时保留3个活跃调查")
+		if n >= activeInvestigationLimit {
+			return domain.Fail("DIAGNOSIS_BUSY", fmt.Sprintf("最多同时保留%d个活跃调查", activeInvestigationLimit))
 		}
 		params, _ := json.Marshal(probe.Parameters)
 		if err := s.validateTelemetryService(ctx, locked, in.TelemetryServiceID, in.AgentID); err != nil {

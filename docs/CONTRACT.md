@@ -144,7 +144,7 @@ flamegraph.value为inclusive，self为自身，children之和+self=value。TopN�
 
 ## 调查与源码验证增量契约（SQL007、008）
 
-- `POST /investigations`：goal、target_agent_id、parameters、consent=true、Idempotency-Key。权限与实时资源快照绑定PID/启动时间/UID，模型不能改变目标。每用户最多3个未终态调查。计划器最多6轮、10次工具、150秒，从实际TaskKind目录选择参数；错误作为观测回填。生成计划不采集。
+- `POST /investigations`：goal、target_agent_id、parameters、consent=true、Idempotency-Key。权限与实时资源快照绑定PID/启动时间/UID，模型不能改变目标。每用户最多10个未终态调查（包括等待确认的计划）；同键同内容重放不占新名额，success/failed/canceled 终态释放额度。计划器最多6轮、10次工具、150秒，从实际TaskKind目录选择参数；错误作为观测回填。生成计划不采集。
 - `GET /investigations`、`GET /investigations/:id`：本人加目标operate权限，管理员可见。关联源码的历史调查仍要求管理员，角色降级后不能通过历史报告读取源码。列表最多30条。
 - `POST /investigations/:id/confirm {confirm:true}`：确认原采集和最多一次受控复测/自动模型诊断；各次采集最多60秒。`cancel`取消调查及关联未完成任务，并限制迟到写入。流程最多20分钟。
 - `POST /tasks/:id/diagnoses/:run_id/collect` 同事务新建 verification_runs；`GET /tasks/:id/verifications`最多20条，并校验两侧任务operate权限。复测采集/解析成功后自动请求新诊断，必须调用无自定义任务ID的 `compare_profiles`。自动验证最多15分钟，来源重分析/权限撤销会使闭环失败。

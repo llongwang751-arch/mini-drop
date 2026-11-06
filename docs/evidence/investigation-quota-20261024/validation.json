@@ -1,0 +1,64 @@
+{
+  "recorded_at": "2026-10-24T22:59:03.824078+08:00",
+  "passed": true,
+  "change": "per-account active investigation quota 3 to 10",
+  "source_sha256": {
+    "api/internal/service/investigation.go": "24bc268e86e70a286d47c61f95a2bdce25f3e90bb37ddd833f42ae207b132f22",
+    "api/internal/service/investigation_quota_test.go": "c64fe88ce5a7de1856eebe65ec3c671e044c4b8854840445cdb0ad3e4ccb9aea",
+    "docs/CONTRACT.md": "041a6c94a635679c45181995b74f46b2e68c67a0db375fe459feb5a96431ff98",
+    "DEVELOPMENT_LOG.md": "4d00df59350687086a4ac5f4ca424e073b3d9d0fe45989d7fb7ebe7f5ca0e758",
+    "docs/DELIVERY_MATRIX.md": "405a3bfd7f39cb99a5b30f3678ae583ba6eb33b2382883a17b507b519041e1a0"
+  },
+  "build": {
+    "passed": true,
+    "go_version": "go1.26.10",
+    "target": "linux/amd64",
+    "CGO_ENABLED": "0",
+    "tags": [
+      "nomsgpack"
+    ],
+    "command": "go build -trimpath -tags=nomsgpack -ldflags=\"-s -w\" ./cmd/drop-api",
+    "binary_sha256": "51fbb01bbfe76733d6217ae850e3d7421bfcc30114bca299e78a0953abad5731"
+  },
+  "postgres_tests": {
+    "passed": true,
+    "go_version": "go1.26.10",
+    "database": "fresh isolated loopback PostgreSQL17, all ten authoritative migrations",
+    "provider": "no real model calls; imported fixtures for provider and protocol tests",
+    "tests_passed_including_subtests": 8,
+    "tests_skipped_including_subtests": 0,
+    "failed_tests": [],
+    "skipped_tests": [],
+    "elapsed_seconds": 25.73,
+    "log_sha256": "80c92391cc32f18f7d6511485f7a5e01938e95f8a715b54bf236b1d1b54b9596"
+  },
+  "deployment": {
+    "passed": true,
+    "scope": "API-only active investigation quota 3 to 10",
+    "archive_sha256": "02e33a9ca7095ddc90fe8782fffe75c9908356e2b42a0131b7ea82892f8f3b7f",
+    "binary_sha256": "51fbb01bbfe76733d6217ae850e3d7421bfcc30114bca299e78a0953abad5731",
+    "previous_image": "drop-api:20261023.2",
+    "target_image": "drop-api:20261024.1",
+    "sql_migrations_performed": 0,
+    "model_calls": 0,
+    "collection_tasks_created": 0,
+    "phase": "verify_release",
+    "candidate_image_id": "sha256:2b31b1a17cab3cea07683b62782580bb064c1b958fed896ebedf2446e6ec9168",
+    "internal_api_ready": true,
+    "public_api_json": true,
+    "visible_investigations": 22,
+    "only_api_replaced": true,
+    "other_28_running_containers_preserved": true,
+    "registry_sources_and_broker_preserved": true,
+    "previous_named_images_preserved": true,
+    "existing_investigation_ids_and_statuses_preserved": true,
+    "running_binary_sha256": "51fbb01bbfe76733d6217ae850e3d7421bfcc30114bca299e78a0953abad5731"
+  },
+  "limitations": [
+    "No real provider/model calls or collection runs in this change.",
+    "A first test invocation without a configured database compiled but skipped four PG tests; the isolated-PG execution then passed all eight selected tests with zero skips.",
+    "Initial image build rejected legacy-builder COPY --chmod before production switch; corrected packaging permissions and kept the failed receipt.",
+    "Only API image/tag and two Go source files plus CONTRACT were deployed; unrelated tutorial/Web workspace changes remain local.",
+    "No production SQL migrations, investigation creation, or cancellation; existing investigation IDs/statuses preserved."
+  ]
+}
