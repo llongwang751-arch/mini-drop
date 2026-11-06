@@ -1,7 +1,80 @@
+## 2026-11-07 · 真实 DeepSeek 诊断验收、压测边界确认与 GitHub 发布
+
+- 用真实 DeepSeek 密钥执行 Go 侧诊断管线验收 `TestPostgresDiagnosisLiveDeepSeek`（deepseek-flash，imported 合成夹具，本机全新隔离 PostgreSQL 17.11）：一次诊断 4.34 秒成功，模型提交的 11 条结构化事实经 Go 对照真实工具观测核验，2 条假设引用 E1–E3 证据，符号以哈希提示脱敏。收据见 [live-deepseek](docs/evidence/live-deepseek-20261107/validation.json)；密钥只放被 Git 忽略的 .local 文件，不入库、不入收据。
+- 该验收只证明真实 provider 往返与事实协议校验链路（密钥错误必然失败）；不是 AgentScope runtime、不是 causal 六轮评测，不能表述为根因准确率变化。
+- 两项此前计划的边界在本机确认并如实记录：认证层压测需要 82.157.81.79 的当前有效账号，`.local` 中旧服务器（120.24.187.205）凭据对新服务器返回 401，本轮未执行；causal v2 六轮评测需在能解析 `observability-gateway:8130`/`catalog:8131` 的内网运行（外网实测仅 443 可达）且无该主机 SSH 凭据，本轮未执行。两者均已给出单命令复现方式，不把公开层或单次诊断结果外推。
+- 本轮将全部已验证的在途工作按主题提交并快进推送到 `llongwang751-arch/mini-drop` master（教程书、教程实作、配额、负载套件、文档、CI 接线、本验收收据）；`.gitignore` 补充排除 `postman/`、`.postman/`、`.workbuddy/` 本地工具数据。发布按 [GitHub 发布方式](docs/GITHUB_PUBLICATION.md)约定，不含生产 .env、SSH/模型密钥、登录态或现场 profile。
+
+## 2026-11-07 · 新增测试套件接入 CI 门禁
+
+- 排查发现三套新增离线回归只在本地执行过，未进入 CI：教程机制实验室（`tutorials/labs`，25 项单测 + 12 case CLI）、HTTP 负载工具数学门禁（`scripts/quality/loadtest`，14 项单测）、教程阅读 e2e（`playwright.book.config.ts`，8 项）。
+- `ci.yml` 新增 `tutorials` job（仅标准库，无服务依赖）：`python -m unittest discover -s tutorials/labs -t . -v` 与 `python -m tutorials.labs --all --json`，以实际退出码判定；web job 在既有构建步骤后追加 `npx playwright test --config playwright.book.config.ts`，该配置自带 vite preview、阻断 `/api/**`，不需要业务后端或会话。
+- `quality-assurance.yml` 的 bounded 回归 job 新增 loadtest 离线单测步骤（只验统计与越界拒绝，不连任何服务器）；该 workflow 的 push/PR 路径过滤已包含 `scripts/quality/**`。
+- 本机验证：三套命令在仓库根目录实际执行通过（labs 25 测试且 12 case CLI 退出码 0；loadtest 14 测试；book e2e 8 项 26.3 秒），两个 workflow YAML 解析通过。本轮只改 CI 接线与文档，未改应用代码，未部署、未提交；CI 上的实际运行结果以推送后收据为准，不把本机执行说成已通过 CI。
+
+## 2026-11-05 · HTTP 负载测试套件与生产公开层实测
+
+- 新增 `scripts/quality/loadtest`（Locust 2.46.6）：只读负载，分公开层（TLS 入口/静态资源/SPA 路由/401 路径）与认证层（登录后读接口）；没有任何写接口开关，因为创建任务被 `createSlots` 串行槽位（容量 1）约束，写请求另有 60 次/分钟/用户限流。
+- 认证层不让虚拟用户各自登录：`/auth/login` 对来源 IP 限流 10 次/15 分钟，套件先用 `login_sessions.py` 换 ≤8 个会话再轮转复用；凭据只从两行文件或环境变量读取，不打印、不入收据，会话池跑完删除。
+- 硬上限写进代码并由单测覆盖：虚拟用户 ≤100、单次 ≤600 秒、会话 ≤8，越界拒绝启动而非自动截断。`run.py` 依次执行“自检 → 换会话 → Locust headless → 合成 `receipt.json`”，收据同时给出各端点 P50/P90/P95/P99/max、RPS、失败明细、状态码分布与门槛判定。
+- 实际对生产 `https://82.157.81.79` 执行公开层阶梯（2→5→10→20 虚拟用户，20/30/30/30 秒）：515 个请求、0 失败、0 个 5xx、0 次限流，传输 33,117,507 字节；`GET /` P50 44ms/P95 60ms、`GET /assets/*` P50 91ms/P95 210ms、`/api/v1/tasks` 无 Cookie 路径全部 401（P95 83ms），最差端点 P95 210ms、P99 240ms。收据 [公开层](docs/evidence/perf-http-20261105/public-step-receipt.json)。
+- 该结果只能说明“20 个带思考时间的虚拟用户（约 4.7 RPS）下没有退化”。20 并发离饱和很远，`GET /` 与 `/api/v1/auth/providers` 同为 44ms 说明网关与 Go 处理小于测量分辨率，不能据此宣布容量或 QPS。本机没有该主机 SSH 凭据，服务端 CPU、cgroup 节流与 PostgreSQL 统计未采样，收据中留 `null` 并列入 `not_measured`。
+- 认证层本轮未执行：本机既无测试账号也无 `beij.pem`，因此没有“登录后读接口”的实测数字，已给出单命令复现方式，不把公开层结果当成认证层结论。
+- 首次实际运行暴露两个自身缺陷并修复：Locust 汇总行（`Type` 为空、`Name=Aggregated`）被重复计入总量导致请求数翻倍；静态资源被误按 JSON 断言判失败。两处都已补成离线回归用例，`python -m unittest test_loadtest` 11 项通过、`ruff check` 通过。
+- 新增容量探针 profile（`capacity-step`：25/50/100 用户、思考 0.1–0.3 秒、`--exclude-tags assets` 排除 165KB 构建产物）。实测稳态 95/194/327 RPS（峰值 398），全程 0 失败 0 个 5xx 0 次限流：≤200 RPS 无损（P95 77ms、P99 178ms），到 100 用户档 P95 仍 89ms 但 P99 涨到 736ms、最慢 1.6 秒，退化表现为变慢而不是报错。
+- 紧节奏复测（100 用户、思考 0.05–0.15 秒）：稳态 386 RPS、峰值 639 RPS，P99 1920ms、最慢 3.8 秒，仍 0 失败；收据判定 fail 只因为 P99 超过了工具自己设的 2000ms 门槛。
+- 归因对照：同负载拆成两个发压进程（Locust 的 `--processes` 在 Windows 不可用，改为两个独立 run）后，总吞吐反降到 325 RPS、P95 从 97ms 恶化到 500–660ms、P99 3.4–3.8 秒。加发压能力没有提高吞吐，说明发压机不是瓶颈，墙在服务端一侧；指向网关 `cpus: 0.15`、web `0.3`、api `0.5` 三跳配额，但未采 `cpu.stat` 的 `nr_throttled`，只写“指向”不写“已证明”。
+- 所有负载轮次结束后立即复验生产：`/` 与 `/api/v1/auth/providers` 返回 200、`/api/v1/tasks` 返回 401，耗时 137–149ms，与压测前同量级；未改任何部署配置，未重启容器。收据见 [docs/evidence/perf-http-20261105](docs/evidence/perf-http-20261105/)。
+- 新增 [性能测试说明](docs/PERFORMANCE_TESTING.md)：盘点已有四类测量（采样扰动、Core 心跳、Analyzer 解码、Lighthouse）与其不能互相替代的原因，给出指标口径（分位数、闭环压测陷阱、4xx 与 5xx 分开计数）和 Locust/JMeter/k6 的取舍。本轮未改应用代码、未部署、未执行长时间稳定性测试。
+
+## 2026-10-26 · 简历项目条目融入双项目缩略说明（本地文档）
+
+- 根据用户要求重组 `docs/PROJECT_BRIEF.md`，两个项目各六节，对应简历中的项目背景、开发和测试条目，并把专业技能落到具体代码、数据和验证方法。正文保持纯项目说明，不加入面试问答、原始记录、个人联系方式或学历段落；Go 后端与测试、CRM Agent 的职责融入各项目。
+- Drop 深入创建/幂等/Outbox、执行身份、HTTP与PG断言、固定CI套件与必测执行门禁、独立验收、采集/分析分离、十六类采集、基线/故障/撤销及坏样本处理。区分本机合成HTTP的进程CPU时间对照与独立procfs采样扰动；纠正旧文从folded中间metadata误推页面单位的描述，公开summary及页面实际使用cpu_ticks。
+- AI-CRM 补明文字PDF/Markdown/CSV解析、ReAct工具反馈循环、同调用指纹五次失败及调用返回后预算检查、MCP业务复用、审批与checkpoint/效果回执。pytest范围明确为真实路由配MemoryRepository及模型桩/Mock，真实PG/PostgREST另为集成层；分层恢复断言不冒充一条真实客户渠道整链，也不把未定位的重复失败阈值回归写成已覆盖。
+- 正文连Markdown/空白/英文共9,669个Unicode字符、两个项目/十二小节；实际完成Markdown AST、十二条目覆盖、字符上限、本地引用、来源字节及格式核对，并只读交叉审阅关键实现，见[验证](docs/evidence/project-brief-resume-20261026/validation.json)。原完整版、独立复盘和其他未提交改动保留；本轮未运行应用测试、编译、数据库、模型、采集、CI或部署。
+
 ## 2026-10-26 · README 流程图改为静态图片
 
 - 用户截图为 GitHub 富媒体渲染器 `Loading chunk 1873 failed`，只确认脚本加载失败；本机只读访问该 JS 返回 200，不能据此断言用户网络、缓存、扩展或 Mermaid 语法是根因。README 的流程展示改为仓库内 PNG，保留 SVG 与原 Mermaid 源文件，移除该处运行时 Mermaid 渲染依赖。
 - 保留原八步顺序与第八步“可选”限定。实际在本地浏览器无外部请求导出 2240×880 PNG，16 项文字、7 条连接、0 文字越框、0 页面异常；根与独立审阅均查看最终图片。只发布文档及图片，不新增应用、模型、采集或服务器验收，其他未提交改动保留。
+
+## 2026-10-26 · 双项目缩略版改为纯项目技术说明（本地文档）
+
+- 按用户要求重写 `docs/PROJECT_BRIEF.md`，以项目架构与执行机制组织正文，删除面试来源、整理日期、追问重点、问答引导、转写数字和写作过程说明。两个项目分别包含用途与开发范围、业务模型、模块通信、持久化、异常与恢复、权限和测试；原独立复盘文件不改，当前缩略版与文档索引不再引导至该文件。
+- Drop 补清 Task/采集 Attempt/分析 Job/run/Artifact、双状态轴、创建幂等与 Outbox、十六类现场采集及十七类导入、解析/Worker、Partial、DAG、定时及实际断言。保留 PROC_CPU RAW tick 与通用 folded samples 展示差异、SSE 序号/提交顺序和资源前提。
+- AI-CRM 补清业务实体、入站队列与执行图、显式发送、租户和工具、知识版本/商品向量复用、Mem0/WeKnora 范围、审批与补偿、checkpoint/效果回执、超时发送恢复及评测。工作台模式按 inspect/act 描述，评测禁写上下文单列；确定性评测与工具语义复核分开。
+- 正文连 Markdown/空白/英文共 9,855 个 Unicode 字符；实际检查 Markdown AST、纯项目内容范围、字符上限、源码链接、格式及来源字节，并交叉核对关键机制，见[验证记录](docs/evidence/project-brief-20261026/validation.json)。本轮仅文档与导航，不运行应用测试、编译、数据库、模型、采集或部署；原完整版与其他功能改动保留。
+
+## 2026-10-26 · 按 Jobflowing 原生面试记录重写双项目缩略版与逐题复盘（历史编写记录，缩略版已由上节替代）
+
+- 根据用户新要求，读取 Jobflowing 六段原生记录，按创建时间和场内 ASR 时间整理；不把应用生成答案或桌面语义汇总当作面试原话。816 段全部且仅分类一次：提问 383、排除 382、反馈 51；合并为 113 组提问/追问，分段数量 18/15/29/3/25/23。六段不等于六场独立面试；S01-Q07 含义不清、10月13日未录到的代码/SQL题干均保留限制。
+- 重写 `docs/PROJECT_BRIEF.md`，连 Markdown、空格、换行和英文共 9,399 个 Unicode 字符，职责简述，重点为业务链路、Go 事务与恢复、可执行接口用例、参数传递、数据库断言、性能分母，以及 AI-CRM 的工具、RAG、审批、checkpoint 和独立评测预期。
+- 新增 `docs/INTERVIEW_REVIEW_CHRONOLOGICAL.md`，逐题结合当前代码补写参考回答。原 TS/Pi 与 Python/LangGraph、内部工具包装与外部 MCP、worker 原子知识激活与 HTTP-only 顺序更新分别说明；历史聚合不能证明逐调用完整因果，测试条数不包装成模型准确率。未将后续迭代或历史运行数字倒推为较早面试当日成绩。
+- 实际完成 Markdown AST、字符上限、119 个显式锚点、153 处本地引用/行号、Python 示例语法、Prettier、六原生文件 SHA 和来源字节核对，三路提问整理并交叉审阅。验证与脱敏顺序索引见[本轮记录](docs/evidence/jobflowing-review-20261026/validation.json)；原始转写、账号目录和自动生成答案不复制进公开证据。
+- 保留原 `PROJECT_SUMMARY.md` 完整版与已有功能改动；本轮只修改文档及导航，未运行应用测试、模型、数据库、现场采集、应用编译、部署或发布。
+
+## 2026-10-25 · 一万字以内双项目技术说明（本地文档）
+
+- 新增 `docs/PROJECT_BRIEF.md`，保留原详细版。根据用户补充将职责压为各项目短句，主体深入Mini-Drop创建事务、Outbox锁、采集attempt/分析run/lease、权限、partial、文件解析与测试判据，以及AI CRM入站事件、Graph、工具权限、审批、checkpoint/effect回执、补偿、出站超时、RAG/Skill和评测。
+- 读取并目视用户单页简历，最小范围只读检索本机3条CRM主会话，并以`E:/crm/AiNativeCrm-python`生产代码核实机制。明确Python/LangGraph与原TS/Pi不同；简历时间与后续新增实现分别说明，不将全CRM或跨语言所有模块归为个人独立开发。
+- 交叉核对后修正Graph tools的delivery/control条件边、低置信优先保留合法sticky、同组织已发布Agent的知识源选择，以及checkpoint乱序写入、审批缺失上下文的具体窗口。可逆商机补偿绑定expected_updated_at；出站send_timeout不自动重发。
+- 本轮实际完成Markdown AST、内容范围与字符上限检查：连Markdown/空白/英文共9,680个Unicode字符，3个二级章节、13个三级小节、11处本地链接均存在；Prettier及来源字节/收据核对。见[本轮记录](docs/evidence/project-brief-20261025/validation.json)。本轮未运行应用测试、数据库、模型、采集、应用编译或生产动作；所有运行数字来自明确区分的历史收据。
+
+## 2026-10-25 · 按用户要求改为纯项目说明（本地文档）
+
+- 将当前交付改为 `docs/PROJECT_SUMMARY.md`，28章、58个三级小节、15张表；正文只介绍项目用途、页面与操作链路、开发和测试职责、架构通信、执行身份、事务与恢复、16种现场采集器、Python解析、React渲染、监控、测试体系及限制，AI仅简述。删除面试问答、五个独立案例、设计手写练习、各时长模拟、评分表与可复制提示词，旧活动入口同步替换。
+- 重新组织技术正文并交叉核对：准确区分HTTP字段层级、gRPC实际字段、Core/Analyzer/浏览器的SHA检查边界；将设备号/inode/build ID/SHA的强绑定限定为BOLT现场分支，不推广到普通ELF附件与导入；测试8/43条pass明确包含父子测试，历史版本与分母继续独立。
+- 本轮实际完成Markdown AST与内容范围检查、28个锚点、252次本地引用（143个不同文件）和Prettier核对，修正两处失效源码路径；22份既有测试收据和35份源码按SHA验证未变。统计汉字30,329，口径为AST文字及行内代码、不含fenced code、含目录/标题/表格，仅描述篇幅。记录见[项目说明核对](docs/evidence/project-summary-20261025/validation.json)。
+- 本轮只调整文档与导航，没有重跑应用测试、编译、性能或采集实验、模型、CI及生产部署。先前版本的编写记录与证据保留为历史，原有功能和教程改动保持。
+
+## 2026-10-25 · 开发与测试面试手册（本地文档，已由上方项目说明替代）
+
+- 按用户要求交付单文件 `docs/PROJECT_INTERVIEW_HANDBOOK.md`，32章、165个三级小节、20个代码块、17张表；基于 Markdown AST 的汉字统计为54,536（不含 fenced code，含目录/标题/表格和行内文字），篇幅仅描述规模。包含30秒/两分钟/五分钟介绍、个人开发与测试职责、13个后端专题、17组采集分析与前端追问、30组测试问题、5个工程案例、8个设计练习、45/60/15分钟模拟及提示词，AI仅小节补充。
+- 核对Go/PG事务Outbox、采集attempt与分析run/lease、限额口径、C++身份/进程预算/恢复、16种runner、Python解析/HPROF、React/SSE/Worker、失败部分结果，以及原始测试收据。明确课程个人复刻背景；第一人称稿为职责模板，不编公司经历、团队规模、个人独立作者证明或全系统性能收益。
+- 三路事实核对与交叉审阅后，细化分析状态字段、SHA-256字符/bit数、CPU加速比与耗时下降、采集Agent与AI Agent区别。SSE序号/事务提交顺序、C++ setrlimit返回检查、partial-result错误码命名差异按源码审查边界记载，未声称运行复现或已经修复；本次未修改这些实现。
+- 实际完成 Markdown解析/单标题/32锚点/268本地引用检查（156个不同文件均存在）、Prettier与16项独立算例检查；历史22份测试收据另按SHA核对并保留日期/版本/分母。算例只验证教学中的算术、类型和已知小图，不冒充正式parser/数据库/采集/性能测试。证据见[本轮编写核对](docs/evidence/interview-handbook-20261025/validation.json)。
+- 仅新增手册与文档导航/范围记录，没有重跑历史应用测试、编译、采集、模型、CI或生产部署。用户原有未提交教程/功能改动保持。
 
 ## 2026-10-25 · README 改为项目与使用说明
 
@@ -17,6 +90,50 @@
 
 - 按用户要求将三张活动现场照片原样加入 `docs/assets/tencent-mini-project/`，README 先展示 Mini-Drop 题目，再以可展开区域展示课程往届成果与同场性能工程 skill 评估方向。文字说明导师复刻指南、个人实现和扩展的关系，同场专项不列为本仓库的交付成果。
 - 本次验证照片复制前后 SHA256 一致、README 三个图片路径有效，以及暂存差异仅含本轮文档和照片；不将此前功能检查记作本次重跑。此次仅发布 GitHub 文档，不构建应用或变更服务器运行状态。
+
+## 2026-10-24 · 系统数据流与时序图册（本地完成）
+
+- 按当前工作区源码绘制 14 张交互图：系统架构、指令/文件数据流、采集/上传分析/浏览器时序、采集状态、分析租约、AgentScope 工具、调查复测、隔离修复、Outbox 回执丢失、计划与复合 DAG、关联业务信号、可选平台自监控。总入口位于 `docs/diagrams/drop-system/index.html`，逐图有白话说明、字段/协议表、12 步操作链和源码快照。
+- 采集对照覆盖契约目录 18/18：16 个现场 runner、IMPORT_COLLAPSED 与 COMPOSITE。逐项解释工具、数据、单位、RAW、解析输出、权限/工具前提和推断边界，明确 Java alloc/lock 当前 folded 单位、PROC_CPU ticks、Go pprof、堆快照与分配记录的差别。76 份来源文件、261 个不同路径/行号按实际工作区 SHA 保存，本地未提交内容不冒称等同基础 Git revision。
+- 14 图均完成 showcase **9/9、0 错误/0 警告**交付；自动浏览器测量 **56 个桌面视口**全部无横纵溢出，默认 READ/Still 的 **56 张深浅色截图**由图像工具逐张实际审阅。首版多张纵向时序/生命周期图真实溢出，压缩作者空白或改用独立紧凑状态流程/时序候选后重验；被拒候选与原失败收据保留，不以旧 HTML 冒充新候选通过。
+- 离线图册浏览器 **89 项**通过，覆盖 14 图载入、各说明页、16 项筛选/空结果、主题记忆、手机菜单及 320/375/768/1440/1920px 页面无横向溢出，0 页面异常/0 外部请求；作者 HTML/内联脚本样式经 Prettier 检查。另在图 03 实际验证路径、地图、搜索、消息护照关闭与 SVG/PNG/Share Card 导出操作。
+- 导出生成及 Viewer UI 清洁不代表全部排版合格：实际发现标准 fine/Share Card 导出会让长注释交叠和右缘裁切，未改安装工具或伪报导出视觉全绿。额外提供 **14 张无工具栏的 READ 主图 PNG**与静态图库；分发 ZIP 排除被拒候选，并通过 CRC/条目完整性检查。范围、逐图 SHA 与各类检查分别记录于 [图册验证](docs/diagrams/drop-system/validation.json)。
+- 本轮仅文档、图册和本地验证，未运行现场采集、模型请求、生产故障注入、应用构建或部署，未更改业务执行逻辑、生产容器、镜像和卷。此前调查额度发布与教程验收沿用其各自原始证据。
+
+## 2026-10-24 · 每账号活跃调查额度提升至 10（已上线）
+
+- 按用户明确要求，将 `POST /investigations` 的每账号未终态调查上限从 3 调整为 10，提示由同一常量生成；等待确认仍占额度，同键重放不新增，success/failed/canceled 释放额度。更新 `docs/CONTRACT.md`。普通诊断和源码修复的独立并发额度保持各自配置。
+- 新增四项真实 PostgreSQL 准入回归，覆盖第 4/10 条接纳、第 11 条拒绝、等待确认、满额重放/冲突、终态释放、账号隔离，以及 24 个并发请求恰好接纳 10 条。使用新建本机回环 PostgreSQL17、全部十个迁移，连同已有规划确认、自动复测、来源栅栏和比较边界共 **8 项通过 / 0 跳过**；不调用真实模型或采集。Go1.26.10 的服务测试编译、Linux amd64 API 构建和 gofmt 通过。
+- 仅将 `82.157.81.79` 的 API 切换为独立镜像 `drop-api:20261024.1`，二进制 SHA `51fbb01bbfe76733d6217ae850e3d7421bfcc30114bca299e78a0953abad5731` 与本轮构建一致。仅替换 `.env` 的 API tag 并同步两份相关 Go 源码和契约文件，无迁移。其他 28 个运行容器、命名卷、旧命名镜像、三个登记项目与执行器保持；原有调查 ID/状态保持，登录后只读列表正常并登出。内部 ready 与公网 providers JSON 均通过，未创建生产调查或调用模型。
+- 第一次候选构建因服务器旧构建器不支持 COPY --chmod 退出，尚未切换生产；改为归档提取时设置候选文件执行权限，第二轮发布成功，原失败记录保留。此次未发布本地教程与 Web 变更，未推送其他工作区修改。见 [本轮验证与发布记录](docs/evidence/investigation-quota-20261024/validation.json)。
+
+## 2026-10-24 · 22 章教程与完整实战篇（本地完成，未部署生产）
+
+- 在十章源码精读基础上新增第 11–22 章，正文总计 **102,981 汉字 / 285 节 / 119 代码块**（剔除 fenced code 后统计汉字），新增各章约 5,000–5,250 汉字；102 个源码入口均核对存在，Python 围栏均通过语法解析。内容覆盖四语言最小实现、参数/argv/计量、HTTP/幂等/journal、故障恢复、folded、retained、React/SSE、契约演进、工具权限、checkpoint/预算、功能与配对比较，以及完整毕业作业和排错。
+- 新增独立 `tutorials/mini-drop`：C++17 自身受控 CPU 计账、Go 标准库本地 HTTP/文件 journal/单 worker、Python 严格分析和 React `/book/workbench`。工作台显式连接 `/mini-api` 本地代理，保留不确定响应的幂等键，终态重试新轮次，旧刷新不覆盖新快照。新十二章按章加载，迟到正文不能覆盖已切换章节；修复手机返回链接的样式优先级。
+- 新增 `python -m tutorials.labs` 十二个机制实验，最终 **88 个实际断言**、**25 项 Python 回归**通过。生命周期使用临时 SQLite 真实事务，其余为有界合成模型/字节；性能成本固定、checkpoint 是共享内存，没有借此声称 PG 并发、真实性能改善或模型能力。
+- 本地 C++ 以 `-std=c++17 -O2 -Wall -Wextra -Wpedantic -Werror` 及 MinGW 静态运行库编译成功；Go 构建和 **6 项回归**通过，覆盖磁盘提交失败不发布、幂等/严格输入、重启与身份、结果 SHA/单位。独立临时源码副本删除 finish 的 attempt 条件后，增强回归按预期失败，证明它能独立检测该坏实现；未修改正式代码或把变异当成生产缺陷。
+- 实跑 `smoke.py` **20 项**真实受控链路检查：真实 C++→Go→Python、文件 SHA/单位/树值、HTTP 重放/冲突/拒绝输入、成功证据重启保留、第二轮不覆盖旧 RAW。另有真实浏览器→本地教学服务 **9 项**检查，实际创建/重试并核对磁盘摘要，桌面/375px 截图人工查看；CPU 允许实际零值，树是进程计账而非函数栈。
+- 最终 Web **21 文件 / 162 单测**、完整 `npm run build`、Prettier 和 **8 项教程 Playwright**通过，0 skip/0 flaky；覆盖 22 章公开直达、锚点/阅读设置、移动目录、协议空行复制、深浅色自动无障碍、延迟章节切换、显式连接与丢失响应重发键。浏览器传输夹具明确合成，真实链路收据单独保存。
+- 首次参考编译参数 C++20 不被本机 GCC8.1 接受，改为参考实际所需 C++17；初始 smoke 事件名预期与代码不符后修正。真实浏览器脚本复跑时曾读到已有任务的旧结果，后改为绑定本次 POST ID 再验证；这些是教程命令/验证脚本修正，不描述成生产故障。五份 Markdown 格式检查告警修复后重新构建与重跑浏览器。见 [本轮全部范围与摘要](docs/evidence/project-tutorial-practice-20261024/validation.json)。
+- [教程](http://127.0.0.1:4322/book/chapter1/) 与 [实战篇](http://127.0.0.1:4322/book/chapter11/) 本地可读，工作台有独立 4330 教学实例。未推送、部署、改生产契约或生产数据，未运行 Docker/PG/付费模型/外部 PID 采集；正式线上验收仍沿用原独立记录。
+
+## 2026-10-24 · 项目教程深入版（本地完成，未部署生产）
+
+- 根据用户对讲解深度的反馈，重写全部十章，正文拆为 `web/src/book/content/chapter1.md` 至 `chapter10.md`，由章节元数据通过 `?raw` 导入。排除 fenced code 后的汉字由 15,301 增至 42,114，二级章节由 60 增至 120，包含 61 个代码块和 77 个已核对存在的源码引用；篇幅统计不作为正确性或学习效果评分。
+- 新增控制/数据流交接、实际函数调用链与关键语句解释、Outbox RPC 超时竞态、当前 attempt 栅栏、PID 复用、helper/上传恢复窗口、Analyzer 租约接管、folded 权重手算、HPROF retained、SSE 分帧与游标、工具/报告事实验收、源码沙箱及受控对照。源码摘录、伪代码、教学输入、建议新增测试与历史验收分别标注，不将教学变异包装成既有生产 bug。
+- 交叉复核修正创建请求重放与显式 retry 的幂等键表述，以及 PERF_CPU 协议 2 使用 perf_script RAW、旧协议 1 兼容 folded 的格式差异。阅读器增加窄屏本章折叠目录，代码复制保留协议示例的末尾空行，避免 SSE 练习复制后无法完成帧。
+- 本轮实际通过 Web **21 个文件 / 162 项单测**、TypeScript/Vite 生产构建、Prettier，以及教程 **6 项浏览器检查**。浏览器覆盖全部十章直达且无业务 API 请求、章节/锚点、阅读设置、专注、320–1440px 布局、移动章节/本章目录、存储与剪贴板失败、SSE 复制终止空行和深浅色自动无障碍检查；人工查看了正文与手机截图。
+- 实际执行 **6 个教学检查（含 2 个按预期失败的负控）**：attempt 模型、仅 PID 判断的身份模型、合成 folded 建树及本地真实 folded 解析函数。输入全部为代码内固定合成数据，无数据库、Docker、目标进程采集或模型调用；没有执行第十章建议新增的 Go 测试或其他后端练习。原始输出见 [教学检查](docs/evidence/project-tutorial-20261024/teaching-labs.json)，源码 SHA、篇幅口径与本轮检查见 [验证记录](docs/evidence/project-tutorial-20261024/validation.json)。
+- [本地入口](http://127.0.0.1:4322/book/chapter1/) 返回 200 且匹配当前 `dist/index.html`；当前为工作区变更，未推送或部署生产。原生产服务、命名镜像和数据卷保持，本轮结果不替代历史真实链路、容量或 AI 语义验收。
+
+## 2026-10-23 · 十章 Drop 项目教程（本地完成，未部署生产）
+
+- 参考用户提供的本地教程 `/book/chapter1/` 的三栏阅读结构，将学习路线扩为十章项目教程：项目问题、本地启动、跨语言契约、Go 任务与 Outbox、C++ 采集、Python 分析、React 证据展示、AgentScope 诊断、复测/隔离修复、测试与继续开发。正文包含源码片段、练习、预期现象和参考思路，区分教学假设、显式导入样本、真实采集与历史验收。
+- 新增独立 `/book/*` 阅读路由，浏览教程不挂载业务应用、不恢复业务会话；工作台导航和使用指南增加项目教程入口。实现章节/本章目录、代码复制、字号与主题保存、深色模式、专注阅读、移动目录及打印样式。Markdown 转成受限 React 节点，关闭原始 HTML；浏览器存储或剪贴板不可用时给出回退说明。
+- 实际验证：Web **21 个文件 / 162 项单测**通过（使用单 worker 串行运行）；`npm run build` 的 TypeScript 检查与 Vite 生产构建通过；教程 **5 项**真实浏览器测试通过，覆盖十章直达且无 API 请求、章节/锚点跳转、设置恢复、专注、320–1440px 窄屏、移动键盘退出、未知章节、存储与剪贴板失败，以及深浅色的自动 WCAG 2.1 AA 检查。原指南和工作台外壳 **20 项**本地浏览器回归通过，使用既有明确标记的导入 UI 夹具。Prettier 检查通过。
+- 初始构建因 Windows 内存不足退出；一次低内存 Vite 尝试也未完成。随后以受限 Node 内存串行运行，完整构建成功。浏览器首次检查发现浅色辅助文字/强调色对比度不足，修正后五项全部重跑成功，保留真实失败经过，不计作首次全绿。
+- 本地生产构建预览入口为 [第一章](http://127.0.0.1:4322/book/chapter1/)，启动方式见 [教程说明](docs/PROJECT_TUTORIAL.md)，截图与来源核对见 [本轮记录](docs/evidence/project-tutorial-20261023/validation.json)。未运行教程中的 Docker/采集/模型练习，未部署、重启或更改生产服务；既有线上版本与验收范围保持原记录。
 
 ## 2026-10-23 · 测试深度补强：真实整链、CRM数据库与质量记录（已发布，最终CI通过）
 
@@ -124,7 +241,6 @@
 - 新建调查#6，通过真实网页选择CRM、输入问题/授权、生成与确认计划，79.7秒完成任务15/16、自动诊断与源码修复5。profile/test_patch均cache_hit=false，实际新沙箱测量；原回归及384次类型/值一致，6/6组CPU对照达门槛，中位加速4.4301倍（仅合成配色函数）。保留实跑录像和步骤，不以历史调查冒充实时结果。
 - 面试步骤与边界见docs/INTERVIEW_DEMO.md，证据docs/evidence/interview-20261020。原CRM未自动发布；模型/网络与测量会波动，不承诺每次80秒或固定提速。
 
-
 ## 2026-10-20 · Agent V2 + 真实Python CRM · 20261020.7
 
 - 按用户指定接入E:/crm/AiNativeCrm-python；读取其AGENTS，未读真实.env/客户数据，原CRM源码与TS版保持不改。首个隔离场景为品牌配色预览，快照408文件、源码版本20eb8592d7a6c9b959113417de45ef99ec2c6b2125b9c635b9c15cd574cf12a5。
@@ -202,7 +318,6 @@
 - 17:35:18 CST 完成 `.env` 持久化，默认 `COMPOSE_FILE=compose.yml:compose.perf.yml:compose.limited-release-r2.yml`，并生成 release proof。发布后只读核验为 8 个运行容器、schema 5、25 tasks / 31 attempts / 125 artifacts；四个保留容器身份不变，约 2.37 GB 可用内存。该快照不等于持续容量/SLA 证明。
 - 根代理另实际目检生产概览 1440 视口和详情 375 全页截图，确认布局、留白、状态层级与页面边界没有明显阻塞问题；未将奖项品质目标写成已获奖或全量审计通过。完整发布范围、证据与回滚步骤写入 `docs/releases/20261018.1-limited.md`，三份交付文档同步更新。
 - 最终实际完成证据一致性检查：8 份发布元数据、20 张截图 SHA、运行镜像/overlay/任务身份/schema 对照均通过；发布说明本地链接及8份相关文件的行尾空白检查通过，`git diff --check` 通过。证据索引保存为 `docs/evidence/releases/20261018.1-limited/evidence-manifest.json`，不将该 checksum 索引称为签名。
-
 
 ## 2026-10-16 · 初始化
 
@@ -419,7 +534,6 @@
 
 - 新增服务器本机SBOM采集器scripts/release/host_sbom.py，20项纯fake-host/文件系统回归、Ruff检查/格式及Python编译通过，未访问远端或启动Docker/Syft/浏览器。限制六组件精确引用与预期image ID，串行docker:sha256扫描、前后tag指纹复核、私有工作目录/资源门禁/固定错误码/拒已有结果；记录兼容既有离线签名器并标source=docker-daemon，不伪造archive摘要。官方Syft1.54.1会将镜像Labels放入CycloneDX metadata，故发布前仅重建安全来源metadata，组件/依赖原样保留并按最终SBOM计算SHA。真实Linux六镜像扫描、Schema及签名仍待根代理执行，证据host-sbom-offline-2026-10-18.json。
 
-
 ### 2026-10-18 继续：发布前静态门禁
 
 - 本机重新执行部署边界回归46项、共享TaskKind/Proto兼容/HTTP契约3项检查，全过；记录为 `docs/evidence/full/deployment-offline-final-2026-10-18.json`。本报告不重标以前的Ops真实S3或Linux采集结果。
@@ -428,7 +542,6 @@
 
 - TLS部署脚本补齐只重建指定服务的--no-build/--pull never，公网签发/续期共用.acme.lock及public-state.sh事务：新pair写受控bundle，current原子切换，edge配置原子替换，nginx检查/重载或HTTPS探测失败恢复旧pair/config；回滚自身失败保留两份恢复状态，成功退出不误回滚，未变pair不累积副本。两个edge模板error日志限crit、access关闭；过期监控改为验证后读取current。12项实际Git Bash+假命令事务回归、Ruff/编译与5份Bash语法/LF检查通过，零skip；Windows只有ln/readlink用标记文件模拟，无原生symlink/真实Docker/OpenSSL/HTTPS验收声明。新操作顺序见deploy/tls/README.md，证据tls-publication-offline-2026-10-18.json。实际内部轮换仍需独立Agent新心跳及经helper的PERF实采，不能用PROC_CPU替代；未访问远端，API/Web运行产物未改。
 
-
 ### 2026-10-18 继续：供应链检查准备与真实缺陷
 
 - 开发机校验并运行官方immutable Grype0.120.1（archive与官方checksums/API digest一致）；实际更新10月17日漏洞库并记录SHA。试扫历史Web rc1得到zlib的1项可修High与BusyBox的3项Medium匹配，没有把它写成当前rc2或生产扫描结果。最终六镜像与可利用性/修复评估继续，未宣称扫描门禁通过。
@@ -436,7 +549,6 @@
 - 内存采集发现GDB已可ptrace但O_RDWR打开目标0600内存文件会因最小DAC策略失败。Core正以官方LLDB后端验证相同权限及512MiB限制；若通过将同步共享tool声明，并重新封装API候选，旧rc3产物保持。
 
 - Web生产依赖审计以node直接执行npm-cli.js、结构化捕获真实exit0（不沿用PowerShell末端退出码），官方registry返回117prod/0漏洞、无error/stderr，package.json和lock SHA前后相同；结果web-runtime-dependency-audit-2026-10-18.json只覆盖构建浏览器资产的生产依赖图，不代表Nginx OS包。另通过有界公开HTTP实际取得DockerHub1.30.6-alpine的官方index/amd64 manifest digest及10月14日更新时间，Alpine v3.24/main SecDB确认zlib CVE-2026-85091 fixed1.3.2-r1；原web工具访问失败没有算成功。只读证据与条件性修补顺序分别存nginx-upstream-metadata-2026-10-18.json/nginx-patch-plan-2026-10-18.md，历史rc1匹配没有冒作rc2或官方当前镜像结论。未pull、未访问ECS、未改冻结Dockerfile/dist/context，也未自动新增平台镜像。
-
 
 ### 2026-10-18 继续：当前候选OS依赖确认与修补准备
 
@@ -448,13 +560,11 @@
 - Core实际只读确认Web rc2 zlib1.3.2-r0后，按明确授权仅在Web两Dockerfile最终stage插入USERroot/apk upgrade --no-cache zlib，保留最终USER101；精确移除两行能复原旧recipe哈希，全部92输入及14个bundle核验，业务源码和dist原字节未变。另准备无业务COPY的deploy/Dockerfile.nginx，供已授权第7基础设施镜像drop-nginx、两个网关共用；未修改Compose/CI。
 - 独立Web rc3 context332838字节，SHAa60dd66a2062e812e8fa48ff471e27b5de1a9cb7841859bcb85684f794f8aa19；独立平台context251字节，SHA81fbbcbdbb0234dabd8958e2ec5e4982f98954e5b2f04818b46c3b4f754cb228。逐件tar成员/字节比对通过，旧rc2包0741948c…原样保留；新source13e52866…，dist仍fcc5bd71…。新冻结web-basepatch-rc3-freeze.json明确96/21/7仅沿用未变JS证据，没有重跑或冒报OS修复。尚未build或执行apk，实际包版本/SBOM/Grype/UID101/网关与stage浏览器仍待根队列；本地stage执行器已切为新rc3冻结校验，未启动浏览器。
 
-
 ### 2026-10-18 继续：Alpine仓库连通与独立候选
 
 - 平台Nginx rc1实际apk构建在240秒墙钟限制结束且没有新tag，临时RUN容器已由根代理确认不存在；不把超时或候选recipe记为构建通过。根代理在同原Nginx镜像的32MiB/no-swap/capless/UID65534/只读容器实际读取Aliyun v3.24 main x86_64 APKINDEX，HTTPS200、528376字节、约1.8秒、exit0。该验证只证明仓库连通，不证明安装或修复。
 - 三份Dockerfile统一只用sed将dl-cdn.alpinelinux.org替为mirrors.aliyun.com，原分支路径、包签名校验、apk upgrade --no-cache zlib与最终USER101均保留；精确逆换能重建前次recipe SHA。新Web rc4 context332913字节/SHA97e8c08093b0cd95217109e73aaab3a8c9ac5c06a612f0e6bdd12d301fd08d22，平台rc2单文件context314字节/SHAad57616d4db3d3deb4591cf6c6bc641ac2dde1c4959a0b15ff1ebdde9bc64602，逐成员和内容核验通过。
 - web-mirror-rc4-freeze.json source manifest c88d2fe98e23c68bee64865e38399cca3268658da50b06084829b72afbce419a，全部14个dist仍fcc5bd71…0ed3，沿用96/21/7时明确未重跑JS。旧Web rc2/rc3及平台rc1 archive指纹重新核验不变；本机stage launcher只更新优先校验最新freeze，Python编译通过，尚未启动browser。新镜像实际构建、安装版本、SBOM/Grype/UID与真实stage行为继续待根队列。
-
 
 ### 2026-10-18 继续：实际依赖扫描与镜像修补
 
@@ -463,13 +573,11 @@
 - 使用官方校验的Grype0.120.1和已更新的10月17日库，本机离线扫描上述精确SBOM，实际434条匹配：Critical17/High156/Medium147/Low27/Negligible87，exit2、发布门禁失败。原始报告与摘要位于docs/evidence/supplychain/security，SHA a20246a28f998fc9b750c17bbb9314e81d8d027f9664daf57f15c2183e8cea91。正在逐包核对Python运行时、urllib3和系统库并准备候选；尚未忽略匹配、改阈值或替换生产，旧42项功能回归保留原适用范围。
 - Core恢复GDB catalog后，其JSON与API rc3语义相同，但LF/CRLF令字节SHA不同；已协调从rc3归档恢复原字节，最终采用c4a8757ea8628c2756df736221816ace667dbb92c7aed30d15571b08f13da243，避免不必要的API重封。stage准备脚本改回APIrc3并钉死Web/网关实际ID，仅本机编译校验、未执行远端配置或启动。Core正在唯一重队列验证真实GDB ptrace launcher，未将本机准备记为实采成功。
 
-
 ### 2026-10-18 继续：隔离浏览器顺序与UI只读复核
 
 - 本机复核web-platform-runtime-images报告与两个context、92源文件及14bundle全部一致；实际构建/包版本由根代理报告，未重标为Grype或stage已通过。API最终仍rc3，Ops/Analyzer安全评估未接受，startupproof绝不推断扫描通过。
 - 现有stage_ce_gzip只完成唯一导入对象元数据/原bytes检查，browser_ce_gzip才验证fresh grant、identity头、浏览器gzip magic/精确size/SHA及真实Worker。新增仅.local联合入口与9项纯metadata/假subprocess回归，实际preflight、Ruff/格式/编译和Node语法通过；Windows CRLF proof长度问题先红后绿改O_BINARY。入口固定loopback，CE→12项Full/System→synthetic10k/50k/100k遇错即停，不回显原异常；没有启动browser/SSH/服务/隧道，说明见stage-browser-execution-plan-2026-10-18.md。
 - 指南§8只读复核：完整事件之外的概览是4阶段；失败结构字段/partial分析视图与最后失败事件仍画check存在真实展示限制。Markdown为react-markdown skipHtml及元素/URL白名单，未使用指南指名DOMPurify。限制记录到web-guideline-readonly-review和剩余矩阵；未改冻结runtime，未声称获奖认证或真实全量验收。
-
 
 ### 2026-10-18 继续：本机资源、独立候选与提前分诊
 
@@ -512,6 +620,7 @@
 - 同一Grype库扫描该精确Analyzer SBOM得到57Critical/329High/269Medium/24Low/750Negligible/273Unknown，exit2，原报告SHA `ff031e33…dbb3`。Critical分组为linux-perf46、libcurl6、系统Python3.13五包同CVE；初步核对三个官方公告并记录在`analyzer-rc4-initial-triage.md`，不把源码包映射、离线工具前提或TLS客户端条件直接当全量不可达证明。API/Web/Nginx三项通过与Analyzer/Ops两项未通过分别列明。
 - 已成功只读导出本轮同镜像已过runtime/tools/121阶段证明：`analyzer-security-rc4-completed-stages-resume1-2026-10-18.json`，SHA `4b6246ba…d44e`，明确PARTIAL_VALIDATION及剩余pending，不伪造整套通过。resume2新包128文件/25289495B校验后实际执行，在最后`case_bolt`退出1；原现场不改，代理仅限新私有目录读取安全计数/失败分类，未重新构建或重复已过121测试。此时没有生产迁移/切换。
 - resume2实际只读核对：perf双输入通过script56920B/91sample、data16032B/93sample，报告SHA `d16023cd…95fe`；18格式均success（`e908838a…22e0`）；整cgroup512MiB/noSwap的10k/50k/100k为0.660/1.416/2.776秒、memory.peak158076928B、100001拒INPUT_LIMIT_EXCEEDED，scale SHA `e1203816…b268`，三者State Exit0/noOOM。固定Core工具底座编译fresh ELF28856B/SHA `4ac4d1cb…eac7`及compiler inventory成功，非业务性能/SLA。BOLT精确失败在benchmark_bolt_prebuilt.py:70的llvm-bolt instrument、子工具exit1；原驱动capture_output却未持久化CalledProcessError.stderr，不能推断缺库/ELF兼容原因，且未保存失败State不能冒称noOOM。实际SBOM已列两个libbolt_rt档案，故未盲加依赖；独立同ELF/镜像诊断包仅准备中。没有fdata、优化或三组等价通过结论。
+
 # 2026-10-19 · 以 tx-drop 继续完整平台并吸收开发/视觉设计（进行中）
 
 用户确认选择 tx-drop，吸收 drop-drop 的本地开发流程与视觉设计，要求最后部署到既有服务器，并允许清理旧应用与临时构建。完整指南、历史未完成项继续有效；本轮跟踪清单见 `docs/CONTINUATION_20261019.md`。
@@ -575,6 +684,7 @@
 - 功能源码797e9ec7e581已推送master并同步服务器1555文件SHA；本机已关联origin/master，切到codex/published-tx-drop，原main/52fb787历史保留。所有原工作文件字节保持，工作区干净，未checkout/reset/clean。
 - GitHub精确push/master run39418233749于12:10 UTC核验7/7 job全成功：API race/vet/govulncheck/gofmt、Web单测/构建/审计/浏览器、Core严格构建、AgentScope Linux、契约、维护以及Analyzer原PG/S3隔离集成均通过；两处MinIO官方binary fixture实际构建成功。旧失败日志保留，旧31cb被取代的运行已取消以释放runner。
 - 最终12:09:55 UTC线上ready200、27运行容器且无OOM/unhealthy、7监控up，API12/runtime2/Web10/Agent3及原存储镜像保持。公开CI和readiness收据补入docs/evidence/github-publication-20261020，并存Release附件；收尾提交仅更新文档/JSON，使用[skip ci]避免再次构建相同功能源码，不把文档提交冒作另一轮7项执行。
+
 ## 2026-10-21 · 八项 Agent 扩展（已部署，真实场景验收中）
 
 - API8/Analyzer0.2.4实际Linux56 SDK和20解析通过；首次监控抓取未刷新触发回滚，核对29健康/7up后用同不可变镜像重发并等抓取6/7→7/7，未改卷。真实task102重分析run2仍失败，定位为Repository原SQL别名attempt与整数列同名，to_jsonb解析成整数使可信runner_metadata成为NULL；离线parser正例此前未覆盖该真实存储边界。改名collection_attempt，保留来源gate；Analyzer0.2.5实际隔离PG→JSON→child正负控和原20解析合计21通过/0skip。Web6仅更正旧预算文案，Prettier/build/既有7浏览器通过，API8/runtime4保持。Analyzer2/Web6待发布与原run3恢复/新现场闭环。
