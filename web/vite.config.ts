@@ -7,6 +7,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
+      "/mini-api": {
+        target: "http://127.0.0.1:4330",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/mini-api/, ""),
+      },
       "/api": {
         target: process.env.DROP_DEV_PROXY || "http://127.0.0.1:8080",
         changeOrigin: true,

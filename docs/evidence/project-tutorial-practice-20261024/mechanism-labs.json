@@ -1,0 +1,698 @@
+{
+  "scope": "fixed synthetic teaching inputs; temporary SQLite is not PostgreSQL validation; no collection or external model calls",
+  "passed": true,
+  "case_count": 12,
+  "check_count": 88,
+  "cases": [
+    {
+      "name": "lifecycle-outbox",
+      "passed": true,
+      "summary": "响应丢失后重发同一身份，下游只接受一次业务动作",
+      "checks": [
+        {
+          "name": "first delivery is accepted",
+          "passed": true
+        },
+        {
+          "name": "lost response leaves a durable pending message",
+          "passed": true
+        },
+        {
+          "name": "receiver deduplicates redelivery",
+          "passed": true
+        },
+        {
+          "name": "negative control without deduplication repeats the effect",
+          "passed": true
+        },
+        {
+          "name": "only acknowledged delivery retires the message",
+          "passed": true
+        }
+      ],
+      "observations": [
+        "accepted",
+        "response_lost",
+        "replayed",
+        "acknowledged"
+      ]
+    },
+    {
+      "name": "attempt-fence",
+      "passed": true,
+      "summary": "旧轮次消息被 SQL 条件拒绝，坏谓词能重现误取消",
+      "checks": [
+        {
+          "name": "current attempt can be canceled",
+          "passed": true
+        },
+        {
+          "name": "retry creates a distinct monotone attempt",
+          "passed": true
+        },
+        {
+          "name": "old cancellation cannot mutate new execution",
+          "passed": true
+        },
+        {
+          "name": "rejected late message does not append a fake event",
+          "passed": true
+        },
+        {
+          "name": "previous attempt history is retained",
+          "passed": true
+        },
+        {
+          "name": "negative control without attempt predicate reproduces corruption",
+          "passed": true
+        }
+      ],
+      "observations": [
+        {
+          "current_attempt": 2,
+          "stale_message_attempt": 1,
+          "protected_status": "CREATED",
+          "broken_status": "CANCELED"
+        }
+      ]
+    },
+    {
+      "name": "lease-handover",
+      "passed": true,
+      "summary": "逻辑时钟重现 A 过期、B 接管、A 迟到的发布竞争",
+      "checks": [
+        {
+          "name": "valid lease excludes a second owner",
+          "passed": true
+        },
+        {
+          "name": "expiry alone revokes publication even before takeover",
+          "passed": true
+        },
+        {
+          "name": "expired work is claimed under a new run",
+          "passed": true
+        },
+        {
+          "name": "previous owner cannot publish after takeover",
+          "passed": true
+        },
+        {
+          "name": "current owner publishes one atomic success event",
+          "passed": true
+        }
+      ],
+      "observations": [
+        {
+          "A_run": 1,
+          "B_run": 2,
+          "A_late_accepted": false,
+          "B_accepted": true,
+          "success_events": 1
+        }
+      ]
+    },
+    {
+      "name": "atomic-events",
+      "passed": true,
+      "summary": "任务、轮次、事件和待办一起提交或一起回滚",
+      "checks": [
+        {
+          "name": "intermediate failure rolls back every lifecycle record",
+          "passed": true
+        },
+        {
+          "name": "parameterized SQL stores hostile-looking text as data",
+          "passed": true
+        },
+        {
+          "name": "successful transaction commits its dispatch fact",
+          "passed": true
+        }
+      ],
+      "observations": [
+        {
+          "after_injected_failure": {
+            "tasks": 0,
+            "attempts": 0,
+            "events": 0,
+            "outbox": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "folded-tree",
+      "passed": true,
+      "summary": "Synthetic folded input becomes a bounded tree; recursive inclusive stays 10 rather than 14.",
+      "checks": [
+        {
+          "name": "three synthetic paths have total weight 10",
+          "passed": true
+        },
+        {
+          "name": "decode has the largest self weight",
+          "passed": true
+        },
+        {
+          "name": "recursive frames are not double-counted in function inclusive",
+          "passed": true
+        },
+        {
+          "name": "negative control exposes naive inclusive double counting",
+          "passed": true
+        },
+        {
+          "name": "reject zero weight",
+          "passed": true
+        },
+        {
+          "name": "reject empty frame",
+          "passed": true
+        },
+        {
+          "name": "reject malformed UTF-8",
+          "passed": true
+        },
+        {
+          "name": "reject excessive depth",
+          "passed": true
+        }
+      ],
+      "observations": [
+        {
+          "source": "synthetic",
+          "total_weight": 10,
+          "tree": {
+            "name": "all",
+            "value": 10,
+            "self": 0,
+            "children": [
+              {
+                "name": "main",
+                "value": 10,
+                "self": 0,
+                "children": [
+                  {
+                    "name": "idle",
+                    "value": 1,
+                    "self": 1,
+                    "children": []
+                  },
+                  {
+                    "name": "render",
+                    "value": 9,
+                    "self": 3,
+                    "children": [
+                      {
+                        "name": "decode",
+                        "value": 6,
+                        "self": 6,
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "functions": [
+            {
+              "name": "decode",
+              "self": 6,
+              "inclusive": 6
+            },
+            {
+              "name": "render",
+              "self": 3,
+              "inclusive": 9
+            },
+            {
+              "name": "idle",
+              "self": 1,
+              "inclusive": 1
+            },
+            {
+              "name": "main",
+              "self": 0,
+              "inclusive": 10
+            }
+          ],
+          "recursive_walk": {
+            "name": "walk",
+            "self": 10,
+            "inclusive": 10
+          },
+          "naive_recursive_inclusive": 14
+        }
+      ]
+    },
+    {
+      "name": "heap-dominators",
+      "passed": true,
+      "summary": "Synthetic strong-reference graph separates reachability, shallow bytes and retained bytes.",
+      "checks": [
+        {
+          "name": "unrooted object remains unreachable",
+          "passed": true
+        },
+        {
+          "name": "shared object is not exclusively retained by cache",
+          "passed": true
+        },
+        {
+          "name": "cache retains own 8 plus owned 24 and cycle 8",
+          "passed": true
+        },
+        {
+          "name": "reachable payload bytes exclude orphan 16",
+          "passed": true
+        },
+        {
+          "name": "cycle traversal terminates with a valid immediate dominator",
+          "passed": true
+        },
+        {
+          "name": "removing the alternate strong edge changes retention by 40",
+          "passed": true
+        },
+        {
+          "name": "negative control exposes overlapping retained sums",
+          "passed": true
+        },
+        {
+          "name": "reject dangling references in teaching input",
+          "passed": true
+        }
+      ],
+      "observations": [
+        {
+          "source": "synthetic",
+          "size_basis": "assigned_payload_bytes_not_VM_heap_size",
+          "objects": {
+            "cache": 8,
+            "other": 8,
+            "shared": 40,
+            "owned": 24,
+            "cycle_a": 4,
+            "cycle_b": 4,
+            "orphan": 16
+          },
+          "edges": {
+            "cache": [
+              "shared",
+              "owned"
+            ],
+            "other": [
+              "shared"
+            ],
+            "owned": [
+              "cycle_a"
+            ],
+            "cycle_a": [
+              "cycle_b"
+            ],
+            "cycle_b": [
+              "cycle_a"
+            ]
+          },
+          "reachable": [
+            "cache",
+            "cycle_a",
+            "cycle_b",
+            "other",
+            "owned",
+            "shared"
+          ],
+          "unreachable": [
+            "orphan"
+          ],
+          "idom": {
+            "cache": "@root",
+            "cycle_a": "owned",
+            "cycle_b": "cycle_a",
+            "other": "@root",
+            "owned": "cache",
+            "shared": "@root"
+          },
+          "retained": {
+            "@root": 88,
+            "cache": 40,
+            "cycle_a": 8,
+            "cycle_b": 4,
+            "other": 8,
+            "owned": 32,
+            "shared": 40
+          },
+          "iterations": 3,
+          "cache_without_alternate_edge": 80
+        }
+      ]
+    },
+    {
+      "name": "sse-frames",
+      "passed": true,
+      "summary": "Synthetic split SSE frames retain exact cursors and discard incomplete events.",
+      "checks": [
+        {
+          "name": "split multibyte text cannot prematurely commit a frame",
+          "passed": true
+        },
+        {
+          "name": "incremental decoder reconstructs the Chinese event",
+          "passed": true
+        },
+        {
+          "name": "cursor preserves the exact int64 decimal string",
+          "passed": true
+        },
+        {
+          "name": "truncated event does not advance the reconnect cursor",
+          "passed": true
+        },
+        {
+          "name": "negative control demonstrates float cursor collapse",
+          "passed": true
+        },
+        {
+          "name": "reject malformed UTF-8",
+          "passed": true
+        },
+        {
+          "name": "reject cursors beyond signed int64",
+          "passed": true
+        },
+        {
+          "name": "heartbeat comments count toward frame bounds",
+          "passed": true
+        }
+      ],
+      "observations": [
+        {
+          "source": "synthetic",
+          "events": [
+            {
+              "type": "task_status",
+              "data": "{\"stage\":\"采集完成\"}",
+              "id": "9007199254740993"
+            }
+          ],
+          "committed_cursor": "9007199254740993",
+          "truncated_cursor": "9007199254740993",
+          "float_collision": [
+            9007199254740992,
+            9007199254740993
+          ]
+        }
+      ]
+    },
+    {
+      "name": "contract-evolution",
+      "passed": true,
+      "summary": "Teaching-only LESSON_SELF_CPU_V2 demonstrates explicit versioning, unknown provenance and rejected negative fixtures.",
+      "checks": [
+        {
+          "name": "new reader does not invent provenance for legacy input",
+          "passed": true
+        },
+        {
+          "name": "new fixture retains its synthetic source and explicit unit",
+          "passed": true
+        },
+        {
+          "name": "old reader explicitly rejects new wire version",
+          "passed": true
+        },
+        {
+          "name": "reject compatible-looking tree with wrong measurement unit",
+          "passed": true
+        },
+        {
+          "name": "reject bool masquerading as integer",
+          "passed": true
+        },
+        {
+          "name": "reject unknown executable command field",
+          "passed": true
+        },
+        {
+          "name": "reject invented provenance category",
+          "passed": true
+        },
+        {
+          "name": "reject duplicate JSON keys before dictionary normalization",
+          "passed": true
+        },
+        {
+          "name": "reject non-JSON numeric constants",
+          "passed": true
+        },
+        {
+          "name": "zero measured counter is representable and not fabricated into a sample",
+          "passed": true
+        }
+      ],
+      "observations": [
+        {
+          "source": "synthetic",
+          "production_catalog_changed": false,
+          "legacy_normalized": {
+            "schema_version": 1,
+            "kind": "LESSON_SELF_CPU_V2",
+            "unit": "cpu_ticks",
+            "weight": 0,
+            "provenance": {
+              "source": "unknown"
+            }
+          },
+          "current_accepted": {
+            "schema_version": 2,
+            "kind": "LESSON_SELF_CPU_V2",
+            "unit": "cpu_ticks",
+            "weight": 37,
+            "provenance": {
+              "source": "synthetic"
+            }
+          },
+          "note": "37 is an assigned fixture weight, not a measured host value."
+        }
+      ]
+    },
+    {
+      "name": "tool-gate",
+      "passed": true,
+      "summary": "A scripted mock request crosses actual phase/schema/authority/fact gates; no model was called.",
+      "checks": [
+        {
+          "name": "fixed tool projects evidence and excludes injected note",
+          "passed": true
+        },
+        {
+          "name": "decimal fact equals exact source scalar",
+          "passed": true
+        },
+        {
+          "name": "unknown shell tool rejected",
+          "passed": true
+        },
+        {
+          "name": "extra hidden argument rejected",
+          "passed": true
+        },
+        {
+          "name": "boolean rank rejected",
+          "passed": true
+        },
+        {
+          "name": "diagnosis tool cannot cross planning phase",
+          "passed": true
+        },
+        {
+          "name": "forged unit rejected",
+          "passed": true
+        },
+        {
+          "name": "forged value rejected",
+          "passed": true
+        },
+        {
+          "name": "forged path rejected",
+          "passed": true
+        },
+        {
+          "name": "forged source_digest rejected",
+          "passed": true
+        },
+        {
+          "name": "revoked user rejected before execution",
+          "passed": true
+        },
+        {
+          "name": "rejected calls have no tool execution side effect",
+          "passed": true
+        }
+      ],
+      "observations": [
+        {
+          "source": "synthetic",
+          "verified_fact": {
+            "evidence_id": "E1",
+            "path": "/top_functions/0/self_percent",
+            "unit": "percent",
+            "value": "70",
+            "source_digest": "3ec83b1757425a572734c082b2941a1fa823cd208455ed74bcdc8bc2430335b7"
+          },
+          "tool_executions": 1
+        }
+      ]
+    },
+    {
+      "name": "checkpoint-replay",
+      "passed": true,
+      "summary": "Completed receipts replay; changed calls, stale cursors and pending ambiguity stop. Shared memory models persistence only.",
+      "checks": [
+        {
+          "name": "same canonical call returns completed receipt",
+          "passed": true
+        },
+        {
+          "name": "new wrapper retains charged budgets",
+          "passed": true
+        },
+        {
+          "name": "old worker loses publication rights",
+          "passed": true
+        },
+        {
+          "name": "same ID with different content rejected",
+          "passed": true
+        },
+        {
+          "name": "old visible cursor cannot overwrite state",
+          "passed": true
+        },
+        {
+          "name": "changed tool spec cannot inherit checkpoint",
+          "passed": true
+        },
+        {
+          "name": "restart does not reset exhausted model budget",
+          "passed": true
+        },
+        {
+          "name": "unconfirmed side effect blocks blind restart",
+          "passed": true
+        }
+      ],
+      "observations": [
+        {
+          "source": "synthetic",
+          "model_calls": 2,
+          "tool_calls": 2,
+          "sequence": 1,
+          "pending_receipts": 1
+        }
+      ]
+    },
+    {
+      "name": "controlled-comparison",
+      "passed": true,
+      "summary": "Executable functional red/green checks and fixed synthetic cost pairs; no clock, profiler or real speedup measurement.",
+      "checks": [
+        {
+          "name": "same functional oracle fails before and passes after",
+          "passed": true
+        },
+        {
+          "name": "frozen unaffected examples retain values",
+          "passed": true
+        },
+        {
+          "name": "fixed synthetic six-pair gate accepts qualifying data",
+          "passed": true
+        },
+        {
+          "name": "fast-looking incorrect output rejected",
+          "passed": true
+        },
+        {
+          "name": "drifting sham rejects apparent improvement",
+          "passed": true
+        },
+        {
+          "name": "list-to-tuple contract break rejected",
+          "passed": true
+        },
+        {
+          "name": "identical costs do not count as improvement",
+          "passed": true
+        },
+        {
+          "name": "synthetic gate does not claim measured speed or causality",
+          "passed": true
+        }
+      ],
+      "observations": [
+        {
+          "accepted": true,
+          "output_contract": true,
+          "sham_stable": true,
+          "improved_pairs": 6,
+          "median_cost_ratio": "47/40",
+          "sham_median_ratio": "1",
+          "source": "synthetic_fixed_costs",
+          "unit": "synthetic_cost_units",
+          "root_cause_status": "not_tested"
+        },
+        {
+          "noisy_sham_accepted": false,
+          "incorrect_output_accepted": false
+        }
+      ]
+    },
+    {
+      "name": "evidence-gate",
+      "passed": true,
+      "summary": "Append-only evidence model checks source, current lease, counts and immutable run IDs; no real release/SQL claim.",
+      "checks": [
+        {
+          "name": "initial failure record appended",
+          "passed": true
+        },
+        {
+          "name": "identical evidence replay is idempotent",
+          "passed": true
+        },
+        {
+          "name": "rerun cannot overwrite historical failure",
+          "passed": true
+        },
+        {
+          "name": "skipped checks cannot be reported passed",
+          "passed": true
+        },
+        {
+          "name": "old lease cannot publish evidence",
+          "passed": true
+        },
+        {
+          "name": "record from other source version rejected",
+          "passed": true
+        },
+        {
+          "name": "rejected writes leave immutable archive unchanged",
+          "passed": true
+        }
+      ],
+      "observations": [
+        {
+          "source": "synthetic",
+          "retained_runs": [
+            "teaching-run-1"
+          ],
+          "failed_count": 1
+        }
+      ]
+    }
+  ]
+}

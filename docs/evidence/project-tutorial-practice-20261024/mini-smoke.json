@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "scope": "real local controlled-self CPU collection; not function sampling or production validation",
+  "check_count": 20,
+  "checks": [
+    "first request creates a task",
+    "same request replays the same task",
+    "changed parameters conflict with an existing key",
+    "strict HTTP input is rejected: {\"iterations\":1000,\"iterations\":2000}",
+    "strict HTTP input is rejected: {\"iterations\":true}",
+    "strict HTTP input is rejected: {\"iterations\":1000,\"command\":\"ignored\"}",
+    "strict HTTP input is rejected: {\"iterations\":1000} {}",
+    "foreign origin is rejected",
+    "real child processes complete successfully",
+    "API result equals the analyzer artifact",
+    "result binds to actual collector bytes",
+    "measurement scope and unit remain explicit",
+    "actual CPU count survives both handoffs",
+    "state transition events are recorded",
+    "replays and invalid requests created no extra work",
+    "restart preserves completed evidence without resampling",
+    "explicit retry opens attempt two",
+    "real child processes complete successfully",
+    "retry preserves attempt one's raw artifact",
+    "second attempt publishes its own evidence"
+  ],
+  "measurement_summary": {
+    "source": "controlled_self",
+    "unit": "cpu_ticks",
+    "total_ticks": 156250,
+    "clock_ticks_per_second": 10000000
+  },
+  "first_attempt_sha256": "1836e85088c337ffc90adc791ee8f14990c7c99e76235de1a67ccb9f4b000b45",
+  "final_status": "SUCCESS",
+  "final_attempt": 2
+}

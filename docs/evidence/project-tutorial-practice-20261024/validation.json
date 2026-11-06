@@ -1,0 +1,467 @@
+{
+  "recorded_at": "2026-10-24T02:43:05.073341+08:00",
+  "scope": "local tutorial/workbench and independent teaching implementations; no production publication, database, remote PID or model call",
+  "content": {
+    "chapters": 22,
+    "han_excluding_fenced_code": 102981,
+    "h2": 285,
+    "code_blocks": 119,
+    "source_entries_checked": 102,
+    "method": "Unicode Han U+3400..U+9FFF, fenced code excluded; headings and inline prose included; no executable code counted as prose"
+  },
+  "environment": {
+    "os": "Windows amd64",
+    "cpp": "MinGW GCC 8.1.0",
+    "go": "go1.26.5 windows/amd64",
+    "python": "3.14.0",
+    "node": "24.15.0",
+    "vite": "7.3.7"
+  },
+  "checks": [
+    {
+      "name": "C++ compile",
+      "passed": true,
+      "command": "g++ -std=c++17 -O2 -Wall -Wextra -Wpedantic -Werror -static-libgcc -static-libstdc++ tutorials/mini-drop/collector.cpp -o .local/tutorial-mini/collector.exe"
+    },
+    {
+      "name": "Go build",
+      "passed": true,
+      "cwd": "tutorials/mini-drop/control",
+      "command": "go build -o E:/tx-drop/.local/tutorial-mini/control.exe ."
+    },
+    {
+      "name": "Go regression",
+      "passed": true,
+      "count": 6,
+      "command": "go test -count=1 -v ./...",
+      "cwd": "tutorials/mini-drop/control"
+    },
+    {
+      "name": "Go formatting",
+      "passed": true,
+      "command": "gofmt -l .",
+      "output": "empty"
+    },
+    {
+      "name": "Python regression",
+      "passed": true,
+      "count": 25,
+      "command": "python -m unittest discover -s tutorials/labs -t . -v"
+    },
+    {
+      "name": "Mechanism cases",
+      "passed": true,
+      "cases": 12,
+      "assertions": 88,
+      "receipt": "mechanism-labs.json"
+    },
+    {
+      "name": "Real controlled-self CLI chain",
+      "passed": true,
+      "assertions": 20,
+      "receipt": "mini-smoke.json"
+    },
+    {
+      "name": "Intentional missing-attempt mutation",
+      "passed": true,
+      "expected_test_exit": 1,
+      "receipt": "attempt-mutation.json"
+    },
+    {
+      "name": "Web units",
+      "passed": true,
+      "files": 21,
+      "tests": 162,
+      "receipt": "web-unit.json"
+    },
+    {
+      "name": "Full TypeScript and Vite build",
+      "passed": true,
+      "command": "npm run build",
+      "node_heap_mb": 768
+    },
+    {
+      "name": "Prettier",
+      "passed": true,
+      "command": "prettier --check src/book src/main.tsx vite.config.ts e2e/book.spec.ts playwright.book.config.ts"
+    },
+    {
+      "name": "Browser tutorial and synthetic workbench transport",
+      "passed": true,
+      "tests": 8,
+      "skipped": 0,
+      "flaky": 0,
+      "receipt": "browser-tests.json"
+    },
+    {
+      "name": "Real browser/local teaching chain",
+      "passed": true,
+      "assertions": 9,
+      "receipt": "browser-real-chain.json"
+    },
+    {
+      "name": "Manual screenshot inspection",
+      "passed": true,
+      "files": [
+        "chapter11.png",
+        "workbench-desktop.png",
+        "workbench-mobile.png"
+      ]
+    },
+    {
+      "name": "Local preview matches dist",
+      "passed": true,
+      "url": "http://127.0.0.1:4322/book/chapter11/",
+      "status": 200,
+      "index_sha256": "c5683b20df634ec67587536b423b3baf7415f2956eb8aa8198c6deb59c02c757"
+    },
+    {
+      "name": "Diff whitespace",
+      "passed": true,
+      "command": "git diff --check"
+    }
+  ],
+  "corrections_and_limits": [
+    "GCC8.1 rejected initial -std=c++20; reference requires only C++17, commands corrected; production core standard unchanged.",
+    "Initial smoke harness expected incorrect event labels; corrected to TASK_QUEUED/TASK_RUNNING/TASK_SUCCEEDED and reran.",
+    "Real browser recheck initially observed a pre-existing task result; harness now binds the actual POST response ID before asserting. Final run passed.",
+    "Five Markdown formatting warnings fixed, rebuilt and browser checks rerun. Mobile header specificity fixed and checked at 320/375px.",
+    "CLI mechanism data is fixed synthetic input. Temporary SQLite does not validate PostgreSQL concurrency. Diagnosis checkpoint shares memory only.",
+    "Fixed comparison costs do not measure real speedup or causal root cause. No model or production service was called.",
+    "Controlled-self CPU may legitimately be zero. Tree is process accounting rather than sampled business function stacks.",
+    "Windows native toolchain and local services were tested; Linux commands and full production stack were not rerun this round.",
+    "Browser accessibility checks are automated, not a complete manual audit. Current workspace is uncommitted and not deployed."
+  ],
+  "source_files": [
+    {
+      "path": "DEVELOPMENT_LOG.md",
+      "sha256": "ed04d0f7527a87982b998171b0db78ed43ab67f8577dc82d504adcacd4125676",
+      "bytes": 158086
+    },
+    {
+      "path": "docs/CODE_READING_GUIDE.md",
+      "sha256": "16a53b0a40431cb1756bc68586c825fca363fae9c5f6f38d98a8b805d7e7d1c8",
+      "bytes": 7987
+    },
+    {
+      "path": "docs/DELIVERY_MATRIX.md",
+      "sha256": "4b31e4e81ab9813b3a3ae9e6b0918db5901da09161cfe451af3e1c067b536303",
+      "bytes": 33207
+    },
+    {
+      "path": "docs/PROJECT_TUTORIAL.md",
+      "sha256": "5b71ebdf58a35123e7dc8e0daee89abdda5af20af0b9c85fea8da82b90e340fd",
+      "bytes": 6763
+    },
+    {
+      "path": "docs/README.md",
+      "sha256": "941ca32496168eb5a5af71df6543ff3e2e227ba5d690f7b5509c2160f3ea77af",
+      "bytes": 2921
+    },
+    {
+      "path": "README.md",
+      "sha256": "cc18a4559a70dc1b7ffaea53bc758296f32ddba07aba21c5ad6e7de9d6969d64",
+      "bytes": 12025
+    },
+    {
+      "path": "tutorials/__init__.py",
+      "sha256": "94cfd505fbabfc484c335ce59afebb1e926c81f9fb015c23761e23dab4348951",
+      "bytes": 82
+    },
+    {
+      "path": "tutorials/labs/__init__.py",
+      "sha256": "b7aba3449c7200e4a08f11caa56e71bdfd1f066d5f7f32c3a16a8f25cfbdf4f0",
+      "bytes": 76
+    },
+    {
+      "path": "tutorials/labs/__main__.py",
+      "sha256": "ef83b2c65f64258bbbe6d73dc26ad7301e398492f79efcd30a3ccde41856c361",
+      "bytes": 2985
+    },
+    {
+      "path": "tutorials/labs/analysis.py",
+      "sha256": "31e5f1bcc5f69c34f15b96af7af3265445942d5baac9ac5823f3877d25c40fdf",
+      "bytes": 20135
+    },
+    {
+      "path": "tutorials/labs/diagnosis.py",
+      "sha256": "a40dfdeb0d37b8c39877b25d3bfbbafcc95bcc9aa44d840d308d2da04cc221e3",
+      "bytes": 22644
+    },
+    {
+      "path": "tutorials/labs/helpers.py",
+      "sha256": "d3710044afb714a6228dd21cba0535b4534932618624c78e98950998ef961d2c",
+      "bytes": 338
+    },
+    {
+      "path": "tutorials/labs/lifecycle.py",
+      "sha256": "cb0e07208256a1119b0add3d2c8ddaddb8c72a48f4fa93f8eabd39d097d8c2e8",
+      "bytes": 11773
+    },
+    {
+      "path": "tutorials/labs/test_analysis.py",
+      "sha256": "b0e953ee0c7ab0afb5309bdd7308d53fbca7a41b4ad247b5f0b61ffa036100be",
+      "bytes": 3169
+    },
+    {
+      "path": "tutorials/labs/test_diagnosis.py",
+      "sha256": "6f53b9186fc5a9ad4c9ba9242e6daab220af96366099e274690b8e3e5434fed9",
+      "bytes": 9662
+    },
+    {
+      "path": "tutorials/labs/test_lifecycle.py",
+      "sha256": "7e85dff302af4d51052600fa83e50c19835fb33a5659fda39b35ffd6266d6a48",
+      "bytes": 1871
+    },
+    {
+      "path": "tutorials/mini-drop/analyzer.py",
+      "sha256": "4484e541bb4a1ced11f1bc7362b6d8031fc0f7394c8a8dcbb063efb7060e7ccb",
+      "bytes": 4436
+    },
+    {
+      "path": "tutorials/mini-drop/collector.cpp",
+      "sha256": "6dab08858aa7074274e4b1ac9fecd3f803024c37fecc9eb36a25ad524eca8fe9",
+      "bytes": 3000
+    },
+    {
+      "path": "tutorials/mini-drop/control/go.mod",
+      "sha256": "bf3f912eeff178134e3b3d053aeea4a0a6015b8d84813aa444be3f616c0b7cf5",
+      "bytes": 34
+    },
+    {
+      "path": "tutorials/mini-drop/control/main.go",
+      "sha256": "6b0013d4630968c9348d2be37e0dff04fcf2835df930b4cf43d631bf525f415b",
+      "bytes": 2042
+    },
+    {
+      "path": "tutorials/mini-drop/control/runner.go",
+      "sha256": "921ee8e0010a10dedfc132a6e7d6e3e73ab9b47d8d605055068e234431499b0a",
+      "bytes": 5870
+    },
+    {
+      "path": "tutorials/mini-drop/control/server.go",
+      "sha256": "b2e3c4d3fd584feedaf29edff09219de16ffa680c4ca65e86034453a89aa89f5",
+      "bytes": 5456
+    },
+    {
+      "path": "tutorials/mini-drop/control/server_test.go",
+      "sha256": "abbd67b61918e09302549951c1f2d9dcc9ca2c52846a49bed184930aeb158865",
+      "bytes": 5551
+    },
+    {
+      "path": "tutorials/mini-drop/control/store.go",
+      "sha256": "ab03944153ba58ef90e4110591c3aac668566ccd6fb40413c82d832ad277784c",
+      "bytes": 8717
+    },
+    {
+      "path": "tutorials/mini-drop/README.md",
+      "sha256": "a70365b994df73d92da2e14d24bfc22dd6f6e1c5f395cf45ce73a9d151d5a17e",
+      "bytes": 7438
+    },
+    {
+      "path": "tutorials/mini-drop/smoke.py",
+      "sha256": "dcdf6644bdc428b3b30007d1c6c60fde0947fdd59f72c3e40b14fbb4e3070477",
+      "bytes": 8196
+    },
+    {
+      "path": "tutorials/README.md",
+      "sha256": "e7f07063580971852f2a3b29c553b9a2c7531c558d6463909b2bbd2b9dce9d74",
+      "bytes": 4337
+    },
+    {
+      "path": "web/e2e/book.spec.ts",
+      "sha256": "2a802fcbcf831010b4e0dba6b111392c27de6c94971927b27a4bd5b5b39f5eaa",
+      "bytes": 10879
+    },
+    {
+      "path": "web/playwright.book.config.ts",
+      "sha256": "1c206fac7b3cbd612775490fd4e5304547a1d884c02dcde86ebea946d918790f",
+      "bytes": 711
+    },
+    {
+      "path": "web/src/book/book.css",
+      "sha256": "83daf022bdd31b15ee1923adc3044b3c1b4f981b791fedfcebfa95ebdd94dcfb",
+      "bytes": 28778
+    },
+    {
+      "path": "web/src/book/Book.tsx",
+      "sha256": "7599cf0a48db588b27a79754bbd9549d3ab706d37a478fd9e2cb4913cee44d12",
+      "bytes": 18598
+    },
+    {
+      "path": "web/src/book/BookContent.tsx",
+      "sha256": "8a16c53e45f86de67e13e98504bea635376f15d48cb0cfdb632f873fd66d1be7",
+      "bytes": 3004
+    },
+    {
+      "path": "web/src/book/chapters-advanced.ts",
+      "sha256": "fea52d5fbd001a864a324c7ee3f81379fd65e801f8466cbb0ccab63fbb19d6b7",
+      "bytes": 7942
+    },
+    {
+      "path": "web/src/book/chapters-foundations.ts",
+      "sha256": "1f6f7911375186a65ae3d6037be56f360eaa08aa6734cea6fc48321571a43ccb",
+      "bytes": 7553
+    },
+    {
+      "path": "web/src/book/chapters-practice.ts",
+      "sha256": "6a2165b8803c2df043012f1565a2c9f3b0e8eb936aaa6ef79d4edbe5926434c7",
+      "bytes": 11116
+    },
+    {
+      "path": "web/src/book/chapters.ts",
+      "sha256": "8e70a9d31d2e58801738159feab73c49be35b12973238d61a67e0e34dd1f94c5",
+      "bytes": 350
+    },
+    {
+      "path": "web/src/book/content/chapter1.md",
+      "sha256": "1733948c6293b1075dc522c1e149ec00cda1bb9fee16abfe154394cac84db612",
+      "bytes": 15959
+    },
+    {
+      "path": "web/src/book/content/chapter10.md",
+      "sha256": "169f57f80c6bfdc77cefee31b8667e4fd202996bf6217c4c7000769e197b6de5",
+      "bytes": 19654
+    },
+    {
+      "path": "web/src/book/content/chapter11.md",
+      "sha256": "63b24776e0c1e354dc876a410388326d291c48c4ae8fc9df1c9f487d2b09eca9",
+      "bytes": 19903
+    },
+    {
+      "path": "web/src/book/content/chapter12.md",
+      "sha256": "5bce3837e5a75d7f722a883f808416ead5985e817be5989b7aed705f1d9b7e19",
+      "bytes": 19112
+    },
+    {
+      "path": "web/src/book/content/chapter13.md",
+      "sha256": "49ed3a6ce6496d0bbeda350b5de643a774fd9c58a0c7370de5e8bf2769a77234",
+      "bytes": 19378
+    },
+    {
+      "path": "web/src/book/content/chapter14.md",
+      "sha256": "8b33537fa6486b9420c9bf036bc96b9512ef530dedd5a021dd4b4e411f151fcb",
+      "bytes": 19766
+    },
+    {
+      "path": "web/src/book/content/chapter15.md",
+      "sha256": "f199d70d0460162d96cfc8e7834427bf026af023ebea5a9905ebeebb253c73a0",
+      "bytes": 21631
+    },
+    {
+      "path": "web/src/book/content/chapter16.md",
+      "sha256": "672cb321fa28fa0d24cd9fcacf0c68f088a9484f95386a42e78c59a01516fa60",
+      "bytes": 20788
+    },
+    {
+      "path": "web/src/book/content/chapter17.md",
+      "sha256": "1da7e5ef202c2297b957e7eb38784efa1bbb376f3a0df61ba209f752f3c01418",
+      "bytes": 21712
+    },
+    {
+      "path": "web/src/book/content/chapter18.md",
+      "sha256": "af170f5baf6b187e1dc8da4fa0417fb0d7d7ac3572a4d8a01e8ad42120cbcc98",
+      "bytes": 20689
+    },
+    {
+      "path": "web/src/book/content/chapter19.md",
+      "sha256": "b5548bff30980d18823cc8317850052430c1cffba38f3346320c1a3a12a6171c",
+      "bytes": 21447
+    },
+    {
+      "path": "web/src/book/content/chapter2.md",
+      "sha256": "7675a662b1c4c0b04e4995673b7eae491aa4a30910ad42057dc529044fe3864c",
+      "bytes": 16015
+    },
+    {
+      "path": "web/src/book/content/chapter20.md",
+      "sha256": "58a65f6dcd801c8a9923924042231b56fecf97aae98ea0e1c1512cb919ed6e05",
+      "bytes": 21623
+    },
+    {
+      "path": "web/src/book/content/chapter21.md",
+      "sha256": "950fc31ad36091223d0b0b58bc22fe94828603f112b8190a827872e3d1efe163",
+      "bytes": 20176
+    },
+    {
+      "path": "web/src/book/content/chapter22.md",
+      "sha256": "cb97421202fc1af4766ee68f266a60d55a3fac59411321eb8224c2c3ed1a2ddb",
+      "bytes": 22319
+    },
+    {
+      "path": "web/src/book/content/chapter3.md",
+      "sha256": "8fbb98a71ff2d9cedd2f7213703b2c8e5202682ac6212b3ee6638a181d23ac5b",
+      "bytes": 16531
+    },
+    {
+      "path": "web/src/book/content/chapter4.md",
+      "sha256": "0e0d5491e93caaf8a996e4c75c1b190c546643156ddfa70d09f46585073b70a9",
+      "bytes": 19010
+    },
+    {
+      "path": "web/src/book/content/chapter5.md",
+      "sha256": "154631777c755228d0b83f9f03e2ebb9416a6b6afa4ea5055965a5c7d8e3d7b0",
+      "bytes": 19190
+    },
+    {
+      "path": "web/src/book/content/chapter6.md",
+      "sha256": "be9644f7a7d3b7af82def3d90d215725487ddb8ebaaf242eff5428c63739401e",
+      "bytes": 21070
+    },
+    {
+      "path": "web/src/book/content/chapter7.md",
+      "sha256": "d32e4d4b2844dda2f3eef43dcd123718dd6a310d89e6d7acb2079a80e1314e00",
+      "bytes": 18144
+    },
+    {
+      "path": "web/src/book/content/chapter8.md",
+      "sha256": "b780fbe5b814677e4b90fd585d18915b7a46ad356320baef667e475f72131b5e",
+      "bytes": 18706
+    },
+    {
+      "path": "web/src/book/content/chapter9.md",
+      "sha256": "93cf57dbcfeec403ab41cda7416229367d5209d00396caafe31353572baadfa5",
+      "bytes": 19234
+    },
+    {
+      "path": "web/src/book/LabWorkbench.tsx",
+      "sha256": "8fc2a9006e6c9cec9f21a07cfa8ed07c83278f6a5c526451d4bce02764d1abc8",
+      "bytes": 12630
+    },
+    {
+      "path": "web/src/book/markdown.test.ts",
+      "sha256": "4a1645fb7e29722bce8b84f275e50b3daad376e09dad504ca5356b2f7c99b09f",
+      "bytes": 1442
+    },
+    {
+      "path": "web/src/book/markdown.ts",
+      "sha256": "59b2d987d3f47d97b6663465b65c75ebea0872fc148ac743f03878c2d9dcab17",
+      "bytes": 1148
+    },
+    {
+      "path": "web/src/book/preferences.ts",
+      "sha256": "5cc7fabc9e22b415f48663cc88dab0c2a059930dadfbd106b9863649dacedf3f",
+      "bytes": 1079
+    },
+    {
+      "path": "web/src/book/types.ts",
+      "sha256": "eb44dc418a1e87bbbbd29ea5ed234846cf5a34924622e7d43953b535e756689e",
+      "bytes": 289
+    },
+    {
+      "path": "web/src/book/workbench.css",
+      "sha256": "0c9a9fd4740770256c22b847cada6c44684ca41ba4fd67229d3d419ab45ed421",
+      "bytes": 3611
+    },
+    {
+      "path": "web/src/main.tsx",
+      "sha256": "5be553049c1962876f937ec48ebfd1bdcc1ad43cc463a935436c88949defc44c",
+      "bytes": 2518
+    },
+    {
+      "path": "web/vite.config.ts",
+      "sha256": "8fc146444abfca70d2f7d584ab54dbd2af8becd69804859bbb4d96d3b1fb6022",
+      "bytes": 981
+    }
+  ]
+}

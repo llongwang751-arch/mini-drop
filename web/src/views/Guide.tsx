@@ -155,6 +155,10 @@ export default function Guide() {
             了解诊断流程
             <ArrowDown size={17} aria-hidden="true" />
           </a>
+          <Link className="guide-text-link" to="/book/chapter1/">
+            阅读项目教程：从一条采集任务读懂源码
+            <ArrowUpRight size={17} aria-hidden="true" />
+          </Link>
         </div>
         <figure
           className="guide-loop"

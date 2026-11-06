@@ -148,7 +148,7 @@ python scripts/dev.py smoke
 
 ## 文档导航
 
-阅读源码可从 [中文注释阅读路线](docs/CODE_READING_GUIDE.md) 开始，先追一条采集任务，再看 AgentScope 工具循环、自动复测和隔离修复。注释重点解释上下游、设计原因和失败边界，不逐行复述代码。
+首次学习可以打开 [22 章项目教程](docs/PROJECT_TUTORIAL.md)：前十章沿源码讲清调用链，后十二章亲手搭建四语言小项目，运行故障、解析、回放和证据实验。只读教程无需启动完整环境；本地启动后访问 `/book/chapter1/`，实战从 `/book/chapter11/` 开始。配套代码见 [tutorials](tutorials/README.md)。第二遍可用 [中文注释阅读路线](docs/CODE_READING_GUIDE.md) 按文件追实现。
 
 | 想了解的内容 | 文档 |
 | --- | --- |

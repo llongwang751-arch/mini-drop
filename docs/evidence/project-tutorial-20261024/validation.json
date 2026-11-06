@@ -1,0 +1,415 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-24T01:29:06.599378+08:00",
+  "scope": "local working-tree tutorial expansion; production code and deployment unchanged",
+  "previous_record": "docs/evidence/project-tutorial-20261023/validation.json",
+  "preview": "http://127.0.0.1:4322/book/chapter1/",
+  "chapters": [
+    {
+      "id": 1,
+      "title": "先看懂 Drop 在忙什么",
+      "path": "web/src/book/content/chapter1.md",
+      "before_prose_han": 1608,
+      "prose_han": 3798,
+      "h2_sections": 12,
+      "section_titles": [
+        "接到“接口很慢”这句话以后",
+        "把观察、瓶颈和根因分开",
+        "CPU 时间和等待时间，不是一把尺子",
+        "火焰图能告诉你什么",
+        "先画两条线：控制命令怎样走，文件怎样走",
+        "用一组教学编号追踪完整交接",
+        "task、attempt、artifact 和 run 分别记什么",
+        "一条任务为什么要有两条状态",
+        "三种失败，三条不同的排查路",
+        "它和普通 CRUD 项目差在哪儿",
+        "两个 Agent 和一个 Analyzer",
+        "带着三个检查点进入下一章"
+      ],
+      "code_blocks": 3,
+      "sha256": "1733948c6293b1075dc522c1e149ec00cda1bb9fee16abfe154394cac84db612"
+    },
+    {
+      "id": 2,
+      "title": "先跑通，再往里面看",
+      "path": "web/src/book/content/chapter2.md",
+      "before_prose_han": 1509,
+      "prose_han": 3541,
+      "h2_sections": 12,
+      "section_titles": [
+        "先决定今天要完成哪件事",
+        "安装前，先看清 Windows 与 Linux 的边界",
+        "十分钟以内先把阅读器打开",
+        "doctor 检查的是运行前提",
+        "plan 帮你确认操作会落到哪里",
+        "up 怎样把程序和数据准备好",
+        "缓存和下载失败，分别怎样处理",
+        "smoke 比“能登录”多检查了什么",
+        "在浏览器里看懂自己的第一条任务",
+        "学生实验：留下一个可以复查的结果",
+        "如果失败，按最后一个已确认事实往下找",
+        "日常改代码和环境能力的边界"
+      ],
+      "code_blocks": 10,
+      "sha256": "7675a662b1c4c0b04e4995673b7eae491aa4a30910ad42057dc529044fe3864c"
+    },
+    {
+      "id": 3,
+      "title": "四种语言，怎样说同一种话",
+      "path": "web/src/book/content/chapter3.md",
+      "before_prose_han": 1363,
+      "prose_han": 3573,
+      "h2_sections": 12,
+      "section_titles": [
+        "一次跨语言交接，最怕各自理解得都很合理",
+        "四份真源，各回答一类问题",
+        "PROC_CPU 和 PYTHON_CPU：格式相同，测量不同",
+        "请求先归一化，再检查它是否合法",
+        "从 Go 参数到 TaskDesc，信息怎样保持一致",
+        "Protobuf 的数字为什么不能随手调整",
+        "C++ 只把受控选项变成固定工具调用",
+        "Python 按 kind、pipeline、format 三者一起检查",
+        "React 读取规则，让错误尽早出现",
+        "数据的单位和来历，要跟着制品一起走",
+        "纸面变更：加一个“有效样本下限”需要改哪里",
+        "为这次变更设计回归，再回到源码"
+      ],
+      "code_blocks": 7,
+      "sha256": "8fbb98a71ff2d9cedd2f7213703b2c8e5202682ac6212b3ee6638a181d23ac5b"
+    },
+    {
+      "id": 4,
+      "title": "点下创建以后，Go 做了什么",
+      "path": "web/src/book/content/chapter4.md",
+      "before_prose_han": 1539,
+      "prose_han": 4052,
+      "h2_sections": 12,
+      "section_titles": [
+        "4.1 点下创建以后，究竟调用了谁",
+        "4.2 校验分好几道门，每一道回答不同的问题",
+        "4.3 幂等键是重试凭据，请求摘要负责防止偷换内容",
+        "4.4 一项任务为什么要一起写下五种记录",
+        "4.5 为什么数完配额还得加锁",
+        "4.6 Outbox 是一份待办账，不是神奇消息总线",
+        "4.7 回包丢了，失败处理反而最容易把成功写坏",
+        "4.8 attempt 像轮次编号，旧轮次没有当前发布权",
+        "4.9 取消、完成、重试撞在一起时谁赢",
+        "4.10 动手：用标准库复现一次旧消息误伤",
+        "4.11 对照已有回归，把纸上推演变成可检查的工作",
+        "4.12 现在再回答：这里是不是只在增删改查"
+      ],
+      "code_blocks": 9,
+      "sha256": "0e0d5491e93caaf8a996e4c75c1b190c546643156ddfa70d09f46585073b70a9"
+    },
+    {
+      "id": 5,
+      "title": "采集 Agent 怎样安全地动手",
+      "path": "web/src/book/content/chapter5.md",
+      "before_prose_han": 1768,
+      "prose_han": 4133,
+      "h2_sections": 12,
+      "section_titles": [
+        "5.1 采集 Agent 收到的不是一句命令",
+        "5.2 先验身份证，再听它介绍能力",
+        "5.3 心跳既报平安，也领取工作和取消通知",
+        "5.4 PID 会重复使用，数字相等不代表人还是原来的人",
+        "5.5 argv 把参数分开，白名单再限制参数的含义",
+        "5.6 预算和取消管的是采集器，不能顺手杀掉业务",
+        "5.7 helper 把额外权限收进一个小窗口",
+        "5.8 三种 CPU 采集，看到的不是同一种东西",
+        "5.9 PUT、NotifyResult、ACK 是三个不同的完成点",
+        "5.10 恢复目录里每个文件都在回答一个问题",
+        "5.11 实验：让相同 PID 的冒名者被拒绝",
+        "5.12 用三次故障推演检查你是否真正读懂"
+      ],
+      "code_blocks": 7,
+      "sha256": "154631777c755228d0b83f9f03e2ebb9416a6b6afa4ea5055965a5c7d8e3d7b0"
+    },
+    {
+      "id": 6,
+      "title": "Analyzer：把文件变成可信的结果",
+      "path": "web/src/book/content/chapter6.md",
+      "before_prose_han": 1461,
+      "prose_han": 4632,
+      "h2_sections": 12,
+      "section_titles": [
+        "采到了，为什么还没有结果",
+        "先画出一个作业经过的七个地方",
+        "两个 Worker 为什么不能一起领走一行",
+        "工作证会过期：A 卡住，B 接手，A 又醒了",
+        "先限制下载，再检查 SHA",
+        "解析放到另一个进程，是为了能把它停下来",
+        "用三行合成 folded，亲手算出一棵树",
+        "实验：不用后端，自己把三行数据折成树",
+        "同一棵树的外形，不保证同一种测量",
+        "HPROF 里的 retained，到底“留住”了什么",
+        "对象先上传，数据库最后发布",
+        "让错误输入停在正确的位置"
+      ],
+      "code_blocks": 7,
+      "sha256": "be9644f7a7d3b7af82def3d90d215725487ddb8ebaaf242eff5428c63739401e"
+    },
+    {
+      "id": 7,
+      "title": "React：让证据在页面上说清楚",
+      "path": "web/src/book/content/chapter7.md",
+      "before_prose_han": 1412,
+      "prose_han": 4517,
+      "h2_sections": 12,
+      "section_titles": [
+        "页面负责观察，任务负责继续运行",
+        "先找真实调用者：REST 是账本，SSE 是通知铃",
+        "一次网络 read，可能只有半个汉字",
+        "重连该从哪里开始，为什么要用 BigInt",
+        "离开 A 页面后，A 的回调为什么还会回来",
+        "标签页隐藏以后，连接和任务各做什么",
+        "大火焰图为何要经过专用 Worker",
+        "申请下载权限，与下载文件是两个请求",
+        "手算 total 和 self，再决定哪块最值得看",
+        "隐藏、搜索和聚焦，都不能悄悄改证据",
+        "同一个热点比例，可以对应完全不同的 P95",
+        "实验：给一种已存在的指标补一句人能看懂的解释"
+      ],
+      "code_blocks": 5,
+      "sha256": "d32e4d4b2844dda2f3eef43dcd123718dd6a310d89e6d7acb2079a80e1314e00"
+    },
+    {
+      "id": 8,
+      "title": "诊断 Agent：让模型沿着证据做事",
+      "path": "web/src/book/content/chapter8.md",
+      "before_prose_han": 1536,
+      "prose_han": 4713,
+      "h2_sections": 12,
+      "section_titles": [
+        "如果只把火焰图丢给模型，会发生什么",
+        "四个角色各自决定什么",
+        "规划先看能力，用户确认后才采集",
+        "从 Go 走进框架，再沿工具回到 Go",
+        "一轮工具观测应该怎样读",
+        "白名单把模糊意图缩成有限动作",
+        "报告不是写完就收，还要过事实验收",
+        "预算为什么要在调用前记账",
+        "恢复时最难的，是不知道上一步到底做没做",
+        "观测里的指令、历史知识和旧证据怎么办",
+        "一份运行成功记录，为什么仍可能诊断错",
+        "实验：不用模型密钥，走完一次纸面审查"
+      ],
+      "code_blocks": 4,
+      "sha256": "b780fbe5b814677e4b90fd585d18915b7a46ad356320baef667e475f72131b5e"
+    },
+    {
+      "id": 9,
+      "title": "复测和修复：怎样证明真的变好了",
+      "path": "web/src/book/content/chapter9.md",
+      "before_prose_han": 1481,
+      "prose_han": 4427,
+      "h2_sections": 12,
+      "section_titles": [
+        "9.1 图变绿了，为什么还不能说优化成功",
+        "9.2 自动比较先验身份，算术排在后面",
+        "9.3 samples、cpu_ticks、bytes，不能换一个名字就相减",
+        "9.4 样本多也可能质量差，未知信息必须留下来",
+        "9.5 基线也会过期，旧报告不能永远当证据",
+        "9.6 复现与因果，相差一次真正的干预",
+        "9.7 源码定位必须回答：测到的真是这一版吗",
+        "9.8 先验原 SHA，再做唯一上下文替换",
+        "9.9 沙箱隔离的对象是什么，取消又能删谁",
+        "9.10 功能没坏，要用能抓住坏实现的断言证明",
+        "9.11 六组交替 A/B，比只跑一次强在哪里",
+        "9.12 实验答案与真实结果，都把适用范围写在旁边"
+      ],
+      "code_blocks": 6,
+      "sha256": "93cf57dbcfeec403ab41cda7416229367d5209d00396caafe31353572baadfa5"
+    },
+    {
+      "id": 10,
+      "title": "从读懂到改对：完成你的第一个改动",
+      "path": "web/src/book/content/chapter10.md",
+      "before_prose_han": 1624,
+      "prose_han": 4728,
+      "h2_sections": 12,
+      "section_titles": [
+        "10.1 学完以后，先别急着给自己加一排技术标签",
+        "10.2 把需求写成一句会失败的话",
+        "10.3 顺着源码找到唯一该改的边界",
+        "10.4 实验：新增一条能抓住坏实现的测试",
+        "10.5 故意改坏一次，看看测试究竟有没有牙齿",
+        "10.6 挑验证范围，依据改动跨过了什么边界",
+        "10.7 真 PostgreSQL 验证的是锁和事务，不是换个数据库名称",
+        "10.8 导入、mock、真实 Runner、完整 E2E，分别证明什么",
+        "10.9 Fuzz 和消毒器擅长抓边界，替不了业务答案",
+        "10.10 故障测试先写清窗口，再决定怎么注入",
+        "10.11 一条通过记录，必须知道它属于哪份代码",
+        "10.12 交付一项你能独立解释的学习成果"
+      ],
+      "code_blocks": 3,
+      "sha256": "169f57f80c6bfdc77cefee31b8667e4fd202996bf6217c4c7000769e197b6de5"
+    }
+  ],
+  "totals": {
+    "chapters": 10,
+    "before_prose_han": 15301,
+    "prose_han": 42114,
+    "h2_sections": 120,
+    "code_blocks": 61,
+    "source_citations": 77
+  },
+  "count_definition": "Han characters U+3400..U+9FFF in Markdown excluding fenced code; not a quality score or all-language word count",
+  "all_source_citation_paths_exist": true,
+  "checks": [
+    {
+      "command": "node node_modules/vitest/vitest.mjs run --maxWorkers=1 --no-file-parallelism",
+      "result": "passed",
+      "test_files": 21,
+      "tests": 162
+    },
+    {
+      "command": "npm run build",
+      "result": "passed",
+      "includes": ["tsc -b", "vite build"]
+    },
+    {
+      "command": "node node_modules/@playwright/test/cli.js test --config playwright.book.config.ts",
+      "result": "passed",
+      "tests": 6,
+      "covers": [
+        "all ten real static chapters without API requests",
+        "chapter and anchor navigation",
+        "settings and focus",
+        "mobile drawer and in-chapter contents",
+        "320/375/768/1024/1440px horizontal overflow",
+        "unavailable storage and clipboard",
+        "SSE copied terminating blank line",
+        "automatic light/dark axe checks"
+      ]
+    },
+    {
+      "command": "node node_modules/prettier/bin/prettier.cjs --check src/book e2e/book.spec.ts playwright.book.config.ts ../docs/PROJECT_TUTORIAL.md",
+      "result": "passed"
+    },
+    {
+      "check": "reviewed teaching examples and negative controls",
+      "result": "passed",
+      "checks": 6,
+      "detail": "teaching-labs.json"
+    },
+    {
+      "check": "local 4322 preview matches current dist/index.html",
+      "result": "passed",
+      "http_status": 200
+    }
+  ],
+  "not_executed": [
+    "chapter Docker/Go/real PostgreSQL/runtime/collection exercises",
+    "production deployment",
+    "complete manual accessibility audit"
+  ],
+  "screenshots": [
+    {
+      "path": "docs/evidence/project-tutorial-20261024/desktop-light.png",
+      "sha256": "56a5566698422866b3371f79c2cc6af19726949c7a097aaf29bbac9c8d13f936"
+    },
+    {
+      "path": "docs/evidence/project-tutorial-20261024/desktop-dark.png",
+      "sha256": "5971cb0d213033540385575dd5bdd6ef6055544a6d78e5e95c0ee5d2c457dc5f"
+    },
+    {
+      "path": "docs/evidence/project-tutorial-20261024/mobile-chapter1.png",
+      "sha256": "cfccf5a4f644b1fe076fc7c0f071d1690256fa890731648605d02e5eec3a82c9"
+    },
+    {
+      "path": "docs/evidence/project-tutorial-20261024/chapter4-outbox.png",
+      "sha256": "aef0fac682e830636a9238503394f85d1c74cba9269ae41659a57bbbcc7bbf88"
+    }
+  ],
+  "working_tree_files": [
+    {
+      "path": "web/src/book/book.css",
+      "sha256": "ae2922b0f5b9ca6c6fe3fcd0ef8df00277cdaeda920673a233205e94e8d5fd12"
+    },
+    {
+      "path": "web/src/book/Book.tsx",
+      "sha256": "6bf51be708a692a0c9f9f88c2274f4848dc3fc7fc94f59b7e3c7a6e3e8e37736"
+    },
+    {
+      "path": "web/src/book/BookContent.tsx",
+      "sha256": "8a16c53e45f86de67e13e98504bea635376f15d48cb0cfdb632f873fd66d1be7"
+    },
+    {
+      "path": "web/src/book/chapters-advanced.ts",
+      "sha256": "fea52d5fbd001a864a324c7ee3f81379fd65e801f8466cbb0ccab63fbb19d6b7"
+    },
+    {
+      "path": "web/src/book/chapters-foundations.ts",
+      "sha256": "e0d5551442bf57e8ed97d462e4d356a56cdb4f8800ffe5405d3eda6205a080dd"
+    },
+    {
+      "path": "web/src/book/chapters.ts",
+      "sha256": "4208301ec3710642c87f81f7d0431a866a1fa2ddf887561223fc0e89eefb2166"
+    },
+    {
+      "path": "web/src/book/content/chapter1.md",
+      "sha256": "1733948c6293b1075dc522c1e149ec00cda1bb9fee16abfe154394cac84db612"
+    },
+    {
+      "path": "web/src/book/content/chapter10.md",
+      "sha256": "169f57f80c6bfdc77cefee31b8667e4fd202996bf6217c4c7000769e197b6de5"
+    },
+    {
+      "path": "web/src/book/content/chapter2.md",
+      "sha256": "7675a662b1c4c0b04e4995673b7eae491aa4a30910ad42057dc529044fe3864c"
+    },
+    {
+      "path": "web/src/book/content/chapter3.md",
+      "sha256": "8fbb98a71ff2d9cedd2f7213703b2c8e5202682ac6212b3ee6638a181d23ac5b"
+    },
+    {
+      "path": "web/src/book/content/chapter4.md",
+      "sha256": "0e0d5491e93caaf8a996e4c75c1b190c546643156ddfa70d09f46585073b70a9"
+    },
+    {
+      "path": "web/src/book/content/chapter5.md",
+      "sha256": "154631777c755228d0b83f9f03e2ebb9416a6b6afa4ea5055965a5c7d8e3d7b0"
+    },
+    {
+      "path": "web/src/book/content/chapter6.md",
+      "sha256": "be9644f7a7d3b7af82def3d90d215725487ddb8ebaaf242eff5428c63739401e"
+    },
+    {
+      "path": "web/src/book/content/chapter7.md",
+      "sha256": "d32e4d4b2844dda2f3eef43dcd123718dd6a310d89e6d7acb2079a80e1314e00"
+    },
+    {
+      "path": "web/src/book/content/chapter8.md",
+      "sha256": "b780fbe5b814677e4b90fd585d18915b7a46ad356320baef667e475f72131b5e"
+    },
+    {
+      "path": "web/src/book/content/chapter9.md",
+      "sha256": "93cf57dbcfeec403ab41cda7416229367d5209d00396caafe31353572baadfa5"
+    },
+    {
+      "path": "web/src/book/markdown.test.ts",
+      "sha256": "4a1645fb7e29722bce8b84f275e50b3daad376e09dad504ca5356b2f7c99b09f"
+    },
+    {
+      "path": "web/src/book/markdown.ts",
+      "sha256": "59b2d987d3f47d97b6663465b65c75ebea0872fc148ac743f03878c2d9dcab17"
+    },
+    {
+      "path": "web/src/book/preferences.ts",
+      "sha256": "5cc7fabc9e22b415f48663cc88dab0c2a059930dadfbd106b9863649dacedf3f"
+    },
+    {
+      "path": "web/src/book/types.ts",
+      "sha256": "6dc4d01cd5aa3422da819c797d9eaa28688dfdf05e78a3afd4c6aecdc525dc47"
+    },
+    {
+      "path": "web/e2e/book.spec.ts",
+      "sha256": "e02f2827c0594367ef7867a523ea7a95ef1444944496cf0e4d3b8577c7986170"
+    },
+    {
+      "path": "web/playwright.book.config.ts",
+      "sha256": "1c206fac7b3cbd612775490fd4e5304547a1d884c02dcde86ebea946d918790f"
+    }
+  ]
+}

@@ -1,0 +1,170 @@
+.drop-book .lesson-workbench {
+  max-width: 1160px;
+  margin: auto;
+  padding: 55px 32px 90px;
+}
+.drop-book .lesson-workbench h1 {
+  font-size: clamp(30px, 4vw, 46px);
+  line-height: 1.4;
+  margin-bottom: 22px;
+}
+.drop-book .lesson-workbench h2 {
+  font-size: 21px;
+  margin-bottom: 20px;
+}
+.drop-book .lesson-workbench h3 {
+  font-size: 17px;
+  margin: 28px 0 14px;
+}
+.drop-book .lesson-intro {
+  max-width: 780px;
+  font-size: 17px;
+  line-height: 1.95;
+}
+.drop-book .lesson-boundary {
+  margin: 22px 0;
+  max-width: 850px;
+  color: var(--book-muted);
+  line-height: 1.9;
+}
+.drop-book .lesson-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 26px 0;
+}
+.drop-book .lesson-workbench button {
+  min-height: 42px;
+  border: 1px solid var(--book-line);
+  border-radius: 3px;
+  padding: 8px 14px;
+  background: var(--book-surface);
+}
+.drop-book .lesson-workbench button:hover {
+  border-color: var(--book-accent);
+}
+.drop-book .lesson-workbench button:disabled {
+  opacity: 0.55;
+}
+.drop-book .lesson-create {
+  margin: 30px 0 40px;
+  border-block: 1px solid var(--book-line);
+  padding: 26px 0;
+}
+.drop-book .lesson-create form {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.drop-book .lesson-create input {
+  width: 180px;
+  max-width: 100%;
+  padding: 10px;
+  background: var(--book-bg);
+  border: 1px solid var(--book-line);
+  border-radius: 3px;
+  color: var(--book-ink);
+}
+.drop-book .lesson-create p {
+  margin-top: 17px;
+  font-size: 13px;
+  color: var(--book-muted);
+  line-height: 1.8;
+}
+.drop-book .lesson-error {
+  color: #9d301d;
+  border-left: 2px solid currentColor;
+  padding: 8px 14px;
+  margin: 16px 0;
+}
+.drop-book .lesson-columns {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 40px;
+}
+.drop-book .lesson-columns > section {
+  min-width: 0;
+}
+.drop-book .lesson-task-list {
+  display: grid;
+  gap: 9px;
+}
+.drop-book .lesson-task-list button {
+  width: 100%;
+  display: flex;
+  align-items: start;
+  text-align: left;
+  flex-direction: column;
+  gap: 5px;
+}
+.drop-book .lesson-task-list button[aria-pressed="true"] {
+  border-color: var(--book-accent);
+}
+.drop-book .lesson-task-list strong {
+  overflow-wrap: anywhere;
+}
+.drop-book .lesson-workbench dl {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 12px;
+  margin: 23px 0;
+}
+.drop-book .lesson-workbench dt {
+  color: var(--book-muted);
+}
+.drop-book .lesson-workbench dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.drop-book .lesson-workbench pre {
+  overflow: auto;
+  padding: 20px;
+  margin: 25px 0;
+  background: var(--book-code);
+  color: var(--book-code-ink);
+  font: 12px/1.8 var(--book-mono);
+  border-radius: 3px;
+  max-height: 480px;
+}
+.drop-book .lesson-workbench code {
+  font-family: var(--book-mono);
+  font-size: 12px;
+}
+.drop-book .lesson-events {
+  padding-left: 22px;
+  line-height: 2;
+  overflow-wrap: anywhere;
+}
+.drop-book .lesson-events time {
+  display: block;
+  color: var(--book-muted);
+  font-size: 11px;
+}
+@media (max-width: 520px) {
+  .drop-book.lesson-workbench-shell .book-header-links > a:first-child {
+    display: inline-flex;
+  }
+  .drop-book.lesson-workbench-shell .book-header-links > a:last-child {
+    display: none;
+  }
+}
+@media (max-width: 800px) {
+  .drop-book .lesson-columns {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+  .drop-book .lesson-workbench {
+    padding: 35px 20px 70px;
+  }
+}
+@media (max-width: 450px) {
+  .drop-book .lesson-workbench dl {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .drop-book .lesson-workbench dd {
+    margin-bottom: 12px;
+  }
+}

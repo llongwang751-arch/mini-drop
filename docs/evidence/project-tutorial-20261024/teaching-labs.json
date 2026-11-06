@@ -1,0 +1,47 @@
+{
+  "scope": "reviewed synthetic in-memory examples and the local folded parser; no real collection, database, Docker or model calls",
+  "checks": [
+    {
+      "name": "chapter4_attempt_fencing_original",
+      "expected_exit": 0,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n"
+    },
+    {
+      "name": "chapter4_attempt_fencing_removed_expected_failure",
+      "expected_exit": 1,
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ".F\n======================================================================\nFAIL: test_late_cancel (__main__.StateLab.test_late_cancel)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<string>\", line 22, in test_late_cancel\n    self.assertEqual(state.status, \"CREATED\")\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 'CANCELED' != 'CREATED'\n- CANCELED\n+ CREATED\n\n\n----------------------------------------------------------------------\nRan 2 tests in 0.001s\n\nFAILED (failures=1)\n"
+    },
+    {
+      "name": "chapter5_synthetic_process_identity",
+      "expected_exit": 0,
+      "exit_code": 0,
+      "stdout": "unchanged: accept\nreused_pid: reject\nwrong_uid: reject\nwrong_namespace: reject\n",
+      "stderr": ""
+    },
+    {
+      "name": "chapter5_identity_pid_only_expected_failure",
+      "expected_exit": 1,
+      "exit_code": 1,
+      "stdout": "unchanged: accept\n",
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n    assert accepted == (name == \"unchanged\")\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+    },
+    {
+      "name": "chapter6_synthetic_folded_tree",
+      "expected_exit": 0,
+      "exit_code": 0,
+      "stdout": "all total=10 self=0\n  main total=10 self=0\n    idle total=1 self=1\n    render total=9 self=3\n      decode total=6 self=6\n",
+      "stderr": ""
+    },
+    {
+      "name": "chapter6_project_folded_parser_on_synthetic_fixture",
+      "expected_exit": 0,
+      "exit_code": 0,
+      "stdout": "10\n[('decode', 6, 6), ('render', 3, 9), ('idle', 1, 1), ('main', 0, 10)]\n",
+      "stderr": ""
+    }
+  ]
+}

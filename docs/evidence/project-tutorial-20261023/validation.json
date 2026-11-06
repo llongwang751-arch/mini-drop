@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-23T22:10:08.023920+08:00",
+  "scope": "local working-tree tutorial and UI verification; no production deployment or backend exercise execution",
+  "reference": "http://127.0.0.1:4321/book/chapter1/",
+  "preview": "http://127.0.0.1:4322/book/chapter1/",
+  "chapters": [
+    {
+      "id": 1,
+      "title": "先看懂 Drop 在忙什么"
+    },
+    {
+      "id": 2,
+      "title": "先跑通，再往里面看"
+    },
+    {
+      "id": 3,
+      "title": "四种语言，怎样说同一种话"
+    },
+    {
+      "id": 4,
+      "title": "点下创建以后，Go 做了什么"
+    },
+    {
+      "id": 5,
+      "title": "采集 Agent 怎样安全地动手"
+    },
+    {
+      "id": 6,
+      "title": "Analyzer：把文件变成可信的结果"
+    },
+    {
+      "id": 7,
+      "title": "React：让证据在页面上说清楚"
+    },
+    {
+      "id": 8,
+      "title": "诊断 Agent：让模型沿着证据做事"
+    },
+    {
+      "id": 9,
+      "title": "复测和修复：怎样证明真的变好了"
+    },
+    {
+      "id": 10,
+      "title": "从读懂到改对：完成你的第一个改动"
+    }
+  ],
+  "section_count": 60,
+  "source_citation_count": 56,
+  "unique_source_file_count": 50,
+  "all_cited_paths_exist": true,
+  "checks": [
+    {
+      "command": "node node_modules/vitest/vitest.mjs run --maxWorkers=1 --no-file-parallelism",
+      "result": "passed",
+      "test_files": 21,
+      "tests": 162,
+      "node_options": "--max-old-space-size=128 --max-semi-space-size=1"
+    },
+    {
+      "command": "npm run build",
+      "result": "passed",
+      "includes": ["tsc -b", "vite build"],
+      "node_options": "--max-old-space-size=1024 --max-semi-space-size=4"
+    },
+    {
+      "command": "node node_modules/@playwright/test/cli.js test --config playwright.book.config.ts",
+      "result": "passed",
+      "tests": 5,
+      "business_fixtures": false,
+      "business_api_requests_during_ten_chapter_navigation": 0
+    },
+    {
+      "command": "node node_modules/@playwright/test/cli.js test --config playwright.preview.config.ts workspace-shell.spec.ts guide.spec.ts",
+      "result": "passed",
+      "tests": 20,
+      "fixture_type": "explicitly imported synthetic UI sessions and data; no production evidence"
+    },
+    {
+      "command": "node node_modules/prettier/bin/prettier.cjs --check src/book src/main.tsx src/App.tsx src/views/Guide.tsx e2e/book.spec.ts playwright.book.config.ts",
+      "result": "passed"
+    },
+    {
+      "check": "automatic axe WCAG 2 A/AA and WCAG 2.1 AA on first chapter in light and dark themes",
+      "result": "passed",
+      "violations": 0,
+      "limitation": "automatic checks do not establish a complete accessibility audit"
+    },
+    {
+      "check": "chapter 6 horizontal overflow at widths 320,375,768,1024,1440",
+      "result": "passed"
+    },
+    {
+      "check": "GET local preview /book/chapter1/",
+      "result": "passed",
+      "http_status": 200
+    }
+  ],
+  "prior_failures": [
+    "Initial build/test attempts failed from Windows commit-memory exhaustion; serial constrained checks later passed.",
+    "A --jitless Vite attempt could not load required WebAssembly; subsequent normal Vite builds passed.",
+    "A 256 MiB Vite attempt exhausted its configured heap; later full builds used 1024 MiB.",
+    "Initial book browser run passed four checks but failed light-theme text contrast; colors were corrected and all five checks rerun successfully."
+  ],
+  "not_executed": [
+    "production deployment",
+    "tutorial Docker/collection/model exercises",
+    "full manual accessibility audit"
+  ],
+  "screenshots": [
+    {
+      "path": "docs/evidence/project-tutorial-20261023/desktop-light.png",
+      "sha256": "9aa29295e16a0edf663c3789721e2cdd0ea5693660d54034398694ad461b7d82"
+    },
+    {
+      "path": "docs/evidence/project-tutorial-20261023/desktop-dark.png",
+      "sha256": "a40e0989fa2d4e3189f54cd8a9e4fa373fef1e9e81378aa4fc506aeb5fcecc23"
+    },
+    {
+      "path": "docs/evidence/project-tutorial-20261023/mobile-chapter1.png",
+      "sha256": "13eac13f6d57779956c4c7ef1bc5ade0b684f43aff21866e3f15e550dbab00eb"
+    }
+  ],
+  "working_tree_files": [
+    {
+      "path": "web/src/book/book.css",
+      "sha256": "3542d721527c0708e0c0e4b6407e9ce4e97a7304b72004039337ca6c87a8fc28"
+    },
+    {
+      "path": "web/src/book/Book.tsx",
+      "sha256": "4bd60a9c7804c7bf6b47dd4c33b0a776f177a3802adebe9f78c35d99101f79dd"
+    },
+    {
+      "path": "web/src/book/BookContent.tsx",
+      "sha256": "51d8c079805c96be772d8f93b0b20136a3ccc35b4addba626835bc518098767e"
+    },
+    {
+      "path": "web/src/book/chapters-advanced.ts",
+      "sha256": "3a0337ec2d3bf5dab95dd55cfcf8f85f1b0a04fffcb0f82ac45d0a3734e0c0f9"
+    },
+    {
+      "path": "web/src/book/chapters-foundations.ts",
+      "sha256": "104bdf6b4cd8abda4ca215298b12e215427da8d4ec2e964c66f49bbf822d9222"
+    },
+    {
+      "path": "web/src/book/chapters.ts",
+      "sha256": "4208301ec3710642c87f81f7d0431a866a1fa2ddf887561223fc0e89eefb2166"
+    },
+    {
+      "path": "web/src/book/markdown.test.ts",
+      "sha256": "4a1645fb7e29722bce8b84f275e50b3daad376e09dad504ca5356b2f7c99b09f"
+    },
+    {
+      "path": "web/src/book/markdown.ts",
+      "sha256": "59b2d987d3f47d97b6663465b65c75ebea0872fc148ac743f03878c2d9dcab17"
+    },
+    {
+      "path": "web/src/book/preferences.ts",
+      "sha256": "5cc7fabc9e22b415f48663cc88dab0c2a059930dadfbd106b9863649dacedf3f"
+    },
+    {
+      "path": "web/src/book/types.ts",
+      "sha256": "6dc4d01cd5aa3422da819c797d9eaa28688dfdf05e78a3afd4c6aecdc525dc47"
+    },
+    {
+      "path": "web/src/main.tsx",
+      "sha256": "bdd61205342518b420c6db6d3b58f0f3f5f38e6f3e54225969640f66e09c612c"
+    },
+    {
+      "path": "web/src/App.tsx",
+      "sha256": "4eef3ca6307126b765bb6399f60e0aa61ea2b37658c61381b749fe473591810f"
+    },
+    {
+      "path": "web/src/views/Guide.tsx",
+      "sha256": "ef3b4ecfcd6dbc6df4f1b38cdde898fc9615cf9bf1cc60723a744813b5485317"
+    },
+    {
+      "path": "web/e2e/book.spec.ts",
+      "sha256": "8caa7af45a898970d996a9ab76196e24c7afb9c2e0fd39b77efe392c46807d46"
+    },
+    {
+      "path": "web/playwright.book.config.ts",
+      "sha256": "1c206fac7b3cbd612775490fd4e5304547a1d884c02dcde86ebea946d918790f"
+    }
+  ]
+}

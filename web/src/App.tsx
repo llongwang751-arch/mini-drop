@@ -494,6 +494,11 @@ export default function App() {
                 <span>使用指南</span>
                 <ArrowUpRight size={14} />
               </NavLink>
+              <Link to="/book/chapter1/" aria-label="项目教程" title="项目教程">
+                <BookOpen size={19} />
+                <span>项目教程</span>
+                <ArrowUpRight size={14} />
+              </Link>
             </nav>
             <div className="sidebar-bottom">
               <div className="sidebar-profile">
